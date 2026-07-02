@@ -76,9 +76,12 @@ update the checklist as stages land.
   that breaks what would otherwise be a coordination↔infinitives cycle.
   Landed: engine.ts 1,732 → 1,115 lines; snapshots byte-identical
   (Mark 1:19–20 included in the corpus).
-- [ ] **Stage 7 — clause layout** (riskiest, land alone): `kr/clause.ts`
-  (layoutClause, clause stacks, complements/pedestals, verb modifiers,
-  introductory/floating words, open-fork adjunct reroute — Gen 1:11 test).
+- [x] **Stage 7 — clause layout** (riskiest, landed alone): `kr/clause.ts`
+  (layoutClause, stackClauses, layoutClauseSpine, subjectFillerLabel —
+  complements/pedestals, verb modifiers, introductory/floating words,
+  open-fork adjunct reroute per the Gen 1:11 test). `kr/discourse.ts`
+  pulled forward (layoutClause calls layoutDiscourse — avoiding a cycle).
+  Landed: engine.ts 1,115 → ~185 lines; snapshots byte-identical.
 - [ ] **Stage 8 — discourse + orchestration**: `kr/discourse.ts`,
   `kr/document.ts`; `engine.ts` becomes a thin bridge.
 - [ ] **Stage 9 — docs**: `src/domain/layout/kr/README.md` (data flow, which
