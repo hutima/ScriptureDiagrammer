@@ -58,11 +58,17 @@ update the checklist as stages land.
   2,884 → 2,285 lines; kr/ modules 697 lines; characterization snapshots
   byte-identical. `eid` moved with an exported `resetEid()` (layoutDocument
   resets the counter per layout).
-- [ ] **Stage 4 — PP + diagonal drawing**: `kr/prepositions.ts` (drawPp,
+- [x] **Stage 4 — PP + diagonal drawing**: `kr/prepositions.ts` (drawPp,
   drawPpCoordination), `kr/diagonal.ts` (drawDiagonalModifier,
-  drawDiagonalCoordination). Introduce the explicit cascade accumulator here.
-- [ ] **Stage 5 — word/head layout**: `kr/word.ts` (layoutHead, appositions,
-  modifier cascade, stacked clause dependents).
+  drawDiagonalCoordination); `kr/infinitives.ts` seeded early with
+  drawInfinitive + infinitiveMark (layoutHead needs them). The draw functions
+  were already parameterized (attachX/topY/out), so no accumulator object was
+  needed yet — the clause-local `drawHanging` closure is a Stage 7 concern.
+- [x] **Stage 5 — word/head layout**: `kr/word.ts` (layoutHead, appositions,
+  modifier cascade, stacked clause dependents). Recursion runs through the
+  new Ctx dispatchers (`ctx.layoutNode`, `ctx.stackClauses`) wired in
+  layoutDocument — extracted modules never import the engine. Landed:
+  engine.ts 2,285 → 1,732 lines; snapshots byte-identical.
 - [ ] **Stage 6 — coordination**: `kr/coordination.ts` + `kr/infinitives.ts`
   (word fork, compound/open predicate forks, headless coordinate clause
   spine, infinitive forks). Mark 1:19–20 fixtures must stay identical.

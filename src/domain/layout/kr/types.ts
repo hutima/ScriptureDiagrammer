@@ -24,4 +24,18 @@ export interface Ctx {
   vScale: number;
   /** Tint words by grammatical category (Morphology palette). Off by default. */
   color: boolean;
+  /**
+   * Recursion dispatchers — the graph entrypoints (node dispatch, clause
+   * stacking) still live in ../engine.ts until their own extraction stage.
+   * Extracted kr/ modules recurse back THROUGH the context instead of
+   * importing the engine, so there are no module cycles.
+   */
+  layoutNode: (ctx: Ctx, nodeId: string, seen: Set<string>) => Block;
+  stackClauses: (
+    ctx: Ctx,
+    rels: { id: string; dependentId: string; label?: string; labelNodeId?: string }[],
+    seen: Set<string>,
+    spineX: number,
+    topY: number,
+  ) => { elements: DiagramElement[]; right: number; bottom: number };
 }
