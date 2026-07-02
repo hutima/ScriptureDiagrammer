@@ -144,6 +144,19 @@ function components(lines: LineElement[]): LineElement[][] {
 /** Relation types drawn deliberately unconnected from the clause baseline. */
 const FLOAT_TYPES = new Set(['vocative', 'interjection', 'particle', 'conjunction']);
 
+/** Clause-spine coordinator WORDS (γάρ, ὅτι, וַ …) ride beside the dashed
+ *  spine on their own little baseline — deliberately unconnected. */
+function spineCoordinatorNodes(doc: KrDocument): Set<string> {
+  const clauses = new Set(
+    doc.syntax.nodes.filter((n) => n.kind === 'clause').map((n) => n.id),
+  );
+  return new Set(
+    doc.syntax.relations
+      .filter((r) => r.type === 'coordinator' && clauses.has(r.headId))
+      .map((r) => r.dependentId),
+  );
+}
+
 /** All node/relation ids inside float-relation subtrees (their drawn blocks
  *  carry these as nodeId/relationId tags). */
 function floatIds(doc: KrDocument): { nodes: Set<string>; rels: Set<string> } {
@@ -193,11 +206,12 @@ describe('KR characterization — line connectivity (frozen offender snapshot)',
       const lines = layout.elements.filter(isLine);
       const relType = new Map(doc.syntax.relations.map((r) => [r.id, r.type]));
       const floats = floatIds(doc);
+      const spineCoords = spineCoordinatorNodes(doc);
       const offenders = components(lines).filter((group) => {
         const isClause = group.some((l) => l.role === 'divider');
         const isFloat = group.some(
           (l) =>
-            (l.nodeId && floats.nodes.has(l.nodeId)) ||
+            (l.nodeId && (floats.nodes.has(l.nodeId) || spineCoords.has(l.nodeId))) ||
             (l.relationId &&
               (floats.rels.has(l.relationId) ||
                 FLOAT_TYPES.has(relType.get(l.relationId) ?? ''))),
@@ -206,7 +220,17 @@ describe('KR characterization — line connectivity (frozen offender snapshot)',
         // apposition "=" / "//" double strokes — are decorations, not
         // structure; a component made only of such marks is fine.
         const isMark = group.every((l) => Math.hypot(l.x2 - l.x1, l.y2 - l.y1) <= 16);
-        return !isClause && !isFloat && !isMark;
+        // A clause-spine connector LABEL stub: the first spine member's
+        // subordinator (Ἐὰν, ὅτι…) rides a short untagged baseline floating
+        // above the member — deliberate. (A real detached rail always drags
+        // its hanging slants/stems into the same component, so a lone short
+        // baseline is safe to exempt.)
+        const isLabelStub =
+          group.length === 1 &&
+          group[0]!.role === 'baseline' &&
+          !group[0]!.relationId &&
+          Math.hypot(group[0]!.x2 - group[0]!.x1, group[0]!.y2 - group[0]!.y1) <= 130;
+        return !isClause && !isFloat && !isMark && !isLabelStub;
       });
       const signatures = offenders
         .map((g) =>

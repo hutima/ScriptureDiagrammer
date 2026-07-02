@@ -101,10 +101,18 @@ update the checklist as stages land.
 
 ## Post-refactor follow-ups (not part of extraction)
 
-- Triage the 40 frozen connectivity offenders in
-  `tests/__snapshots__/kr-characterization.test.ts.snap` — clause-spine
-  coordinator stubs (e.g. Gen 1:11 וַ, likely fine) vs. candidate real
-  disconnects (several SBLGNT Rom 9–11 / Eph 5 / Mark 5 passages).
+- [DONE] Connectivity-offender triage: 40 frozen signatures → 2.
+  Benign classes (exempted in the harness with rationale): clause-spine
+  coordinator words (γάρ/ὅτι/וַ ride beside the dashed spine) and
+  first-member connector label stubs (Ἐὰν …). Real bug FIXED in
+  `kr/clause.ts`: the main line is now BRIDGED across a complement whose
+  hanging content widened the cursor past its drawn baseline (deep
+  genitive cascades, pedestals) — previously the adjunct rail, apposition
+  stems, and later complements floated (Col 1:13, Rom 9:25, Mark 5:41,
+  Philemon 1:10-13 …). Open forks still reroute under the verb (Gen 1:11
+  policy). Remaining 2 frozen: the hand-authored phil sample's spine
+  micro-gap and Rom 11:33's divider-less exclamation line (both cosmetic
+  test false-negatives, not user-visible defects).
 - Compactness ("band packing"): hang appositions/adjuncts in the first
   horizontally-free band instead of always past `maxRight` (Rom 1:1–7).
 
