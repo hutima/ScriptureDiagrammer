@@ -107,7 +107,7 @@ export function stackClauses(
  * The block's `wordLeft`/`wordRight` are the spine itself, so a parent connector
  * lands cleanly on the bar that ties the whole coordination together.
  */
-export function layoutClauseSpine(
+function layoutClauseSpine(
   ctx: Ctx,
   clause: SyntaxNode,
   seen: Set<string>,
@@ -926,7 +926,7 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
  * node's token, or, for a compound predicate, its first conjunct verb (the fork's
  * arms agree in person with the one shared subject). Third person stays "(subject)".
  */
-export function subjectFillerLabel(ctx: Ctx, verbNode: SyntaxNode | undefined): string {
+function subjectFillerLabel(ctx: Ctx, verbNode: SyntaxNode | undefined): string {
   const verbTokenIds = verbNode
     ? [
         ...verbNode.tokenIds,

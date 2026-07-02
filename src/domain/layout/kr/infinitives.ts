@@ -58,7 +58,7 @@ export function infinitiveMark(wordW: number): LineElement[] {
  * Returns null the moment a member is NOT an infinitive — a coordination of
  * finite clauses stays a compound-sentence spine.
  */
-export function collectInfinitiveFork(
+function collectInfinitiveFork(
   ctx: Ctx,
   clauseId: string,
 ): { members: string[]; coords: { text: string; nodeId: string }[]; leadRels: Relation[] } | null {
@@ -96,7 +96,7 @@ export function collectInfinitiveFork(
 }
 
 /** A member tall/heavy enough that a fork would be cramped — fall back to the spine. */
-export const FORK_MEMBER_MAX = 190;
+const FORK_MEMBER_MAX = 190;
 
 /**
  * Draw a coordination of INFINITIVES as a Reed-Kellogg fork: each infinitive on

@@ -82,7 +82,7 @@ export function ppConjunctRels(ctx: Ctx, prepNodeId: string) {
  * (e.g. an adnominal genitive, an appositive) instead gets its own horizontal
  * baseline, because it routinely carries further structure of its own.
  */
-export const DIAGONAL_POS = new Set([
+const DIAGONAL_POS = new Set([
   'adjective',
   'adverb',
   'article',
