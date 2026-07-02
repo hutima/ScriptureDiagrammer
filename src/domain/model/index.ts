@@ -5,6 +5,7 @@ export * from './document';
 export * from './tokenize';
 export * from './normalize';
 export * from './merge-predicate';
+export * from './flatten-correlatives';
 export * from './describe';
 export * from './glossary';
 export * from './forms';
