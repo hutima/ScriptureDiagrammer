@@ -113,8 +113,20 @@ update the checklist as stages land.
   policy). Remaining 2 frozen: the hand-authored phil sample's spine
   micro-gap and Rom 11:33's divider-less exclamation line (both cosmetic
   test false-negatives, not user-visible defects).
-- Compactness ("band packing"): hang appositions/adjuncts in the first
-  horizontally-free band instead of always past `maxRight` (Rom 1:1–7).
+- Compactness ("band packing") — INVESTIGATED, groundwork landed, packer
+  deferred. Diagnosis of the reported Rom 1:1–7 corner: the ἀγαπητοῖς
+  phrase is (a) connected as of the hollow-baseline bridge fix, (b) its
+  vertical drop is REQUIRED (the ἁγίοις pedestal must clear the head's
+  baseline: oTop ≥ block ascent), and (c) its horizontal slot is the
+  natural cascade position — the residual width is the Reed-Kellogg
+  genitive/apposition staircase, which is convention-inherent. A generic
+  packer (attach each hanging block at the first x whose occupied band is
+  free, instead of always past the previous sibling's full subtree width)
+  is the real win, but it must be validated against an OVERLAP invariant —
+  now in place: the harness asserts no two horizontal word texts overprint
+  (currently ZERO collisions corpus-wide, frozen as snapshots). A future
+  packer change is safe to attempt: connectivity + overlap + structural
+  snapshots together make its effects fully reviewable.
 
 ## Validation per stage
 
