@@ -759,9 +759,36 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     if (hasBaselineSlot) x = newX;
   }
 
+  // The rightmost x the main line is ACTUALLY drawn to at y = 0 so far. The
+  // cursor `x` advances by each complement's full block WIDTH, which includes
+  // content hanging BELOW the baseline (a deep genitive cascade, a pedestal's
+  // platform) — the y = 0 strip over that extra width is empty space. Anything
+  // attached past it (the next separator, the adjunct rail, an apposition
+  // stem) floated free of the line (the Col 1:13 "τοῦ υἱοῦ = …" disconnect).
+  const drawnZeroEnd = (): number => {
+    let end = 0;
+    for (const el of elements) {
+      if (el.kind === 'line' && Math.abs(el.y1) <= 0.01 && Math.abs(el.y2) <= 0.01) {
+        end = Math.max(end, el.x1, el.x2);
+      }
+    }
+    return end;
+  };
+  // Bridge the hollow strip so the main line stays continuous up to `toX` —
+  // EXCEPT across an open coordination fork, whose members replace the line
+  // (the Gen 1:11 case: its adjuncts hang beneath the verb instead).
+  let lastPlacedWasFork = false;
+  const bridgeBaselineTo = (toX: number): void => {
+    if (lastPlacedWasFork) return;
+    const from = drawnZeroEnd();
+    if (from < toX - 0.5) elements.push(line(eid(), from, 0, toX, 0, 'solid', 'baseline'));
+  };
+
   // complements on the baseline, each with the appropriate separator
   complementBlocks.forEach(({ rel, block }) => {
     const sepX = x;
+    bridgeBaselineTo(sepX);
+    lastPlacedWasFork = isWordCoordination(ctx, getNode(model, rel.dependentId)!);
     if (rel.type === 'predicateNominative' || rel.type === 'predicateAdjective') {
       // line leaning back toward the verb
       elements.push(
@@ -794,6 +821,10 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     // Object separator tick (the direct-object stem), then the pedestal foot a
     // little to its right.
     const sepX = x;
+    bridgeBaselineTo(sepX);
+    // A pedestal's platform lives ABOVE the line; the y = 0 strip across its
+    // width past the foot is hollow, so a follower must bridge from the foot.
+    lastPlacedWasFork = false;
     elements.push(line(eid(), sepX, 0, sepX, -LAYOUT.separatorUp, 'solid', 'separator', undefined, rel.id));
     x += 6;
     const baseStart = x;
@@ -843,9 +874,14 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     bx = next;
     maxRight = Math.max(maxRight, right);
   });
-  // Extend the baseline to carry the right-hand adjunct attachment points.
+  // Extend the baseline to carry the right-hand adjunct attachment points —
+  // starting back at the DRAWN end of the line when the last complement left a
+  // hollow strip (its hanging content widened the cursor past its baseline),
+  // so the rail is attached rather than a floating stub.
   if (railAdjuncts.length) {
-    elements.push(line(eid(), baselineWidth, 0, railRight, 0, 'solid', 'baseline'));
+    elements.push(
+      line(eid(), Math.min(baselineWidth, drawnZeroEnd()), 0, railRight, 0, 'solid', 'baseline'),
+    );
   }
 
   let width = Math.max(baselineWidth, maxRight);
