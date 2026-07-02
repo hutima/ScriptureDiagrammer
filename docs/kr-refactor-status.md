@@ -69,9 +69,13 @@ update the checklist as stages land.
   new Ctx dispatchers (`ctx.layoutNode`, `ctx.stackClauses`) wired in
   layoutDocument — extracted modules never import the engine. Landed:
   engine.ts 2,285 → 1,732 lines; snapshots byte-identical.
-- [ ] **Stage 6 — coordination**: `kr/coordination.ts` + `kr/infinitives.ts`
-  (word fork, compound/open predicate forks, headless coordinate clause
-  spine, infinitive forks). Mark 1:19–20 fixtures must stay identical.
+- [x] **Stage 6 — coordination**: `kr/coordination.ts` (word fork,
+  compound/open predicate forks, layoutPredicateArm) + `kr/infinitives.ts`
+  gains collectInfinitiveFork/layoutInfinitiveFork.
+  `isHeadlessCoordinateClause` went to `kr/classify.ts` (pure predicate) —
+  that breaks what would otherwise be a coordination↔infinitives cycle.
+  Landed: engine.ts 1,732 → 1,115 lines; snapshots byte-identical
+  (Mark 1:19–20 included in the corpus).
 - [ ] **Stage 7 — clause layout** (riskiest, land alone): `kr/clause.ts`
   (layoutClause, clause stacks, complements/pedestals, verb modifiers,
   introductory/floating words, open-fork adjunct reroute — Gen 1:11 test).
