@@ -383,7 +383,7 @@ export function layoutPredicateArm(ctx: Ctx, verbNode: SyntaxNode, seen: Set<str
  * the subject|predicate divider meets, joined by the dashed coordinator bar. No
  * right rejoin — the arms carry their own objects independently.
  */
-export function layoutOpenPredicateFork(
+function layoutOpenPredicateFork(
   ctx: Ctx,
   verbNode: SyntaxNode,
   conjunctRels: { dependentId: string }[],

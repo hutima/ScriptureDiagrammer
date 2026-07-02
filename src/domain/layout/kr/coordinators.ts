@@ -36,8 +36,8 @@ export function coordinatorTexts(
  * both to size the inter-member gap and (via `coordinatorMarks`) to place the word
  * dead-centre in the resulting clear band.
  */
-export const COORD_PAD = 5;
-export function coordinatorSpan(text: string): number {
+const COORD_PAD = 5;
+function coordinatorSpan(text: string): number {
   return measureText(text, SMALL_FONT) + LAYOUT.fontSize + COORD_PAD * 2;
 }
 

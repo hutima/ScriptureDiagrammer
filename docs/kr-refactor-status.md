@@ -89,8 +89,15 @@ update the checklist as stages land.
 - [x] **Stage 9 — docs**: `src/domain/layout/kr/README.md` (data flow, the
   four concerns, module map, recursion-through-Ctx rule, how to add a
   convention, stability contracts, stress cases).
-- [ ] **Stage 10 (optional) — cleanup**: dead helpers, cycle reduction,
-  per-layout id allocator (only if selection behavior provably unaffected).
+- [x] **Stage 10 — cleanup**: 8 extraction-artifact exports made module-
+  private again (DIAGONAL_POS, layoutClauseSpine, subjectFillerLabel,
+  layoutOpenPredicateFork, COORD_PAD, coordinatorSpan, collectInfinitiveFork,
+  FORK_MEMBER_MAX); `tests/kr-units.test.ts` pins the pure helpers
+  (classify predicates, slantRun/blockAscent/pedestalRoom, join spans +
+  coordinator marks, translate/bounds/mirrorX/eid). The per-layout id
+  allocator was consciously SKIPPED — resetEid() already gives
+  deterministic ids and swapping the mechanism risks selection behavior
+  for no user-visible gain.
 
 ## Post-refactor follow-ups (not part of extraction)
 
