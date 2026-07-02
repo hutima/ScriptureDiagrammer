@@ -234,3 +234,19 @@ export function showLabel(ctx: Ctx, nodeId: string): boolean {
 export function wordTone(ctx: Ctx, node: SyntaxNode): GrammarTone | undefined {
   return ctx.color ? nodeTone(ctx.doc, node) : undefined;
 }
+
+/**
+ * A headless coordinate clause: a clause node with no subject/predicate of its
+ * own that only ties conjunct members together (the wrapper the Lowfat converter
+ * emits for "A καί B"). It routes to a spine — or, for infinitives, a fork.
+ */
+export function isHeadlessCoordinateClause(ctx: Ctx, nodeId: string): boolean {
+  const node = getNode(ctx.doc.syntax, nodeId);
+  if (!node || node.kind !== 'clause') return false;
+  const rels = childRelations(ctx.doc.syntax, nodeId);
+  const hasSubject = rels.some(
+    (r) => r.type === 'subject' && !getNode(ctx.doc.syntax, r.dependentId)?.implied,
+  );
+  const hasPredicate = rels.some((r) => r.type === 'predicate' || r.type === 'copula');
+  return !hasSubject && !hasPredicate && rels.some((r) => r.type === 'conjunct');
+}
