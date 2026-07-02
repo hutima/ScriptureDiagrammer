@@ -82,10 +82,13 @@ update the checklist as stages land.
   open-fork adjunct reroute per the Gen 1:11 test). `kr/discourse.ts`
   pulled forward (layoutClause calls layoutDiscourse — avoiding a cycle).
   Landed: engine.ts 1,115 → ~185 lines; snapshots byte-identical.
-- [ ] **Stage 8 — discourse + orchestration**: `kr/discourse.ts`,
-  `kr/document.ts`; `engine.ts` becomes a thin bridge.
-- [ ] **Stage 9 — docs**: `src/domain/layout/kr/README.md` (data flow, which
-  module owns which concern, how to add a convention, stress cases).
+- [x] **Stage 8 — orchestration**: `kr/document.ts` (layoutDocument,
+  layoutNode dispatch, LayoutOptions, mirrorLayout); `engine.ts` is now an
+  8-line re-export bridge preserving the public import path. (`kr/discourse.ts`
+  already landed with stage 7.)
+- [x] **Stage 9 — docs**: `src/domain/layout/kr/README.md` (data flow, the
+  four concerns, module map, recursion-through-Ctx rule, how to add a
+  convention, stability contracts, stress cases).
 - [ ] **Stage 10 (optional) — cleanup**: dead helpers, cycle reduction,
   per-layout id allocator (only if selection behavior provably unaffected).
 
