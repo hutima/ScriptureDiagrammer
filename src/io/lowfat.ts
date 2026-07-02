@@ -12,7 +12,7 @@ import type {
   Token,
 } from '@/domain/schema';
 import { SCHEMA_VERSION } from '@/domain/schema';
-import { mergeSharedSubjectPredicate } from '@/domain/model';
+import { flattenCorrelativeCoordinations, mergeSharedSubjectPredicate } from '@/domain/model';
 
 /**
  * Convert a Nestle1904 **Lowfat** syntax tree (biblicalhumanities /
@@ -1236,8 +1236,9 @@ export function lowfatToDocuments(xml: string, opts: LowfatDocOptions = {}): KrD
     const dialect = opts.dialect ?? greekDialect;
     // Collapse coordinate clauses that share one subject into a compound
     // predicate (one subject, forked verbs) — the Reed-Kellogg reading.
+    // Then flatten juxtaposed correlative pairs (εἴτε…εἴτε…) into one list.
     docs.push(
-      mergeSharedSubjectPredicate({
+      flattenCorrelativeCoordinations(mergeSharedSubjectPredicate({
         schemaVersion: SCHEMA_VERSION,
         id: `${opts.docIdPrefix ?? 'gnt'}_${slug(book)}_${i}`,
         title: ref ? `${book} ${ref}` : `${book} (${i + 1})`,
@@ -1252,7 +1253,7 @@ export function lowfatToDocuments(xml: string, opts: LowfatDocOptions = {}): KrD
         ...(opts.sourceId
           ? { sourceConstituency: captureSourceConstituency(topWg, dialect, opts.sourceId) }
           : {}),
-      }),
+      })),
     );
   });
   return docs;

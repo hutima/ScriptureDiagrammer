@@ -2524,6 +2524,20 @@ function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): Block {
       r.type !== 'particle' &&
       r.type !== 'conjunction',
   );
+  // A word-coordination complement at the END of the baseline is an OPEN fork:
+  // its members fan out above and below the line, so the drawn baseline STOPS
+  // at the fork junction and the strip the right-hand adjunct rail attaches to
+  // never exists — the rail (and every slant hanging from it) floated free of
+  // the clause (Gen 1:11 "תַּדְשֵׁא הָאָרֶץ דֶּשֶׁא עֵשֶׂב… עַל־הָאָרֶץ" left the
+  // עַל־PP disconnected). Hang those adjuncts beneath the VERB instead — their
+  // other KR home — where the cascade draws BEFORE the complements, which then
+  // start past its band, so nothing clashes. Clauses without an open-fork tail
+  // keep the rail (and their exact geometry) unchanged.
+  const lastComplement = complementBlocks[complementBlocks.length - 1];
+  const hollowBaselineTail =
+    !!lastComplement && isWordCoordination(ctx, getNode(model, lastComplement.rel.dependentId)!);
+  const verbHungAdjuncts = hollowBaselineTail && verbNode ? wordAdjuncts : [];
+  const railAdjuncts = verbHungAdjuncts.length ? [] : wordAdjuncts;
   const clauseAdjuncts = [
     ...clauseWordRels.filter((r) => isClauseChild(ctx, r.dependentId) && !isInfinitival(ctx, r.dependentId)),
     // Clause complements that were pedestalled are drawn above the line, not here;
@@ -2560,7 +2574,7 @@ function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): Block {
   // right-prong, LEFT of the baseline, leaving it unattached (Col 1:9 "…προσευχόμενοι
   // καὶ αἰτούμενοι ὑπὲρ ὑμῶν"). Attach a fork's shared modifier at the junction itself.
   let vCursor = verbX0 + (predBlock.wordRight || predBlock.width) - (verbIsCoord ? 0 : LAYOUT.wordPadX);
-  verbMods.forEach((r) => {
+  [...verbMods, ...verbHungAdjuncts].forEach((r) => {
     vModFootRight = Math.max(vModFootRight, vCursor);
     const { right, next, footRight } = drawHanging(r, vCursor);
     // A coordinated modifier (PP or diagonal) spreads several slant feet rightward;
@@ -2661,7 +2675,7 @@ function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): Block {
   const railStart = Math.max(baselineWidth, vModRight);
   let bx = railStart + LAYOUT.dependentGap;
   let railRight = railStart;
-  wordAdjuncts.forEach((r) => {
+  railAdjuncts.forEach((r) => {
     railRight = Math.max(railRight, bx);
     const { right, next, footRight } = drawHanging(r, bx);
     // A coordinated adjunct spreads several feet rightward; carry the baseline out
@@ -2671,7 +2685,7 @@ function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): Block {
     maxRight = Math.max(maxRight, right);
   });
   // Extend the baseline to carry the right-hand adjunct attachment points.
-  if (wordAdjuncts.length) {
+  if (railAdjuncts.length) {
     elements.push(line(eid(), baselineWidth, 0, railRight, 0, 'solid', 'baseline'));
   }
 
