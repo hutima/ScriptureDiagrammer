@@ -4,6 +4,7 @@ import { lowfatToDocuments, sblgntDialect } from '@/io/lowfat';
 import { maculaHebrewToDocuments } from '@/io/macula-hebrew';
 import { sampleDocuments } from '@/fixtures';
 import { layoutDocument } from '@/domain/layout';
+import { measureText } from '@/domain/layout/measure';
 import type { DiagramLayout, LineElement } from '@/domain/layout';
 import type { KrDocument } from '@/domain/schema';
 
@@ -187,6 +188,39 @@ describe('KR characterization — structural snapshots', () => {
   for (const { name, doc } of corpus) {
     it(name, () => {
       expect(summarize(layoutDocument(doc, doc.layoutHints))).toMatchSnapshot();
+    });
+  }
+});
+
+describe('KR characterization — word texts do not overprint each other (frozen)', () => {
+  // Guard for future COMPACTION work (band packing): two horizontal word
+  // texts must not overlap. Pre-existing collisions are frozen the same way
+  // as connectivity offenders — a layout change must not add one. Rotated
+  // (diagonal) texts and small connector labels are out of scope here.
+  for (const { name, doc } of corpus) {
+    it(name, () => {
+      const layout = layoutDocument(doc, doc.layoutHints);
+      const words = layout.elements.filter(
+        (e) => e.kind === 'text' && !e.small && !e.rotate,
+      ) as Extract<(typeof layout.elements)[number], { kind: 'text' }>[];
+      const box = (t: (typeof words)[number]) => {
+        const w = measureText(t.text);
+        const x0 = t.anchor === 'middle' ? t.x - w / 2 : t.anchor === 'end' ? t.x - w : t.x;
+        // y is the text BASELINE; glyphs sit mostly above it.
+        return { x0, x1: x0 + w, y0: t.y - 14, y1: t.y + 3 };
+      };
+      const collisions: string[] = [];
+      for (let i = 0; i < words.length; i++) {
+        for (let j = i + 1; j < words.length; j++) {
+          const a = box(words[i]!);
+          const b = box(words[j]!);
+          const ox = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0);
+          const oy = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
+          // require a real overprint, not a near-touch
+          if (ox > 4 && oy > 4) collisions.push(`${words[i]!.text} × ${words[j]!.text}`);
+        }
+      }
+      expect(collisions.sort()).toMatchSnapshot();
     });
   }
 });
