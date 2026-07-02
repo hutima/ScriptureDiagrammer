@@ -48,13 +48,16 @@ update the checklist as stages land.
   are FROZEN as snapshots (40 signatures) — the refactor must not add any.
   No 1 Tim 2:11–12 fixture exists; coordinated-infinitive coverage comes from
   the existing `constructions`/`sblgnt-coordination` tests.
-- [ ] **Stages 1–3 — pure moves** (one PR): `kr/types.ts` (Block, Ctx),
+- [x] **Stages 1–3 — pure moves** (one PR): `kr/types.ts` (Block, Ctx),
   `kr/primitives.ts` (line/smallText/wordText/translate/bounds/mirrorX/eid),
   `kr/geometry.ts` (slant helpers, blockAscent, pedestalRoom, …),
   `kr/coordinators.ts` (coordinatorTexts/Span/Marks, reserveJoinSpans),
   `kr/classify.ts` (BASELINE_COMPLEMENTS, isClauseChild, isInfinitival,
   isDiagonal*, prepObject*, isWordCoordination, showLabel, …).
-  `engine.ts` imports from kr/ and keeps its public API.
+  `engine.ts` imports from kr/ and keeps its public API. Landed: engine.ts
+  2,884 → 2,285 lines; kr/ modules 697 lines; characterization snapshots
+  byte-identical. `eid` moved with an exported `resetEid()` (layoutDocument
+  resets the counter per layout).
 - [ ] **Stage 4 — PP + diagonal drawing**: `kr/prepositions.ts` (drawPp,
   drawPpCoordination), `kr/diagonal.ts` (drawDiagonalModifier,
   drawDiagonalCoordination). Introduce the explicit cascade accumulator here.

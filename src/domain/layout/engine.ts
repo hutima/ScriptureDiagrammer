@@ -2,9 +2,57 @@ import type { KrDocument, LayoutHints, Relation, SyntacticRole, SyntaxNode } fro
 import { childRelations, docDirection, getNode, impliedSubjectPronoun, nodeText } from '@/domain/model';
 import { LAYOUT } from './constants';
 import { measureText, SMALL_FONT } from './measure';
-import { nodeTone } from './tone';
-import type { DiagramElement, DiagramLayout, GrammarTone, LineElement, TextElement } from './types';
+import type { DiagramElement, DiagramLayout, LineElement } from './types';
 import type { TreeOrientation } from './modes/tree-layout';
+import type { Block, Ctx } from './kr/types';
+import {
+  BASELINE_COMPLEMENTS,
+  ELISION_MARK,
+  firstTokenPos,
+  isClauseChild,
+  isDiagonalCoordination,
+  isDiagonalLeaf,
+  isDiagonalModifier,
+  isInfinitival,
+  isWordCoordination,
+  ppConjunctRels,
+  prepObjectId,
+  prepObjectOf,
+  showLabel,
+  subtreeMinIndex,
+  wordConjunctRels,
+  wordPos,
+  wordTone,
+} from './kr/classify';
+import {
+  DEG,
+  DIAG_TEXT_FRAC,
+  SLANT_ANGLE,
+  blockAscent,
+  diagLeafGeom,
+  diagonalDepth,
+  diagonalText,
+  pedestalRoom,
+  rightWithinBand,
+  slantRun,
+} from './kr/geometry';
+import {
+  coordinatorMarks,
+  coordinatorTexts,
+  reserveJoinSpans,
+} from './kr/coordinators';
+import {
+  bounds,
+  eid,
+  emptyBlock,
+  impliedBlock,
+  line,
+  mirrorX,
+  resetEid,
+  smallText,
+  translate,
+  wordText,
+} from './kr/primitives';
 
 /**
  * LAYOUT ENGINE — maps the syntax model to pure geometry.
@@ -19,151 +67,6 @@ import type { TreeOrientation } from './modes/tree-layout';
  * Either may contain the other, so relative clauses, participial clauses, and
  * nested coordination all compose naturally.
  */
-
-/** A laid-out subtree, baseline at local y = 0, occupying x ∈ [0, width]. */
-interface Block {
-  width: number;
-  height: number; // extent below the baseline (y grows downward)
-  elements: DiagramElement[];
-  /** The head word's baseline span, used to attach the parent connector. */
-  wordLeft: number;
-  wordRight: number;
-  /** For a clause block: the x of its predicate verb, so coordinated clauses can
-   *  be joined verb-to-verb (the compound-sentence convention). */
-  verbX?: number;
-}
-
-// Complements that sit ON the main line with a separator. The INDIRECT object is
-// deliberately NOT here: in Reed-Kellogg it hangs BELOW the verb on a slanted
-// line (a stem to its own short baseline), distinct from the direct object's
-// upright tick on the baseline.
-const BASELINE_COMPLEMENTS: SyntacticRole[] = [
-  'directObject',
-  'predicateNominative',
-  'predicateAdjective',
-  'objectComplement',
-  'dativeComplement',
-  'genitiveComplement',
-  // Object-LIKE accusatives sit on the baseline in the object slot too — the
-  // honest label (detail card / connector), not the geometry, carries the
-  // nuance. The adverbial accusatives (extent / respect / neutral modifier)
-  // are NOT here: they hang beneath the verb like other adverbials.
-  'objectLikeComplement',
-  'retainedAccusative',
-];
-
-/**
- * Leedy's ellipsis marker, written where an element is elided and its exact
- * wording is uncertain (a gapped subject, a suppressed antecedent, an elided
- * copula). The auto-generated structural placeholders "(subject)"/"(verb)" stay
- * descriptive; this stands in for an EXPLICIT empty node the author left blank.
- */
-const ELISION_MARK = '(X)';
-
-/**
- * If `rel` introduces a prepositional phrase, return the object node id so the
- * preposition can be written ON the diagonal (traditional Kellogg-Reed) and the
- * object laid out on its own horizontal baseline beneath it. Returns null for
- * anything that is not a `preposition + prepositionObject` shape.
- */
-function prepObjectId(ctx: Ctx, rel: { type: SyntacticRole; dependentId: string }): string | null {
-  const objRel = childRelations(ctx.doc.syntax, rel.dependentId).find(
-    (r) => r.type === 'prepositionObject',
-  );
-  if (!objRel) return null;
-  // A preposition governing an object always rides the diagonal — whether it is
-  // tagged `prepositionalPhrase` (a PP modifying a noun) or attached to the verb
-  // as an `adverbial` (an adverbial PP, e.g. ἐν ἀγάπῃ → ἐν on the slant, ἀγάπῃ on
-  // the horizontal below).
-  const node = getNode(ctx.doc.syntax, rel.dependentId);
-  const tok = node?.tokenIds.length ? ctx.doc.tokens.find((t) => t.id === node.tokenIds[0]) : undefined;
-  if (rel.type === 'prepositionalPhrase' || tok?.pos === 'preposition') return objRel.dependentId;
-  return null;
-}
-
-/** The object node a preposition node governs (its `prepositionObject`), if any. */
-function prepObjectOf(ctx: Ctx, prepNodeId: string): string | null {
-  return (
-    childRelations(ctx.doc.syntax, prepNodeId).find((r) => r.type === 'prepositionObject')
-      ?.dependentId ?? null
-  );
-}
-
-/**
- * The conjunct PP members of a coordinated preposition node — e.g. ἐπὶ τῆς γῆς,
- * a conjunct of ἐν τοῖς οὐρανοῖς in "ἐν τοῖς οὐρανοῖς καὶ ἐπὶ τῆς γῆς". Only
- * conjuncts that are themselves prepositions (carry their own object) qualify;
- * an empty list means this is a plain (uncoordinated) PP.
- */
-function ppConjunctRels(ctx: Ctx, prepNodeId: string) {
-  return wordConjunctRels(ctx, prepNodeId).filter((r) => !!prepObjectOf(ctx, r.dependentId));
-}
-
-/**
- * Closed-class / function words that are written ALONG a diagonal in the
- * traditional Kellogg-Reed style (articles, adjectives, adverbs, possessive
- * pronouns, particles, conjunctions, numerals). A NOUN used as a modifier
- * (e.g. an adnominal genitive, an appositive) instead gets its own horizontal
- * baseline, because it routinely carries further structure of its own.
- */
-const DIAGONAL_POS = new Set([
-  'adjective',
-  'adverb',
-  'article',
-  'determiner',
-  'particle',
-  'conjunction',
-  'numeral',
-  'pronoun',
-]);
-
-function isDiagonalLeaf(ctx: Ctx, nodeId: string): boolean {
-  const node = getNode(ctx.doc.syntax, nodeId);
-  if (!node || node.kind !== 'word') return false;
-  if (childRelations(ctx.doc.syntax, nodeId).length > 0) return false;
-  const tok = node.tokenIds.length
-    ? ctx.doc.tokens.find((t) => t.id === node.tokenIds[0])
-    : undefined;
-  return tok?.pos ? DIAGONAL_POS.has(tok.pos) : false;
-}
-
-/** POS of a word node, if it carries one token. */
-function wordPos(ctx: Ctx, nodeId: string): string | undefined {
-  const node = getNode(ctx.doc.syntax, nodeId);
-  if (!node || node.kind !== 'word' || !node.tokenIds.length) return undefined;
-  return ctx.doc.tokens.find((t) => t.id === node.tokenIds[0])?.pos;
-}
-
-/**
- * A coordination whose head and conjuncts are all diagonal modifiers
- * (adjectives / adverbs): "tall and distinguished", "little and old". Drawn as
- * parallel slants joined by a dashed coordinator bar, rather than the horizontal
- * two-prong fork used for coordinated nouns.
- *
- * Every member must be a LIGHT diagonal modifier — i.e. carry only further
- * diagonal leaves of its own, never a sub-baseline dependent (a prepositional
- * phrase, an appositive clause, a genitive NP). `drawDiagonalModifier` can only
- * fold further slants off a member's word, so a member with heavy structure
- * would have its whole subtree crushed onto tiny diagonal jogs (the Eph 1:1
- * "τοῖς ἁγίοις … καὶ πιστοῖς ἐν Χριστῷ" clash). Such a coordination falls back to
- * the two-prong fork, which lays each member out as a full block instead.
- */
-function isDiagonalCoordination(ctx: Ctx, nodeId: string): boolean {
-  const node = getNode(ctx.doc.syntax, nodeId);
-  if (!node || node.kind !== 'word') return false;
-  const conj = wordConjunctRels(ctx, nodeId);
-  if (!conj.length) return false;
-  const pos = wordPos(ctx, nodeId);
-  if (!pos || !DIAGONAL_POS.has(pos)) return false;
-  // The head's OWN modifiers (its conjunct/coordinator children belong to the
-  // coordination, not to the slant) must all be light diagonal leaves.
-  const headLight = childRelations(ctx.doc.syntax, nodeId).every(
-    (r) => r.type === 'conjunct' || r.type === 'coordinator' || isDiagonalModifier(ctx, r.dependentId),
-  );
-  if (!headLight) return false;
-  // Each conjunct must likewise be a pure diagonal modifier (no heavy children).
-  return conj.every((r) => isDiagonalModifier(ctx, r.dependentId));
-}
 
 /** Draw a coordination of adjective/adverb modifiers as parallel slants. */
 function drawDiagonalCoordination(
@@ -210,24 +113,6 @@ function drawDiagonalCoordination(
   // the later slants hang from empty space.
   const footRight = Math.max(attachX, ...starts);
   return { bottom, right, footRight };
-}
-
-/**
- * An infinitive (a bare infinitive word, or a clause whose predicate is one).
- * Diagrammed like a prepositional phrase: an (empty, in Greek) diagonal leading
- * down to a horizontal baseline that carries the infinitive and its complements —
- * the marker "to" rides the diagonal in English; a Greek infinitive is one word
- * sitting on the horizontal.
- */
-function isInfinitival(ctx: Ctx, nodeId: string): boolean {
-  const node = getNode(ctx.doc.syntax, nodeId);
-  if (!node) return false;
-  if (node.kind === 'word') return wordPos(ctx, nodeId) === 'infinitive';
-  if (node.kind !== 'clause') return false;
-  const pred = childRelations(ctx.doc.syntax, nodeId).find(
-    (r) => r.type === 'predicate' || r.type === 'copula',
-  );
-  return pred ? wordPos(ctx, pred.dependentId) === 'infinitive' : false;
 }
 
 /**
@@ -432,22 +317,6 @@ function drawPpCoordination(
 }
 
 /**
- * A closed-class modifier (article, adjective, adverb…) that is drawn ALONG a
- * diagonal — extended from `isDiagonalLeaf` to allow it to carry its OWN diagonal
- * modifiers (an adverb modifying an adjective: "very friendly"; an adverb
- * modifying an adverb: "quite often"). Those sub-modifiers hang as further
- * diagonals off the word, so a stack of qualifiers reads down a zig-zag of
- * slants rather than dropping onto a horizontal sub-baseline.
- */
-function isDiagonalModifier(ctx: Ctx, nodeId: string): boolean {
-  const pos = wordPos(ctx, nodeId);
-  if (!pos || !DIAGONAL_POS.has(pos)) return false;
-  return childRelations(ctx.doc.syntax, nodeId).every(
-    (r) => r.type !== 'conjunct' && r.type !== 'coordinator' && isDiagonalModifier(ctx, r.dependentId),
-  );
-}
-
-/**
  * Draw a diagonal modifier and, recursively, its own diagonal modifiers as
  * further slants hanging off its word. Returns the geometry's lowest/rightmost
  * extent so the caller can reserve room. Lines/text are pushed into `out`.
@@ -489,99 +358,6 @@ function drawDiagonalModifier(
 }
 
 /**
- * Every coordinator word on a coordination node, in relation order — one for a
- * plain "A καὶ B", but TWO (or more) for a correlative pairing (μέν…δέ, οὐ…ἀλλά,
- * both…and). Leedy stacks a correlative pair in the single conjunction slot,
- * top-with-top, to mark the intensified union.
- */
-function coordinatorTexts(
-  ctx: Ctx,
-  nodeId: string,
-): { text: string; nodeId: string }[] {
-  return childRelations(ctx.doc.syntax, nodeId)
-    .filter((r) => r.type === 'coordinator')
-    .map((r) => ({
-      text: nodeText(ctx.doc, getNode(ctx.doc.syntax, r.dependentId)!) || '',
-      nodeId: r.dependentId,
-    }))
-    .filter((c) => c.text);
-}
-
-/**
- * Vertical breathing room a coordinator riding a coordination bar needs between
- * the two members it joins: its own upright length (it is written rotated, so its
- * text WIDTH becomes a vertical extent) plus a small pad above and below, and the
- * lower member's text rises a line above its baseline — so reserve that too. Used
- * both to size the inter-member gap and (via `coordinatorMarks`) to place the word
- * dead-centre in the resulting clear band.
- */
-const COORD_PAD = 5;
-function coordinatorSpan(text: string): number {
-  return measureText(text, SMALL_FONT) + LAYOUT.fontSize + COORD_PAD * 2;
-}
-
-/**
- * Place the coordinator words that ride a vertical coordination bar at `barX`.
- * `baselines` are the member baseline y's (ascending) in the bar's own coordinate
- * space. Two shapes:
- *
- *   - CORRELATIVE (one coordinator per member — μέν…δέ, οὐ…ἀλλά): each rides the
- *     bar at its OWN member's baseline, top-with-top, marking the intensified union.
- *   - PER-JOIN ("A οὐδέ B ἀλλά C" — one coordinator per join, or a lone "and" in
- *     "A, B and C"): each marks the JOIN between two consecutive members and rides
- *     the VISUAL middle of the gap — centred between the upper member's baseline
- *     (the line) and the lower member's text top, NOT the raw baseline midpoint —
- *     so it sits in the clear band and never overlaps either word.
- *
- * Coordinators map to the LAST joins when there are fewer of them than joins, so a
- * single conjunction in an asyndetic list ("A, B and C") lands in the final gap.
- */
-function coordinatorMarks(
-  coords: { text: string; nodeId: string }[],
-  baselines: number[],
-  barX: number,
-): TextElement[] {
-  const n = baselines.length;
-  const mark = (y: number, text: string, nodeId?: string): TextElement => ({
-    kind: 'text', id: eid(), x: barX, y, text, anchor: 'middle', small: true, rotate: -90, nodeId,
-  });
-  if (coords.length >= 2 && coords.length === n) {
-    // Correlative: top-with-top at each member's own baseline.
-    return coords.map((c, i) => mark(baselines[Math.min(i, n - 1)]!, c.text, c.nodeId));
-  }
-  const joins = Math.max(1, n - 1);
-  return coords.map((c, i) => {
-    const j = Math.max(0, Math.min(joins - 1, joins - coords.length + i));
-    const upper = baselines[j]!;
-    const lower = baselines[Math.min(j + 1, n - 1)]!;
-    // Visual middle of the gap: between the upper member's baseline (the line) and
-    // the top of the lower member's text (a font-size above its baseline).
-    return mark((upper + lower - LAYOUT.fontSize) / 2, c.text, c.nodeId);
-  });
-}
-
-/**
- * Per-join vertical clearance the coordinators need between consecutive members,
- * indexed by join (member i → i+1). A correlative set rides member baselines and
- * needs none. Callers Math.max this into their inter-member gap so a long
- * conjunction sits clear of the words above and below instead of overlapping them.
- */
-function reserveJoinSpans(
-  coords: { text: string }[],
-  memberCount: number,
-  correlative: boolean,
-): number[] {
-  const spans = new Array(Math.max(0, memberCount - 1)).fill(0);
-  if (correlative || memberCount < 2) return spans;
-  const joins = memberCount - 1;
-  coords.forEach((c, i) => {
-    const j = Math.max(0, Math.min(joins - 1, joins - coords.length + i));
-    spans[j] = Math.max(spans[j], coordinatorSpan(c.text));
-  });
-  return spans;
-}
-
-/**
  * Leedy's double-vertical mark identifying an infinitive: two short strokes
  * crossing the infinitive's own baseline near its left end and reaching a little
  * below it. `wordW` is the infinitive word's baseline width.
@@ -596,182 +372,6 @@ function infinitiveMark(wordW: number): LineElement[] {
   ];
 }
 
-/** The word-level `conjunct` members of a coordinated node (clauses excluded). */
-function wordConjunctRels(ctx: Ctx, nodeId: string) {
-  return childRelations(ctx.doc.syntax, nodeId).filter(
-    (r) => r.type === 'conjunct' && !isClauseChild(ctx, r.dependentId),
-  );
-}
-
-/** A word that heads a coordination of further words ("Paul and Timothy"). */
-function isWordCoordination(ctx: Ctx, node: SyntaxNode): boolean {
-  return node.kind === 'word' && wordConjunctRels(ctx, node.id).length > 0;
-}
-
-const DEG = 180 / Math.PI;
-
-/**
- * Where along a leaf-modifier diagonal the word is centred. Pushing it past the
- * midpoint (toward the low end) keeps the word clear of the head's baseline —
- * which, for an appositive or coordinated head, runs horizontally right over the
- * diagonal's upper end. 0.5 = midpoint; >0.5 = nearer the bottom.
- */
-const DIAG_TEXT_FRAC = 0.72;
-
-/**
- * Geometry of a leaf-modifier diagonal carrying `text` (e.g. an article, a
- * possessive like ἡμῶν). The run is scaled to the word so a long modifier gets a
- * longer, less crowded slant, and the drop is grown to match so the word — set
- * low on the line (DIAG_TEXT_FRAC) — clears the head's baseline above it. Both
- * stay at least the constant minimums, so short words look exactly as before.
- */
-/**
- * The ONE slant angle every downward modifier diagonal uses, so all of them read
- * as parallel (an article, a possessive, a prepositional phrase's stem). Length
- * varies with the modifier; the angle never does.
- */
-const SLANT_ANGLE = 57 / DEG;
-
-/** Horizontal run of a standard-angle slant that drops by `drop`. */
-function slantRun(drop: number): number {
-  return drop / Math.tan(SLANT_ANGLE);
-}
-
-function diagLeafGeom(text: string): { run: number; drop: number } {
-  const w = measureText(text);
-  // The word sits between DIAG_TEXT_FRAC±half along the line; size the line so
-  // that band (plus headroom for the upper end) is at least the word's length.
-  const len = Math.max(LAYOUT.diagRun * 2, w + LAYOUT.fontSize * 1.4);
-  return { run: len * Math.cos(SLANT_ANGLE), drop: len * Math.sin(SLANT_ANGLE) };
-}
-
-/** Text written along a diagonal, rotated to lie on the line from (x1,y1)→(x2,y2). */
-function diagonalText(
-  text: string,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  relationId?: string,
-  nodeId?: string,
-  frac = 0.5,
-  tone?: GrammarTone,
-): TextElement {
-  const angle = Math.atan2(y2 - y1, x2 - x1) * DEG;
-  // Point `frac` of the way down the line, nudged just above it so the word
-  // rests on the diagonal rather than straddling it.
-  return {
-    kind: 'text',
-    id: eid(),
-    x: x1 + (x2 - x1) * frac,
-    y: y1 + (y2 - y1) * frac - 3,
-    text,
-    anchor: 'middle',
-    rotate: angle,
-    relationId,
-    nodeId,
-    tone,
-  };
-}
-
-/**
- * How far below the baseline (y = 0) a word written along the diagonal
- * (x1,y1)→(x2,y2) actually reaches. A long word on a steep diagonal overhangs
- * its endpoint, so the layout must reserve this much room or it runs into the
- * row below.
- */
-function diagonalDepth(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  text: string,
-  frac = 0.5,
-): number {
-  const angle = Math.atan2(y2 - y1, x2 - x1);
-  const w = measureText(text);
-  const midY = y1 + (y2 - y1) * frac - 3;
-  const along = (w / 2) * Math.abs(Math.sin(angle)); // half the word, projected on y
-  const across = LAYOUT.fontSize * 0.75 * Math.abs(Math.cos(angle)); // glyph ascent/descent
-  return midY + along + across + 2;
-}
-
-/**
- * How far a block's drawing rises ABOVE its baseline (y = 0). Most blocks sit at
- * or below the baseline, but a coordination fork lifts its upper conjunct into
- * negative y; stacking must reserve that room or the block pokes into the row
- * above. Returns ≥ 0.
- */
-function blockAscent(block: Block): number {
-  let minY = 0;
-  for (const el of block.elements) {
-    if (el.kind === 'line') minY = Math.min(minY, el.y1, el.y2);
-    else if (el.kind === 'curve') minY = Math.min(minY, el.y1, el.cy, el.y2);
-    else minY = Math.min(minY, el.y - (el.small ? LAYOUT.smallFontSize : LAYOUT.fontSize));
-  }
-  return Math.max(0, -minY);
-}
-
-/**
- * Extra vertical room a member needs ABOVE its baseline beyond a normal one-line
- * clause — i.e. the height of a pedestal/platform it raises into negative y (a
- * substantival subject or a predicate-nominative platform). When such a member
- * follows another clause on a stacked spine, this is the clearance that must be
- * added to the inter-clause gap so the platform clears the clause above it
- * rather than crowding into its descenders. Returns ≥ 0.
- */
-function pedestalRoom(block: Block): number {
-  return Math.max(0, blockAscent(block) - (LAYOUT.dividerUp + LAYOUT.fontSize));
-}
-
-/**
- * The rightmost x reached by any of `block`'s primitives whose TOP edge sits at
- * or above `band` (y ≤ band) — i.e. everything that vertically overlaps the strip
- * from the baseline down to `band`. Used to place a subject|predicate divider
- * clear of only the subject's SHALLOW content, so the predicate can tuck into the
- * empty space above a deep-but-narrow-topped subject dependent (a relative clause
- * on the subject) instead of being flung past that dependent's whole width.
- */
-function rightWithinBand(block: Block, band: number): number {
-  let right = 0;
-  for (const el of block.elements) {
-    let topY: number;
-    let maxX: number;
-    if (el.kind === 'line') {
-      topY = Math.min(el.y1, el.y2);
-      maxX = Math.max(el.x1, el.x2);
-    } else if (el.kind === 'curve') {
-      topY = Math.min(el.y1, el.cy, el.y2);
-      maxX = Math.max(el.x1, el.cx, el.x2);
-    } else {
-      const w = el.small ? measureText(el.text, SMALL_FONT) : measureText(el.text);
-      topY = el.y - (el.small ? LAYOUT.smallFontSize : LAYOUT.fontSize);
-      maxX = el.anchor === 'end' ? el.x : el.anchor === 'middle' ? el.x + w / 2 : el.x + w;
-    }
-    if (topY <= band) right = Math.max(right, maxX);
-  }
-  return right;
-}
-
-function translate(block: Block, dx: number, dy: number): DiagramElement[] {
-  return block.elements.map((el) => {
-    if (el.kind === 'line') {
-      return { ...el, x1: el.x1 + dx, y1: el.y1 + dy, x2: el.x2 + dx, y2: el.y2 + dy };
-    }
-    if (el.kind === 'curve') {
-      return {
-        ...el,
-        x1: el.x1 + dx, y1: el.y1 + dy,
-        cx: el.cx + dx, cy: el.cy + dy,
-        x2: el.x2 + dx, y2: el.y2 + dy,
-      };
-    }
-    return { ...el, x: el.x + dx, y: el.y + dy };
-  });
-}
-
-let uid = 0;
-const eid = () => `el_${uid++}`;
 
 export interface LayoutOptions {
   /** Row-spacing multiplier on vertical gaps (default 1). */
@@ -812,7 +412,7 @@ export function layoutDocument(
   hints: LayoutHints = {},
   options: LayoutOptions = {},
 ): DiagramLayout {
-  uid = 0;
+  resetEid();
   const ctx: Ctx = {
     doc,
     hints,
@@ -851,30 +451,6 @@ export function layoutDocument(
 }
 
 /**
- * Mirror primitives horizontally about `width/2` for a right-to-left diagram.
- * Positions flip (x → width − x) and slants reverse (rotation negated), but the
- * GLYPHS are NOT mirrored — a Hebrew word is already shaped right-to-left by the
- * text engine, so only the diagram's layout direction changes. Text anchors swap
- * start↔end so left/right-aligned labels stay on their intended side.
- */
-function mirrorX(elements: DiagramElement[], width: number): DiagramElement[] {
-  return elements.map((el) => {
-    if (el.kind === 'line') {
-      return { ...el, x1: width - el.x1, x2: width - el.x2 };
-    }
-    if (el.kind === 'curve') {
-      return { ...el, x1: width - el.x1, cx: width - el.cx, x2: width - el.x2 };
-    }
-    return {
-      ...el,
-      x: width - el.x,
-      anchor: el.anchor === 'start' ? 'end' : el.anchor === 'end' ? 'start' : 'middle',
-      rotate: el.rotate ? -el.rotate : el.rotate,
-    };
-  });
-}
-
-/**
  * Mirror a whole laid-out diagram horizontally (any mode) — used to flip a
  * non-Kellogg-Reed mode (e.g. the phrase/block diagram) for a right-to-left
  * sentence, or to flip a diagram to match English word order on request. The KR
@@ -883,54 +459,6 @@ function mirrorX(elements: DiagramElement[], width: number): DiagramElement[] {
  */
 export function mirrorLayout(layout: DiagramLayout): DiagramLayout {
   return { ...layout, elements: mirrorX(layout.elements, layout.width) };
-}
-
-/** Axis-aligned bounding box of a set of primitives (line endpoints + text anchors). */
-function bounds(elements: DiagramElement[]): {
-  minX: number;
-  minY: number;
-  maxX: number;
-  maxY: number;
-} {
-  let minX = 0;
-  let minY = 0;
-  let maxX = 0;
-  let maxY = 0;
-  let seen = false;
-  const see = (x: number, y: number) => {
-    if (!seen) {
-      minX = maxX = x;
-      minY = maxY = y;
-      seen = true;
-      return;
-    }
-    minX = Math.min(minX, x);
-    maxX = Math.max(maxX, x);
-    minY = Math.min(minY, y);
-    maxY = Math.max(maxY, y);
-  };
-  for (const el of elements) {
-    if (el.kind === 'line') {
-      see(el.x1, el.y1);
-      see(el.x2, el.y2);
-    } else if (el.kind === 'curve') {
-      see(el.x1, el.y1);
-      see(el.cx, el.cy);
-      see(el.x2, el.y2);
-    } else {
-      see(el.x, el.y);
-    }
-  }
-  return { minX, minY, maxX, maxY };
-}
-
-interface Ctx {
-  doc: KrDocument;
-  hints: LayoutHints;
-  /** Multiplier on vertical gaps (user-tunable row spacing). 1 = default. */
-  vScale: number;
-  /** Tint words by grammatical category (Morphology palette). Off by default. */
-  color: boolean;
 }
 
 function layoutNode(ctx: Ctx, nodeId: string, seen: Set<string>): Block {
@@ -952,12 +480,6 @@ function layoutNode(ctx: Ctx, nodeId: string, seen: Set<string>): Block {
   }
   return block;
 }
-
-function emptyBlock(): Block {
-  return { width: 0, height: 0, elements: [], wordLeft: 0, wordRight: 0 };
-}
-
-// --- a word and its modifiers -------------------------------------------------
 
 function layoutHead(
   ctx: Ctx,
@@ -1281,28 +803,6 @@ function stackClauses(
  * The block's `wordLeft`/`wordRight` are the spine itself, so a parent connector
  * lands cleanly on the bar that ties the whole coordination together.
  */
-/**
- * The smallest surface token index anywhere in a node's subtree — where the
- * construction it heads first appears in the sentence. Used to tell a
- * sentence-INITIAL connective (διό, οὖν …) from one that joins two members.
- */
-function subtreeMinIndex(ctx: Ctx, nodeId: string, seen = new Set<string>()): number {
-  if (seen.has(nodeId)) return Infinity;
-  seen.add(nodeId);
-  let min = Infinity;
-  const node = getNode(ctx.doc.syntax, nodeId);
-  if (node) {
-    for (const tid of node.tokenIds) {
-      const tok = ctx.doc.tokens.find((t) => t.id === tid);
-      if (tok) min = Math.min(min, tok.index);
-    }
-  }
-  for (const r of childRelations(ctx.doc.syntax, nodeId)) {
-    min = Math.min(min, subtreeMinIndex(ctx, r.dependentId, seen));
-  }
-  return min;
-}
-
 function layoutClauseSpine(
   ctx: Ctx,
   clause: SyntaxNode,
@@ -2759,16 +2259,6 @@ function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): Block {
 
 // --- helpers ------------------------------------------------------------------
 
-function isClauseChild(ctx: Ctx, nodeId: string): boolean {
-  return getNode(ctx.doc.syntax, nodeId)?.kind === 'clause';
-}
-
-/** Part of speech of a node's first token, if any (verb / participle / …). */
-function firstTokenPos(ctx: Ctx, node: SyntaxNode): string | undefined {
-  const tid = node.tokenIds[0];
-  return tid ? ctx.doc.tokens.find((t) => t.id === tid)?.pos : undefined;
-}
-
 /**
  * The filler drawn in a pro-drop clause's empty subject slot. A finite verb names
  * its own subject by person+number, so a first/second-person verb lets us impute a
@@ -2793,92 +2283,3 @@ function subjectFillerLabel(ctx: Ctx, verbNode: SyntaxNode | undefined): string 
   return '(subject)';
 }
 
-/**
- * Show a connector label only when it adds information — i.e. the dependent is
- * a clause or an implied/empty element. For a normal word the label would just
- * duplicate the word already drawn (e.g. a preposition), so it is suppressed.
- */
-function showLabel(ctx: Ctx, nodeId: string): boolean {
-  const node = getNode(ctx.doc.syntax, nodeId);
-  if (!node) return true;
-  return node.kind === 'clause' || Boolean(node.implied) || nodeText(ctx.doc, node) === '';
-}
-
-function impliedBlock(label: string): Block {
-  const w = measureText(label) + LAYOUT.wordPadX * 2;
-  return {
-    width: w,
-    height: 0,
-    wordLeft: 0,
-    wordRight: w,
-    elements: [
-      line(eid(), 0, 0, w, 0, 'solid', 'baseline'),
-      {
-        kind: 'text',
-        id: eid(),
-        x: w / 2,
-        y: -LAYOUT.textRise,
-        text: label,
-        anchor: 'middle',
-        italic: true,
-        muted: true,
-      },
-    ],
-  };
-}
-
-function line(
-  id: string,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  style: LineElement['style'],
-  role: LineElement['role'],
-  nodeId?: string,
-  relationId?: string,
-): LineElement {
-  return { kind: 'line', id, x1, y1, x2, y2, style, role, nodeId, relationId };
-}
-
-function wordText(
-  id: string,
-  x: number,
-  y: number,
-  text: string,
-  anchor: TextElement['anchor'],
-  node: SyntaxNode,
-  tone?: GrammarTone,
-): TextElement {
-  return {
-    kind: 'text',
-    id,
-    x,
-    y,
-    text,
-    anchor,
-    // An implied/elided element reads as a muted ITALIC label — the same
-    // treatment `impliedBlock` gives the auto-generated placeholders.
-    muted: node.implied,
-    italic: node.implied,
-    nodeId: node.id,
-    tone,
-  };
-}
-
-/** A node's grammar tone when the colour overlay is on (else none — plain ink). */
-function wordTone(ctx: Ctx, node: SyntaxNode): GrammarTone | undefined {
-  return ctx.color ? nodeTone(ctx.doc, node) : undefined;
-}
-
-function smallText(
-  id: string,
-  x: number,
-  y: number,
-  text: string,
-  anchor: TextElement['anchor'],
-  relationId?: string,
-  nodeId?: string,
-): TextElement {
-  return { kind: 'text', id, x, y, text, anchor, small: true, italic: true, relationId, nodeId };
-}
