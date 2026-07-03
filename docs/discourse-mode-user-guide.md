@@ -194,8 +194,10 @@ notes live in different keys and are unaffected.
 
 - **Save as PDF** — opens a print-ready outline; choose *"Save as PDF"* in your
   browser's print dialog (labels, references, optional text/glosses, notes, and
-  relations, laid out for the page);
-- the same outline as a self-contained **vector SVG**;
+  relations with arcs in a left gutter, laid out for the page);
+- the same outline as a self-contained **vector SVG** with the arc-annotated
+  outline (arcs render in a left gutter with centered labels; lane assignment
+  uses greedy interval packing so nested/overlapping relations step outward);
 - the full discourse **document as JSON** (schema-validated, re-importable);
 - your **edits as a patch** (compact JSON diff);
 - the **outline as Markdown** — labels, references, optional Greek text and
@@ -223,7 +225,9 @@ The first time you open Discourse mode, a short **guidance modal** appears
   bundled **BSB**, one verse per line. This passage moves from alienation to
   nearness and reconciliation in Christ — a compact test-bed for contrast,
   progression, inclusio, or chiasm. The demo comes with a **sample chiasm**
-  already drawn (four arcs: 2:12↔2:19, 2:13↔2:18, 2:14↔2:17, 2:15↔2:16),
+  already drawn (four arcs: 2:12↔2:19, 2:13↔2:18, 2:14↔2:17, 2:15↔2:16) with
+  SHORT pair labels only ("A ↔ A′" … "D ↔ D′"); each arc's fuller gloss (e.g.
+  "alienated ↔ no longer strangers") lives in that relation's notes. Arcs are
   clearly marked as demonstration material — **not** an authoritative reading.
   Every arc is an ordinary relation: edit its type/label, delete it, or **Reset**
   to restore the sample. A normal (non-demo) load of the same verses has no arcs.
