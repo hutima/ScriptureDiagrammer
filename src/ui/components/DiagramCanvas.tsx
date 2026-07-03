@@ -897,8 +897,10 @@ export function DiagramCanvas() {
               onChange={(e) => setDiagramMode(e.target.value as typeof diagramMode)}
             >
               {/* Every view is selectable in Edit mode too — but only the block
-                  diagram is editable; the rest render read-only (with a note). */}
-              {DIAGRAM_MODES.map((m) => (
+                  diagram is editable; the rest render read-only (with a note).
+                  Discourse is a separate multi-verse analysis layer that is
+                  desktop-only, so it is dropped from the list on mobile. */}
+              {DIAGRAM_MODES.filter((m) => m.id !== 'discourse' || !viewport.isMobile).map((m) => (
                 <option key={m.id} value={m.id} title={m.description}>
                   {m.label}
                   {appMode === 'edit' && !isEditableMode(m.id) && m.id !== 'discourse' ? ' (view only)' : ''}

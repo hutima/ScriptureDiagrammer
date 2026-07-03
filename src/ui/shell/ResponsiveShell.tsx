@@ -47,6 +47,14 @@ export function ResponsiveShell() {
     }
   }, [vp.isMobile, firstRun, setDiagramMode, setLeftCollapsed]);
 
+  // Discourse is a desktop-only analysis layer: it is removed from the mode
+  // selectors on mobile, and here we guarantee it can never be the ACTIVE mode
+  // on a phone (e.g. after toggling force-desktop off, or a persisted mode from
+  // a desktop session) — fall back to the finger-friendly block lens.
+  useEffect(() => {
+    if (vp.isMobile && discourseMode) setDiagramMode('phrase-block');
+  }, [vp.isMobile, discourseMode, setDiagramMode]);
+
   if (vp.isMobile) {
     return (
       // `sermon-open` adds scroll room at the bottom of the diagram so the
