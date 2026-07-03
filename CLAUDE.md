@@ -450,3 +450,20 @@ its own document model, store, persistence, and renderer. See
   suggestions (`markers.ts`, `suggest.ts`) are low/medium-confidence,
   "possible …"-phrased, and only become structure through an explicit accept.
   User-authored structure (provenance `manual`) is the authoritative overlay.
+- **Default demo + first-load modal** (`state/discourse.ts`,
+  `ui/discourse/DiscourseFirstLoadModal.tsx`; see
+  `docs/discourse-english-default-demo-plan.md`). The default demo is
+  **Ephesians 2:12–19**, loaded from the public-domain **KJV** through the
+  NORMAL range pipeline (`loadDefaultDemo`), never a fixture — so it is fully
+  editable and stamped `isDefaultDemo` (drives the "Remove demo" button). It is
+  a text default only: NO chiasm/annotations are baked in (structure is
+  user-authored). `enterDiscourseMode` orchestrates first entry: restore any
+  prior range, else on first-ever visit open the guidance modal and WAIT (no demo
+  behind it), else auto-load the demo when nothing is loaded and it is not hidden.
+  Two SEPARATE `kr:discoursePref:*` preferences (distinct prefix so
+  `clearAllDiscourseData` can't sweep them): `firstLoadModalDismissed` (modal
+  seen) and `hideDefaultDemo:ephesians-2-12-19` (demo removed) — dismissing the
+  modal never hides the demo and vice-versa. `removeDefaultDemo` clears the doc +
+  sets the hide flag (survives reloads/PWA updates) + forgets the range pointer,
+  without touching syntax/sermon/unrelated-discourse state; `resetEdits` only
+  discards edits and never sets the hide flag.
