@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDiscourseStore } from '@/state';
-import { canIndent, canOutdent, childUnits } from '@/domain/discourse';
+import { childUnits, MAX_USER_INDENT, MIN_USER_INDENT } from '@/domain/discourse';
 
 /**
  * DISCOURSE EDIT TOOLBAR — mounted in the discourse canvas while the app is in
@@ -19,8 +19,7 @@ export function DiscourseToolbar() {
   const future = useDiscourseStore((s) => s.future);
   const beginSplit = useDiscourseStore((s) => s.beginSplit);
   const mergeWithPrevious = useDiscourseStore((s) => s.mergeWithPrevious);
-  const indentUnit = useDiscourseStore((s) => s.indentUnit);
-  const outdentUnit = useDiscourseStore((s) => s.outdentUnit);
+  const nudgeUnitIndent = useDiscourseStore((s) => s.nudgeUnitIndent);
   const moveUnit = useDiscourseStore((s) => s.moveUnit);
   const wrapUnits = useDiscourseStore((s) => s.wrapUnits);
   const unwrapUnit = useDiscourseStore((s) => s.unwrapUnit);
@@ -45,6 +44,8 @@ export function DiscourseToolbar() {
   const canMergePrev = !!unit && !!prevSibling && isLeaf && prevSibling.tokenIds.length > 0;
   const splitting = splitPickUnitId != null;
   const relating = pendingRelationSource != null;
+  // Indent applies to the multi-selection when one exists, else the active unit.
+  const indentTargets = multi.length > 1 ? multi : unit ? [unit.id] : [];
 
   const promptLabel = () => {
     if (!unit) return;
@@ -76,19 +77,23 @@ export function DiscourseToolbar() {
       </div>
 
       <div className="discourse-toolbar-group">
+        {/* Indent buttons drive the EXPLICIT per-line userIndent — the same
+            action as the drag handle. Every line (including the first) moves
+            independently; multi-selection nudges each selected line by 1.
+            Structural nesting lives in Group/Ungroup, not here. */}
         <button
           className="mini"
-          disabled={!unit || !canIndent(doc, unit.id)}
-          title="Indent under the previous unit (Tab) — an interpretive outline move"
-          onClick={() => unit && indentUnit(unit.id)}
+          disabled={!unit || (indentTargets.length === 1 && (unit.userIndent ?? 0) >= MAX_USER_INDENT)}
+          title="Indent this line one step (Tab) — independent of other lines"
+          onClick={() => indentTargets.length && nudgeUnitIndent(indentTargets, 1)}
         >
           → Indent
         </button>
         <button
           className="mini"
-          disabled={!unit || !canOutdent(doc, unit.id)}
-          title="Outdent one level (Shift+Tab)"
-          onClick={() => unit && outdentUnit(unit.id)}
+          disabled={!unit || (indentTargets.length === 1 && (unit.userIndent ?? 0) <= MIN_USER_INDENT)}
+          title="Outdent this line one step (Shift+Tab)"
+          onClick={() => indentTargets.length && nudgeUnitIndent(indentTargets, -1)}
         >
           ← Outdent
         </button>
