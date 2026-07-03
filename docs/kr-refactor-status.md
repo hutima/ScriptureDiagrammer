@@ -203,7 +203,13 @@ the current geometry.
   (+11px vs post-B1, still far better than the alignment flip); two more
   frozen line-guard offenders gone (κυρίῳ, Eph 5:17 κυρίου… now fixed by
   packed pedestals). Snapshot diffs bounds/compactness only.
-- [ ] Stage B3 — kr/clause.ts clause-adjunct rail packing.
+- [x] **Stage B3 — kr/clause.ts clause-adjunct rail packing.** Same wrapper
+  pattern: each rail entry drawn at its classic attach (past everything's
+  full width) then slid left; never before the drawn complement row's end
+  (`baselineWidth` + classic gap), feet keep the dependentGap rhythm; the
+  rail extension line reaches every packed foot (railRight/maxRight adjusted
+  exactly). −0.2 Mpx² (17/210 docs, all negative; biggest Rom 9:32 −97px).
+  Snapshot diffs bounds/compactness only; no guard changes.
 - [ ] Stage B4 — kr/clause.ts stackClauses / layoutClauseSpine right growth.
 - [ ] (optional, last) kr/coordination.ts fork member spread — only with fresh
   before/after review of every fork-bearing passage.
