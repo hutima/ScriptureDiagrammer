@@ -97,7 +97,11 @@ describe('a coordinator attached to a conjunct rides the fork bar (not a slant)'
       (e) => e.kind === 'text' && (e as { text: string }).text === 'but',
     ) as { rotate?: number }[];
     expect(but).toHaveLength(1); // not dropped, not duplicated
-    expect(but[0]!.rotate).toBe(-90); // on the coordination bar, not a ~57° slant
+    // Upright on the coordination bar (±90), not written along a ~57° slant.
+    // A lone mark on a right-opening fork rotates +90 so the text's BOTTOM
+    // rests on the bar (the open-side convention); -90 is the multi-mark /
+    // left-opening direction.
+    expect(Math.abs(but[0]!.rotate!)).toBe(90);
   });
 });
 
