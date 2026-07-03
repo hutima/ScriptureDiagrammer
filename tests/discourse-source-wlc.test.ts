@@ -7,6 +7,7 @@ import {
   loadDiscourseRange,
 } from '@/io';
 import { useDiscourseStore } from '@/state';
+import type * as OtModule from '@/io/ot';
 
 /**
  * WLC (Hebrew OT) fix for the Discourse source picker: WLC was entirely
@@ -18,7 +19,7 @@ import { useDiscourseStore } from '@/state';
  */
 
 vi.mock('@/io/ot', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/io/ot')>();
+  const actual = await importOriginal<typeof OtModule>();
   return { ...actual, loadOtBook: vi.fn(actual.loadOtBook) };
 });
 
