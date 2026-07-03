@@ -138,10 +138,18 @@ export function layoutInfinitiveFork(ctx: Ctx, clause: SyntaxNode, seen: Set<str
   const topY = baselines[0]! - centerY;
   const botY = baselines[baselines.length - 1]! - centerY;
   elements.push(line(eid(), prong, topY, prong, botY, 'dashed', 'coordination', clause.id));
-  // The conjunction rides just to the RIGHT of the bar, in the open wedge between
-  // the two arm baselines — clear of the diagonal prongs converging on the
-  // junction to its left, which would otherwise cross through it.
-  elements.push(...coordinatorMarks(coords, baselines.map((b) => b - centerY), prong + 9));
+  // A single conjunction rests its baseline ON the bar, glyphs extending into the
+  // open wedge to the RIGHT (coordinatorMarks rotates it +90 to read
+  // top-to-bottom) — clear of the diagonal prongs converging on the junction to
+  // its left; multiple marks keep the legacy offset just right of the bar.
+  elements.push(
+    ...coordinatorMarks(
+      coords,
+      baselines.map((b) => b - centerY),
+      coords.length === 1 ? prong : prong + 9,
+      'right',
+    ),
+  );
 
   // Lead words (a negator like οὐκ, an introductory particle) sit above the top
   // arm on a short stub joined down to the top of the bar — the same home the

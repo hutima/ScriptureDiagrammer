@@ -97,7 +97,10 @@ export function drawPp(
       bottom = Math.max(bottom, by + mb.height);
     });
     out.push(line(eid(), endX + prong, oTop, endX + prong, baselines[baselines.length - 1]!, 'dashed', 'coordination', prepNodeId));
-    out.push(...coordinatorMarks(coords, baselines, endX + prong + 9));
+    // A single conjunction rests its baseline ON the bar, glyphs extending into
+    // the open side to the RIGHT (coordinatorMarks rotates it +90 to read
+    // top-to-bottom); multiple marks keep the legacy offset just right of it.
+    out.push(...coordinatorMarks(coords, baselines, coords.length === 1 ? endX + prong : endX + prong + 9, 'right'));
   }
 
   return { right, bottom, oTop };

@@ -173,18 +173,21 @@ export function layoutCoordination(
   // The coordinator's dashed line is the full-height bar at the WIDE end of the
   // fork, joining the two prongs exactly where they meet the conjunct baselines
   // (the way a hand-drawn Kellogg-Reed fork bridges the branches). A SINGLE
-  // coordinator rides CENTRED on that bar but set to the OPEN side of the fork
-  // (away from the prongs/junction) so it sits clear of the words; MULTIPLE marks
-  // (a correlative pair, or several per-join conjunctions on one bar) read better
-  // in the throat, so keep them on the junction side.
+  // coordinator rests its text BASELINE on the bar itself, glyphs extending into
+  // the OPEN side of the fork (away from the prongs/junction) — the same way the
+  // clause-spine marks rest on their bar (coordinatorMarks handles the rotation);
+  // MULTIPLE marks (a correlative pair, or several per-join conjunctions on one
+  // bar) read better in the throat, so those keep the junction-side offset.
   const dashX = openLeft ? junctionX - prong : prong;
   elements.push(line(eid(), dashX, topY, dashX, botY, 'dashed', 'coordination', node.id));
   const coordTx = coords.length === 1
-    ? dashX + (openLeft ? -8 : 8) // open side (away from the prongs)
+    ? dashX // baseline ON the bar (coordinatorMarks rotates into the open side)
     : dashX + (openLeft ? 8 : -8); // throat side (toward the junction)
   // Correlative pairs ride the members' baselines; every other conjunction rides
   // the visual middle of the gap between the two members it joins.
-  elements.push(...coordinatorMarks(coords, baselines.map((b) => b - centerY), coordTx));
+  elements.push(
+    ...coordinatorMarks(coords, baselines.map((b) => b - centerY), coordTx, openLeft ? 'left' : 'right'),
+  );
 
   // A summary apposition hangs on its own platform off the bar that joins the
   // conjuncts, centred below the fork ("τὰ τρία ταῦτα" under faith/hope/love).
@@ -419,9 +422,17 @@ function layoutOpenPredicateFork(
   const topY = baselines[0]! - centerY;
   const botY = baselines[baselines.length - 1]! - centerY;
   elements.push(line(eid(), prong, topY, prong, botY, 'dashed', 'coordination', verbNode.id));
-  // A single conjunction rides the OPEN side of the fork (arms fan RIGHT, so
-  // open = right of the bar); multiple marks stay in the throat, just left of it.
-  elements.push(...coordinatorMarks(coords, baselines.map((b) => b - centerY), coords.length === 1 ? prong + 7 : prong - 7));
+  // A single conjunction rests its baseline ON the bar, glyphs extending into the
+  // OPEN side (the arms fan RIGHT — coordinatorMarks rotates it +90 to read
+  // top-to-bottom); multiple marks stay in the throat, just left of the bar.
+  elements.push(
+    ...coordinatorMarks(
+      coords,
+      baselines.map((b) => b - centerY),
+      coords.length === 1 ? prong : prong - 7,
+      'right',
+    ),
+  );
   return {
     width,
     height: botY + arms[arms.length - 1]!.height,
@@ -490,15 +501,18 @@ export function layoutCompoundPredicate(ctx: Ctx, verbNode: SyntaxNode, seen: Se
   });
 
   // Coordinator on the dashed bar joining the left corners. A single conjunction
-  // rides the OPEN side of the fork (the arms fan RIGHT, so open = right of the
-  // corner column); multiple marks (correlatives / several per-join) stay in the
-  // throat, just left of the column, where they read better.
+  // rests its baseline ON the corner column, glyphs extending into the OPEN side
+  // (the arms fan RIGHT — coordinatorMarks rotates it +90 to read top-to-bottom);
+  // multiple marks (correlatives / several per-join) stay in the throat, just
+  // left of the column, where they read better.
   const topY = ys[0]! - centerY;
   const botY = ys[ys.length - 1]! - centerY;
   elements.push(line(eid(), prong, topY, prong, botY, 'dashed', 'coordination', verbNode.id));
   // Correlative pairs sit at their members' corners; every other conjunction rides
   // the visual middle of the gap between the two members it joins.
-  elements.push(...coordinatorMarks(coords, ys.map((yv) => yv - centerY), coords.length === 1 ? prong + 7 : prong - 7));
+  elements.push(
+    ...coordinatorMarks(coords, ys.map((yv) => yv - centerY), coords.length === 1 ? prong : prong - 7, 'right'),
+  );
 
   const lastBottom = botY + members[members.length - 1]!.height;
   return { width: rightX, height: lastBottom, elements, wordLeft: 0, wordRight: rightX };
