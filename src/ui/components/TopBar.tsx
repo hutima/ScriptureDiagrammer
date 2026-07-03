@@ -125,6 +125,7 @@ export function TopBar() {
         {!vp.isDesktop && (
           <button
             className="btn"
+            data-tour="topbar-sources"
             onClick={() => setLeftCollapsed(!leftCollapsed)}
             title="Passages & sources"
           >

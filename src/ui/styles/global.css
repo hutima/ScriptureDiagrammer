@@ -3290,3 +3290,92 @@ label.field.inline > span { margin-bottom: 0; }
   border-radius: 4px;
   background: var(--bg, #fff);
 }
+
+/* ---------------------------------------------------------------- first-run
+   walkthrough (src/ui/tutorial). The ring cuts a spotlight out of a LIGHT dim
+   via its huge box-shadow; both dim layers are pointer-events:none so nothing
+   about the tour ever blocks a tap — the highlighted control stays clickable
+   and the app remains fully usable underneath. Sits above the mobile sources
+   drawer (z 58) and modals (z 60), below nothing it needs to yield to. */
+.tour-ring {
+  position: fixed;
+  z-index: 80;
+  pointer-events: none;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 200vmax rgba(31, 41, 51, 0.22),
+    0 0 0 4px var(--accent-soft);
+  transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease;
+}
+.tour-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  background: rgba(31, 41, 51, 0.14);
+}
+.tour-card {
+  position: fixed;
+  z-index: 81;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 28px rgba(31, 41, 51, 0.28);
+  padding: 12px 14px;
+  font-size: 13px;
+}
+.tour-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.tour-progress {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.tour-x {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+.tour-x:hover {
+  color: var(--ink);
+}
+.tour-title {
+  margin: 2px 0 4px;
+  font-size: 14px;
+}
+.tour-body {
+  margin: 0 0 4px;
+  line-height: 1.45;
+}
+.tour-note {
+  margin: 0 0 4px;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  font-size: 12px;
+}
+.tour-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+.tour-actions .mini {
+  min-height: 30px; /* finger-friendly on phones */
+}
+.tour-leave {
+  color: var(--muted);
+}

@@ -78,9 +78,9 @@ describe('SBLGNT contested registry — structural integrity', () => {
   });
 });
 
-describe('SBLGNT contested registry — bundled Philippians 1:1', () => {
+describe('SBLGNT contested registry — Philippians 1:1 (test fixture of the upstream book)', () => {
   const doc = () => {
-    const xml = readFileSync(resolve(process.cwd(), 'public/sblgnt/11-philippians.xml'), 'utf8');
+    const xml = readFileSync(resolve(process.cwd(), 'tests/fixtures-sblgnt-philippians.xml'), 'utf8');
     return lowfatToDocuments(xml, {
       book: 'Philippians',
       dialect: sblgntDialect,

@@ -5,8 +5,10 @@ import { ContestedRegistrySchema, type ContestedRegistry } from '@/domain/schema
  *
  * Every id below was dumped from the REAL base parse data, never guessed
  * (see `scripts/dump-passage-syntax.mts`; validate with `npm run contested:check`):
- *   - GNT  : Nestle1904 LowFat (macula-greek). Bundled Philippians loads offline;
- *            Titus / Romans / 1 Timothy were dumped from the upstream macula trees.
+ *   - GNT  : Nestle1904 LowFat (macula-greek). Philippians is validated against
+ *            the verbatim upstream copy kept as a test fixture (tests/
+ *            fixtures-nestle1904-philippians.xml); Titus / Romans / 1 Timothy
+ *            were dumped from the upstream macula trees.
  *   - WLC  : macula-hebrew LowFat (Genesis dumped from the upstream trees).
  *   - Samples: the bundled fixtures (`doc_sample_*`).
  *

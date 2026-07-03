@@ -38,6 +38,7 @@ import {
 import { SourceCompareView } from './SourceCompareView';
 import { DiagramGuideModal } from './DiagramGuideModal';
 import { useViewport } from '@/ui/responsive';
+import { GLOSS_TOGGLE_TIP, BSB_TOGGLE_TIP } from '@/ui/tutorial/tutorialSteps';
 
 const TENTATIVE = '#c2410c';
 const INK = '#1f2933';
@@ -125,7 +126,10 @@ export function DiagramCanvas() {
   // which version the source strip shows. Offered for Greek (GNT) and Hebrew (OT).
   const [parallelBook, setParallelBook] = useState<ParallelBook | null>(null);
   const [otParallelBook, setOtParallelBook] = useState<OtParallelBook | null>(null);
-  const [version, setVersion] = useState<'grc' | 'en'>('grc');
+  // Which version the strip shows lives in the store (not local state) so the
+  // first-run walkthrough can observe/apply it; it is still a display-only choice.
+  const version = useEditorStore((s) => s.sourceTextVersion);
+  const setVersion = useEditorStore((s) => s.setSourceTextVersion);
   // The source/reference strip collapses out of the way to give the diagram room,
   // and its height is draggable to rebalance text vs. diagram.
   const [srcCollapsed, setSrcCollapsed] = useState(false);
@@ -810,7 +814,8 @@ export function DiagramCanvas() {
               <button
                 className={showEnglish ? 'active' : ''}
                 onClick={() => setVersion('en')}
-                title="Berean Standard Bible (word-aligned)"
+                title={BSB_TOGGLE_TIP}
+                data-tour="source-english"
               >
                 English (BSB)
               </button>
@@ -959,6 +964,7 @@ export function DiagramCanvas() {
             <span className="sr-only">Diagram mode</span>
             <select
               aria-label="Diagram mode"
+              data-tour="diagram-mode-select"
               value={diagramMode}
               onChange={(e) => setDiagramMode(e.target.value as typeof diagramMode)}
             >
@@ -985,7 +991,8 @@ export function DiagramCanvas() {
               </button>
               <button
                 className={glossMode ? 'active' : ''}
-                title="Show English glosses (structure stays the same)"
+                title={GLOSS_TOGGLE_TIP}
+                data-tour="diagram-gloss-eng"
                 onClick={() => setGlossMode(true)}
               >
                 Eng

@@ -223,6 +223,14 @@ export interface EditorState {
    */
   glossMode: boolean;
   /**
+   * Which text the source strip shows for an original-language passage: the
+   * original (Greek/Hebrew) or the English BSB parallel. A DISPLAY choice only —
+   * the parse and diagram structure always follow the original-language syntax.
+   * In-memory (a session choice, like the strip itself); falls back to the
+   * original wherever no English parallel is available.
+   */
+  sourceTextVersion: 'grc' | 'en';
+  /**
    * Tint words by grammatical category (case / finite verb / participle) in the
    * Kellogg-Reed and Phrase/Block diagrams, using the SAME palette as the
    * Morphology Clause mode. On by default; toggled near the Greek/English toggle.

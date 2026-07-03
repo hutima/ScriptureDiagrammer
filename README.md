@@ -60,8 +60,8 @@ The Greek NT pipeline is rebased around **SBLGNT Lowfat / MACULA Greek** as
 the primary/default Greek edition:
 
 - **SBLGNT Lowfat** (MACULA Greek, Clear-Bible — CC BY 4.0; SBLGNT text ©
-  SBL, CC BY 4.0) is the **default** Greek edition, with Philippians bundled
-  for offline first-run.
+  SBL, CC BY 4.0) is the **default** Greek edition, with John bundled for
+  offline first-run (it is also the first-launch walkthrough's passage).
 - **Nestle1904 Lowfat** (biblicalhumanities, CC BY-SA 4.0) remains fully
   available as the **legacy/alternate** edition — saved documents and patches
   are edition-scoped and never silently cross editions.
@@ -125,9 +125,15 @@ are tracked in
 - **Gold-standard data** — GNT (SBLGNT LowFat, Clear-Bible MACULA Greek
   CC BY 4.0 — the default edition — plus Nestle1904 LowFat,
   biblicalhumanities, as legacy/alternate) and OT (WLC LowFat,
-  macula-hebrew), fetched on demand and cached; Philippians is bundled for
-  offline/first-run in both Greek editions. Hand-tagged sample documents are
-  bundled too.
+  macula-hebrew), fetched on demand and cached; John is bundled for SBLGNT
+  (the default edition) for offline first-run — it is also the first-launch
+  walkthrough's passage. Hand-tagged sample documents are bundled too.
+- **First-launch walkthrough** — an optional, one-time tour (mobile-friendly)
+  that loads John 1:1 from the bundled SBLGNT and shows the English reading
+  aids: every step is skippable, Escape/Exit leaves immediately, nothing is
+  ever blocked, and it is replayable from the Guide (⋯ → Guide). English
+  glosses and the BSB parallel change only what you *read* — the diagram
+  structure always follows the Greek syntax.
 - **Strong's lexicon** — the whole Greek + Hebrew Strong's dictionary (Open
   Scriptures, public-domain Strong's 1890), bundled under `public/lexicon/` and
   loaded on demand for the add-a-word lemma search.

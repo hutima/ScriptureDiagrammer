@@ -528,6 +528,8 @@ export interface EditorActions {
   setFlipDiagram: (value: boolean) => void;
   /** Toggle English-gloss display in the structural diagrams. */
   setGlossMode: (value: boolean) => void;
+  /** Switch the source strip between the original text and the English (BSB) parallel. */
+  setSourceTextVersion: (value: 'grc' | 'en') => void;
   /** Toggle grammar-colour tinting in the Kellogg-Reed / Phrase-Block diagrams. */
   setColorMode: (value: boolean) => void;
   /** Prefer the app's own difference detection over any LLM-supplied diff words. */
@@ -803,6 +805,7 @@ export const useEditorStore = create<EditorStore>((set, get) => {
     sourceCompare: { on: false, source: 'opentext' },
     flipDiagram: loadFlipDiagram(),
     glossMode: false,
+    sourceTextVersion: 'grc',
     colorMode: true,
     preferAppDiff: false,
     inferences: [],
@@ -1680,6 +1683,7 @@ export const useEditorStore = create<EditorStore>((set, get) => {
       set({ flipDiagram: value });
     },
     setGlossMode: (value) => set({ glossMode: value }),
+    setSourceTextVersion: (value) => set({ sourceTextVersion: value }),
     setColorMode: (value) => set({ colorMode: value }),
     setPreferAppDiff: (value) => set({ preferAppDiff: value }),
 

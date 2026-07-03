@@ -5,8 +5,9 @@ import { lowfatToDocuments } from './lowfat';
  * Greek New Testament loader for the gold-standard mode. Each book is a
  * Nestle1904 Lowfat syntax tree (biblicalhumanities / Clear-Bible macula-greek,
  * CC BY-SA 4.0). Books are fetched on demand and cached by the service worker,
- * so the whole GNT is available without committing ~80 MB of XML to the app;
- * a starter book is bundled for first-run / offline use.
+ * so the whole GNT is available without committing ~80 MB of XML to the app.
+ * (The first-run starter book, John, is bundled in the default SBLGNT edition
+ * — see gnt-sblgnt.ts; this legacy edition bundles none.)
  */
 
 export interface GntBook {
@@ -65,8 +66,10 @@ function localBase(): string {
   return `${base.replace(/\/$/, '')}/gnt/`;
 }
 
-/** Only Philippians is bundled with the app; the rest fetch on demand. */
-export const BUNDLED_BOOKS = new Set([11]);
+/** No Nestle1904 book ships with the app (the bundled starter book, John,
+ *  belongs to the default SBLGNT edition); every book fetches on demand and
+ *  is then cached by the service worker / "Save offline". */
+export const BUNDLED_BOOKS = new Set<number>([]);
 
 /** Fetch and convert a book into one document per sentence (cached by the SW). */
 export async function loadGntBook(book: GntBook): Promise<KrDocument[]> {

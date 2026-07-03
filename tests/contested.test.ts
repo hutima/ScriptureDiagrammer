@@ -30,9 +30,11 @@ import type { KrDocument } from '@/domain/schema';
 
 /**
  * The contested-syntax registry must stay anchored to the REAL base parse data.
- * Offline passages (the bundled fixtures + bundled Philippians) are fully
- * checked here; network passages (Titus / Romans / Genesis / 1 Timothy) are
- * structurally checked here and id-checked by `npm run contested:check`.
+ * Offline passages (the bundled fixtures + the Philippians test fixture — a
+ * verbatim copy of the upstream book kept under tests/ so this suite runs
+ * without network) are fully checked here; network passages (Titus / Romans /
+ * Genesis / 1 Timothy) are structurally checked here and id-checked by
+ * `npm run contested:check`.
  */
 
 let philippians: KrDocument[] | null = null;
@@ -40,7 +42,7 @@ function loadOffline(passageId: string): KrDocument | undefined {
   if (passageId.startsWith('doc_sample')) return sampleDocuments.find((d) => d.id === passageId);
   if (passageId.startsWith('gnt_philippians_')) {
     if (!philippians) {
-      const xml = readFileSync(resolve(process.cwd(), 'public/gnt/11-philippians.xml'), 'utf8');
+      const xml = readFileSync(resolve(process.cwd(), 'tests/fixtures-nestle1904-philippians.xml'), 'utf8');
       philippians = lowfatToDocuments(xml, { book: 'Philippians' });
     }
     return philippians.find((d) => d.id === passageId);

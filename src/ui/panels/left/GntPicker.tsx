@@ -21,6 +21,7 @@ import { useViewport } from '@/ui/responsive';
 import type { KrDocument } from '@/domain/schema';
 import { applyStoredPatch } from '@/persistence';
 import { getIssuesForPassage } from '@/domain/contested';
+import { registerGntTutorialBridge } from '@/ui/tutorial/tutorialState';
 
 /**
  * Greek New Testament passage picker. Load a book, tick any number of sentences,
@@ -50,6 +51,11 @@ function pickerSource(d: KrDocument): Source {
 function bookForTitle(title: string): GntBook | undefined {
   return GNT_BOOKS.find((b) => title.startsWith(b.name));
 }
+
+/** The John 1:1 sentence (the first-run walkthrough's passage) — matches
+ *  "John 1:1" and "John 1:1–2" but not "John 1:10"-style references. */
+const JOHN_1_1_RE = /^John 1:1\b/;
+const john11IdOf = (list: KrDocument[] | null) => list?.find((p) => JOHN_1_1_RE.test(p.title))?.id;
 
 /** Books offered for a source: the full GNT, or those with an OpenText analysis. */
 function booksFor(source: Source): { num: number; name: string }[] {
@@ -85,7 +91,8 @@ export function GntPicker() {
   // came from), so the selector reflects what you're reading and persists across
   // remounts — exactly like the Book selector.
   const [source, setSource] = useState<Source>(() => pickerSource(doc));
-  const [bookNum, setBookNum] = useState(currentBook?.num ?? 11);
+  // Default to John — the bundled SBLGNT starter book (and walkthrough passage).
+  const [bookNum, setBookNum] = useState(currentBook?.num ?? 4);
   // Desktop-only two-source side-by-side comparison.
   const vp = useViewport();
   const compareOn = useEditorStore((s) => s.sourceCompare.on);
@@ -130,8 +137,8 @@ export function GntPicker() {
 
   const books = booksFor(source);
   const book = books.find((b) => b.num === bookNum) ?? books[0]!;
-  // OpenText's bundled Philemon is always offline-ready; each Lowfat edition
-  // bundles Philippians only.
+  // OpenText's bundled Philemon is always offline-ready; SBLGNT bundles John
+  // (the starter/walkthrough book); Nestle1904 bundles nothing.
   const bundledSet =
     source === 'macula-greek-sblgnt-lowfat' ? SBLGNT_BUNDLED_BOOKS : BUNDLED_BOOKS;
   const bundled = source === 'opentext' || bundledSet.has(book.num);
@@ -202,9 +209,12 @@ export function GntPicker() {
   const toggleAll = () =>
     setChecked(allChecked ? new Set() : new Set((passages ?? []).map((p) => p.id)));
 
-  const openChecked = () => {
+  // ONE open path for everything: the Open button opens the ticked sentences,
+  // and the first-run walkthrough's "skip" reuses the same function (never a
+  // duplicated open flow).
+  const openSelection = (ids: Set<string>) => {
     if (!passages) return;
-    const selected = passages.filter((p) => checked.has(p.id));
+    const selected = passages.filter((p) => ids.has(p.id));
     if (!selected.length) return;
     // Fold in each sentence's saved patch (e.g. a promoted/adopted alternate
     // reading) BEFORE combining, so a multi-sentence selection shows it instead
@@ -215,7 +225,7 @@ export function GntPicker() {
     // (καί / δέ / διό …) join on one coordinate spine rather than stacking.
     loadDocument(combinePassage(patched, { coordinate: source === 'opentext' }), { corpus: 'gnt' });
     // Reading context for prev/next nav: the book's sentences + the first opened.
-    const firstIdx = passages.findIndex((p) => checked.has(p.id));
+    const firstIdx = passages.findIndex((p) => ids.has(p.id));
     setGntContext(passages, firstIdx);
     setMode('parsed');
     // Flag any contested/debated readings among the included sentences — but
@@ -236,16 +246,75 @@ export function GntPicker() {
       setLeftCollapsed(true);
     }
   };
+  const openChecked = () => openSelection(checked);
+
+  // The first-run walkthrough (ui/tutorial) observes and steers this picker
+  // through a small imperative bridge. The refs keep the registered object
+  // stable across renders while its methods always read the CURRENT state and
+  // call the CURRENT open path.
+  const tourState = useRef({ source, bookNum, passages, checked, loading });
+  tourState.current = { source, bookNum, passages, checked, loading };
+  const tourFns = useRef({ openSelection, changeSource });
+  tourFns.current = { openSelection, changeSource };
+  useEffect(
+    () =>
+      registerGntTutorialBridge({
+        johnListReady: () => {
+          const s = tourState.current;
+          return s.source === 'macula-greek-sblgnt-lowfat' && s.bookNum === 4 && !!s.passages;
+        },
+        listLoading: () => tourState.current.loading,
+        anyChecked: () => tourState.current.checked.size > 0,
+        isJohn11Checked: () => {
+          const s = tourState.current;
+          const id = john11IdOf(s.passages);
+          return !!id && s.checked.has(id);
+        },
+        checkJohn11: () => {
+          const id = john11IdOf(tourState.current.passages);
+          if (!id) return false;
+          setChecked((prev) => new Set(prev).add(id));
+          return true;
+        },
+        ensureJohn: () => {
+          const s = tourState.current;
+          if (s.source !== 'macula-greek-sblgnt-lowfat') {
+            tourFns.current.changeSource('macula-greek-sblgnt-lowfat');
+          }
+          if (s.bookNum !== 4) {
+            setBookNum(4);
+            setCacheState('idle');
+          }
+        },
+        openCheckedOrJohn11: () => {
+          const s = tourState.current;
+          if (!s.passages) return false;
+          const john11 = john11IdOf(s.passages);
+          const ids = s.checked.size ? s.checked : new Set(john11 ? [john11] : []);
+          if (!ids.size) return false;
+          tourFns.current.openSelection(ids);
+          return true;
+        },
+      }),
+    [],
+  );
 
   /** "Philippians 1:1" → "1:1" for a compact list. */
   const verse = (title: string) => title.replace(/^.*?(\d+:\d+(?:[–-]\d+)?)\s*$/, '$1');
+
+  // The walkthrough's highlight target (computed once — the list can be long).
+  const john11Id = john11IdOf(passages);
 
   return (
     <div className="gnt-picker">
       {/* Syntax source: the published analysis a passage starts from. */}
       <label className="field">
         <span>Syntax source</span>
-        <select value={source} onChange={(e) => changeSource(e.target.value as Source)}>
+        <select
+          value={source}
+          data-tour="gnt-source-select"
+          onChange={(e) => changeSource(e.target.value as Source)}
+        >
           <option value="macula-greek-sblgnt-lowfat">SBLGNT Lowfat</option>
           <option value="macula-greek-nestle1904-lowfat">Nestle 1904 Lowfat (legacy)</option>
           <option value="opentext">OpenText syntax</option>
@@ -257,6 +326,7 @@ export function GntPicker() {
         <span>Book</span>
         <select
           value={bookNum}
+          data-tour="gnt-book-select"
           onChange={(e) => {
             setBookNum(Number(e.target.value));
             setCacheState('idle');
@@ -335,14 +405,23 @@ export function GntPicker() {
                 {book.name}: {passages.length} sentences
               </span>
             </label>
-            <button className="mini accept" disabled={!checked.size} onClick={openChecked}>
+            <button
+              className="mini accept"
+              data-tour="gnt-open"
+              disabled={!checked.size}
+              onClick={openChecked}
+            >
               Open{checked.size ? ` (${checked.size})` : ''}
             </button>
           </div>
           <ul className="gnt-list">
             {passages.map((p) => (
               <li key={p.id}>
-                <label className={`gnt-sentence${checked.has(p.id) ? ' checked' : ''}`}>
+                <label
+                  className={`gnt-sentence${checked.has(p.id) ? ' checked' : ''}`}
+                  data-tour={p.id === john11Id ? 'gnt-john-1-1' : undefined}
+                  data-tour-ref={p.title}
+                >
                   <input type="checkbox" checked={checked.has(p.id)} onChange={() => toggle(p.id)} />
                   <span className="gnt-ref">
                     {verse(p.title)}
