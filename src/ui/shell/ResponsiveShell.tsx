@@ -25,6 +25,7 @@ import { DesktopAlternateReadingDrawer } from '@/ui/contested/DesktopAlternateRe
 export function ResponsiveShell() {
   const vp = useViewport();
   const appMode = useEditorStore((s) => s.appMode);
+  const setAppMode = useEditorStore((s) => s.setAppMode);
   const leftCollapsed = useEditorStore((s) => s.leftCollapsed);
   const setLeftCollapsed = useEditorStore((s) => s.setLeftCollapsed);
   const setDiagramMode = useEditorStore((s) => s.setDiagramMode);
@@ -54,6 +55,13 @@ export function ResponsiveShell() {
   useEffect(() => {
     if (vp.isMobile && discourseMode) setDiagramMode('phrase-block');
   }, [vp.isMobile, discourseMode, setDiagramMode]);
+
+  // Discourse is manual-first: entering it makes **Edit** the default app mode
+  // in place of Explore (Study is kept if already active). Discourse is
+  // desktop-only, so Edit is always available here.
+  useEffect(() => {
+    if (discourseMode && appMode === 'explore' && vp.isDesktop) setAppMode('edit');
+  }, [discourseMode, appMode, vp.isDesktop, setAppMode]);
 
   if (vp.isMobile) {
     return (
