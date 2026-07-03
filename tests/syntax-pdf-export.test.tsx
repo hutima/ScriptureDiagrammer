@@ -42,6 +42,48 @@ describe('buildPrintableSvgHtml', () => {
     expect(html).toContain('A &lt;b&gt;x&lt;/b&gt; &amp; &quot;y&quot;');
     expect(html).not.toContain('<b>x</b>');
   });
+
+  it('renders a single consolidated Notes section AFTER the diagram when notes are given', () => {
+    const html = buildPrintableSvgHtml('<svg></svg>', {
+      title: 'Doc',
+      notes: [
+        { label: 'Passage', text: 'A document-level note.' },
+        { label: 'λόγος', text: '— theology: The Word incarnate.' },
+      ],
+    });
+    // Exactly one Notes section.
+    expect(html.match(/<h2>Notes<\/h2>/g)?.length).toBe(1);
+    expect(html).toContain('Passage');
+    expect(html).toContain('A document-level note.');
+    expect(html).toContain('λόγος');
+    expect(html).toContain('— theology: The Word incarnate.');
+    // The Notes section comes AFTER the diagram markup.
+    const diagramIdx = html.indexOf('<div class="diagram">');
+    const notesIdx = html.indexOf('<section class="notes">');
+    expect(diagramIdx).toBeGreaterThan(-1);
+    expect(notesIdx).toBeGreaterThan(diagramIdx);
+  });
+
+  it('omits the Notes section when notes are undefined or empty', () => {
+    const withoutNotes = buildPrintableSvgHtml('<svg></svg>', { title: 'Doc' });
+    expect(withoutNotes).not.toContain('Notes');
+    expect(withoutNotes).not.toContain('class="notes"');
+
+    const withEmptyNotes = buildPrintableSvgHtml('<svg></svg>', { title: 'Doc', notes: [] });
+    expect(withEmptyNotes).not.toContain('Notes');
+    expect(withEmptyNotes).not.toContain('class="notes"');
+  });
+
+  it('escapes HTML in note labels and text', () => {
+    const html = buildPrintableSvgHtml('<svg></svg>', {
+      title: 'Doc',
+      notes: [{ label: '<script>alert(1)</script>', text: 'Has <script>evil()</script> inside.' }],
+    });
+    expect(html).not.toMatch(/<script>alert/i);
+    expect(html).not.toMatch(/<script>evil/i);
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(html).toContain('Has &lt;script&gt;evil()&lt;/script&gt; inside.');
+  });
 });
 
 describe('printDocumentPdf (window.open stubbed)', () => {
@@ -73,6 +115,17 @@ describe('printDocumentPdf (window.open stubbed)', () => {
     const kr = buildSvg(doc, { verticalScale: 1 }, 'kellogg-reed');
     const dep = buildSvg(doc, { verticalScale: 1 }, 'dependency');
     expect(kr).not.toBe(dep);
+  });
+
+  it('passes meta.notes through to the printed page', () => {
+    const written = stubWindow();
+    const doc = sampleDoc();
+    printDocumentPdf(doc, { verticalScale: 1 }, 'kellogg-reed', undefined, {
+      title: doc.title,
+      notes: [{ label: 'Passage', text: 'A note for the printed page.' }],
+    });
+    expect(written.join('')).toContain('A note for the printed page.');
+    expect(written.join('')).toContain('<h2>Notes</h2>');
   });
 
   it('returns false when no popup or print target is available', () => {

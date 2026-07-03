@@ -55,6 +55,12 @@ export interface PrintableDiagramMeta {
   subtitle?: string;
   /** Optional generated-on date (already formatted for display). */
   date?: string;
+  /**
+   * Optional notes to print, consolidated in one section BELOW the diagram
+   * (document notes + sermon-prep notes, resolved to a human anchor label by
+   * the caller). Omitted or empty renders no notes section at all.
+   */
+  notes?: { label: string; text: string }[];
 }
 
 function escapeHtml(s: string): string {
@@ -86,9 +92,25 @@ export function buildPrintableSvgHtml(svg: string, meta: PrintableDiagramMeta): 
     .date { color: #888; font-size: 11px; margin: 0 0 16px; }
     .diagram { margin-top: 12px; }
     .diagram svg { max-width: 100%; height: auto; }
+    .notes { margin-top: 24px; padding-top: 12px; border-top: 1px solid #ccc; break-inside: avoid; }
+    .notes h2 { font-size: 13px; margin: 0 0 8px; color: #555; text-transform: uppercase; letter-spacing: 0.03em; }
+    .notes .note { font-size: 12px; margin: 0 0 6px; break-inside: avoid; }
+    .notes .nl { color: #888; font-style: italic; margin-right: 6px; }
     footer { margin-top: 24px; color: #888; font-size: 11px; }
     @media print { body { margin: 0.5in; } .diagram { break-inside: avoid; } }
   `.trim();
+
+  const notesHtml =
+    meta.notes && meta.notes.length > 0
+      ? [
+          '<section class="notes">',
+          '<h2>Notes</h2>',
+          ...meta.notes.map(
+            (n) => `<div class="note"><span class="nl">${escapeHtml(n.label)}</span>${escapeHtml(n.text)}</div>`,
+          ),
+          '</section>',
+        ]
+      : [];
 
   return [
     '<!doctype html>',
@@ -97,6 +119,7 @@ export function buildPrintableSvgHtml(svg: string, meta: PrintableDiagramMeta): 
     `<style>${style}</style></head><body>`,
     ...header,
     `<div class="diagram">${svg}</div>`,
+    ...notesHtml,
     '<footer>Exported from Scripture Diagrammer.</footer>',
     '</body></html>',
   ].join('\n');
@@ -120,6 +143,7 @@ export function printDocumentPdf(
     title: meta?.title ?? doc.title ?? 'Diagram',
     subtitle: meta?.subtitle,
     date: meta?.date,
+    notes: meta?.notes,
   });
   return printHtmlDocument(html);
 }
