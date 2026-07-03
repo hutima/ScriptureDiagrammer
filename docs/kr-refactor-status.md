@@ -165,7 +165,23 @@ the current geometry.
   clash-free, including when the classic position is already within PACK_PAD
   of content (grandfathered adjacency stays as-is). The packer only ever
   moves content LEFT of today's position — it can never widen a diagram.
-- [ ] Stage B1 — first call site: kr/word.ts layoutHead modifier cascade.
+- [x] **Stage B1 — first call site**: kr/word.ts layoutHead modifier cascade.
+  Pattern every later site copies: draw the modifier at its CLASSIC position,
+  slice the just-drawn elements, `reclaim(slice, maxShift)`, translate the
+  slice left by the provable shift, then `occupy` it. Branch bodies untouched;
+  `railRight` adjusted exactly (`max(before, after − shift)` only when it
+  grew). maxShift keeps feet ≥ dependentGap apart (first modifier never
+  moves); when clause dependents exist the future dashed-stem column at
+  wordW/2 is PRE-OCCUPIED so packed content can't land on a stem drawn later.
+  `modRight` became a running max (packing breaks the final-cursor
+  monotonicity). Results: −2.16% corpus area (127.46 → 124.71 Mpx²), 99/210
+  docs changed, EVERY delta negative (the slide-only design cannot widen);
+  structural snapshot diffs are bounds/compactness ONLY; two frozen
+  line-guard offenders FIXED in passing (σκύλλεις, θεοῦ risers — the
+  pedestalled clauses narrowed and the riser connect point moved off the
+  hanging word). Before/after renders of the 5 biggest movers eyeballed.
+  (Also fixed: the compactness report script now suffixes duplicate corpus
+  names so diffs pair correctly.)
 - [ ] Stage B2 — kr/clause.ts verb-modifier band vs complement start.
 - [ ] Stage B3 — kr/clause.ts clause-adjunct rail packing.
 - [ ] Stage B4 — kr/clause.ts stackClauses / layoutClauseSpine right growth.

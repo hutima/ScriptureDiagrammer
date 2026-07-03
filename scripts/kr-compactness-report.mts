@@ -21,10 +21,15 @@ const { layoutDocument } = await import('../src/domain/layout/index.ts');
 
 type Row = { name: string; width: number; height: number; area: number };
 
+// Corpus names are NOT unique (several sentences per verse share a title), so
+// suffix each with its occurrence index to keep the diff pairing stable.
+const seen = new Map<string, number>();
 const rows: Row[] = loadCorpus().map(({ name, doc }) => {
+  const n = (seen.get(name) ?? 0) + 1;
+  seen.set(name, n);
   const layout = layoutDocument(doc, doc.layoutHints);
   return {
-    name,
+    name: n > 1 ? `${name} #${n}` : name,
     width: Math.round(layout.width),
     height: Math.round(layout.height),
     area: Math.round(layout.width * layout.height),
