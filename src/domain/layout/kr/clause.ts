@@ -185,6 +185,19 @@ function layoutClauseSpine(
   // the verb below it.
   const spineCorrelative = coordTexts.length === laid.length && laid.length >= 2;
   const spineJoinSpan = reserveJoinSpans(coordTexts, laid.length, spineCorrelative);
+  // The spine coordinator marks (drawn AFTER the member loop, by coordinatorMarks)
+  // ride this same bar column in the gaps. Precompute, per JOIN, the coordinator
+  // text that will land in that gap — mirroring coordinatorMarks' per-join
+  // mapping — so a member's connector label can treat it as an occupier and not be
+  // centred on top of it. A correlative set rides member baselines, not gaps.
+  const coordAtJoin: (string | undefined)[] = new Array(Math.max(0, laid.length - 1)).fill(undefined);
+  if (!spineCorrelative) {
+    const joins = Math.max(1, laid.length - 1);
+    coordTexts.forEach((c, k) => {
+      const j = Math.max(0, Math.min(joins - 1, joins - coordTexts.length + k));
+      coordAtJoin[j] = c.text;
+    });
+  }
 
   const elements: DiagramElement[] = [];
   const verbYs: number[] = [];
@@ -211,13 +224,59 @@ function layoutClauseSpine(
     // has nothing above it to join, so its connector keeps a short left stub.)
     if (r.label && showLabel(ctx, r.dependentId)) {
       if (i > 0) {
-        // Centre the connector in the GAP between the previous clause's lowest
-        // point and this clause's highest — so with a tall upper member (a
-        // compound-predicate fork) it sits halfway between the clauses rather than
-        // riding the bottom arm of the fork above it.
-        const prevBottom = verbYs[i - 1]! + (laid[i - 1]?.block.height ?? 0);
         const thisTop = y - blockAscent(block);
-        const midY = (prevBottom + thisTop) / 2;
+        // Centre the connector on the VISUALLY CLEAR segment of the dashed bar —
+        // between "the line above" (the previous member's baseline) and the top
+        // of this member's word. The previous member's FULL depth (its modifier
+        // cascade) hangs to the RIGHT of the bar column, not on it, so counting
+        // that depth (the old `prevBottom`) biased the label down onto the lower
+        // word. Instead start at the previous baseline and push down only past
+        // elements that actually occupy the bar column in the gap.
+        const gapTop = verbYs[i - 1]!;
+        const COL = 12; // "on the bar column" horizontal tolerance
+        let clearTop = gapTop;
+        for (const el of elements) {
+          let elLeft: number, elRight: number, elTop: number, elBottom: number;
+          if (el.kind === 'line') {
+            // The vertical dashed bar/stem running down the column itself is the
+            // line the label legitimately rides — never let it close the band.
+            if (Math.abs(el.x1 - verbAlignX) < 1 && Math.abs(el.x2 - verbAlignX) < 1) continue;
+            elLeft = Math.min(el.x1, el.x2);
+            elRight = Math.max(el.x1, el.x2);
+            elTop = Math.min(el.y1, el.y2);
+            elBottom = Math.max(el.y1, el.y2);
+          } else if (el.kind === 'text') {
+            // Anchor-adjusted glyph box, same metrics the guards use: ascent ≈ 14
+            // above the anchor, a small descent below.
+            const w = measureText(el.text, el.small ? SMALL_FONT : undefined);
+            elLeft = el.anchor === 'middle' ? el.x - w / 2 : el.anchor === 'end' ? el.x - w : el.x;
+            elRight = elLeft + w;
+            elTop = el.y - 14;
+            elBottom = el.y + 3;
+          } else {
+            continue;
+          }
+          const nearColumn = elRight >= verbAlignX - COL && elLeft <= verbAlignX + COL;
+          const inGap = elBottom > gapTop && elTop < thisTop;
+          if (nearColumn && inGap) clearTop = Math.max(clearTop, Math.min(elBottom, thisTop));
+        }
+        // The spine coordinator riding this same gap (drawn later, so not yet in
+        // `elements`) also occupies the bar column — treat it as an occupier so the
+        // label clears it rather than landing on top of it.
+        const gapCoord = coordAtJoin[i - 1];
+        if (gapCoord) {
+          const coordY = (gapTop + y - LAYOUT.fontSize) / 2;
+          const cw = measureText(gapCoord, SMALL_FONT);
+          if (coordY + cw / 2 > gapTop && coordY - cw / 2 < thisTop) {
+            clearTop = Math.max(clearTop, Math.min(coordY + cw / 2, thisTop));
+          }
+        }
+        // Place on the clear band when the label fits it; otherwise keep the old
+        // gap-midpoint exactly, so cramped spines stay byte-identical.
+        const prevBottom = verbYs[i - 1]! + (laid[i - 1]?.block.height ?? 0);
+        const fallbackMidY = (prevBottom + thisTop) / 2;
+        const fits = thisTop - clearTop >= measureText(r.label!, SMALL_FONT) + 10;
+        const midY = fits ? (clearTop + thisTop) / 2 : fallbackMidY;
         elements.push({
           kind: 'text', id: eid(), x: verbAlignX, y: midY, text: r.label!,
           anchor: 'middle', small: true, italic: true, rotate: -90,
