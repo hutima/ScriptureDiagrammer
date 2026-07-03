@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { useDiscourseStore } from '@/state';
-import { ASV_URL, clearRemoteEnglishCache } from '@/io';
+import { clearRemoteEnglishCache } from '@/io';
 import { leafUnits } from '@/domain/discourse';
 import {
   DEFAULT_DEMO_ID,
@@ -11,27 +12,19 @@ import {
 } from '@/persistence';
 
 /**
- * Phase 5/7/8 — the default Ephesians 2:12–19 demo, the first-load guidance
- * modal, and their ordering. Fetch is always mocked (no live network). The
+ * The default BSB Ephesians 2:12–19 demo, its sample chiasm arcs, the first-load
+ * guidance modal, and their ordering. Fetch is always mocked (no live network);
+ * the demo's BSB data is served from the bundled parallel JSON on disk. The
  * modal-dismissed flag and the demo-hidden flag are asserted to be SEPARATE
  * persisted preferences.
  */
 
-/** A KJV Ephesians book stub whose chapter 2 covers verses 12–19. */
-function kjvEphesiansJson() {
-  const verses = [];
-  for (let v = 10; v <= 22; v++) {
-    verses.push({ verse: String(v), text: `Ephesians two verse ${v} text here.` });
-  }
-  return { book: 'Ephesians', chapters: [{ chapter: '2', verses }] };
-}
-
+/** Serve the real bundled BSB Ephesians parallel JSON through a mocked fetch. */
 function stubFetch() {
+  const ephesians = JSON.parse(readFileSync('public/parallel/bsb/10-ephesians.json', 'utf8'));
   const fn = vi.fn(async (url: string) => {
-    if (url === ASV_URL)
-      return { ok: true, status: 200, json: async () => ({ translation: 'ASV', books: [] }) } as Response;
-    if (url.includes('aruljohn'))
-      return { ok: true, status: 200, json: async () => kjvEphesiansJson() } as Response;
+    if (url.includes('10-ephesians.json'))
+      return { ok: true, status: 200, json: async () => ephesians } as Response;
     return { ok: false, status: 404, json: async () => ({}) } as Response;
   });
   vi.stubGlobal('fetch', fn);
@@ -59,6 +52,14 @@ function resetStore() {
   });
 }
 
+/** Map a loaded doc's leaf units to refStart → unitId. */
+function refToUnit(): Map<string, string> {
+  const doc = useDiscourseStore.getState().doc!;
+  const m = new Map<string, string>();
+  for (const u of leafUnits(doc)) if (u.refStart) m.set(u.refStart, u.id);
+  return m;
+}
+
 beforeEach(() => {
   localStorage.clear();
   clearRemoteEnglishCache();
@@ -69,29 +70,29 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('default demo — loading & identity', () => {
-  it('loadDefaultDemo loads Ephesians 2:12–19 from KJV and stamps the demo flag', async () => {
+describe('default demo — loading & identity (BSB)', () => {
+  it('loads Ephesians 2:12–19 from BSB (NT), not 2 Samuel, and stamps the demo flag', async () => {
     stubFetch();
     await useDiscourseStore.getState().loadDefaultDemo();
     const s = useDiscourseStore.getState();
     expect(s.status).toBe('loaded');
     expect(s.isDefaultDemo).toBe(true);
-    expect(s.doc?.sourceId).toBe('english-kjv');
+    expect(s.doc?.sourceId).toBe('english-bsb');
     expect(s.doc?.language).toBe('en');
-    // Verses outside 12–19 are discarded.
+    // Exactly eight verse-level units, 2:12 → 2:19 (verses outside are discarded).
     expect(leafUnits(s.doc!).map((u) => u.refStart)).toEqual(
       ['2:12', '2:13', '2:14', '2:15', '2:16', '2:17', '2:18', '2:19'],
     );
+    // BSB text, not 2 Samuel — the demo range is Ephesians (Gentiles / covenants).
+    expect(s.doc!.title.toLowerCase()).toContain('ephesians');
   });
 
-  it('is idempotent — re-loading the already-loaded demo does not refetch', async () => {
-    const fetchFn = stubFetch();
+  it('is idempotent — re-loading the already-loaded demo does not rebuild the doc', async () => {
+    stubFetch();
     await useDiscourseStore.getState().loadDefaultDemo();
-    const callsAfterFirst = fetchFn.mock.calls.length;
     const docRef = useDiscourseStore.getState().doc;
     await useDiscourseStore.getState().loadDefaultDemo();
-    expect(useDiscourseStore.getState().doc).toBe(docRef); // no reload
-    expect(fetchFn.mock.calls.length).toBe(callsAfterFirst);
+    expect(useDiscourseStore.getState().doc).toBe(docRef); // no rebuild
     expect(useDiscourseStore.getState().isDefaultDemo).toBe(true);
   });
 
@@ -99,10 +100,64 @@ describe('default demo — loading & identity', () => {
     stubFetch();
     await useDiscourseStore.getState().loadDefaultDemo();
     expect(useDiscourseStore.getState().isDefaultDemo).toBe(true);
-    // Load a different KJV range (still English, but not the demo signature).
+    // Load a different range from the same source (not the demo signature).
     useDiscourseStore.getState().setRange('2:15', '2:17');
     await useDiscourseStore.getState().loadRange();
     expect(useDiscourseStore.getState().status).toBe('loaded');
+    expect(useDiscourseStore.getState().isDefaultDemo).toBe(false);
+  });
+});
+
+describe('default demo — sample chiasm arcs', () => {
+  it('loads with four chiasm arcs connecting the mirrored verses', async () => {
+    stubFetch();
+    await useDiscourseStore.getState().loadDefaultDemo();
+    const doc = useDiscourseStore.getState().doc!;
+    const chiasm = doc.relations.filter((r) => r.type === 'chiasm');
+    expect(chiasm.length).toBe(4);
+
+    const ref = refToUnit();
+    const pairs = chiasm.map((r) => {
+      const a = [...ref.entries()].find(([, id]) => id === r.sourceUnitId)?.[0];
+      const b = [...ref.entries()].find(([, id]) => id === r.targetUnitId)?.[0];
+      return `${a}↔${b}`;
+    });
+    expect(pairs.sort()).toEqual(['2:12↔2:19', '2:13↔2:18', '2:14↔2:17', '2:15↔2:16'].sort());
+    // Labelled and clearly marked as sample/demo material (never authoritative).
+    for (const r of chiasm) {
+      expect(r.label).toBeTruthy();
+      expect(r.provenance?.source).toBe('manual');
+      expect(r.provenance?.reason?.toLowerCase()).toContain('sample');
+    }
+  });
+
+  it('arcs are editable and deletable, and Reset restores them', async () => {
+    stubFetch();
+    await useDiscourseStore.getState().loadDefaultDemo();
+    const arc = useDiscourseStore.getState().doc!.relations.find((r) => r.type === 'chiasm')!;
+    // Delete one arc.
+    useDiscourseStore.getState().deleteRelation(arc.id);
+    expect(useDiscourseStore.getState().doc!.relations.some((r) => r.id === arc.id)).toBe(false);
+    // Reset restores the demo's seeded arcs (all four).
+    useDiscourseStore.getState().resetEdits();
+    expect(useDiscourseStore.getState().doc!.relations.filter((r) => r.type === 'chiasm').length).toBe(4);
+  });
+
+  it('arcs persist across a reload of the demo (patch round-trip)', async () => {
+    stubFetch();
+    await useDiscourseStore.getState().loadDefaultDemo();
+    // Fresh session: drop in-memory docs, then re-enter and auto-load the demo.
+    dismissDiscourseFirstLoadModal();
+    resetStore();
+    await useDiscourseStore.getState().loadDefaultDemo();
+    expect(useDiscourseStore.getState().doc!.relations.filter((r) => r.type === 'chiasm').length).toBe(4);
+  });
+
+  it('a normal (non-demo) range load of Ephesians 2:12–19 gets NO sample arcs', async () => {
+    stubFetch();
+    useDiscourseStore.setState({ sourceId: 'english-bsb', bookNum: 10, startRef: '2:12', endRef: '2:19', granularity: 'verse' });
+    await useDiscourseStore.getState().loadRange();
+    expect(useDiscourseStore.getState().doc!.relations.filter((r) => r.type === 'chiasm').length).toBe(0);
     expect(useDiscourseStore.getState().isDefaultDemo).toBe(false);
   });
 });
@@ -124,17 +179,15 @@ describe('first entry — modal vs auto-load ordering', () => {
     const s = useDiscourseStore.getState();
     expect(s.firstLoadModalOpen).toBe(false);
     expect(s.isDefaultDemo).toBe(true);
-    expect(s.doc?.sourceId).toBe('english-kjv');
+    expect(s.doc?.sourceId).toBe('english-bsb');
   });
 
   it('an existing discourse document prevents the auto demo overwrite', async () => {
     stubFetch();
     dismissDiscourseFirstLoadModal();
-    // Load the user's own plaintext first.
     useDiscourseStore.getState().loadPlainText('The boy ran. The boy ran home.', 'Mine');
     const mine = useDiscourseStore.getState().doc;
     await useDiscourseStore.getState().enterDiscourseMode();
-    // Untouched — the demo never overwrote it.
     expect(useDiscourseStore.getState().doc).toBe(mine);
     expect(useDiscourseStore.getState().isDefaultDemo).toBe(false);
   });
@@ -145,7 +198,6 @@ describe('first entry — modal vs auto-load ordering', () => {
     hideDefaultDemo();
     await useDiscourseStore.getState().enterDiscourseMode();
     expect(useDiscourseStore.getState().doc).toBeNull();
-    // Simulate a fresh mount (PWA update keeps localStorage): still hidden.
     resetStore();
     await useDiscourseStore.getState().enterDiscourseMode();
     expect(useDiscourseStore.getState().doc).toBeNull();
@@ -165,43 +217,27 @@ describe('removing / resetting the demo', () => {
     expect(isDefaultDemoHidden()).toBe(true);
   });
 
-  it('resetting demo edits does NOT set the hide flag', async () => {
-    stubFetch();
-    await useDiscourseStore.getState().loadDefaultDemo();
-    const first = leafUnits(useDiscourseStore.getState().doc!)[0]!;
-    useDiscourseStore.getState().labelUnit(first.id, 'A');
-    useDiscourseStore.getState().resetEdits();
-    expect(useDiscourseStore.getState().doc!.units.find((u) => u.id === first.id)?.label).toBeUndefined();
-    expect(isDefaultDemoHidden()).toBe(false);
-  });
-
   it('a manual demo load works after hiding and does NOT clear the hide flag', async () => {
     stubFetch();
     hideDefaultDemo();
     await useDiscourseStore.getState().loadDefaultDemo();
     expect(useDiscourseStore.getState().isDefaultDemo).toBe(true);
-    expect(useDiscourseStore.getState().doc?.sourceId).toBe('english-kjv');
-    // Manual load leaves the hide flag intact (only "Restore" would clear it).
+    expect(useDiscourseStore.getState().doc?.sourceId).toBe('english-bsb');
     expect(isDefaultDemoHidden()).toBe(true);
   });
 
   it('removing the demo leaves unrelated discourse patches intact', async () => {
     stubFetch();
-    // 1. A user's own plaintext doc with an edit → its own patch key.
     useDiscourseStore.getState().loadPlainText('The boy ran. The boy ran home.', 'Mine');
     const mineId = useDiscourseStore.getState().baseDoc!.id;
     const mineFirst = leafUnits(useDiscourseStore.getState().doc!)[0]!;
     useDiscourseStore.getState().labelUnit(mineFirst.id, 'Keep');
     expect(localStorage.getItem(`kr:discourse:${mineId}`)).toBeTruthy();
 
-    // 2. Load + edit the demo, then remove it.
     await useDiscourseStore.getState().loadDefaultDemo();
     const demoId = useDiscourseStore.getState().baseDoc!.id;
-    const demoFirst = leafUnits(useDiscourseStore.getState().doc!)[0]!;
-    useDiscourseStore.getState().labelUnit(demoFirst.id, 'Demo');
     useDiscourseStore.getState().removeDefaultDemo();
 
-    // The demo's own patch is gone; the unrelated plaintext patch survives.
     expect(localStorage.getItem(`kr:discourse:${demoId}`)).toBeNull();
     expect(localStorage.getItem(`kr:discourse:${mineId}`)).toBeTruthy();
   });

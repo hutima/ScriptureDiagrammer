@@ -112,10 +112,12 @@ are tracked in
     sentences; there is **no LLM call**, no syntax parse, and no `KrDocument`.
   - **Default demo + guidance** — the first Discourse visit shows a one-time
     guidance modal (reopenable from the ⓘ button) and offers a default demo
-    passage, **Ephesians 2:12–19** (loaded from the public-domain KJV, text
-    only — no pre-drawn structure). You can remove the demo so it is never
-    auto-restored (a persistent choice that survives reloads and PWA updates),
-    distinct from resetting your edits.
+    passage, **Ephesians 2:12–19** (loaded from the bundled BSB, one verse per
+    line, with a clearly-labelled **sample chiasm** of four correspondence arcs
+    already drawn — a demonstration, not an authoritative reading). The arcs are
+    ordinary editable/deletable relations, restored by Reset. You can remove the
+    demo so it is never auto-restored (a persistent choice that survives reloads
+    and PWA updates), distinct from resetting your edits.
 - **Gold-standard data** — GNT (SBLGNT LowFat, Clear-Bible MACULA Greek
   CC BY 4.0 — the default edition — plus Nestle1904 LowFat,
   biblicalhumanities, as legacy/alternate) and OT (WLC LowFat,

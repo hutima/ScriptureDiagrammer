@@ -19,6 +19,7 @@ import {
   expandDiscourseUnit,
   indentDiscourseUnit,
   labelDiscourseUnit,
+  leafUnits,
   mergeAdjacentDiscourseUnits,
   moveDiscourseUnit,
   nestDiscourseUnits,
@@ -232,12 +233,56 @@ const HISTORY_LIMIT = 100;
  * exactly like any other Discourse document.
  */
 const DEMO_RANGE = {
-  sourceId: 'english-kjv' as DiscourseSourceId,
-  bookNum: 10, // Ephesians
+  // The demo uses the bundled BSB (the app's modern English display source) so
+  // it loads offline and reliably. `english-bsb` is the NT corpus, indexed by
+  // NT book number (GNT_BOOKS), where Ephesians is book 10 — this is a DIFFERENT
+  // index from KJV/ASV's 66-book canon (where 10 is 2 Samuel), which is exactly
+  // the book-index confusion that made the demo previously load 2 Samuel.
+  sourceId: 'english-bsb' as DiscourseSourceId,
+  bookNum: 10, // Ephesians (NT / GNT_BOOKS index)
   startRef: '2:12',
   endRef: '2:19',
   granularity: 'verse' as DiscourseGranularity,
 };
+
+/**
+ * The sample chiasm seeded onto a fresh demo — four correspondence arcs
+ * (A↔A′ … D↔D′) over Ephesians 2:12–19. It is DEMONSTRATION material
+ * (provenance `manual`, low confidence), never authoritative: it lives in the
+ * demo's patch (not the base), so it is fully editable, is removed by Reset,
+ * and disappears with the demo.
+ */
+const DEMO_CHIASM_ARCS: { id: string; a: string; b: string; label: string }[] = [
+  { id: 'dr_demo_chiasm_a', a: '2:12', b: '2:19', label: 'A ↔ A′ — alienated ↔ no longer strangers' },
+  { id: 'dr_demo_chiasm_b', a: '2:13', b: '2:18', label: 'B ↔ B′ — brought near ↔ access by one Spirit' },
+  { id: 'dr_demo_chiasm_c', a: '2:14', b: '2:17', label: 'C ↔ C′ — he is our peace ↔ he preached peace' },
+  { id: 'dr_demo_chiasm_d', a: '2:15', b: '2:16', label: 'D ↔ D′ — one new humanity ↔ reconciled in one body' },
+];
+
+/** Add the sample chiasm arcs to a fresh demo base (pure; deterministic ids). */
+function seedDemoChiasm(base: DiscourseDocument): DiscourseDocument {
+  const byRef = new Map<string, string>();
+  for (const u of leafUnits(base)) {
+    if (u.refStart && !byRef.has(u.refStart)) byRef.set(u.refStart, u.id);
+  }
+  const provenance = {
+    source: 'manual' as const,
+    confidence: 'low' as const,
+    reason: 'Sample chiasm — a demonstration structure, not an authoritative analysis.',
+  };
+  let doc = base;
+  for (const arc of DEMO_CHIASM_ARCS) {
+    const sourceUnitId = byRef.get(arc.a);
+    const targetUnitId = byRef.get(arc.b);
+    if (!sourceUnitId || !targetUnitId) continue;
+    doc = addDiscourseRelation(
+      doc,
+      { id: arc.id, sourceUnitId, targetUnitId, type: 'chiasm', label: arc.label, confidence: 'low', provenance },
+      base.updatedAt, // deterministic timestamp (no Date.now in the seed)
+    );
+  }
+  return doc;
+}
 
 /** Does the current loader range match the canonical demo signature? */
 function isDemoRange(s: {
@@ -383,19 +428,22 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
       const s = get();
       if (s.doc || s.status === 'loading') return; // already restored / in flight
       const last = loadLastDiscourseRange();
-      if (last) {
-        set({
-          sourceId: last.sourceId as DiscourseSourceId,
-          bookNum: last.bookNum,
-          startRef: last.startRef,
-          endRef: last.endRef,
-          granularity: (last.granularity as DiscourseGranularity) ?? 'sentence',
-        });
-        await get().loadRange();
-        // A restored range that matches the demo signature is the demo: stamp it
-        // so the "Remove demo" affordance appears after a reload.
-        if (isDemoRange(get())) set({ isDefaultDemo: true });
+      if (!last) return;
+      const range = {
+        sourceId: last.sourceId as DiscourseSourceId,
+        bookNum: last.bookNum,
+        startRef: last.startRef,
+        endRef: last.endRef,
+      };
+      // A restored range that matches the demo signature IS the demo: reload it
+      // through `loadDefaultDemo` so the sample chiasm is seeded and the demo
+      // stamp is set exactly as on first load (not a bare passage).
+      if (isDemoRange(range)) {
+        await get().loadDefaultDemo();
+        return;
       }
+      set({ ...range, granularity: (last.granularity as DiscourseGranularity) ?? 'sentence' });
+      await get().loadRange();
     },
 
     enterDiscourseMode: async () => {
@@ -425,7 +473,18 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
       }
       set({ ...DEMO_RANGE });
       await get().loadRange();
-      if (get().status === 'loaded' && isDemoRange(get())) set({ isDefaultDemo: true });
+      const st = get();
+      if (st.status !== 'loaded' || !isDemoRange(st) || !st.baseDoc) return;
+      // The sample chiasm is part of the DEMO BASE — "removable demo/sample
+      // state", the one sanctioned exception to bases carrying no user-facing
+      // relations. Seeding the base (deterministically) means Reset restores the
+      // arcs, a NORMAL (non-demo) load of the same range never gets them, and
+      // stored user patches still apply (the base hash is stable). `loadRange`
+      // built + applied the patch against the bare base, so re-derive the live
+      // doc from the seeded base here.
+      const seededBase = seedDemoChiasm(st.baseDoc);
+      const live = applyStoredDiscoursePatch(seededBase);
+      set({ baseDoc: seededBase, doc: live, isDefaultDemo: true });
     },
 
     removeDefaultDemo: () => {
