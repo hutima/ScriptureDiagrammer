@@ -202,10 +202,13 @@ The first time you open Discourse mode, a short **guidance modal** appears
 ("Discourse mode is self-directed"). It offers three choices:
 
 - **Use demo passage** — loads the default demo, **Ephesians 2:12–19**, from the
-  public-domain **KJV**. This passage moves from alienation to nearness and
-  reconciliation in Christ — a compact test-bed for contrast, progression,
-  inclusio, or chiasm. The demo is only *text*: no structure is pre-drawn, so any
-  arrangement you build is your own analysis.
+  bundled **BSB**, one verse per line. This passage moves from alienation to
+  nearness and reconciliation in Christ — a compact test-bed for contrast,
+  progression, inclusio, or chiasm. The demo comes with a **sample chiasm**
+  already drawn (four arcs: 2:12↔2:19, 2:13↔2:18, 2:14↔2:17, 2:15↔2:16),
+  clearly marked as demonstration material — **not** an authoritative reading.
+  Every arc is an ordinary relation: edit its type/label, delete it, or **Reset**
+  to restore the sample. A normal (non-demo) load of the same verses has no arcs.
 - **Start with my own passage** — opens the **New text** tab so you can paste
   your own prose (no AI parse involved).
 - **Dismiss** — closes the modal and loads nothing.

@@ -99,15 +99,33 @@ assert each action touches only its own flag.
   future "Load demo") and does NOT clear the hide flag; only an explicit
   "restore on startup" (`unhideDefaultDemo`) would.
 
-## Sample chiasm overlay (Phase 6) — deliberately skipped
+## Source correction — BSB, not KJV (and the book-index bug)
 
-No seeded chiasm/annotations are baked into the demo. The base document is the
-KJV passage text only; any structure (contrast, inclusio, chiasm) is authored by
-the user with provenance `manual`. Baking an interpretation into the base would
-make demo annotations indistinguishable from user-authored patches and present
-one reading as authoritative — both explicitly disallowed. If a removable
-demo-overlay system is added later, it can seed the A/B/C/C′/B′/A′ movement as
-clearly-labelled sample material; until then only the passage text loads.
+The demo now loads from the **bundled BSB** (`english-bsb`) rather than remote
+KJV. Two reasons: BSB is the app's modern English display source and it is
+bundled (so the demo loads offline and reliably), and it sidesteps a book-index
+bug. `english-bsb` is the NT corpus, indexed by the **NT-only** `GNT_BOOKS` list
+where Ephesians is book **10**. KJV/ASV, by contrast, use the full **66-book**
+`REMOTE_ENGLISH_BOOKS` canon where book 10 is **2 Samuel** — so the original
+`bookNum: 10` demo, pointed at KJV, loaded *2 Samuel 2:12–19*. The fix is to use
+the correct source + index (BSB / NT book 10), not to patch the title.
+
+## Sample chiasm arcs (Phase 6) — seeded into the demo base
+
+The demo BASE is seeded with a **sample chiasm**: four `chiasm` relation arcs —
+2:12↔2:19 (A↔A′), 2:13↔2:18 (B↔B′), 2:14↔2:17 (C↔C′), 2:15↔2:16 (D↔D′) — each
+provenance `manual`, low confidence, with a label and a `reason` that names it
+sample material. `seedDemoChiasm` is pure and deterministic (arc ids fixed,
+timestamp taken from the base), so the base hash is stable and stored user
+patches keep applying across reloads.
+
+Seeding the **base** (not a patch) is the one sanctioned exception to "generated
+bases carry no user-facing relations" — it is the "removable demo/sample state"
+the architecture allows. It gives exactly the required semantics: **Reset**
+restores the arcs (they are the demo default), a **normal non-demo** load of the
+same range gets **none**, the arcs are ordinary editable/deletable relations
+(not a hard-coded overlay), and **Remove demo** clears them with the demo. They
+are never authoritative — labels and provenance mark them as a demonstration.
 
 ## Why Discourse stays separate from syntax diagrams
 

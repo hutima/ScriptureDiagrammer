@@ -453,11 +453,17 @@ its own document model, store, persistence, and renderer. See
 - **Default demo + first-load modal** (`state/discourse.ts`,
   `ui/discourse/DiscourseFirstLoadModal.tsx`; see
   `docs/discourse-english-default-demo-plan.md`). The default demo is
-  **Ephesians 2:12–19**, loaded from the public-domain **KJV** through the
-  NORMAL range pipeline (`loadDefaultDemo`), never a fixture — so it is fully
-  editable and stamped `isDefaultDemo` (drives the "Remove demo" button). It is
-  a text default only: NO chiasm/annotations are baked in (structure is
-  user-authored). `enterDiscourseMode` orchestrates first entry: restore any
+  **Ephesians 2:12–19**, loaded from the bundled **BSB** (`english-bsb`, the NT
+  corpus — book 10 in the NT-only GNT index, NOT the 66-book canon where 10 is
+  2 Samuel) through the NORMAL range pipeline (`loadDefaultDemo`), by verse,
+  never a fixture — fully editable and stamped `isDefaultDemo` (drives the
+  "Remove demo" button). The demo BASE is seeded with a **sample chiasm** —
+  four `chiasm` arcs (2:12↔2:19, 2:13↔2:18, 2:14↔2:17, 2:15↔2:16), provenance
+  `manual`/low, labelled and clearly marked as sample material. Seeding the BASE
+  (deterministically) is the one sanctioned exception to "bases carry no
+  user-facing relations": it means Reset restores the arcs, a NORMAL (non-demo)
+  load of the same range never gets them, and stored user patches still apply.
+  `enterDiscourseMode` orchestrates first entry: restore any
   prior range, else on first-ever visit open the guidance modal and WAIT (no demo
   behind it), else auto-load the demo when nothing is loaded and it is not hidden.
   Two SEPARATE `kr:discoursePref:*` preferences (distinct prefix so
