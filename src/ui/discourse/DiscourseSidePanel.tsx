@@ -106,6 +106,8 @@ function RelationColorRow({
 export function DiscourseSidePanel() {
   const appMode = useEditorStore((s) => s.appMode);
   const doc = useDiscourseStore((s) => s.doc);
+  const view = useDiscourseStore((s) => s.view);
+  const setView = useDiscourseStore((s) => s.setView);
   const selection = useDiscourseStore((s) => s.selection);
   const select = useDiscourseStore((s) => s.select);
   const labelUnit = useDiscourseStore((s) => s.labelUnit);
@@ -143,8 +145,37 @@ export function DiscourseSidePanel() {
     return u.label || formatRange(u.refStart, u.refEnd) || u.kind;
   };
 
+  const relationSide = view.relationSide ?? 'right';
+
   return (
     <aside className="discourse-side-panel" aria-label="Discourse tools and details">
+      {/* A pure reading/view preference (which side the relation-arc gutter
+          renders on) — NOT a structural edit, so it lives here, always
+          rendered, rather than inside the Edit-mode-only toolbar below. */}
+      <div className="discourse-relation-side-row">
+        <span className="discourse-toolbar-group-label">Relation side</span>
+        <div className="lang-toggle" role="group" aria-label="Relation side">
+          <button
+            type="button"
+            className={relationSide === 'left' ? 'active' : ''}
+            aria-pressed={relationSide === 'left'}
+            title="Draw relation arcs in a gutter on the left"
+            onClick={() => setView({ relationSide: 'left' })}
+          >
+            Left
+          </button>
+          <button
+            type="button"
+            className={relationSide === 'right' ? 'active' : ''}
+            aria-pressed={relationSide === 'right'}
+            title="Draw relation arcs in a gutter on the right"
+            onClick={() => setView({ relationSide: 'right' })}
+          >
+            Right
+          </button>
+        </div>
+      </div>
+
       {/* The action toolbar is Edit-mode only (D5) — Explore/Study read cleanly
           without structural editing controls. */}
       {appMode === 'edit' && <DiscourseToolbar />}

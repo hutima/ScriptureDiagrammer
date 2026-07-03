@@ -1,18 +1,50 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useDiscourseStore } from '@/state';
 import type { DiscourseDocument } from '@/domain/schema';
 import {
   childUnits,
   discourseRows,
+  layoutDiscourseRelations,
   visibleRelationEndpoints,
+  type RelationEndpointInput,
 } from '@/domain/discourse';
 import { resolvedRelationColor } from '@/domain/discourse';
 import { DiscourseUnitBlock } from './DiscourseUnitBlock';
-import { DiscourseRelationLayer, type ArcSpec } from './DiscourseRelationLayer';
+import { DiscourseRelationLayer } from './DiscourseRelationLayer';
 import { DiscourseRelationPicker } from './DiscourseRelationPicker';
 
-/** Width of the RIGHT gutter the relation arcs live in. */
-const ARC_GUTTER = 132;
+/** Base padding on the side of `.discourse-content` that has NO gutter, and
+ *  the fixed portion of the gutter side's padding (gutter width is added on
+ *  top of this, not instead of it — see `contentStyle` below). */
+const BASE_PAD = 16;
+/** Fixed width budget for the unit column itself (`.discourse-unit`'s own
+ *  max-width in CSS) — kept in sync here only for the content max-width math. */
+const UNIT_MAX_WIDTH = 760;
+
+/**
+ * Two `RelationEndpointInput[]` are "the same" for re-render purposes when
+ * every relation's (rounded) geometry matches — used to break the
+ * measure → resize → re-measure loop a naive `setState` would create every
+ * time the ResizeObserver fires (see the effect below).
+ */
+function sameEndpoints(a: RelationEndpointInput[], b: RelationEndpointInput[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const x = a[i]!;
+    const y = b[i]!;
+    if (
+      x.relation.id !== y.relation.id ||
+      x.y1 !== y.y1 ||
+      x.y2 !== y.y2 ||
+      (x.a1 ?? 0) !== (y.a1 ?? 0) ||
+      (x.a2 ?? 0) !== (y.a2 ?? 0)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 
 /**
  * The discourse outline itself: a scrollable vertical list of unit blocks
@@ -94,45 +126,117 @@ export function DiscourseView({
 
   // --- arc geometry: measure the rendered blocks --------------------------------
   const contentRef = useRef<HTMLDivElement | null>(null);
+  // The INNER unit-list element (not the padded `.discourse-content`) is what
+  // the ResizeObserver watches. Observing the padded box would create a
+  // feedback loop: a gutter-width change resizes `.discourse-content` (its
+  // padding grew/shrank) → RO fires → re-measure → maybe a different lane
+  // count → a different gutter width → resize again. The unit list's own
+  // box only changes with the TEXT content (font load, viewport width,
+  // collapse/expand), which is what we actually want to react to.
+  const unitListRef = useRef<HTMLDivElement | null>(null);
   const unitEls = useRef(new Map<string, HTMLElement>());
   const registerEl = useCallback((unitId: string, el: HTMLElement | null) => {
     if (el) unitEls.current.set(unitId, el);
     else unitEls.current.delete(unitId);
   }, []);
 
-  const [arcs, setArcs] = useState<ArcSpec[]>([]);
+  const side = view.relationSide ?? 'right';
+
+  const [endpoints, setEndpoints] = useState<RelationEndpointInput[]>([]);
   const [contentHeight, setContentHeight] = useState(0);
+  // The gutterWidth actually baked into the CURRENTLY PAINTED padding — read
+  // by `measure()` below to place left-side endpoint tips (see `leftAttach`).
+  // Using the value the DOM was last rendered with (rather than this render's
+  // in-flight value) keeps the two in agreement without an extra render pass.
+  const paintedGutterWidthRef = useRef(0);
 
   const measure = useCallback(() => {
     const content = contentRef.current;
     if (!content) return;
-    const cTop = content.getBoundingClientRect().top;
-    const endpoints = visibleRelationEndpoints(doc, rows);
+    if (!view.showRelations) {
+      setEndpoints((prev) => (prev.length ? [] : prev));
+      setContentHeight(content.scrollHeight);
+      return;
+    }
+    const cRect = content.getBoundingClientRect();
+    const cTop = cRect.top;
+    const cLeft = cRect.left;
+    const relEndpoints = visibleRelationEndpoints(doc, rows);
     const mid = (id: string): number | null => {
       const el = unitEls.current.get(id);
       if (!el) return null;
       const r = el.getBoundingClientRect();
-      return r.top - cTop + r.height / 2;
+      return Math.round(r.top - cTop + r.height / 2);
     };
-    const next: ArcSpec[] = [];
-    for (const e of endpoints) {
+    // LEFT-SIDE ATTACH-POINT MAPPING (only meaningful when `side === 'left'`):
+    // per `relationLayout.ts`'s convention, `u = 0` sits at the gutter/text
+    // boundary and INCREASES away from the text. For a left gutter that
+    // boundary is the gutter div's right edge, which currently sits
+    // `paintedGutterWidthRef.current` px from `.discourse-content`'s left
+    // edge (the gutter div is rendered flush left, `left:0`). A unit's own
+    // rendered left edge, minus that boundary, is how far outward the
+    // attach point would sit if it were positive; since a unit's left edge
+    // always sits INSIDE the text column, this is always ≤ 0 — exactly the
+    // "reaches into the text" tip the helper expects. Deeper indentation (or
+    // the drag handle's own width) pushes the unit right, i.e. the tip
+    // further negative, so clamp it to a sane max reach.
+    const leftAttach = (id: string): number | undefined => {
+      if (side !== 'left') return undefined;
+      const el = unitEls.current.get(id);
+      if (!el) return undefined;
+      const unitLeft = el.getBoundingClientRect().left - cLeft;
+      const a = -(unitLeft - paintedGutterWidthRef.current);
+      return Math.round(Math.max(-240, Math.min(0, a)));
+    };
+    const next: RelationEndpointInput[] = [];
+    for (const e of relEndpoints) {
       const y1 = mid(e.sourceId);
       const y2 = mid(e.targetId);
       if (y1 == null || y2 == null) continue;
-      next.push({ relation: e.relation, y1, y2 });
+      next.push({
+        relation: e.relation,
+        y1,
+        y2,
+        a1: leftAttach(e.sourceId),
+        a2: leftAttach(e.targetId),
+      });
     }
-    setArcs(next);
+    setEndpoints((prev) => (sameEndpoints(prev, next) ? prev : next));
     setContentHeight(content.scrollHeight);
-  }, [doc, rows]);
+  }, [doc, rows, side, view.showRelations]);
 
   useEffect(() => {
     measure();
-    const content = contentRef.current;
-    if (!content || typeof ResizeObserver === 'undefined') return;
+    const list = unitListRef.current;
+    if (!list || typeof ResizeObserver === 'undefined') return;
     const ro = new ResizeObserver(() => measure());
-    ro.observe(content);
+    ro.observe(list);
     return () => ro.disconnect();
-  }, [measure, view]);
+  }, [measure]);
+
+  // The ONE pure layout call — shared with the SVG/PDF export — turning
+  // measured endpoints into lane-packed, endpoint-nudged geometry plus the
+  // gutter width the content padding reserves.
+  const relationLayout = useMemo(
+    () => layoutDiscourseRelations(endpoints, { side, showLabels: view.showLabels }),
+    [endpoints, side, view.showLabels],
+  );
+  const gutterWidth = relationLayout.gutterWidth;
+  // Keep the "what's actually painted" ref in step BEFORE the next measure
+  // pass (a layout effect runs after the DOM commit, ahead of the async
+  // ResizeObserver callback that triggers the next `measure()`).
+  useEffect(() => {
+    paintedGutterWidthRef.current = gutterWidth;
+  }, [gutterWidth]);
+
+  // Base pad on both sides + the gutter width added on the gutter's side only
+  // — so an empty/hidden gutter costs nothing (no gutter ⇒ no wasted width).
+  const gutterSidePad = BASE_PAD + gutterWidth;
+  const contentMaxWidth = UNIT_MAX_WIDTH + BASE_PAD + gutterWidth + BASE_PAD;
+  const contentStyle: CSSProperties =
+    side === 'right'
+      ? { paddingLeft: BASE_PAD, paddingRight: gutterSidePad, maxWidth: contentMaxWidth }
+      : { paddingLeft: gutterSidePad, paddingRight: BASE_PAD, maxWidth: contentMaxWidth };
 
   // --- selection / edit interactions ---------------------------------------------
   const onUnitSelect = useCallback(
@@ -253,23 +357,23 @@ export function DiscourseView({
           else select({});
         }}
       >
-        <div
-          className="discourse-content"
-          ref={contentRef}
-          style={{ paddingRight: view.showRelations ? ARC_GUTTER : 16 }}
-        >
-          {view.showRelations && (
-            <div className="discourse-gutter" style={{ width: ARC_GUTTER }}>
+        <div className="discourse-content" ref={contentRef} style={contentStyle}>
+          {gutterWidth > 0 && (
+            <div
+              className="discourse-gutter"
+              style={{ width: gutterWidth, ...(side === 'right' ? { right: 0 } : { left: 0 }) }}
+            >
               <DiscourseRelationLayer
-                arcs={arcs}
+                relations={relationLayout.relations}
+                gutterWidth={gutterWidth}
+                side={side}
                 height={contentHeight}
-                gutter={ARC_GUTTER}
                 selectedRelationId={selection.relationId}
                 onSelect={(relationId) => select({ relationId })}
               />
             </div>
           )}
-          <div role="list" aria-label={`Discourse units for ${doc.title}`}>
+          <div role="list" aria-label={`Discourse units for ${doc.title}`} ref={unitListRef}>
             {visibleRows.map((row) => (
               <DiscourseUnitBlock
                 key={row.unit.id}

@@ -95,6 +95,15 @@ export interface DiscourseViewToggles {
   showSourceText: boolean;
   showEnglish: boolean;
   compact: boolean;
+  /**
+   * Which side of the outline the relation-arc gutter renders on. A pure VIEW
+   * preference (like the other toggles here) — distinct from the per-document
+   * `DiscourseLayoutHints.relationSide` in the schema, which also allows
+   * `'both'`; that richer per-doc hint is NOT wired up here (deferred), so
+   * this field only ever takes `'left' | 'right'`. Not persisted, matching
+   * every other view toggle in this store.
+   */
+  relationSide: 'left' | 'right';
 }
 
 export interface DiscourseState {
@@ -445,6 +454,7 @@ const DEFAULT_VIEW: DiscourseViewToggles = {
   showSourceText: true,
   showEnglish: false,
   compact: false,
+  relationSide: 'right',
 };
 
 export const useDiscourseStore = create<DiscourseStore>((set, get) => {
