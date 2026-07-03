@@ -25,6 +25,18 @@ export interface Ctx {
   /** Tint words by grammatical category (Morphology palette). Off by default. */
   color: boolean;
   /**
+   * Band packing on/off (see kr/packing.ts). layoutDocument lays out packed
+   * first; if anything shifted it lays out AGAIN with packing off and keeps
+   * the packed result only when it is strictly smaller — a width saved inside
+   * one block can flip a downstream width-sensitive policy (e.g. the clause
+   * spine's verb-alignment outlier rule) and enlarge the whole picture, so
+   * packing must PAY FOR ITSELF at the document level or be dropped wholesale.
+   */
+  pack: boolean;
+  /** Count of blocks the packer actually moved this pass (0 ⇒ output is
+   *  byte-identical to classic and no comparison pass is needed). */
+  packStats: { shifted: number };
+  /**
    * Recursion dispatchers — the graph entrypoints (node dispatch, clause
    * stacking) still live in ../engine.ts until their own extraction stage.
    * Extracted kr/ modules recurse back THROUGH the context instead of

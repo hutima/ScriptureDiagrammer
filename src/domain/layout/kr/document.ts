@@ -63,8 +63,7 @@ export function layoutDocument(
   hints: LayoutHints = {},
   options: LayoutOptions = {},
 ): DiagramLayout {
-  resetEid();
-  const ctx: Ctx = {
+  const baseCtx = {
     doc,
     hints,
     layoutNode,
@@ -75,7 +74,27 @@ export function layoutDocument(
   const root = getNode(doc.syntax, doc.syntax.rootId);
   if (!root) return { width: 200, height: 80, elements: [] };
 
-  const block = layoutNode(ctx, root.id, new Set());
+  // Band packing must PAY FOR ITSELF at the document level: a width saved
+  // inside one block can flip a downstream width-sensitive policy (the clause
+  // spine's verb-alignment outlier rule, the divider tuck) and enlarge the
+  // whole picture. Lay out packed; if anything actually shifted, lay out
+  // classic too and keep the packed result only when its bounding box is
+  // strictly smaller. Each pass resets the element-id counter, so whichever
+  // wins has deterministic ids. Documents where nothing shifts pay nothing.
+  resetEid();
+  const packStats = { shifted: 0 };
+  const ctx: Ctx = { ...baseCtx, pack: true, packStats };
+  let block = layoutNode(ctx, root.id, new Set());
+  if (packStats.shifted > 0) {
+    const packedB = bounds(block.elements);
+    const packedArea = (packedB.maxX - packedB.minX) * (packedB.maxY - packedB.minY);
+    resetEid();
+    const classicCtx: Ctx = { ...baseCtx, pack: false, packStats: { shifted: 0 } };
+    const classic = layoutNode(classicCtx, root.id, new Set());
+    const classicB = bounds(classic.elements);
+    const classicArea = (classicB.maxX - classicB.minX) * (classicB.maxY - classicB.minY);
+    if (classicArea <= packedArea) block = classic;
+  }
   // Flag connectors for low-confidence (ambiguous) relations so both the canvas
   // and the export draw them in a distinct colour, inviting the user to relink.
   const tentative = new Set(
