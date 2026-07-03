@@ -220,26 +220,26 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         }
       }}
     >
+      {/* Indent drag handle — a tall thin vertical line overlaid ABSOLUTELY at
+          the unit's left edge (the old left arc gutter that used to bury it is
+          gone). It sits between the unit border and the text with a wide
+          invisible hit area, drawing a 2px accent line on hover/drag. Absolute
+          so showing/hiding it between modes never shifts the text. Horizontal
+          drag snaps userIndent; ← / → nudge when focused. */}
+      {editing && onSetIndent && (
+        <button
+          type="button"
+          className={`discourse-indent-handle${dragIndent !== null ? ' dragging' : ''}`}
+          aria-label="Drag to set indent"
+          title="Drag to indent (← / → to nudge)"
+          onPointerDown={onHandlePointerDown}
+          onPointerMove={onHandlePointerMove}
+          onPointerUp={onHandlePointerUp}
+          onKeyDown={onHandleKeyDown}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
       <div className="discourse-unit-head">
-        {/* Indent drag handle — INLINE in the row head (an absolutely
-            positioned handle at the row's left edge sat under the arc gutter
-            and was effectively invisible). Horizontal drag snaps userIndent;
-            ← / → nudge when focused. */}
-        {editing && onSetIndent && (
-          <button
-            type="button"
-            className={`discourse-indent-handle${dragIndent !== null ? ' dragging' : ''}`}
-            aria-label="Drag to set indent"
-            title="Drag to indent (← / → to nudge)"
-            onPointerDown={onHandlePointerDown}
-            onPointerMove={onHandlePointerMove}
-            onPointerUp={onHandlePointerUp}
-            onKeyDown={onHandleKeyDown}
-            onClick={(e) => e.stopPropagation()}
-          >
-            ⋮⋮
-          </button>
-        )}
         {hasChildren && onToggleCollapsed && (
           <button
             type="button"
@@ -346,7 +346,7 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         <p className={`discourse-gloss${view.compact ? ' clamp' : ''}`}>{gloss}</p>
       )}
 
-      {view.showMarkers && markers.length > 0 && !splitPicking && !highlightPicking && (
+      {editing && view.showMarkers && markers.length > 0 && !splitPicking && !highlightPicking && (
         <div className="discourse-markers" aria-label="Discourse marker hints">
           {markers.map((m) => (
             <DiscourseMarkerChip key={m.id} marker={m} />

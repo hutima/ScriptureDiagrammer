@@ -10,12 +10,12 @@ import { DiscourseUnitBlock } from './DiscourseUnitBlock';
 import { DiscourseRelationLayer, type ArcSpec } from './DiscourseRelationLayer';
 import { DiscourseRelationPicker } from './DiscourseRelationPicker';
 
-/** Width of the left gutter the relation arcs live in. */
-const ARC_GUTTER = 116;
+/** Width of the RIGHT gutter the relation arcs live in. */
+const ARC_GUTTER = 132;
 
 /**
  * The discourse outline itself: a scrollable vertical list of unit blocks
- * (indented by outline depth) with an SVG relation-arc overlay in the left
+ * (indented by outline depth) with an SVG relation-arc overlay in the right
  * gutter and a textual inspector for the selected unit.
  *
  * In Edit mode (`editing`) the same list grows the structural affordances:
@@ -125,20 +125,24 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (!editing) return;
       // Typing surfaces keep their native keys.
       const t = e.target as HTMLElement;
       if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable) return;
+      // Escape works in EVERY mode (Explore included): it cancels any pending
+      // edit pick, else deselects — clean reading still needs "press Esc to
+      // clear the selection".
       if (e.key === 'Escape') {
-        if (highlightPickUnitId) beginHighlight(null);
-        else if (splitPickUnitId) beginSplit(null);
+        if (editing && highlightPickUnitId) beginHighlight(null);
+        else if (editing && splitPickUnitId) beginSplit(null);
         // Before a target is picked → cancel, no link is created.
-        else if (pendingRelationSource) cancelRelation();
+        else if (editing && pendingRelationSource) cancelRelation();
         // After the link exists (modal open) → close the modal, KEEP the link.
-        else if (typeEditRelationId) closeRelationTypeEditor();
+        else if (editing && typeEditRelationId) closeRelationTypeEditor();
         else select({});
         return;
       }
+      // The remaining shortcuts are structural edits — Edit mode only.
+      if (!editing) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         if (e.shiftKey) redo();
@@ -207,7 +211,11 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
           else select({});
         }}
       >
-        <div className="discourse-content" ref={contentRef} style={{ paddingLeft: view.showRelations ? ARC_GUTTER : 16 }}>
+        <div
+          className="discourse-content"
+          ref={contentRef}
+          style={{ paddingRight: view.showRelations ? ARC_GUTTER : 16 }}
+        >
           {view.showRelations && (
             <div className="discourse-gutter" style={{ width: ARC_GUTTER }}>
               <DiscourseRelationLayer

@@ -1,13 +1,14 @@
 import { memo } from 'react';
 import type { DiscourseRelation } from '@/domain/schema';
-import { relationColor, relationTypeLabel } from '@/domain/discourse';
+import { resolvedRelationColor, relationTypeLabel } from '@/domain/discourse';
 
 /**
- * SVG overlay drawing relation arcs/brackets in the left gutter of the
+ * SVG overlay drawing relation arcs/brackets in the RIGHT gutter of the
  * discourse view. Arcs connect the vertical midpoints of the two unit blocks;
- * nested (shorter) arcs sit closer to the text so crossings stay readable.
- * Arcs are never the ONLY reading of a relation — the unit inspector lists
- * relations textually for the selected unit.
+ * nested (shorter) arcs sit closer to the text (smaller x) so crossings stay
+ * readable, stepping OUTWARD (rightward) per lane. Arcs are never the ONLY
+ * reading of a relation — the unit inspector lists relations textually for the
+ * selected unit.
  */
 
 export interface ArcSpec {
@@ -67,10 +68,12 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
     >
       {sorted.map((a) => {
         const { relation } = a;
-        const color = relationColor(relation.type);
+        const color = resolvedRelationColor(relation);
         const lane = lanes.get(relation.id) ?? 0;
-        const x0 = gutter - 2;
-        const x = Math.max(8, gutter - 10 - lane * laneStep);
+        // Anchor at the LEFT edge of the (right-side) gutter, next to the text;
+        // arcs bow OUTWARD to the right, deeper lanes stepping farther out.
+        const x0 = 2;
+        const x = Math.min(gutter - 8, x0 + 8 + lane * laneStep);
         const top = Math.min(a.y1, a.y2);
         const bottom = Math.max(a.y1, a.y2);
         const selected = relation.id === selectedRelationId;
@@ -103,22 +106,23 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
               strokeDasharray={paired ? '5 3' : undefined}
               opacity={selected ? 1 : 0.8}
             />
-            {/* Arrowhead into the target end. */}
+            {/* Arrowhead pointing back (leftward) into the target end, toward
+                the text the arc lands on. */}
             <path
-              d={`M ${x0 - 5} ${a.y2 - 4} L ${x0} ${a.y2} L ${x0 - 5} ${a.y2 + 4}`}
+              d={`M ${x0 + 5} ${a.y2 - 4} L ${x0} ${a.y2} L ${x0 + 5} ${a.y2 + 4}`}
               fill="none"
               stroke={color}
               strokeWidth={selected ? 2.2 : 1.6}
             />
             {label && (
               <text
-                x={x - 3}
+                x={x + 3}
                 y={midY}
                 className="discourse-arc-label"
                 fill={color}
                 textAnchor="middle"
                 dominantBaseline="central"
-                transform={`rotate(-90 ${x - 3} ${midY})`}
+                transform={`rotate(90 ${x + 3} ${midY})`}
               >
                 {label}
               </text>

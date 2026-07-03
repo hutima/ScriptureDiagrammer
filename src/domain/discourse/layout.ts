@@ -115,6 +115,35 @@ export function relationTypeLabel(type: DiscourseRelation['type']): string {
   return labels[type] ?? type;
 }
 
+/**
+ * Hex values for the named relation-colour palette (`DiscourseRelationColor`).
+ * A relation with an explicit `color` uses this map; otherwise the arc falls
+ * back to the type-derived `relationColor` below. Muted to match the app style.
+ */
+export const DISCOURSE_RELATION_PALETTE: Record<string, string> = {
+  red: '#a13d3d',
+  orange: '#b5651d',
+  olive: '#7b6a2f',
+  green: '#2f6f4f',
+  teal: '#2f6f6f',
+  blue: '#4a5f8a',
+  purple: '#6a4a8a',
+  slate: '#55606c',
+  gray: '#777f88',
+};
+
+/**
+ * The colour an arc/label actually draws with: an explicit `relation.color`
+ * override (named palette) wins, else the type-derived default. One place so
+ * the canvas layer and the SVG/PDF export stay in step.
+ */
+export function resolvedRelationColor(relation: DiscourseRelation): string {
+  if (relation.color && DISCOURSE_RELATION_PALETTE[relation.color]) {
+    return DISCOURSE_RELATION_PALETTE[relation.color]!;
+  }
+  return relationColor(relation.type);
+}
+
 /** Arc colour per relation family (mirrors the app's muted palette style). */
 export function relationColor(type: DiscourseRelation['type']): string {
   switch (type) {

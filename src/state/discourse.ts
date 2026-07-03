@@ -370,7 +370,9 @@ function isDemoRange(s: {
 }
 
 const DEFAULT_VIEW: DiscourseViewToggles = {
-  showMarkers: true,
+  // Marker hint chips are OFF by default and only toggleable in Edit mode; a
+  // fresh read (Explore) stays uncluttered.
+  showMarkers: false,
   showRelations: true,
   showLabels: true,
   showSourceText: true,

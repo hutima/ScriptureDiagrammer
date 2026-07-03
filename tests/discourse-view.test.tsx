@@ -16,7 +16,7 @@ import {
   visibleRelationEndpoints,
 } from '@/domain/discourse';
 import { DIAGRAM_MODES } from '@/domain/layout';
-import { useDiscourseStore } from '@/state';
+import { useDiscourseStore, useEditorStore } from '@/state';
 import { DiscourseView } from '@/ui/discourse/DiscourseView';
 import { DiscourseSidePanel } from '@/ui/discourse/DiscourseSidePanel';
 import { DiscourseUnitBlock } from '@/ui/discourse/DiscourseUnitBlock';
@@ -109,13 +109,16 @@ describe('DiscourseView (read-only render)', () => {
     });
   });
 
-  it('renders Ephesians 5:3–33 as readable blocks with refs, Greek, and marker chips', () => {
+  it('renders Ephesians 5:3–33 as readable blocks with refs, Greek, and labels', () => {
     const doc = labelDiscourseUnit(ephesians(), leafUnits(ephesians())[0]!.id, 'A', NOW);
+    // Read-only (Explore) render: marker chips are Edit-mode-only and off by
+    // default, so they don't appear here — the direct-block test below covers
+    // their rendering with an explicit view + editing.
     const html = renderToStaticMarkup(createElement(DiscourseView, { doc }));
     expect(html).toContain('discourse-unit');
     expect(html).toContain('5:3'); // ref labels
     expect(html).toContain('Πορνεία'); // Greek text (Eph 5:3 opens Πορνεία δὲ…)
-    expect(html).toContain('discourse-marker-chip'); // marker chips
+    expect(html).not.toContain('discourse-marker-chip'); // chips are edit-only
     expect(html).toContain('>A<'); // the unit label chip
   });
 
@@ -140,6 +143,7 @@ describe('DiscourseView (read-only render)', () => {
         relationCount: 0,
         registerEl: () => {},
         onSelect: () => {},
+        editing: true, // marker chips only render in Edit mode
       }),
     );
     expect(html).toContain('possible');
@@ -175,11 +179,13 @@ describe('DiscourseView (read-only render)', () => {
     );
     // Arc click selects the RELATION only — no unit required.
     useDiscourseStore.setState({ doc, selection: { relationId: 'dr_c' } });
+    // The action toolbar is Edit-mode only now (D5).
+    useEditorStore.setState({ appMode: 'edit' });
     const { container } = render(createElement(DiscourseSidePanel));
     const editor = container.querySelector('.discourse-relation-editor');
     expect(editor).toBeTruthy();
     expect((editor!.querySelector('textarea') as HTMLTextAreaElement).value).toBe('mirrored themes');
-    // The action toolbar is present in the panel regardless of app mode.
+    // The action toolbar mounts in Edit mode.
     expect(container.querySelector('.discourse-toolbar')).toBeTruthy();
   });
 });

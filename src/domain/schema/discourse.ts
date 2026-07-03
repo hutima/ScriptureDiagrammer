@@ -173,6 +173,25 @@ export const DiscourseRelationTypeSchema = z.enum([
 ]);
 export type DiscourseRelationType = z.infer<typeof DiscourseRelationTypeSchema>;
 
+/**
+ * A restrained named palette for OVERRIDING a relation arc's colour. Absent =
+ * the type-derived default (`relationColor`). Additive; never assume closed.
+ * The hex values live next to `relationColor()` in `domain/discourse/layout.ts`.
+ */
+export const DISCOURSE_RELATION_COLORS = [
+  'red',
+  'orange',
+  'olive',
+  'green',
+  'teal',
+  'blue',
+  'purple',
+  'slate',
+  'gray',
+] as const;
+export const DiscourseRelationColorSchema = z.enum(DISCOURSE_RELATION_COLORS);
+export type DiscourseRelationColor = z.infer<typeof DiscourseRelationColorSchema>;
+
 export const DiscourseRelationSchema = z.object({
   id: z.string(),
   sourceUnitId: z.string(),
@@ -186,6 +205,13 @@ export const DiscourseRelationSchema = z.object({
   type: DiscourseRelationTypeSchema.optional(),
   /** Free label shown on the arc (e.g. a custom relation's name). */
   label: z.string().optional(),
+  /**
+   * Optional colour OVERRIDE for the arc/label (a named palette value). Absent
+   * means the arc uses its type-derived default colour. Declaring it here is
+   * what lets the generic patch pipeline persist it (Zod strips undeclared
+   * keys); clearing it (undefined) reverts to the default via the diff.
+   */
+  color: DiscourseRelationColorSchema.optional(),
   /** Marker chips cited as evidence for this relation. */
   markerIds: z.array(z.string()).optional(),
   confidence: ConfidenceSchema.optional(),

@@ -114,14 +114,18 @@ export function DiscourseCanvas() {
                 </div>
               )}
               <div className="lang-toggle" role="group" aria-label="Overlays">
-                <button
-                  className={view.showMarkers ? 'active' : ''}
-                  aria-pressed={view.showMarkers}
-                  title="Show discourse-marker hint chips (γάρ, οὖν, δέ…)"
-                  onClick={() => setView({ showMarkers: !view.showMarkers })}
-                >
-                  Markers
-                </button>
+                {/* Marker hint chips are an editing/analysis aid — only offered
+                    in Edit mode (off by default). Explore stays a clean read. */}
+                {appMode === 'edit' && (
+                  <button
+                    className={view.showMarkers ? 'active' : ''}
+                    aria-pressed={view.showMarkers}
+                    title="Show discourse-marker hint chips (γάρ, οὖν, δέ…)"
+                    onClick={() => setView({ showMarkers: !view.showMarkers })}
+                  >
+                    Markers
+                  </button>
+                )}
                 <button
                   className={view.showRelations ? 'active' : ''}
                   aria-pressed={view.showRelations}
@@ -213,11 +217,10 @@ export function DiscourseCanvas() {
             )}
           </div>
           <div className="discourse-body">
-            {/* Discourse is manual-first: the outline is interactive in EVERY
-                app mode (the side panel's actions need target/split picking),
-                so `editing` is unconditional here — this is the discourse
-                layer only; syntax editing stays gated on Edit mode. */}
-            <DiscourseView doc={doc} editing />
+            {/* Editing affordances (indent handles, marker chips, relate/split
+                picking, structural shortcuts) are Edit-mode only; Explore is a
+                clean read (arcs, labels, indentation, selection still work). */}
+            <DiscourseView doc={doc} editing={appMode === 'edit'} />
             {suggestionsOpen && <DiscourseSuggestions />}
             {/* Tools + unit/relation details live in the SHELL's right-panel
                 slot (DiscourseRightPanel in ResponsiveShell), matching the
