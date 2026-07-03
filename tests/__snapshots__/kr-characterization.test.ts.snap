@@ -2994,8 +2994,8 @@ exports[`KR characterization — structural snapshots > sample doc_sample_phil_1
 
 exports[`KR characterization — structural snapshots > sample doc_sample_phil_1_1_6 1`] = `
 {
-  "bounds": "1660x1830",
-  "compactness": "w=1660 areaK=3040",
+  "bounds": "1640x1830",
+  "compactness": "w=1640 areaK=2999",
   "lines": {
     "baseline/solid": 78,
     "coordination/dashed": 4,
@@ -3324,8 +3324,8 @@ exports[`KR characterization — structural snapshots > sample doc_sample_word_f
 
 exports[`KR characterization — structural snapshots > sblgnt 2 Corinthians 5:4 1`] = `
 {
-  "bounds": "1010x730",
-  "compactness": "w=1010 areaK=738",
+  "bounds": "990x730",
+  "compactness": "w=990 areaK=722",
   "lines": {
     "baseline/solid": 20,
     "coordination/dashed": 1,
@@ -4570,8 +4570,8 @@ exports[`KR characterization — structural snapshots > sblgnt Colossians 1:18�
 
 exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:3–4 1`] = `
 {
-  "bounds": "800x1020",
-  "compactness": "w=800 areaK=819",
+  "bounds": "780x1020",
+  "compactness": "w=780 areaK=800",
   "lines": {
     "baseline/solid": 26,
     "coordination/dashed": 4,
@@ -8669,8 +8669,8 @@ exports[`KR characterization — structural snapshots > sblgnt Philemon 1:3 1`] 
 
 exports[`KR characterization — structural snapshots > sblgnt Philemon 1:4–6 1`] = `
 {
-  "bounds": "1160x960",
-  "compactness": "w=1160 areaK=1106",
+  "bounds": "1130x960",
+  "compactness": "w=1130 areaK=1085",
   "lines": {
     "baseline/solid": 31,
     "coordination/dashed": 1,
@@ -9499,8 +9499,8 @@ exports[`KR characterization — structural snapshots > sblgnt Philemon 1:19 1`]
 
 exports[`KR characterization — structural snapshots > sblgnt Philemon 1:20 1`] = `
 {
-  "bounds": "630x170",
-  "compactness": "w=630 areaK=106",
+  "bounds": "580x170",
+  "compactness": "w=580 areaK=99",
   "lines": {
     "baseline/solid": 6,
     "divider/solid": 1,
@@ -10055,8 +10055,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:3–5 1`
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 9:5 1`] = `
 {
-  "bounds": "740x300",
-  "compactness": "w=740 areaK=220",
+  "bounds": "720x300",
+  "compactness": "w=720 areaK=214",
   "lines": {
     "baseline/solid": 12,
     "divider/solid": 1,
@@ -10748,8 +10748,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:15 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 9:16 1`] = `
 {
-  "bounds": "720x540",
-  "compactness": "w=720 areaK=390",
+  "bounds": "700x540",
+  "compactness": "w=700 areaK=382",
   "lines": {
     "baseline/solid": 10,
     "divider/solid": 1,
@@ -11196,8 +11196,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:21 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 9:22–24 1`] = `
 {
-  "bounds": "1460x1200",
-  "compactness": "w=1460 areaK=1746",
+  "bounds": "1440x1200",
+  "compactness": "w=1440 areaK=1720",
   "lines": {
     "baseline/solid": 49,
     "coordination/dashed": 3,
@@ -11834,8 +11834,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:31 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 9:32 1`] = `
 {
-  "bounds": "870x210",
-  "compactness": "w=870 areaK=186",
+  "bounds": "770x210",
+  "compactness": "w=770 areaK=165",
   "lines": {
     "baseline/solid": 7,
     "divider/solid": 1,
@@ -11962,8 +11962,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:32–33 
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 10:1 1`] = `
 {
-  "bounds": "810x430",
-  "compactness": "w=810 areaK=352",
+  "bounds": "790x430",
+  "compactness": "w=790 areaK=342",
   "lines": {
     "baseline/solid": 13,
     "coordination/dashed": 1,
@@ -12031,8 +12031,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:1 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 10:2 1`] = `
 {
-  "bounds": "710x490",
-  "compactness": "w=710 areaK=349",
+  "bounds": "690x490",
+  "compactness": "w=690 areaK=341",
   "lines": {
     "baseline/solid": 13,
     "coordination/dashed": 1,
@@ -12209,8 +12209,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:4 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 10:5 1`] = `
 {
-  "bounds": "1020x520",
-  "compactness": "w=1020 areaK=528",
+  "bounds": "990x520",
+  "compactness": "w=990 areaK=511",
   "lines": {
     "baseline/solid": 14,
     "divider/solid": 2,
@@ -13797,8 +13797,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:4 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 11:4 2`] = `
 {
-  "bounds": "800x480",
-  "compactness": "w=800 areaK=380",
+  "bounds": "790x480",
+  "compactness": "w=790 areaK=377",
   "lines": {
     "baseline/solid": 11,
     "divider/solid": 2,
@@ -16036,8 +16036,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:36 1`] 
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 11:36 2`] = `
 {
-  "bounds": "530x230",
-  "compactness": "w=530 areaK=120",
+  "bounds": "510x230",
+  "compactness": "w=510 areaK=115",
   "lines": {
     "baseline/solid": 6,
     "divider/solid": 1,
@@ -16538,8 +16538,8 @@ exports[`KR characterization — structural snapshots > wlc Genesis 1:3 1`] = `
 
 exports[`KR characterization — structural snapshots > wlc Genesis 1:11 1`] = `
 {
-  "bounds": "670x910",
-  "compactness": "w=670 areaK=616",
+  "bounds": "660x910",
+  "compactness": "w=660 areaK=606",
   "lines": {
     "baseline/solid": 31,
     "coordination/dashed": 2,
@@ -16640,8 +16640,8 @@ exports[`KR characterization — structural snapshots > wlc Genesis 1:11 1`] = `
 
 exports[`KR characterization — structural snapshots > wlc Psalms 1:1 1`] = `
 {
-  "bounds": "530x790",
-  "compactness": "w=530 areaK=421",
+  "bounds": "520x790",
+  "compactness": "w=520 areaK=409",
   "lines": {
     "baseline/solid": 23,
     "coordination/dashed": 1,
@@ -16723,8 +16723,8 @@ exports[`KR characterization — structural snapshots > wlc Psalms 1:1 1`] = `
 
 exports[`KR characterization — structural snapshots > wlc Psalms 1:2 1`] = `
 {
-  "bounds": "580x430",
-  "compactness": "w=580 areaK=251",
+  "bounds": "560x430",
+  "compactness": "w=560 areaK=242",
   "lines": {
     "baseline/solid": 15,
     "coordination/dashed": 1,

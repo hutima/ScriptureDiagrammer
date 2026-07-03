@@ -925,7 +925,18 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
   const railStart = Math.max(baselineWidth, vModRight);
   let bx = railStart + LAYOUT.dependentGap;
   let railRight = railStart;
+  // BAND PACKING for the rail (same pattern as the complement slot): each
+  // entry is drawn at its classic position — past everything's FULL width —
+  // then slid left over the pocket a deep-but-narrow verb cascade or a
+  // complement's hollow tail leaves free. An entry never attaches before the
+  // end of the drawn complement row (`baselineWidth` + the classic gap), and
+  // successive feet keep the classic dependentGap rhythm.
+  let prevRailFoot = railStart - LAYOUT.dependentGap;
   railAdjuncts.forEach((r) => {
+    const attachX0 = bx;
+    const lenBefore = elements.length;
+    const railBefore = railRight;
+    const maxRightBefore = maxRight;
     railRight = Math.max(railRight, bx);
     const { right, next, footRight } = drawHanging(r, bx);
     // A coordinated adjunct spreads several feet rightward; carry the baseline out
@@ -933,6 +944,26 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     railRight = Math.max(railRight, footRight);
     bx = next;
     maxRight = Math.max(maxRight, right);
+    let shift = 0;
+    if (ctx.pack) {
+      const slice = elements.slice(lenBefore);
+      const packer = new BandPacker();
+      packer.occupy(elements.slice(0, lenBefore).filter((el) => !isMainLine(el)));
+      const minAttach = Math.max(baselineWidth, prevRailFoot) + LAYOUT.dependentGap;
+      shift = packer.reclaim(slice, attachX0 - minAttach);
+      if (shift > 0) {
+        ctx.packStats.shifted++;
+        elements.splice(
+          lenBefore,
+          slice.length,
+          ...translate({ width: 0, height: 0, elements: slice, wordLeft: 0, wordRight: 0 }, -shift, 0),
+        );
+        bx -= shift;
+        if (railRight > railBefore) railRight = Math.max(railBefore, railRight - shift);
+        if (maxRight > maxRightBefore) maxRight = Math.max(maxRightBefore, maxRight - shift);
+      }
+    }
+    prevRailFoot = footRight - shift;
   });
   // Extend the baseline to carry the right-hand adjunct attachment points —
   // starting back at the DRAWN end of the line when the last complement left a
