@@ -18,6 +18,7 @@ import {
 import { blockAscent } from './geometry';
 import { drawDiagonalCoordination, drawDiagonalModifier } from './diagonal';
 import { drawInfinitive, infinitiveMark } from './infinitives';
+import { BandPacker } from './packing';
 import { drawPp, drawPpCoordination } from './prepositions';
 import { eid, line, smallText, translate, wordText } from './primitives';
 import type { Block, Ctx } from './types';
@@ -137,8 +138,26 @@ export function layoutHead(
   // adjectives) belong directly under it, not pushed out past the appositive.
   cursor = wordW / 2 - LAYOUT.dependentGap;
 
+  // BAND PACKING (see kr/packing.ts): each modifier is drawn at its classic
+  // position — past the previous sibling's FULL subtree width — then slid left
+  // into any pocket the previous siblings' deep-but-narrow-topped subtrees left
+  // provably free. Zero shift = byte-identical classic output. Feet keep at
+  // least dependentGap between them (the classic rhythm), and when clause
+  // dependents will later drop a dashed stem from under the head, that column
+  // is pre-occupied so no packed modifier can land on the stem.
+  const packer = new BandPacker();
+  if (clauseRels.length) {
+    packer.occupyRect({ x0: wordW / 2, x1: wordW / 2, y0: 0, y1: Number.MAX_SAFE_INTEGER });
+  }
+  let prevFoot = cursor;
+  let modRight = cursor;
+
   wordRels.forEach((rel) => {
     cursor += LAYOUT.dependentGap;
+    const attachX0 = cursor;
+    const lenBefore = elements.length;
+    const railBefore = railRight;
+    let footRight = attachX0;
     const objId = prepObjectId(ctx, rel);
     const ppConj = objId ? ppConjunctRels(ctx, rel.dependentId) : [];
     if (isInfinitival(ctx, rel.dependentId)) {
@@ -151,6 +170,7 @@ export function layoutHead(
       // Coordinated prepositional phrases ("ἐν τοῖς οὐρανοῖς καὶ ἐπὶ τῆς γῆς"):
       // every conjunct PP drawn side by side, joined by the coordinator.
       const ext = drawPpCoordination(ctx, rel, objId, ppConj, cursor, depTop, seen, elements);
+      footRight = Math.max(footRight, ext.footRight);
       cursor = ext.right;
       railRight = Math.max(railRight, cursor);
       belowBottom = Math.max(belowBottom, ext.bottom);
@@ -167,6 +187,7 @@ export function layoutHead(
     } else if (rel.type !== 'conjunct' && isDiagonalCoordination(ctx, rel.dependentId)) {
       // Coordinated adjectives/adverbs ("tall and distinguished") as parallel slants.
       const ext = drawDiagonalCoordination(ctx, rel.dependentId, cursor, elements);
+      footRight = Math.max(footRight, ext.footRight);
       railRight = Math.max(railRight, cursor);
       belowBottom = Math.max(belowBottom, ext.bottom);
       cursor = ext.right;
@@ -196,11 +217,27 @@ export function layoutHead(
       belowBottom = Math.max(belowBottom, oTop + block.height);
       cursor = objX + block.width;
     }
+    // Slide the just-drawn modifier left into a provably-free pocket. The
+    // shift is bounded so this foot stays ≥ dependentGap right of the
+    // previous foot; the continuous slide itself stops at any prior content.
+    const drawn = elements.slice(lenBefore);
+    const shift = packer.reclaim(drawn, attachX0 - (prevFoot + LAYOUT.dependentGap));
+    if (shift > 0) {
+      elements.splice(
+        lenBefore,
+        drawn.length,
+        ...translate({ width: 0, height: 0, elements: drawn, wordLeft: 0, wordRight: 0 }, -shift, 0),
+      );
+      cursor -= shift;
+      // This iteration's railRight contributions all moved left with the block.
+      if (railRight > railBefore) railRight = Math.max(railBefore, railRight - shift);
+    }
+    packer.occupy(elements.slice(lenBefore, lenBefore + drawn.length));
+    prevFoot = footRight - shift;
+    // Right edge of the modifier cascade: with packing, `cursor` is no longer
+    // monotone across siblings, so track the max explicitly.
+    modRight = Math.max(modRight, cursor);
   });
-
-  // Right edge of the modifier cascade (`cursor` advances monotonically through
-  // the loop above) — part of the block's width whether or not appositives follow.
-  const modRight = cursor;
 
   // Appositives continue on the shared baseline right of the head — right after
   // the word as always, EXCEPT that one dipping below the line starts past the
