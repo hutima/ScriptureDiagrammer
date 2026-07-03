@@ -117,7 +117,7 @@ export function TopBar() {
         <span className="brand-name">Scripture Diagrammer</span>
       </div>
 
-      <ModeSwitcher canEdit={canEdit} discourse={diagramMode === 'discourse'} />
+      <ModeSwitcher canEdit={canEdit} />
 
       <div className="spacer" />
 

@@ -272,11 +272,14 @@ const DEMO_RANGE = {
  * demo's patch (not the base), so it is fully editable, is removed by Reset,
  * and disappears with the demo.
  */
-const DEMO_CHIASM_ARCS: { id: string; a: string; b: string; label: string }[] = [
-  { id: 'dr_demo_chiasm_a', a: '2:12', b: '2:19', label: 'A ↔ A′ — alienated ↔ no longer strangers' },
-  { id: 'dr_demo_chiasm_b', a: '2:13', b: '2:18', label: 'B ↔ B′ — brought near ↔ access by one Spirit' },
-  { id: 'dr_demo_chiasm_c', a: '2:14', b: '2:17', label: 'C ↔ C′ — he is our peace ↔ he preached peace' },
-  { id: 'dr_demo_chiasm_d', a: '2:15', b: '2:16', label: 'D ↔ D′ — one new humanity ↔ reconciled in one body' },
+// Short pair labels only ("A ↔ A′") so the arc caption never runs off the
+// gutter. The fuller gloss lives in each arc's `notes` (shown in the relation
+// detail panel), not on the arc itself.
+const DEMO_CHIASM_ARCS: { id: string; a: string; b: string; label: string; notes: string }[] = [
+  { id: 'dr_demo_chiasm_a', a: '2:12', b: '2:19', label: 'A ↔ A′', notes: 'alienated ↔ no longer strangers' },
+  { id: 'dr_demo_chiasm_b', a: '2:13', b: '2:18', label: 'B ↔ B′', notes: 'brought near ↔ access by one Spirit' },
+  { id: 'dr_demo_chiasm_c', a: '2:14', b: '2:17', label: 'C ↔ C′', notes: 'he is our peace ↔ he preached peace' },
+  { id: 'dr_demo_chiasm_d', a: '2:15', b: '2:16', label: 'D ↔ D′', notes: 'one new humanity ↔ reconciled in one body' },
 ];
 
 /**
@@ -321,7 +324,7 @@ function seedDemoChiasm(base: DiscourseDocument): DiscourseDocument {
     if (!sourceUnitId || !targetUnitId) continue;
     doc = addDiscourseRelation(
       doc,
-      { id: arc.id, sourceUnitId, targetUnitId, type: 'chiasm', label: arc.label, confidence: 'low', provenance },
+      { id: arc.id, sourceUnitId, targetUnitId, type: 'chiasm', label: arc.label, notes: arc.notes, confidence: 'low', provenance },
       base.updatedAt, // deterministic timestamp (no Date.now in the seed)
     );
   }

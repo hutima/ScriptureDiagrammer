@@ -9,18 +9,14 @@ const MODES: { id: AppMode; label: string; short: string }[] = [
 
 /**
  * The three user-facing modes. Edit is desktop-first: it is hidden on small
- * screens unless the user has forced desktop mode (`canEdit`).
- *
- * Discourse mode is manual-first, so it drops **Explore** and offers only
- * **Edit** and **Study** (Edit takes Explore's place as the default) — Discourse
- * is desktop-only, so Edit is always available there.
+ * screens unless the user has forced desktop mode (`canEdit`). Discourse mode
+ * keeps all three modes available but *defaults* to Edit on entry (that default
+ * lives in ResponsiveShell) because Discourse is manual-first.
  */
-export function ModeSwitcher({ canEdit, discourse = false }: { canEdit: boolean; discourse?: boolean }) {
+export function ModeSwitcher({ canEdit }: { canEdit: boolean }) {
   const appMode = useEditorStore((s) => s.appMode);
   const setAppMode = useEditorStore((s) => s.setAppMode);
-  const modes = MODES.filter(
-    (m) => (m.id !== 'edit' || canEdit) && (m.id !== 'explore' || !discourse),
-  );
+  const modes = MODES.filter((m) => m.id !== 'edit' || canEdit);
   return (
     <div className="mode-switcher" role="group" aria-label="App mode">
       {modes.map((m) => (

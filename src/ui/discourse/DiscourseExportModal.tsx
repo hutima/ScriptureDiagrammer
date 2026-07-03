@@ -3,9 +3,9 @@ import { useDiscourseStore } from '@/state';
 import {
   diffDiscourseDocuments,
   discourseDocumentJson,
-  discourseOutlineHtml,
   discourseOutlineMarkdown,
   discourseOutlineSvg,
+  discourseOutlineSvgPrintHtml,
   discoursePatchJson,
   discourseRelationsCsv,
   discourseRelationsMarkdown,
@@ -82,8 +82,8 @@ export function DiscourseExportModal({ onClose }: { onClose: () => void }) {
         <div className="row" style={{ margin: '6px 0 10px' }}>
           <button
             className="mini accept"
-            title="Open a print-ready outline — choose “Save as PDF” in the print dialog"
-            onClick={() => printHtmlDocument(discourseOutlineHtml(doc, renderOpts))}
+            title="Open a print-ready outline (with relation arcs) — choose “Save as PDF” in the print dialog"
+            onClick={() => printHtmlDocument(discourseOutlineSvgPrintHtml(doc, renderOpts))}
           >
             Save as PDF…
           </button>
