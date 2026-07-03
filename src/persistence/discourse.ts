@@ -21,6 +21,21 @@ import { applyDiscoursePatch, hashDiscourseBase } from '@/domain/discourse';
 const DISCOURSE_PATCH_PREFIX = 'kr:discourse:';
 const LAST_RANGE_KEY = 'kr:lastDiscourse';
 
+// Discourse UI PREFERENCES live under a DISTINCT prefix (`kr:discoursePref:`)
+// so they are never caught by the `kr:discourse:` patch-prefix scan in
+// `clearAllDiscourseData` (which only clears edit patches + the range pointer).
+// Two flags, deliberately SEPARATE:
+//   - the first-load guidance modal has been dismissed (a UI preference), and
+//   - the default Ephesians demo has been hidden (a content preference).
+// Dismissing the modal must NOT hide the demo, and hiding the demo must NOT
+// dismiss the modal — so they can never share a key.
+const DISCOURSE_PREF_PREFIX = 'kr:discoursePref:';
+const FIRST_LOAD_MODAL_DISMISSED_KEY = `${DISCOURSE_PREF_PREFIX}firstLoadModalDismissed`;
+
+/** The stable identity of the built-in default demo passage. */
+export const DEFAULT_DEMO_ID = 'ephesians-2-12-19';
+const HIDE_DEFAULT_DEMO_KEY = `${DISCOURSE_PREF_PREFIX}hideDefaultDemo:${DEFAULT_DEMO_ID}`;
+
 function safeGet(key: string): string | null {
   if (typeof localStorage === 'undefined') return null;
   try {
@@ -131,6 +146,47 @@ export function loadLastDiscourseRange(): LastDiscourseRange | null {
   } catch {
     return null;
   }
+}
+
+// --- UI preferences (first-load modal + default-demo hiding) --------------------
+
+/**
+ * Has the user dismissed the one-time Discourse guidance modal? Persists across
+ * reloads and PWA/service-worker updates (plain localStorage). Fails safe: if
+ * storage is unavailable this returns `false`, so the modal simply shows again
+ * rather than blocking the app.
+ */
+export function isDiscourseFirstLoadModalDismissed(): boolean {
+  return safeGet(FIRST_LOAD_MODAL_DISMISSED_KEY) === '1';
+}
+
+/** Record that the Discourse guidance modal has been dismissed (idempotent). */
+export function dismissDiscourseFirstLoadModal(): void {
+  safeSet(FIRST_LOAD_MODAL_DISMISSED_KEY, '1');
+}
+
+/**
+ * Has the user removed the default Ephesians 2:12–19 demo? When `true` the demo
+ * is never auto-restored on future Discourse entries, reloads, or PWA updates.
+ * Independent of the modal-dismissed flag.
+ */
+export function isDefaultDemoHidden(): boolean {
+  return safeGet(HIDE_DEFAULT_DEMO_KEY) === '1';
+}
+
+/** Hide the default demo so it is not auto-restored (survives reloads/updates). */
+export function hideDefaultDemo(): void {
+  safeSet(HIDE_DEFAULT_DEMO_KEY, '1');
+}
+
+/** Clear the hide flag so the default demo may auto-restore again. */
+export function unhideDefaultDemo(): void {
+  safeRemove(HIDE_DEFAULT_DEMO_KEY);
+}
+
+/** Forget the last-loaded range pointer (used when removing the default demo). */
+export function clearLastDiscourseRange(): void {
+  safeRemove(LAST_RANGE_KEY);
 }
 
 /** Remove all discourse patches + the range pointer (backup reset path). */

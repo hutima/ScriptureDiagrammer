@@ -6,6 +6,7 @@ import { DiscourseView } from './DiscourseView';
 import { DiscourseToolbar } from './DiscourseToolbar';
 import { DiscourseSuggestions } from './DiscourseSuggestions';
 import { DiscourseOutlineNav } from './DiscourseOutlineNav';
+import { DiscourseFirstLoadModal } from './DiscourseFirstLoadModal';
 
 /**
  * DISCOURSE CANVAS — the center-column replacement for `DiagramCanvas` while
@@ -15,6 +16,25 @@ import { DiscourseOutlineNav } from './DiscourseOutlineNav';
  * the header is the way back to the syntax lenses (which return exactly as
  * they were; neither store reloads on a mode switch).
  */
+/** A short human label for the source behind a loaded discourse document. */
+function sourceMetaLabel(doc: { sourceId: string; editionId?: string }): string {
+  switch (doc.sourceId) {
+    case 'opentext':
+      return 'OpenText';
+    case 'english-kjv':
+      return 'KJV';
+    case 'english-asv':
+      return 'ASV';
+    case 'english-bsb':
+    case 'english-bsb-ot':
+      return 'BSB';
+    case 'custom-plaintext':
+      return 'Your text';
+    default:
+      return doc.editionId === 'sblgnt' ? 'SBLGNT' : 'Nestle 1904';
+  }
+}
+
 export function DiscourseCanvas() {
   const appMode = useEditorStore((s) => s.appMode);
   const doc = useDiscourseStore((s) => s.doc);
@@ -28,16 +48,24 @@ export function DiscourseCanvas() {
   const openHintCount = useDiscourseStore(
     (s) => s.doc?.suggestions.filter((x) => !x.accepted).length ?? 0,
   );
-  const restoreLastRange = useDiscourseStore((s) => s.restoreLastRange);
+  const enterDiscourseMode = useDiscourseStore((s) => s.enterDiscourseMode);
+  const firstLoadModalOpen = useDiscourseStore((s) => s.firstLoadModalOpen);
+  const openFirstLoadModal = useDiscourseStore((s) => s.openFirstLoadModal);
+  const dismissFirstLoadModal = useDiscourseStore((s) => s.dismissFirstLoadModal);
+  const loadDefaultDemo = useDiscourseStore((s) => s.loadDefaultDemo);
+  const requestNewText = useDiscourseStore((s) => s.requestNewText);
+  const isDefaultDemo = useDiscourseStore((s) => s.isDefaultDemo);
+  const removeDefaultDemo = useDiscourseStore((s) => s.removeDefaultDemo);
   const setLeftCollapsed = useEditorStore((s) => s.setLeftCollapsed);
-  const [infoOpen, setInfoOpen] = useState(false);
   const [outlineOpen, setOutlineOpen] = useState(false);
 
-  // Entering Discourse mode restores the previously loaded range (from the
-  // stored pointer) exactly once; an already-loaded document stays put.
+  // Entering Discourse mode restores the previously loaded range and, on the
+  // first-ever visit, opens the one-time guidance modal (otherwise it may
+  // auto-load the default demo). Runs exactly once; a loaded document short-
+  // circuits it, so a mode round-trip never re-triggers the modal.
   useEffect(() => {
-    void restoreLastRange();
-  }, [restoreLastRange]);
+    void enterDiscourseMode();
+  }, [enterDiscourseMode]);
 
   const hasContainers = doc?.units.some((u) => doc.units.some((c) => c.parentId === u.id)) ?? false;
 
@@ -49,7 +77,7 @@ export function DiscourseCanvas() {
           className="diagram-guide-btn"
           aria-label="About discourse mode"
           title="About discourse mode"
-          onClick={() => setInfoOpen((v) => !v)}
+          onClick={openFirstLoadModal}
         >
           ⓘ
         </button>
@@ -162,19 +190,19 @@ export function DiscourseCanvas() {
         </div>
       </div>
 
-      {infoOpen && (
-        <div className="discourse-info" role="note">
-          <p>
-            Discourse mode is an interpretive outline and relationship layer over the
-            passage. Source data may suggest markers and boundaries, but user-authored
-            structure is your analysis. Marker chips are hints from the text's
-            particles — clues, never conclusions.
-          </p>
-          <button className="mini" onClick={() => setInfoOpen(false)}>
-            Got it
-          </button>
-        </div>
-      )}
+      <DiscourseFirstLoadModal
+        open={firstLoadModalOpen}
+        onUseDemo={() => {
+          dismissFirstLoadModal();
+          void loadDefaultDemo();
+        }}
+        onStartOwn={() => {
+          dismissFirstLoadModal();
+          setLeftCollapsed(false);
+          requestNewText();
+        }}
+        onDismiss={dismissFirstLoadModal}
+      />
 
       {doc && appMode === 'edit' && <DiscourseToolbar />}
 
@@ -183,9 +211,18 @@ export function DiscourseCanvas() {
           <div className="discourse-title-row">
             <h2 className="discourse-title">{doc.title}</h2>
             <span className="discourse-title-meta">
-              {doc.units.filter((u) => u.tokenIds.length > 0).length} units ·{' '}
-              {doc.sourceId === 'opentext' ? 'OpenText' : doc.editionId === 'sblgnt' ? 'SBLGNT' : 'Nestle 1904'}
+              {doc.units.filter((u) => u.tokenIds.length > 0).length} units · {sourceMetaLabel(doc)}
             </span>
+            {isDefaultDemo && (
+              <button
+                type="button"
+                className="mini"
+                title="Remove the demo passage and don't restore it automatically"
+                onClick={removeDefaultDemo}
+              >
+                Remove demo
+              </button>
+            )}
           </div>
           <div className="discourse-body">
             {outlineOpen && <DiscourseOutlineNav doc={doc} />}
