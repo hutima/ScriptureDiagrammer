@@ -1,7 +1,8 @@
 import type { DiscourseDocument, DiscoursePatch, DiscourseUnit } from '@/domain/schema';
 import { formatRange } from './refs';
 import { outlineOrder } from './mutations';
-import { resolvedRelationColor, relationTypeLabel } from './layout';
+import { relationTypeLabel } from './layout';
+import { layoutDiscourseRelations } from './relationLayout';
 
 /**
  * DISCOURSE EXPORTS — pure serializers. JSON round-trips through the Zod
@@ -206,6 +207,11 @@ export function discourseOutlineHtml(
     for (const rel of unitRelationLines(doc, unit)) {
       parts.push(`<div class="r">${escapeHtml(rel)}</div>`);
     }
+    if (includeNotes) {
+      for (const r of doc.relations.filter((r) => r.sourceUnitId === unit.id && r.notes)) {
+        parts.push(`<div class="n">${escapeHtml(r.notes!)}</div>`);
+      }
+    }
     parts.push('</div>');
     rows.push(parts.join(''));
   }
@@ -265,8 +271,11 @@ function escapeXml(s: string): string {
 /**
  * The analysis as a self-contained VECTOR SVG of the outline (the fallback when
  * a paged PDF isn't wanted). Units are laid out top-to-bottom, indented by
- * depth; heading + optional text/glosses/notes/relations each on their own
- * line, long lines wrapped. Pure and deterministic.
+ * depth; heading + optional text/glosses each on their own line, long lines
+ * wrapped. Notes (unit + relation) are NOT interleaved inline — when
+ * `includeNotes`, they are consolidated into a "Notes" section appended after
+ * the last outline row, so the outline body stays purely structural and the
+ * notes read as a single reference list. Pure and deterministic.
  */
 export function discourseOutlineSvg(
   doc: DiscourseDocument,
@@ -276,13 +285,10 @@ export function discourseOutlineSvg(
   const includeGlosses = opts.includeGlosses ?? false;
   const includeNotes = opts.includeNotes ?? true;
   const tokens = new Map(doc.tokens.map((t) => [t.id, t]));
+  const byId = new Map(doc.units.map((u) => [u.id, u]));
   const greek = doc.language !== 'en';
 
   const PAD = 24;
-  // A RIGHT gutter carries the relation arcs (matching the on-screen view), so
-  // the correspondence lines appear in the exported SVG / PDF, not just as text.
-  const GUTTER = doc.relations.length ? 132 : 0;
-  const WIDTH = 820 + GUTTER;
   const LINE = 20;
   const INDENT = 22;
   const CHARW = 7.1; // rough average glyph advance at 13px
@@ -291,7 +297,6 @@ export function discourseOutlineSvg(
 
   interface Line { x: number; cls: 'h' | 't' | 'g' | 'n' | 'r'; text: string; grc?: boolean }
   const lines: Line[] = [];
-  const wrapAt = (x: number) => Math.max(20, Math.floor((WIDTH - GUTTER - PAD - x) / CHARW));
   // y of each unit's heading line (arc endpoints connect these).
   const headY = new Map<string, number>();
   const yOfLineIndex = (i: number) => PAD + (i + 1) * LINE;
@@ -303,6 +308,11 @@ export function discourseOutlineSvg(
     text: `Discourse analysis over ${doc.sourceId} — ${doc.units.filter((u) => u.tokenIds.length).length} units, ${doc.relations.length} relation${doc.relations.length === 1 ? '' : 's'}.`,
   });
   lines.push({ x: 0, cls: 'n', text: '' }); // spacer
+
+  // The outline's text column is a fixed 820px regardless of the relation
+  // gutter (the gutter is EXTRA width appended to the right for arcs, not
+  // squeezed out of the text column), so wrap width never depends on it.
+  const wrapAt = (x: number) => Math.max(20, Math.floor((820 - PAD - x) / CHARW));
 
   for (const unit of outlineOrder(doc)) {
     const x = effectiveIndent(unit) * INDENT;
@@ -316,11 +326,50 @@ export function discourseOutlineSvg(
       const gloss = unit.tokenIds.map((tid) => tokens.get(tid)?.gloss ?? '').filter(Boolean).join(' ').trim();
       if (gloss) for (const l of wrap(gloss, wrapAt(x + 14))) lines.push({ x: x + 14, cls: 'g', text: l });
     }
-    if (includeNotes && unit.notes) {
-      for (const l of wrap(`Note: ${unit.notes}`, wrapAt(x + 14))) lines.push({ x: x + 14, cls: 'n', text: l });
-    }
     for (const rel of unitRelationLines(doc, unit)) {
       lines.push({ x: x + 14, cls: 'r', text: `↳ ${rel}` });
+    }
+  }
+
+  // --- Relation gutter geometry — the ONE pure helper shared with the on-screen
+  // `DiscourseRelationLayer`, so the printed correspondences match the view.
+  const endpoints = doc.relations
+    .map((r) => {
+      const y1 = headY.get(r.sourceUnitId);
+      const y2 = headY.get(r.targetUnitId);
+      return y1 !== undefined && y2 !== undefined ? { relation: r, y1, y2 } : undefined;
+    })
+    .filter((e): e is { relation: DiscourseDocument['relations'][number]; y1: number; y2: number } => !!e);
+  const relLayout = layoutDiscourseRelations(endpoints, { side: 'right', showLabels: true });
+  const GUTTER = relLayout.gutterWidth;
+  const WIDTH = 820 + GUTTER;
+
+  // --- Consolidated notes section, appended after the outline body ----------
+  if (includeNotes) {
+    const noteLines: Line[] = [];
+    const hasUnitNotes = doc.units.some((u) => u.notes);
+    const hasRelationNotes = doc.relations.some((r) => r.notes);
+    if (hasUnitNotes || hasRelationNotes) {
+      noteLines.push({ x: 0, cls: 'n', text: '' }); // spacer
+      noteLines.push({ x: 0, cls: 'h', text: 'Notes' });
+      for (const unit of outlineOrder(doc)) {
+        if (!unit.notes) continue;
+        for (const l of wrap(`${unitHeading(doc, unit)}: ${unit.notes}`, wrapAt(14))) {
+          noteLines.push({ x: 14, cls: 'n', text: l });
+        }
+      }
+      for (const r of doc.relations) {
+        if (!r.notes) continue;
+        const source = byId.get(r.sourceUnitId);
+        const target = byId.get(r.targetUnitId);
+        const sourceName = source ? unitHeading(doc, source) : r.sourceUnitId;
+        const targetName = target ? unitHeading(doc, target) : r.targetUnitId;
+        const label = r.label || relationTypeLabel(r.type);
+        for (const l of wrap(`${label} ${sourceName} → ${targetName}: ${r.notes}`, wrapAt(14))) {
+          noteLines.push({ x: 14, cls: 'n', text: l });
+        }
+      }
+      lines.push(...noteLines);
     }
   }
 
@@ -339,7 +388,7 @@ export function discourseOutlineSvg(
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${height}" viewBox="0 0 ${WIDTH} ${height}" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="13">`,
     `<rect width="${WIDTH}" height="${height}" fill="#ffffff"/>`,
-    GUTTER ? renderOutlineArcs(doc, headY, WIDTH - GUTTER, GUTTER) : '',
+    GUTTER ? renderOutlineArcs(relLayout.relations, WIDTH - GUTTER) : '',
     body,
     '</svg>',
   ].join('\n');
@@ -347,52 +396,27 @@ export function discourseOutlineSvg(
 
 /**
  * Relation arcs for the SVG/PDF outline export — bracket paths in the RIGHT
- * gutter connecting the two units' heading rows, with the SAME greedy lane
- * packing and centred short labels as the on-screen `DiscourseRelationLayer`, so
- * the printed correspondences match the view (and nested arcs don't clash).
- * Arcs anchor at `leftX` (the gutter's left edge, next to the text) and step
- * OUTWARD to the right per lane; the arrowhead points back left into the target.
+ * gutter connecting the two units' heading rows, using the SAME lane-packed
+ * geometry (`layoutDiscourseRelations`) as the on-screen `DiscourseRelationLayer`,
+ * so the printed correspondences match the view (and nested arcs don't clash).
+ * `leftX` is the gutter's left screen edge; the helper's outward axis `u` maps
+ * to screen x as `x = leftX + u`. The arrowhead points back left into the target.
  */
 function renderOutlineArcs(
-  doc: DiscourseDocument,
-  headY: Map<string, number>,
+  relations: ReturnType<typeof layoutDiscourseRelations>['relations'],
   leftX: number,
-  gutterW: number,
 ): string {
-  const specs = doc.relations
-    .map((r) => ({ r, y1: headY.get(r.sourceUnitId), y2: headY.get(r.targetUnitId) }))
-    .filter((s): s is { r: DiscourseDocument['relations'][number]; y1: number; y2: number } =>
-      s.y1 !== undefined && s.y2 !== undefined,
-    )
-    .sort((a, b) => Math.abs(a.y1 - a.y2) - Math.abs(b.y1 - b.y2));
-  if (!specs.length) return '';
-  const lanes = new Map<string, number>();
-  const placed: { lane: number; top: number; bottom: number }[] = [];
-  for (const s of specs) {
-    const top = Math.min(s.y1, s.y2);
-    const bottom = Math.max(s.y1, s.y2);
-    const taken = new Set(placed.filter((p) => p.top < bottom && p.bottom > top).map((p) => p.lane));
-    let lane = 0;
-    while (taken.has(lane)) lane++;
-    lanes.set(s.r.id, lane);
-    placed.push({ lane, top, bottom });
-  }
-  const laneCount = Math.max(1, ...[...lanes.values()].map((l) => l + 1));
-  const laneStep = Math.max(14, Math.min(24, (gutterW - 12) / laneCount));
-  const x0 = leftX + 6; // anchor at the gutter's left edge, adjacent to the text
-  return specs
-    .map((s) => {
-      const lane = lanes.get(s.r.id) ?? 0;
-      const x = Math.min(leftX + gutterW - 10, x0 + lane * laneStep);
-      const midY = (s.y1 + s.y2) / 2;
-      const col = resolvedRelationColor(s.r);
-      const paired = s.r.type === 'chiasm' || s.r.type === 'parallel' || s.r.type === 'inclusio';
-      const dash = paired ? ' stroke-dasharray="5 3"' : '';
-      const label = s.r.label || relationTypeLabel(s.r.type);
-      const bracket = `<path d="M ${x0} ${s.y1} H ${x} V ${s.y2} H ${x0}" fill="none" stroke="${col}" stroke-width="1.5"${dash} opacity="0.85"/>`;
-      const arrow = `<path d="M ${x0 + 5} ${s.y2 - 4} L ${x0} ${s.y2} L ${x0 + 5} ${s.y2 + 4}" fill="none" stroke="${col}" stroke-width="1.5"/>`;
-      const text = label
-        ? `<text x="${x + 3}" y="${midY}" fill="${col}" font-size="11" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${x + 3} ${midY})">${escapeXml(label)}</text>`
+  return relations
+    .map((r) => {
+      const a1 = leftX + r.a1;
+      const a2 = leftX + r.a2;
+      const laneX = leftX + r.laneU;
+      const midY = (r.y1 + r.y2) / 2;
+      const dash = r.dashed ? ' stroke-dasharray="5 3"' : '';
+      const bracket = `<path d="M ${a1} ${r.y1} H ${laneX} V ${r.y2} H ${a2}" fill="none" stroke="${r.color}" stroke-width="1.5"${dash} opacity="0.85"/>`;
+      const arrow = `<path d="M ${a2 + 5} ${r.y2 - 4} L ${a2} ${r.y2} L ${a2 + 5} ${r.y2 + 4}" fill="none" stroke="${r.color}" stroke-width="1.5"/>`;
+      const text = r.label
+        ? `<text x="${laneX + 3}" y="${midY}" fill="${r.color}" font-size="11" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${laneX + 3} ${midY})">${escapeXml(r.label)}</text>`
         : '';
       return bracket + arrow + text;
     })

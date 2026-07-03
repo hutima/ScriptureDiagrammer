@@ -24,6 +24,7 @@ export function DiscourseExportModal({ onClose }: { onClose: () => void }) {
   const baseDoc = useDiscourseStore((s) => s.baseDoc);
   const [includeText, setIncludeText] = useState(true);
   const [includeGlosses, setIncludeGlosses] = useState(false);
+  const [includeNotes, setIncludeNotes] = useState(true);
   const [copied, setCopied] = useState(false);
 
   if (!doc) return null;
@@ -31,8 +32,8 @@ export function DiscourseExportModal({ onClose }: { onClose: () => void }) {
   const hasEdits = !!baseDoc && baseDoc.id === doc.id;
   const relationCount = doc.relations.length;
 
-  const outline = () => discourseOutlineMarkdown(doc, { includeText, includeGlosses });
-  const renderOpts = { includeText, includeGlosses };
+  const outline = () => discourseOutlineMarkdown(doc, { includeText, includeGlosses, includeNotes });
+  const renderOpts = { includeText, includeGlosses, includeNotes };
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -60,6 +61,10 @@ export function DiscourseExportModal({ onClose }: { onClose: () => void }) {
         <label className="checkbox-row">
           <input type="checkbox" checked={includeGlosses} onChange={(e) => setIncludeGlosses(e.target.checked)} />
           <span>Include English glosses</span>
+        </label>
+        <label className="checkbox-row">
+          <input type="checkbox" checked={includeNotes} onChange={(e) => setIncludeNotes(e.target.checked)} />
+          <span>Include notes</span>
         </label>
         <div className="row" style={{ margin: '6px 0 10px' }}>
           <button
