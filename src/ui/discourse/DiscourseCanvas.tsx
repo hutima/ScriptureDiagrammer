@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDiscourseStore, useEditorStore } from '@/state';
 import { VisualizationSwitcher } from '@/ui/shell/VisualizationSwitcher';
 
 import { DiscourseView } from './DiscourseView';
 import { DiscourseSuggestions } from './DiscourseSuggestions';
-import { DiscourseOutlineNav } from './DiscourseOutlineNav';
 import { DiscourseFirstLoadModal } from './DiscourseFirstLoadModal';
 
 /**
@@ -57,7 +56,6 @@ export function DiscourseCanvas() {
   const isDefaultDemo = useDiscourseStore((s) => s.isDefaultDemo);
   const removeDefaultDemo = useDiscourseStore((s) => s.removeDefaultDemo);
   const setLeftCollapsed = useEditorStore((s) => s.setLeftCollapsed);
-  const [outlineOpen, setOutlineOpen] = useState(false);
 
   // Entering Discourse mode restores the previously loaded range and, on the
   // first-ever visit, opens the one-time guidance modal (otherwise it may
@@ -170,14 +168,6 @@ export function DiscourseCanvas() {
                 </div>
               )}
               <button
-                className={`mini${outlineOpen ? ' accept' : ''}`}
-                aria-pressed={outlineOpen}
-                title="Outline / minimap — navigate, search the range, jump to a reference"
-                onClick={() => setOutlineOpen(!outlineOpen)}
-              >
-                Outline
-              </button>
-              <button
                 className={`mini${suggestionsOpen ? ' accept' : ''}`}
                 aria-pressed={suggestionsOpen}
                 title="Possible markers, breaks, and relations suggested by the source — hints, not conclusions"
@@ -223,7 +213,6 @@ export function DiscourseCanvas() {
             )}
           </div>
           <div className="discourse-body">
-            {outlineOpen && <DiscourseOutlineNav doc={doc} />}
             {/* Discourse is manual-first: the outline is interactive in EVERY
                 app mode (the side panel's actions need target/split picking),
                 so `editing` is unconditional here — this is the discourse
