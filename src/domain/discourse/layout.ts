@@ -118,18 +118,18 @@ export function relationTypeLabel(type: DiscourseRelation['type']): string {
 /**
  * Hex values for the named relation-colour palette (`DiscourseRelationColor`).
  * A relation with an explicit `color` uses this map; otherwise the arc falls
- * back to the type-derived `relationColor` below. Muted to match the app style.
+ * back to the type-derived `relationColor` below. Saturated but fitting.
  */
 export const DISCOURSE_RELATION_PALETTE: Record<string, string> = {
-  red: '#a13d3d',
-  orange: '#b5651d',
-  olive: '#7b6a2f',
-  green: '#2f6f4f',
-  teal: '#2f6f6f',
-  blue: '#4a5f8a',
-  purple: '#6a4a8a',
-  slate: '#55606c',
-  gray: '#777f88',
+  red: '#c0392b',
+  orange: '#d97706',
+  olive: '#8a7a12',
+  green: '#15803d',
+  teal: '#0f766e',
+  blue: '#2563eb',
+  purple: '#7c3aed',
+  slate: '#475569',
+  gray: '#6b7280',
 };
 
 /**
@@ -144,33 +144,33 @@ export function resolvedRelationColor(relation: DiscourseRelation): string {
   return relationColor(relation.type);
 }
 
-/** Arc colour per relation family (mirrors the app's muted palette style). */
+/** Arc colour per relation family. */
 export function relationColor(type: DiscourseRelation['type']): string {
   switch (type) {
     case 'ground':
     case 'explanation':
     case 'elaboration':
-      return '#8a5d3b'; // warm brown — support
+      return '#b45309'; // warm brown — support
     case 'inference':
     case 'result':
     case 'purpose':
-      return '#2f6f4f'; // green — consequence
+      return '#15803d'; // green — consequence
     case 'contrast':
     case 'concession':
-      return '#a13d3d'; // red — opposition
+      return '#c0392b'; // red — opposition
     case 'condition':
-      return '#7b6a2f'; // olive
+      return '#8a7a12'; // olive
     case 'parallel':
     case 'chiasm':
     case 'inclusio':
-      return '#4a5f8a'; // blue — structure
+      return '#2563eb'; // blue — structure
     case 'quotation':
-      return '#6a4a8a'; // purple
+      return '#7c3aed'; // purple
     case 'coordinate':
     case 'series':
-      return '#55606c'; // slate
+      return '#475569'; // slate
     default:
-      return '#777f88';
+      return '#6b7280';
   }
 }
 

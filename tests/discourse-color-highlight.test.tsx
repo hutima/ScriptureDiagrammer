@@ -109,9 +109,9 @@ describe('relation color — resolution + patch round-trip', () => {
     );
     const rel = withRel.relations[0]!;
     // No override → type-derived colour (ground = warm brown).
-    expect(resolvedRelationColor(rel)).toBe('#8a5d3b');
+    expect(resolvedRelationColor(rel)).toBe('#b45309');
     // Override wins.
-    expect(resolvedRelationColor({ ...rel, color: 'teal' })).toBe('#2f6f6f');
+    expect(resolvedRelationColor({ ...rel, color: 'teal' })).toBe('#0f766e');
   });
 
   it('persists a relation colour and clears it (Auto) through diff → JSON → apply', () => {
