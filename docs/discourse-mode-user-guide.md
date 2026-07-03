@@ -195,3 +195,29 @@ morphology, lemmas, glosses, and the particles the hints are built from. It
 does **not** provide finalized discourse-arc relationships — no published
 "correct" answer is being hidden from you. Every arc in your outline is either
 something you drew or a hint you explicitly accepted.
+
+## Getting started: the demo passage and the guidance modal
+
+The first time you open Discourse mode, a short **guidance modal** appears
+("Discourse mode is self-directed"). It offers three choices:
+
+- **Use demo passage** — loads the default demo, **Ephesians 2:12–19**, from the
+  public-domain **KJV**. This passage moves from alienation to nearness and
+  reconciliation in Christ — a compact test-bed for contrast, progression,
+  inclusio, or chiasm. The demo is only *text*: no structure is pre-drawn, so any
+  arrangement you build is your own analysis.
+- **Start with my own passage** — opens the **New text** tab so you can paste
+  your own prose (no AI parse involved).
+- **Dismiss** — closes the modal and loads nothing.
+
+You can reopen the modal any time from the **ⓘ** button in the Discourse header.
+Dismissing the modal is remembered across reloads and app updates.
+
+When the demo is loaded, a **Remove demo** button appears next to the title.
+Removing it clears the passage and remembers your choice, so the demo is not
+brought back automatically on later visits or after an app update. Removing the
+demo is different from **Reset** (which only discards your edits and keeps the
+passage): removing sets the "don't restore" flag, resetting does not. You can
+still load the demo again manually from the modal — that does not un-remember
+your choice. Removing the demo never touches your syntax diagrams, sermon notes,
+or any other discourse passage you have been editing.

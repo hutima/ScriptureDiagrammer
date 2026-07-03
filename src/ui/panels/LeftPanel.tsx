@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useEditorStore } from '@/state';
+import { useEditorStore, useDiscourseStore } from '@/state';
 import { GntPicker } from './left/GntPicker';
 import { OtPicker } from './left/OtPicker';
 import { NewSourcePicker } from './left/NewSourcePicker';
@@ -48,6 +48,15 @@ export function LeftPanel({ hidden = false }: { hidden?: boolean }) {
       setSource('search');
     }
   }, [searchPrefill, setCollapsed]);
+  // The discourse guidance modal's "Start with my own passage" bumps this nonce
+  // to open the "New text" tab. The initial 0 is skipped (a rising value only).
+  const newTextRequest = useDiscourseStore((s) => s.newTextRequest);
+  useEffect(() => {
+    if (newTextRequest > 0) {
+      setCollapsed(false);
+      setSource('new');
+    }
+  }, [newTextRequest, setCollapsed]);
 
   // Follow the OPEN document's corpus so a reload (which restores the passage
   // asynchronously, after this panel has mounted on the placeholder doc) lands on

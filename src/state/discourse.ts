@@ -33,7 +33,12 @@ import {
 import { isEmptyDiscoursePatch } from '@/domain/schema';
 import {
   applyStoredDiscoursePatch,
+  clearLastDiscourseRange,
   deleteDiscoursePatch,
+  dismissDiscourseFirstLoadModal,
+  hideDefaultDemo,
+  isDefaultDemoHidden,
+  isDiscourseFirstLoadModalDismissed,
   loadLastDiscourseRange,
   saveDiscoursePatch,
   saveLastDiscourseRange,
@@ -109,6 +114,20 @@ export interface DiscourseState {
    * several units in a new parent group.
    */
   multiSelectedUnitIds: string[];
+  // --- default demo + first-load guidance ---
+  /**
+   * Is the currently loaded document the built-in Ephesians 2:12–19 demo? Drives
+   * the "Remove demo" affordance. Stamped only when the demo is loaded (or a
+   * restored range matches the demo signature); user ranges never set it.
+   */
+  isDefaultDemo: boolean;
+  /** Is the one-time first-load Discourse guidance modal currently open? */
+  firstLoadModalOpen: boolean;
+  /**
+   * A one-shot request (a rising nonce) for the left panel to open its "New
+   * text" tab — used by the modal's "Start with my own passage" action.
+   */
+  newTextRequest: number;
   // --- history ---
   past: DiscourseDocument[];
   future: DiscourseDocument[];
@@ -128,6 +147,35 @@ export interface DiscourseActions {
   loadPlainText: (text: string, title?: string) => boolean;
   /** Restore the last loaded range once (called when Discourse mode opens). */
   restoreLastRange: () => Promise<void>;
+  /**
+   * Orchestrate first entry to Discourse mode (called once when the canvas
+   * mounts): restore any prior range, then either open the one-time guidance
+   * modal (first visit) or auto-load the default demo (later visits, only when
+   * nothing is loaded and the demo has not been hidden). Deterministic and safe
+   * to call more than once — a loaded document short-circuits it.
+   */
+  enterDiscourseMode: () => Promise<void>;
+  /**
+   * Load the built-in Ephesians 2:12–19 demo through the normal range pipeline
+   * and stamp it as the default demo. Idempotent: if the demo is already the
+   * loaded range it just re-stamps without reloading. Works even if the demo was
+   * previously hidden (a manual load does NOT clear the hide flag).
+   */
+  loadDefaultDemo: () => Promise<void>;
+  /**
+   * Remove the default demo: clear the visible document and persist a hide flag
+   * so it is never auto-restored again (survives reloads + PWA updates). Distinct
+   * from `resetEdits` (which only discards edits) — this sets the hide flag and
+   * forgets the range pointer. Leaves syntax state, sermon notes, and unrelated
+   * discourse patches untouched.
+   */
+  removeDefaultDemo: () => void;
+  /** Open the first-load guidance modal manually (e.g. an "About Discourse" button). */
+  openFirstLoadModal: () => void;
+  /** Dismiss the guidance modal and persist the dismissal (does NOT hide the demo). */
+  dismissFirstLoadModal: () => void;
+  /** Signal the left panel to open its "New text" tab (modal "Start with my own"). */
+  requestNewText: () => void;
   select: (selection: DiscourseSelection) => void;
   setView: (patch: Partial<DiscourseViewToggles>) => void;
   setSuggestionsOpen: (open: boolean) => void;
@@ -175,6 +223,36 @@ export interface DiscourseActions {
 export type DiscourseStore = DiscourseState & DiscourseActions;
 
 const HISTORY_LIMIT = 100;
+
+/**
+ * The built-in default demo passage: Ephesians 2:12–19, loaded from the KJV —
+ * a public-domain, English-only source that needs no original-language linking,
+ * so it is the lowest-friction default. It is loaded through the NORMAL range
+ * pipeline (not a static fixture), so it is fully editable and its edits persist
+ * exactly like any other Discourse document.
+ */
+const DEMO_RANGE = {
+  sourceId: 'english-kjv' as DiscourseSourceId,
+  bookNum: 10, // Ephesians
+  startRef: '2:12',
+  endRef: '2:19',
+  granularity: 'verse' as DiscourseGranularity,
+};
+
+/** Does the current loader range match the canonical demo signature? */
+function isDemoRange(s: {
+  sourceId: DiscourseSourceId;
+  bookNum: number;
+  startRef: string;
+  endRef: string;
+}): boolean {
+  return (
+    s.sourceId === DEMO_RANGE.sourceId &&
+    s.bookNum === DEMO_RANGE.bookNum &&
+    s.startRef === DEMO_RANGE.startRef &&
+    s.endRef === DEMO_RANGE.endRef
+  );
+}
 
 const DEFAULT_VIEW: DiscourseViewToggles = {
   showMarkers: true,
@@ -226,6 +304,9 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     relationDraft: null,
     splitPickUnitId: null,
     multiSelectedUnitIds: [],
+    isDefaultDemo: false,
+    firstLoadModalOpen: false,
+    newTextRequest: 0,
     past: [],
     future: [],
 
@@ -260,6 +341,8 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
           relationDraft: null,
           splitPickUnitId: null,
           multiSelectedUnitIds: [],
+          // A range load clears the demo stamp; `loadDefaultDemo` re-sets it after.
+          isDefaultDemo: false,
           past: [],
           future: [],
         });
@@ -289,6 +372,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         relationDraft: null,
         splitPickUnitId: null,
         multiSelectedUnitIds: [],
+        isDefaultDemo: false,
         past: [],
         future: [],
       });
@@ -308,8 +392,74 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
           granularity: (last.granularity as DiscourseGranularity) ?? 'sentence',
         });
         await get().loadRange();
+        // A restored range that matches the demo signature is the demo: stamp it
+        // so the "Remove demo" affordance appears after a reload.
+        if (isDemoRange(get())) set({ isDefaultDemo: true });
       }
     },
+
+    enterDiscourseMode: async () => {
+      const s = get();
+      // Already showing something (returning to the mode, or a load in flight):
+      // never re-trigger the modal or clobber the document.
+      if (s.doc || s.status === 'loading') return;
+      await get().restoreLastRange();
+      if (get().doc) return; // a prior range was restored — leave it be
+      if (!isDiscourseFirstLoadModalDismissed()) {
+        // FIRST visit: show the guidance modal and WAIT for the user's choice;
+        // the demo is not auto-loaded behind it (avoids the "offer to load what's
+        // already loaded" race).
+        set({ firstLoadModalOpen: true });
+        return;
+      }
+      // Later visits: auto-load the demo only when nothing is loaded and the user
+      // has not hidden it.
+      if (!isDefaultDemoHidden()) await get().loadDefaultDemo();
+    },
+
+    loadDefaultDemo: async () => {
+      // Idempotent: if the demo range is already loaded, just (re-)stamp it.
+      if (get().doc && isDemoRange(get())) {
+        set({ isDefaultDemo: true });
+        return;
+      }
+      set({ ...DEMO_RANGE });
+      await get().loadRange();
+      if (get().status === 'loaded' && isDemoRange(get())) set({ isDefaultDemo: true });
+    },
+
+    removeDefaultDemo: () => {
+      const { baseDoc } = get();
+      // Drop this demo's own edit patch (its edits go with it) — but nothing else.
+      if (baseDoc) deleteDiscoursePatch(baseDoc.id);
+      // Forget the range pointer so a reload can't restore the demo.
+      clearLastDiscourseRange();
+      // Persist the hide flag so it never auto-restores again.
+      hideDefaultDemo();
+      // Supersede any in-flight load and clear the visible document.
+      ++loadSeq;
+      set({
+        baseDoc: null,
+        doc: null,
+        status: 'idle',
+        error: null,
+        isDefaultDemo: false,
+        selection: {},
+        pendingRelationSource: null,
+        relationDraft: null,
+        splitPickUnitId: null,
+        multiSelectedUnitIds: [],
+        past: [],
+        future: [],
+      });
+    },
+
+    openFirstLoadModal: () => set({ firstLoadModalOpen: true }),
+    dismissFirstLoadModal: () => {
+      dismissDiscourseFirstLoadModal();
+      set({ firstLoadModalOpen: false });
+    },
+    requestNewText: () => set((s) => ({ newTextRequest: s.newTextRequest + 1 })),
 
     select: (selection) =>
       set({
