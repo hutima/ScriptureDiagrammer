@@ -151,8 +151,20 @@ the current geometry.
     revert): shoving hanging blocks 80px left → 73 line-guard + 21
     rotated-guard + 4 overlap-guard failures; piling coordinated-PP slants
     10px apart → 9 rotated-guard (rotated×rotated) + overlap failures.
-- [ ] Stage B0 — packer core (occupied-region tracking + first-fit placement,
-  safe fallback = current output), landed UNUSED with unit tests.
+- [x] **Stage B0 — packer core** (`src/domain/layout/kr/packing.ts`), landed
+  UNUSED (no call sites) with unit tests (tests/kr-packing.test.ts).
+  `BandPacker`: `occupy(elements)` tracks conservative per-primitive rects
+  (diagonal lines subdivided into ≤8 chunked boxes so a slant's bbox doesn't
+  over-block the pocket beside it; texts as glyph boxes; rotated texts as
+  rotated-quad bboxes). `reclaim(els, maxShift)` uses CONTINUOUS-SLIDE
+  semantics: the caller draws the block at its CLASSIC position first, then
+  slides it left until it first comes within PACK_PAD (10px) of anything
+  occupied — it can pack flush against an obstacle but can never jump PAST
+  one, so sibling order is preserved by construction. Safe-fallback contract:
+  0 (byte-identical output) whenever a tighter placement isn't provably
+  clash-free, including when the classic position is already within PACK_PAD
+  of content (grandfathered adjacency stays as-is). The packer only ever
+  moves content LEFT of today's position — it can never widen a diagram.
 - [ ] Stage B1 — first call site: kr/word.ts layoutHead modifier cascade.
 - [ ] Stage B2 — kr/clause.ts verb-modifier band vs complement start.
 - [ ] Stage B3 — kr/clause.ts clause-adjunct rail packing.
