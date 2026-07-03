@@ -226,6 +226,11 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
 
   return (
     <div className="discourse-view" onKeyDown={onKeyDown}>
+      {editing && pendingRelationSource && (
+        <div className="discourse-relate-banner" role="status">
+          Relating — click another unit to connect to it. <kbd>Esc</kbd> to cancel.
+        </div>
+      )}
       <div
         className="discourse-scroll"
         onClick={() => {

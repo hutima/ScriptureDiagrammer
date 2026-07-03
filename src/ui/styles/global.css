@@ -2946,6 +2946,37 @@ label.field.inline > span { margin-bottom: 0; }
 .discourse-relation-picker-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .discourse-relation-picker-head .mini { margin-left: auto; }
 .discourse-relation-types { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+.discourse-relation-picker-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.discourse-relation-picker .mini.danger {
+  color: var(--danger, #b3261e);
+  border-color: var(--danger, #b3261e);
+}
+.discourse-relation-picker .mini.danger:hover { background: rgba(179, 38, 30, 0.08); }
+/* Relate-mode hint strip — shown while the next click picks the target unit. */
+.discourse-relate-banner {
+  font-size: 12px;
+  padding: 6px 10px;
+  margin: 0 0 6px;
+  border-radius: 6px;
+  border: 1px solid var(--accent, #b90e31);
+  border-left-width: 3px;
+  background: var(--bg-soft, #f8f2f3);
+  color: var(--ink, #2a2f3a);
+}
+.discourse-relate-banner kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  padding: 0 4px;
+  border: 1px solid var(--line, #d8dce2);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--paper, #fff);
+}
 .discourse-inspector-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
 .discourse-inspector-edit textarea, .discourse-relation-editor textarea { resize: vertical; font: inherit; }
 .discourse-relation-editor {
