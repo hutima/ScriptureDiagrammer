@@ -277,6 +277,80 @@ const GLOSSARY: Record<string, GlossEntry> = {
     detail: 'These words agree in their grammatical form — case, gender, and number — which is how Greek signals that they belong together regardless of word order (e.g. an article or adjective matching its noun).',
   },
 
+  // ── Constituency tree: source `<wg rule>` metadata ──────────────────────
+  // Keyed `rule:*` (never bare) so these can't collide with morphology codes.
+  // A combined label like "Np-Appos · art." is glossed by splitting it into
+  // components (see `lookupCompositeGloss` below) — each component's `term`
+  // here is written as a short, lower-case phrase so it reads naturally when
+  // stitched together ("Np-Appos — noun phrase in apposition"). Only rules
+  // whose meaning is confidently attested (by the Lowfat importer's own
+  // comments, `src/io/lowfat.ts`, or unambiguous naming) are included; the
+  // long tail of rare/uncertain rule strings is deliberately left ungrossed.
+  art: {
+    term: 'articular (has the article)',
+    abbr: 'art.',
+    detail: 'The phrase or word carries the Greek article (ὁ, ἡ, τό …), marking it as definite.',
+  },
+  // Clause word-order position codes — these appear as the individual
+  // hyphen-separated parts of a clause's word-order rule (e.g. "S-V-O",
+  // "ADV-V", "S-VC-P"); composite lookup decomposes the rule into these when
+  // there is no single entry for the whole combination.
+  'rule:S': { term: 'subject', abbr: 'S', detail: 'In a clause word-order rule (e.g. "S-V-O"), S marks where the subject falls.' },
+  'rule:V': { term: 'verb / predicate', abbr: 'V', detail: 'In a clause word-order rule, V marks where the finite verb (predicate) falls.' },
+  'rule:O': { term: 'direct object', abbr: 'O', detail: 'In a clause word-order rule, O marks where the direct object falls.' },
+  'rule:P': { term: 'predicate complement', abbr: 'P', detail: 'In a clause word-order rule, P marks where a predicate nominative or adjective falls.' },
+  'rule:VC': { term: 'copula ("to be")', abbr: 'VC', detail: 'In a clause word-order rule, VC marks where a linking (copula) verb falls.' },
+  'rule:ADV': { term: 'adverbial', abbr: 'ADV', detail: 'In a clause word-order rule, ADV marks where an adverbial modifier falls.' },
+  'rule:IO': { term: 'indirect object', abbr: 'IO', detail: 'In a clause word-order rule, IO marks where the indirect object falls.' },
+  // Phrase-modification structures.
+  'rule:DetNP': { term: 'article + noun phrase', abbr: 'DetNP', detail: 'An article (or determiner) heading a noun phrase — "the …".' },
+  'rule:DetAdj': { term: 'article + adjective', abbr: 'DetAdj', detail: 'An article combined with an adjective, substantizing it — e.g. "the good [one]".' },
+  'rule:DetCL': { term: 'article + clause', abbr: 'DetCL', detail: 'An article combined with a clause (often a participial clause), forming a substantival ("the one who …") construction.' },
+  'rule:PrepNp': { term: 'preposition + noun phrase', abbr: 'PrepNp', detail: 'A preposition together with the noun phrase it governs, forming a prepositional phrase.' },
+  'rule:Np-Appos': { term: 'noun phrase in apposition', abbr: 'Np-Appos', detail: 'A noun phrase placed beside another that renames or identifies it — e.g. "Paul, an apostle".' },
+  'rule:NPofNP': { term: 'genitive "of" noun phrase', abbr: 'NPofNP', detail: 'A genitive noun phrase modifying another noun phrase — "the word of God".' },
+  'rule:ofNPNP': { term: 'genitive "of" noun phrase', abbr: 'ofNPNP', detail: 'A genitive noun phrase modifying another noun phrase — "the word of God".' },
+  'rule:NpPp': { term: 'noun phrase + prepositional phrase', abbr: 'NpPp', detail: 'A noun phrase modified by a following prepositional phrase.' },
+  'rule:AdjpNp': { term: 'adjective phrase + noun phrase', abbr: 'AdjpNp', detail: 'An adjective phrase modifying a following noun phrase.' },
+  'rule:NpAdjp': { term: 'noun phrase + adjective phrase', abbr: 'NpAdjp', detail: 'A noun phrase modified by a following adjective phrase.' },
+  'rule:AdvpNp': { term: 'adverb phrase + noun phrase', abbr: 'AdvpNp', detail: 'An adverb phrase (e.g. καί "also") modifying a noun phrase.' },
+  'rule:NpAdvp': { term: 'noun phrase + adverb phrase', abbr: 'NpAdvp', detail: 'A noun phrase modified by a following adverb phrase.' },
+  'rule:AdvPp': { term: 'adverb + prepositional phrase', abbr: 'AdvPp', detail: 'An adverb modifying a prepositional phrase.' },
+  'rule:PronNP': { term: 'pronoun + noun phrase', abbr: 'PronNP', detail: 'A pronoun (e.g. a demonstrative) heading or modifying a noun phrase.' },
+  'rule:QuanPp': { term: 'quantifier + prepositional phrase', abbr: 'QuanPp', detail: 'A quantifier (e.g. πάντα "all") modified by a following prepositional phrase.' },
+  'rule:BeVerb': { term: 'periphrastic "to be" verb', abbr: 'BeVerb', detail: 'A periphrastic verb form: a "to be" verb plus a participle functioning together as one verb.' },
+  // Coordination.
+  'rule:NpaNp': { term: 'noun phrases joined by "and"', abbr: 'NpaNp', detail: 'Two noun phrases coordinated with καί "and".' },
+  'rule:aNpaNp': { term: 'noun phrases joined by "and"', abbr: 'aNpaNp', detail: 'A run of noun phrases coordinated with καί "and".' },
+  'rule:AdjpaAdjp': { term: 'adjective phrases joined by "and"', abbr: 'AdjpaAdjp', detail: 'Two adjective phrases coordinated with καί "and".' },
+  'rule:Conj-CL': { term: 'clauses joined by a conjunction', abbr: 'Conj-CL', detail: 'A conjunction (καί, δέ …) coordinating full clauses.' },
+  'rule:ClCl': { term: 'clauses placed side by side', abbr: 'ClCl', detail: 'Clauses coordinated or listed in sequence.' },
+  'rule:ClCl2': { term: 'clauses placed side by side', abbr: 'ClCl2', detail: 'Clauses coordinated or listed in sequence.' },
+  'rule:CLaCL': { term: 'clauses joined by "and"', abbr: 'CLaCL', detail: 'Clauses coordinated with καί "and".' },
+  'rule:aCLaCL': { term: 'clauses joined by "and"', abbr: 'aCLaCL', detail: 'A run of clauses coordinated with καί "and".' },
+  'rule:Conj2VP': { term: 'verb phrases joined by a conjunction', abbr: 'Conj2VP', detail: 'A conjunction coordinating verb phrases.' },
+  'rule:Conj2Pp': { term: 'prepositional phrases joined by a conjunction', abbr: 'Conj2Pp', detail: 'A conjunction coordinating prepositional phrases.' },
+  'rule:Conj3Np': { term: 'noun phrases joined by a conjunction', abbr: 'Conj3Np', detail: 'A conjunction coordinating noun phrases.' },
+  'rule:Conj3CL': { term: 'clauses joined by a conjunction', abbr: 'Conj3CL', detail: 'A conjunction coordinating clauses.' },
+  // Contrastive "not X but Y" coordination.
+  'rule:notNPbutNP': { term: '"not … but …" noun phrases', abbr: 'notNPbutNP', detail: 'A contrastive coordination of two noun phrases — "not X but Y".' },
+  'rule:notVPbutVP': { term: '"not … but …" verb phrases', abbr: 'notVPbutVP', detail: 'A contrastive coordination of two verb phrases — "not X but Y".' },
+  'rule:notPPbutPP': { term: '"not … but …" prepositional phrases', abbr: 'notPPbutPP', detail: 'A contrastive coordination of two prepositional phrases — "not X but Y".' },
+  'rule:notCLbutCL2CL': { term: '"not … but …" clauses', abbr: 'notCLbutCL2CL', detail: 'A contrastive coordination of two clauses — "not X but Y".' },
+  'rule:CjpCjp': { term: 'compound "but rather"', abbr: 'CjpCjp', detail: 'A Hebrew compound conjunction כִּי אִם, "but rather".' },
+  // Clause attachment / embedding.
+  'rule:sub-CL': { term: 'subordinate clause', abbr: 'sub-CL', detail: 'A subordinate clause attached to its governing element.' },
+  'rule:PtclCL': { term: 'particle + clause', abbr: 'PtclCL', detail: 'A discourse particle attached to a clause.' },
+  'rule:Intj2CL': { term: 'interjection + clause', abbr: 'Intj2CL', detail: 'An interjection attached to a clause.' },
+  'rule:that-VP': { term: '"that/which" clause + verb phrase', abbr: 'that-VP', detail: 'A "that/which" clause forming part of a verb phrase.' },
+  'rule:V2CL': { term: 'verb + embedded clause', abbr: 'V2CL', detail: 'A verb governing an embedded clause (e.g. an infinitive or complement clause completing it).' },
+  'rule:Np2CL': { term: 'noun phrase + embedded clause', abbr: 'Np2CL', detail: 'A noun phrase governing an embedded clause (e.g. a relative clause modifying the noun).' },
+  'rule:S2CL': { term: 'subject filled by a clause', abbr: 'S2CL', detail: 'A subject position filled by an embedded clause.' },
+  'rule:P2CL': { term: 'predicate complement filled by a clause', abbr: 'P2CL', detail: 'A predicate-complement position filled by an embedded clause.' },
+  'rule:ADV2CL': { term: 'adverbial filled by a clause', abbr: 'ADV2CL', detail: 'An adverbial position filled by an embedded (subordinate) clause.' },
+  'rule:CL2NP': { term: 'clause functioning as a noun phrase', abbr: 'CL2NP', detail: 'A clause embedded within, or functioning as, a noun phrase (e.g. a relative or nominalized clause).' },
+  'rule:NP-CL': { term: 'noun phrase / clause construction', abbr: 'NP-CL', detail: 'A clause functioning as, or attached to, a noun phrase.' },
+
   // ── Greek/Hebrew morphology codes ───────────────────────────────────────
   // Case
   nom: { term: 'Nominative', detail: 'The case of the subject (and predicate nominative).' },
@@ -318,10 +392,92 @@ const GLOSSARY: Record<string, GlossEntry> = {
   '3': { term: 'Third person', detail: 'The one spoken about (he / she / it / they).' },
 };
 
-/** Look up a glossary entry by key (case-insensitive). */
+// A lower-cased index of GLOSSARY, built once, so composite/prefixed keys
+// (e.g. `rule:Np-Appos`) can still be matched case-insensitively even though
+// their stored key isn't already all-lowercase (unlike the plain morphology
+// codes, which are).
+const GLOSSARY_LC: Record<string, GlossEntry> = Object.fromEntries(
+  Object.entries(GLOSSARY).map(([k, v]) => [k.toLowerCase(), v]),
+);
+
+/** Exact (case-insensitive) lookup against GLOSSARY — no composite splitting. */
+function lookupExact(key: string): GlossEntry | undefined {
+  return GLOSSARY[key] ?? GLOSSARY_LC[key.toLowerCase()];
+}
+
+// Composite-label splitting: a constituency-tree source-metadata label like
+// "Np-Appos · art." combines several components into one string. TOP_SPLIT
+// separates on the "joiner" punctuation (middle dot / bullet variants) and
+// surrounding whitespace — the separator between otherwise-whole component
+// names. SUB_SPLIT (hyphen / slash) is tried only WITHIN a component that
+// didn't resolve whole, so a hyphenated rule name like "Np-Appos" (which may
+// have its own `rule:Np-Appos` entry) is always tried intact first.
+const TOP_SPLIT = /[·•‣⁃∙◦]|\s+/;
+const SUB_SPLIT = /[-/]/;
+/** Prefixes tried, in order, for a single normalized component. */
+const COMPONENT_PREFIXES = ['rule:', 'phrase:', 'pos:'];
+
+/** Trim a component and strip one trailing period ("art." → "art"). */
+function normalizeComponent(raw: string): string {
+  const trimmed = raw.trim();
+  return trimmed.length > 1 && trimmed.endsWith('.') ? trimmed.slice(0, -1).trim() : trimmed;
+}
+
+/** Resolve one label component against `rule:`/`phrase:`/`pos:`, then bare. */
+function resolveComponent(raw: string): GlossEntry | undefined {
+  const c = normalizeComponent(raw);
+  if (!c) return undefined;
+  for (const prefix of COMPONENT_PREFIXES) {
+    const hit = lookupExact(prefix + c);
+    if (hit) return hit;
+  }
+  return lookupExact(c);
+}
+
+/**
+ * Gloss a combined label (e.g. "Np-Appos · art.") by splitting it into
+ * components and composing the glosses of the ones that resolve. Unknown
+ * components are silently skipped; if nothing resolves, returns undefined so
+ * no gloss popover appears at all (rather than an empty/noisy one).
+ */
+function lookupCompositeGloss(key: string): GlossEntry | undefined {
+  const parts = key.split(TOP_SPLIT).map((p) => p.trim()).filter(Boolean);
+  const found: { label: string; entry: GlossEntry }[] = [];
+  for (const part of parts) {
+    const whole = resolveComponent(part);
+    if (whole) {
+      found.push({ label: part, entry: whole });
+      continue;
+    }
+    const subParts = part.split(SUB_SPLIT).map((p) => p.trim()).filter(Boolean);
+    if (subParts.length < 2) continue;
+    for (const sub of subParts) {
+      const hit = resolveComponent(sub);
+      if (hit) found.push({ label: sub, entry: hit });
+    }
+  }
+  if (!found.length) return undefined;
+  const seen = new Set<string>();
+  const unique = found.filter(({ label }) => {
+    const k = label.toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  return {
+    term: key,
+    detail: unique.map(({ label, entry }) => `${label} — ${entry.term}`).join('; '),
+  };
+}
+
+/**
+ * Look up a glossary entry by key (case-insensitive). Falls back to
+ * {@link lookupCompositeGloss} for combined labels (e.g. constituency-tree
+ * source metadata like "Np-Appos · art.") that don't match a single entry.
+ */
 export function lookupGloss(key: string | undefined): GlossEntry | undefined {
   if (!key) return undefined;
-  return GLOSSARY[key] ?? GLOSSARY[key.toLowerCase()];
+  return lookupExact(key) ?? lookupCompositeGloss(key);
 }
 
 /** Whether a key resolves to a glossary entry (for guarding interactivity). */
