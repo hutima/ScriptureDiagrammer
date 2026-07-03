@@ -8,6 +8,7 @@ import type {
   DiscourseUnit,
   DiscourseUnitColor,
   DiscourseUnitKind,
+  HighlightCategory,
   Provenance,
 } from '@/domain/schema';
 import { compareRefs } from './refs';
@@ -210,6 +211,63 @@ export function addDiscourseTextHighlight(
   const highlight: DiscourseTextHighlight = { id: id ?? makeId('dh'), tokenIds: ordered, color };
   const units = doc.units.map((u) =>
     u.id === unitId ? { ...u, textHighlights: [...(u.textHighlights ?? []), highlight] } : u,
+  );
+  return touchDoc(doc, units, now);
+}
+
+/**
+ * Add a Study-mode passage highlight to a unit — like `addDiscourseTextHighlight`
+ * but stamped `scope: 'study'` and tagged with a sermon `category` (the renderer
+ * paints it in the category colour; no `color` is stored). `tokenIds` must all
+ * belong to the unit (else no-op) and are re-ordered to the unit's surface order.
+ */
+export function addDiscourseStudyHighlight(
+  doc: DiscourseDocument,
+  unitId: string,
+  tokenIds: string[],
+  category: HighlightCategory,
+  now?: string,
+  id?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  if (!unit || !tokenIds.length) return doc;
+  const tokenSet = new Set(tokenIds);
+  if (!tokenIds.every((t) => unit.tokenIds.includes(t))) return doc;
+  const ordered = unit.tokenIds.filter((t) => tokenSet.has(t));
+  const highlight: DiscourseTextHighlight = {
+    id: id ?? makeId('hl'),
+    tokenIds: ordered,
+    scope: 'study',
+    category,
+  };
+  const units = doc.units.map((u) =>
+    u.id === unitId ? { ...u, textHighlights: [...(u.textHighlights ?? []), highlight] } : u,
+  );
+  return touchDoc(doc, units, now);
+}
+
+/** Set (or clear, with an empty string) a text highlight's short note. No-op if absent. */
+export function setDiscourseTextHighlightNote(
+  doc: DiscourseDocument,
+  unitId: string,
+  highlightId: string,
+  note: string,
+  now?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  const target = unit?.textHighlights?.find((h) => h.id === highlightId);
+  if (!target) return doc;
+  const trimmed = note.trim() || undefined;
+  if (trimmed === target.note) return doc;
+  const units = doc.units.map((u) =>
+    u.id === unitId
+      ? {
+          ...u,
+          textHighlights: u.textHighlights!.map((h) =>
+            h.id === highlightId ? { ...h, note: trimmed } : h,
+          ),
+        }
+      : u,
   );
   return touchDoc(doc, units, now);
 }

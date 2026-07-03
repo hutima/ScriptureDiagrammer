@@ -220,7 +220,11 @@ export function DiscourseCanvas() {
             {/* Editing affordances (indent handles, marker chips, relate/split
                 picking, structural shortcuts) are Edit-mode only; Explore is a
                 clean read (arcs, labels, indentation, selection still work). */}
-            <DiscourseView doc={doc} editing={appMode === 'edit'} />
+            <DiscourseView
+              doc={doc}
+              editing={appMode === 'edit'}
+              studyMode={appMode === 'sermon'}
+            />
             {suggestionsOpen && <DiscourseSuggestions />}
             {/* Tools + unit/relation details live in the SHELL's right-panel
                 slot (DiscourseRightPanel in ResponsiveShell), matching the

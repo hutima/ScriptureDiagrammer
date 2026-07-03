@@ -1,29 +1,73 @@
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import type { DiscourseRow } from '@/domain/discourse';
 import { formatRange, MAX_USER_INDENT, MIN_USER_INDENT } from '@/domain/discourse';
 import type { DiscourseToken, DiscourseUnit } from '@/domain/schema';
 import type { DiscourseViewToggles } from '@/state';
+import { highlightColor as categoryColor } from '@/ui/sermon/highlights';
 import { DiscourseMarkerChip } from './DiscourseMarkerChip';
 
 /** Horizontal pixels per indent level — matches the structural depth step. */
 const INDENT_STEP_PX = 26;
 const clampIndent = (n: number) => Math.max(MIN_USER_INDENT, Math.min(MAX_USER_INDENT, n));
 
+type TextHighlight = NonNullable<DiscourseUnit['textHighlights']>[number];
+
 /**
- * Render a unit's tokens as per-token spans, marking any token covered by one
- * of `highlights` with `discourse-hl hl-<color>` (later highlights in the
- * array win on overlap). Real spaces between tokens keep normal text flow.
+ * A translucent tint for a Study-scope highlight, from its sermon `category`
+ * colour. Translucent so the text stays legible; muted (much fainter) in Edit
+ * mode, where study highlights are secondary to the structural editing.
+ */
+function studyTint(category: string | undefined, muted: boolean): string {
+  const hex = categoryColor((category ?? 'emphasis') as never);
+  // 6-digit hex + 2-digit alpha; ~40% normally, ~13% when muted.
+  return `${hex}${muted ? '22' : '66'}`;
+}
+
+/** Resolve the last highlight covering each token id (later ones win on overlap). */
+function highlightsByToken(highlights: TextHighlight[]): Map<string, TextHighlight> {
+  const byToken = new Map<string, TextHighlight>();
+  for (const h of highlights) for (const tid of h.tokenIds) byToken.set(tid, h);
+  return byToken;
+}
+
+/**
+ * The class / inline style for a single token given the highlight covering it:
+ *   - `scope:'study'` → the category colour as a translucent inline background
+ *     (muted in Edit mode);
+ *   - legacy / manual (`color`) → the existing `discourse-hl hl-<color>` class.
+ * `scope:'relation'` is left neutral until Phase 5.
+ */
+function tokenHighlightStyle(
+  h: TextHighlight | undefined,
+  mutedStudy: boolean,
+): { className?: string; style?: React.CSSProperties } {
+  if (!h) return {};
+  if (h.scope === 'study') {
+    return {
+      className: `discourse-hl discourse-hl-study${mutedStudy ? ' muted' : ''}`,
+      style: { background: studyTint(h.category, mutedStudy) },
+    };
+  }
+  if (h.color) return { className: `discourse-hl hl-${h.color}` };
+  return {};
+}
+
+/**
+ * Render a unit's tokens as per-token spans, tinting any token covered by a
+ * highlight (later highlights in the array win on overlap). Study-scope
+ * highlights paint in their category colour (muted in Edit mode). Real spaces
+ * between tokens keep normal text flow.
  */
 function renderTokensWithHighlights(
   tokens: DiscourseToken[],
-  highlights: NonNullable<DiscourseUnit['textHighlights']>,
+  highlights: TextHighlight[],
+  mutedStudy: boolean,
 ) {
-  const colorByToken = new Map<string, string>();
-  for (const h of highlights) for (const tid of h.tokenIds) colorByToken.set(tid, h.color);
+  const byToken = highlightsByToken(highlights);
   return tokens.map((t, i) => {
-    const color = colorByToken.get(t.id);
+    const { className, style } = tokenHighlightStyle(byToken.get(t.id), mutedStudy);
     return (
-      <span key={t.id} className={color ? `discourse-hl hl-${color}` : undefined}>
+      <span key={t.id} className={className} style={style}>
         {t.surface}
         {i < tokens.length - 1 ? ' ' : ''}
       </span>
@@ -59,6 +103,9 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
   highlightPicking = false,
   onAddHighlight,
   highlightColor,
+  studyMode = false,
+  studySelectionTokenIds,
+  onStudySelect,
 }: {
   row: DiscourseRow;
   view: DiscourseViewToggles;
@@ -85,6 +132,14 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
   onAddHighlight?: (unitId: string, tokenIds: string[]) => void;
   /** The color new highlights preview as while picking. */
   highlightColor?: string;
+  /** Study mode: render tokens as drag/tap-selectable spans for highlighting. */
+  studyMode?: boolean;
+  /** The current Study token selection FOR THIS UNIT (empty when the selection
+   *  lives on another unit). */
+  studySelectionTokenIds?: string[];
+  /** Replace the Study selection with `tokenIds` on this unit (drag = range,
+   *  tap = toggle a single token in/out of the current same-unit selection). */
+  onStudySelect?: (unitId: string, tokenIds: string[]) => void;
 }) {
   const { unit, tokens, markers, hasChildren } = row;
   const refLabel = formatRange(unit.refStart, unit.refEnd);
@@ -185,6 +240,65 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
     [hlDragStart, hlDragEnd, tokens, onAddHighlight, unit.id],
   );
 
+  // --- study-mode token selection (drag = range, tap = toggle) -------------------
+  const studyParaRef = useRef<HTMLParagraphElement | null>(null);
+  const [studyDragStart, setStudyDragStart] = useState<number | null>(null);
+  const [studyDragEnd, setStudyDragEnd] = useState<number | null>(null);
+  const studyMoved = useRef(false);
+  const studySelSet = useMemo(
+    () => new Set(studySelectionTokenIds ?? []),
+    [studySelectionTokenIds],
+  );
+
+  const onStudyPointerDown = useCallback(
+    (e: React.PointerEvent, index: number) => {
+      e.stopPropagation();
+      studyParaRef.current?.setPointerCapture?.(e.pointerId);
+      studyMoved.current = false;
+      setStudyDragStart(index);
+      setStudyDragEnd(index);
+    },
+    [],
+  );
+  const onStudyPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (studyDragStart === null) return;
+      const idx = tokenIndexAt(e.clientX, e.clientY);
+      if (idx === null) return;
+      if (idx !== studyDragStart) studyMoved.current = true;
+      setStudyDragEnd(idx);
+    },
+    [studyDragStart, tokenIndexAt],
+  );
+  const onStudyPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (studyDragStart === null) return;
+      studyParaRef.current?.releasePointerCapture?.(e.pointerId);
+      const endIdx = studyDragEnd ?? studyDragStart;
+      const lo = Math.min(studyDragStart, endIdx);
+      const hi = Math.max(studyDragStart, endIdx);
+      const dragged = studyMoved.current;
+      setStudyDragStart(null);
+      setStudyDragEnd(null);
+      studyMoved.current = false;
+      if (dragged) {
+        // Drag → contiguous range REPLACES the selection (always on this unit).
+        const ids = tokens.slice(lo, hi + 1).map((t) => t.id);
+        if (ids.length) onStudySelect?.(unit.id, ids);
+        return;
+      }
+      // Tap → toggle the single token in/out of the current same-unit selection.
+      const tapped = tokens[lo]?.id;
+      if (!tapped) return;
+      const nextSet = new Set(studySelSet);
+      if (nextSet.has(tapped)) nextSet.delete(tapped);
+      else nextSet.add(tapped);
+      const ids = tokens.filter((t) => nextSet.has(t.id)).map((t) => t.id);
+      onStudySelect?.(unit.id, ids);
+    },
+    [studyDragStart, studyDragEnd, tokens, studySelSet, onStudySelect, unit.id],
+  );
+
   return (
     <div
       ref={(el) => registerEl(unit.id, el)}
@@ -279,14 +393,58 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         {relateTarget && <span className="discourse-target-hint">← relate here</span>}
       </div>
 
-      {!isContainer && (isEnglish || view.showSourceText) && !splitPicking && !highlightPicking && (
+      {!isContainer &&
+        (isEnglish || view.showSourceText) &&
+        !splitPicking &&
+        !highlightPicking &&
+        !studyMode && (
+          <p
+            className={`discourse-text${isEnglish ? '' : ' greek'}${view.compact ? ' clamp' : ''}`}
+            lang={isEnglish ? 'en' : 'grc'}
+          >
+            {unit.textHighlights?.length
+              ? renderTokensWithHighlights(tokens, unit.textHighlights, editing)
+              : tokens.map((t) => t.surface).join(' ')}
+          </p>
+        )}
+      {!isContainer && studyMode && (isEnglish || view.showSourceText) && (
         <p
-          className={`discourse-text${isEnglish ? '' : ' greek'}${view.compact ? ' clamp' : ''}`}
+          ref={studyParaRef}
+          className={`discourse-text${isEnglish ? '' : ' greek'} discourse-study-words${view.compact ? ' clamp' : ''}`}
           lang={isEnglish ? 'en' : 'grc'}
+          onPointerMove={onStudyPointerMove}
+          onPointerUp={onStudyPointerUp}
         >
-          {unit.textHighlights?.length
-            ? renderTokensWithHighlights(tokens, unit.textHighlights)
-            : tokens.map((t) => t.surface).join(' ')}
+          {(() => {
+            const byToken = highlightsByToken(unit.textHighlights ?? []);
+            return tokens.map((t, i) => {
+              const lo =
+                studyDragStart === null
+                  ? null
+                  : Math.min(studyDragStart, studyDragEnd ?? studyDragStart);
+              const hi =
+                studyDragStart === null
+                  ? null
+                  : Math.max(studyDragStart, studyDragEnd ?? studyDragStart);
+              const inDrag = lo !== null && hi !== null && i >= lo && i <= hi;
+              const pending = inDrag || studySelSet.has(t.id);
+              // Study mode shows existing study highlights clearly (not muted).
+              const { className: hlClass, style } = tokenHighlightStyle(byToken.get(t.id), false);
+              return (
+                <span
+                  key={t.id}
+                  data-token-id={t.id}
+                  data-token-index={i}
+                  className={`discourse-study-word${hlClass ? ` ${hlClass}` : ''}${pending ? ' selected' : ''}`}
+                  style={style}
+                  onPointerDown={(e) => onStudyPointerDown(e, i)}
+                >
+                  {t.surface}
+                  {i < tokens.length - 1 ? ' ' : ''}
+                </span>
+              );
+            });
+          })()}
         </p>
       )}
       {!isContainer && splitPicking && (

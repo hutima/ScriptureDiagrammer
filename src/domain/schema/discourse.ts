@@ -1,5 +1,8 @@
 import { z } from 'zod';
 import { ConfidenceSchema, LanguageSchema, ProvenanceSchema } from './primitives';
+// The study-highlight category enum is shared with the sermon layer. Importing
+// it here is SAFE (no cycle): `./sermon` imports only `zod`, never `./discourse`.
+import { HighlightCategorySchema } from './sermon';
 
 /**
  * DISCOURSE ANALYSIS LAYER — a multi-verse / chapter / whole-book layer that is
@@ -128,16 +131,32 @@ export const DiscourseUnitSchema = z.object({
   color: DiscourseUnitColorSchema.optional(),
   /**
    * User-authored partial-text highlights within this unit, token-anchored so
-   * they survive edits (drag across words to create). Independent of `color`
-   * (which tags the whole unit); a unit may have any number of highlights,
-   * each covering a contiguous run of its own tokens.
+   * they survive edits (drag across words to create). Independent of the unit
+   * `color` (which tags the whole unit); a unit may have any number of
+   * highlights, each covering a contiguous run of its own tokens.
+   *
+   * Two flavours coexist, distinguished by `scope`:
+   *   - ABSENT `scope` (legacy) — a plain manual colour highlight; its `color`
+   *     drives the rendered tint (`hl-<color>`). Unchanged from older builds.
+   *   - `scope: 'study'` — a Study-mode passage highlight tagged with a sermon
+   *     `category`; the renderer paints it in the category's colour (no `color`
+   *     needed). May carry a short `note`.
+   *   - `scope: 'relation'` — reserved for relation-scoped highlights (Phase 5);
+   *     tied to a `relationId`.
+   * `color` is therefore OPTIONAL: legacy + manual highlights set it; study /
+   * relation highlights derive their colour elsewhere. All fields are additive
+   * so patches stored by older builds still parse (Zod strips nothing declared).
    */
   textHighlights: z
     .array(
       z.object({
         id: z.string(),
         tokenIds: z.array(z.string()).min(1),
-        color: DiscourseUnitColorSchema,
+        color: DiscourseUnitColorSchema.optional(),
+        scope: z.enum(['study', 'relation']).optional(),
+        category: HighlightCategorySchema.optional(),
+        relationId: z.string().optional(),
+        note: z.string().optional(),
       }),
     )
     .optional(),

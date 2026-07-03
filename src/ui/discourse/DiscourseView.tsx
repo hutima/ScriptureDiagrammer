@@ -24,9 +24,21 @@ const ARC_GUTTER = 132;
  * Backspace merge · Ctrl/Cmd+Z undo), and inline label/notes/relation editing
  * in the inspector. Every shortcut has a toolbar equivalent.
  */
-export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument; editing?: boolean }) {
+export function DiscourseView({
+  doc,
+  editing = false,
+  studyMode = false,
+}: {
+  doc: DiscourseDocument;
+  editing?: boolean;
+  /** Study (sermon) mode: unit text renders as drag/tap-selectable token spans. */
+  studyMode?: boolean;
+}) {
   const view = useDiscourseStore((s) => s.view);
   const selection = useDiscourseStore((s) => s.selection);
+  const studySelection = useDiscourseStore((s) => s.studySelection);
+  const setStudySelection = useDiscourseStore((s) => s.setStudySelection);
+  const clearStudySelection = useDiscourseStore((s) => s.clearStudySelection);
   const select = useDiscourseStore((s) => s.select);
   const setUnitCollapsed = useDiscourseStore((s) => s.setUnitCollapsed);
   const multiSelected = useDiscourseStore((s) => s.multiSelectedUnitIds);
@@ -138,6 +150,8 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
         else if (editing && pendingRelationSource) cancelRelation();
         // After the link exists (modal open) → close the modal, KEEP the link.
         else if (editing && typeEditRelationId) closeRelationTypeEditor();
+        // Study mode: a pending token selection clears first (before deselect).
+        else if (studyMode && studySelection) clearStudySelection();
         else select({});
         return;
       }
@@ -192,7 +206,7 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
         }
       }
     },
-    [editing, doc, selection.unitId, splitPickUnitId, highlightPickUnitId, pendingRelationSource, typeEditRelationId, beginSplit, beginHighlight, cancelRelation, closeRelationTypeEditor, select, undo, redo, nudgeUnitIndent, mergeWithPrevious, deleteUnit],
+    [editing, studyMode, studySelection, clearStudySelection, doc, selection.unitId, splitPickUnitId, highlightPickUnitId, pendingRelationSource, typeEditRelationId, beginSplit, beginHighlight, cancelRelation, closeRelationTypeEditor, select, undo, redo, nudgeUnitIndent, mergeWithPrevious, deleteUnit],
   );
 
   const multiSet = useMemo(() => new Set(multiSelected), [multiSelected]);
@@ -208,6 +222,7 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
         className="discourse-scroll"
         onClick={() => {
           if (pendingRelationSource) cancelRelation();
+          else if (studyMode && studySelection) clearStudySelection();
           else select({});
         }}
       >
@@ -253,6 +268,13 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
                 highlightPicking={editing && highlightPickUnitId === row.unit.id}
                 onAddHighlight={(unitId, tokenIds) => addTextHighlight(unitId, tokenIds)}
                 highlightColor={highlightColor}
+                studyMode={studyMode}
+                studySelectionTokenIds={
+                  studySelection?.unitId === row.unit.id ? studySelection.tokenIds : undefined
+                }
+                onStudySelect={(unitId, tokenIds) =>
+                  setStudySelection(tokenIds.length ? { unitId, tokenIds } : null)
+                }
               />
             ))}
           </div>
