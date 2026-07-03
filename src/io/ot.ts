@@ -93,23 +93,37 @@ export async function loadOtChapter(book: OtBook, chapter: number): Promise<KrDo
   });
 }
 
+/** How many chapter fetches run at once in {@link loadOtBook} — enough to be
+ *  fast on a whole-book load (Genesis: 50 chapters, Psalms: 150) without
+ *  hammering the source with dozens of simultaneous requests. */
+const BOOK_LOAD_CONCURRENCY = 6;
+
 /**
  * Fetch and convert an ENTIRE OT book — every chapter concatenated in order — so a
  * corpus search can span the whole book like the GNT sources do (macula-hebrew
  * ships one file per chapter, unlike the GNT's one-file-per-book). Chapters are
- * fetched on demand and cached by the service worker; a chapter that can't be
- * loaded is skipped rather than sinking the whole book, and the caller still gets
- * every chapter that did load.
+ * fetched with a small concurrency pool (not serially — a book can have up to 150
+ * chapters) and cached by the service worker; a chapter that can't be loaded is
+ * skipped rather than sinking the whole book, and the caller still gets every
+ * chapter that did load, in chapter order.
  */
 export async function loadOtBook(book: OtBook): Promise<KrDocument[]> {
-  const docs: KrDocument[] = [];
-  for (let ch = 1; ch <= book.chapters; ch++) {
-    try {
-      docs.push(...(await loadOtChapter(book, ch)));
-    } catch {
-      /* a chapter missing upstream shouldn't sink the whole book */
+  const byChapter: (KrDocument[] | undefined)[] = new Array(book.chapters);
+  let next = 1;
+  const worker = async () => {
+    for (;;) {
+      const ch = next++;
+      if (ch > book.chapters) return;
+      try {
+        byChapter[ch - 1] = await loadOtChapter(book, ch);
+      } catch {
+        /* a chapter missing upstream shouldn't sink the whole book */
+      }
     }
-  }
+  };
+  const poolSize = Math.min(BOOK_LOAD_CONCURRENCY, book.chapters);
+  await Promise.all(Array.from({ length: poolSize }, worker));
+  const docs = byChapter.flatMap((d) => d ?? []);
   if (!docs.length) {
     throw new Error(`Could not load ${book.name}. Check your connection and try again.`);
   }

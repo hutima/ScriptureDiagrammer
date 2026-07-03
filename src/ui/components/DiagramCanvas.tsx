@@ -890,6 +890,12 @@ export function DiagramCanvas() {
                             if (ns?.[0] && !linking)
                               select(ns[0] === selection.nodeId ? {} : { nodeId: ns[0] });
                           }}
+                          // Double-click zooms/centres the diagram on this word's node,
+                          // matching the diagram's own double-click-to-zoom behaviour.
+                          onDoubleClick={() => {
+                            const ns = parallel!.enToNodes.get(key);
+                            if (ns?.[0] && !linking) zoomToWord(ns[0]);
+                          }}
                         >
                           {w.t}
                         </span>
@@ -930,6 +936,9 @@ export function DiagramCanvas() {
                         !linking &&
                         select(it.nodeId === selection.nodeId ? {} : { nodeId: it.nodeId })
                       }
+                      // Double-click zooms/centres the diagram on this word's node,
+                      // matching the diagram's own double-click-to-zoom behaviour.
+                      onDoubleClick={() => it.nodeId && !linking && zoomToWord(it.nodeId)}
                     >
                       {it.surface}{' '}
                     </span>

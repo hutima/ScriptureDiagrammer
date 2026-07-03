@@ -137,7 +137,7 @@ export function DiscourseCanvas() {
                 <button
                   className={view.showLabels ? 'active' : ''}
                   aria-pressed={view.showLabels}
-                  title="Show unit labels"
+                  title="Show unit and relation labels"
                   onClick={() => setView({ showLabels: !view.showLabels })}
                 >
                   Labels

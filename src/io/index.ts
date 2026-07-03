@@ -70,6 +70,7 @@ export {
 export {
   DISCOURSE_SOURCES,
   discourseBooksFor,
+  editionOf,
   loadDiscourseBookDocs,
   loadDiscourseBook,
   loadDiscourseRange,

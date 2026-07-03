@@ -61,7 +61,7 @@ import {
   saveDiscoursePatch,
   saveLastDiscourseRange,
 } from '@/persistence/discourse';
-import { loadDiscourseRange, DEFAULT_GNT_SOURCE } from '@/io';
+import { loadDiscourseRange, discourseBooksFor, DEFAULT_GNT_SOURCE } from '@/io';
 import type { DiscourseSourceId, LoadedDiscourseBook } from '@/io';
 
 /**
@@ -95,6 +95,15 @@ export interface DiscourseViewToggles {
   showSourceText: boolean;
   showEnglish: boolean;
   compact: boolean;
+  /**
+   * Which side of the outline the relation-arc gutter renders on. A pure VIEW
+   * preference (like the other toggles here) — distinct from the per-document
+   * `DiscourseLayoutHints.relationSide` in the schema, which also allows
+   * `'both'`; that richer per-doc hint is NOT wired up here (deferred), so
+   * this field only ever takes `'left' | 'right'`. Not persisted, matching
+   * every other view toggle in this store.
+   */
+  relationSide: 'left' | 'right';
 }
 
 export interface DiscourseState {
@@ -445,6 +454,7 @@ const DEFAULT_VIEW: DiscourseViewToggles = {
   showSourceText: true,
   showEnglish: false,
   compact: false,
+  relationSide: 'right',
 };
 
 export const useDiscourseStore = create<DiscourseStore>((set, get) => {
@@ -514,9 +524,31 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     past: [],
     future: [],
 
-    setSourceId: (sourceId) => set({ sourceId }),
-    setBookNum: (bookNum) => set({ bookNum }),
-    setRange: (startRef, endRef) => set({ startRef, endRef }),
+    setSourceId: (sourceId) => {
+      const { sourceId: oldSourceId, bookNum, status } = get();
+      // Book NUMBERING differs across sources (Greek NT sources + BSB-NT use
+      // 1-27; WLC/BSB-OT use 1-39; the 66-book English sources use 1-66), so
+      // the old bookNum can point at the wrong book — or none — in the new
+      // source. Prefer the book with the SAME NAME in the new source's list;
+      // fall back to its first book rather than carrying over a stale number.
+      const oldBook = discourseBooksFor(oldSourceId).find((b) => b.num === bookNum);
+      const newBooks = discourseBooksFor(sourceId);
+      const matched = oldBook ? newBooks.find((b) => b.name === oldBook.name) : undefined;
+      set({
+        sourceId,
+        bookNum: matched?.num ?? newBooks[0]?.num ?? bookNum,
+        error: null,
+        status: status === 'error' ? 'idle' : status,
+      });
+    },
+    setBookNum: (bookNum) => {
+      const { status } = get();
+      set({ bookNum, error: null, status: status === 'error' ? 'idle' : status });
+    },
+    setRange: (startRef, endRef) => {
+      const { status } = get();
+      set({ startRef, endRef, error: null, status: status === 'error' ? 'idle' : status });
+    },
     setGranularity: (granularity) => set({ granularity }),
 
     loadRange: async (opts) => {

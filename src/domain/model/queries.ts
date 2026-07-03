@@ -224,6 +224,21 @@ export const GRC_FUNCTION_GLOSS: Record<string, string> = {
   ὅς: 'who', ὅ: 'which', ἥ: 'who', οἵ: 'who', αἵ: 'who', ἅ: 'which',
   οὗ: 'whose', ἧς: 'whose', ὧν: 'whose', ᾧ: 'to whom', ᾗ: 'to whom',
   οἷς: 'to whom', αἷς: 'to whom', ὅν: 'whom', ἥν: 'whom', οὕς: 'whom', ἅς: 'whom',
+  // coordinating conjunctions / discourse particles, in their common accented AND
+  // grave/elided variants (a word's accent shifts to grave before another accented
+  // word, and ἀλλά elides its final vowel before a vowel). Careful NOT to add bare
+  // ὁ/ἡ/τό article forms here — this map is keyed by exact accented surface, so a
+  // look-alike distinguished only by accent/breathing (see the relative-pronoun
+  // comment above) must stay out unless it is itself being glossed.
+  καί: 'and', καὶ: 'and',
+  δέ: 'and', δὲ: 'and',
+  γάρ: 'for', γὰρ: 'for',
+  οὖν: 'therefore',
+  ἀλλά: 'but', ἀλλὰ: 'but', "ἀλλ'": 'but',
+  ἤ: 'or', ἢ: 'or',
+  τε: 'and', τέ: 'and',
+  μέν: 'indeed', μὲν: 'indeed',
+  διό: 'therefore', διὸ: 'therefore',
 };
 
 /** Gloss the (possibly multi-word) connector label of a relation for gloss mode. */
@@ -235,6 +250,35 @@ function glossGreekLabel(label: string): string {
 }
 
 /**
+ * Gloss a single relation label for gloss mode. When the relation has a
+ * `labelNodeId` (the connector rides a subordinator/conjunction NODE rather than
+ * a bare string — see `RelationSchema.labelNodeId`), prefer that node's own
+ * token glosses, in the node's token order, over the lexicon: the node's tokens
+ * carry the base data's real gloss, which is more specific than the fallback
+ * table below. Falls back to the lexicon/surface per token, then — if the node
+ * can't be resolved or yields nothing — to the plain string-label path.
+ */
+function glossRelationLabel(
+  label: string,
+  labelNodeId: string | undefined,
+  doc: KrDocument,
+  tokenById: Map<string, Token>,
+): string {
+  if (labelNodeId) {
+    const node = doc.syntax.nodes.find((n) => n.id === labelNodeId);
+    if (node) {
+      const words = node.tokenIds
+        .map((tid) => tokenById.get(tid))
+        .filter((t): t is Token => !!t)
+        .map((t) => tidyGloss(t.gloss) || GRC_FUNCTION_GLOSS[t.surface] || t.surface);
+      const joined = words.join(' ').trim();
+      if (joined) return joined;
+    }
+  }
+  return glossGreekLabel(label);
+}
+
+/**
  * A display-only copy of the document with each token's surface replaced by its
  * (tidied) English gloss, falling back to the original surface when there's no
  * gloss. Ids, syntax, and layout are untouched — so the STRUCTURE is still the
@@ -243,6 +287,7 @@ function glossGreekLabel(label: string): string {
  * English gloss never leaves a stray Greek "(ἐστίν)" behind.
  */
 export function glossDoc(doc: KrDocument): KrDocument {
+  const tokenById = new Map(doc.tokens.map((t) => [t.id, t] as const));
   return {
     ...doc,
     // The displayed words are now English, so report the language as English too —
@@ -263,10 +308,12 @@ export function glossDoc(doc: KrDocument): KrDocument {
       nodes: doc.syntax.nodes.map((n) =>
         n.label === '(ἐστίν)' ? { ...n, label: '(is)' } : n,
       ),
-      // Connector labels (the subordinator written on a clause's link) are Greek
-      // surfaces; gloss them too so the diagram reads fully English.
+      // Connector labels (the subordinator/conjunction written on a clause's link)
+      // are Greek surfaces; gloss them too so the diagram reads fully English.
       relations: doc.syntax.relations.map((r) =>
-        r.label ? { ...r, label: glossGreekLabel(r.label) } : r,
+        r.label
+          ? { ...r, label: glossRelationLabel(r.label, r.labelNodeId, doc, tokenById) }
+          : r,
       ),
     },
   };

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { KrDocument } from '@/domain/schema';
+import type { KrDocument, SermonAnchor } from '@/domain/schema';
 import type { DiagramMode, TreeOrientation } from '@/domain/layout';
 import type { SvgHighlights } from '@/domain/render';
 import {
@@ -12,6 +12,36 @@ import {
 import { useEditorStore } from '@/state';
 import { nodeHighlightColors, relationHighlightColors } from '@/ui/sermon/highlights';
 import { useContestedAffectedNodes } from '@/ui/contested';
+import { getNode, getRelation, nodeText } from '@/domain/model';
+
+/**
+ * Human anchor label for a sermon note, resolved against the DOCUMENT BEING
+ * EXPORTED (so labels match the printed diagram even in gloss mode, where a
+ * glossed `doc` is passed rather than the source). Mirrors the anchor-label
+ * logic in `ui/editor/modals/NoteModal.tsx`.
+ */
+function sermonAnchorLabel(doc: KrDocument, anchor: SermonAnchor): string {
+  if (anchor.nodeId) {
+    const n = getNode(doc.syntax, anchor.nodeId);
+    return n ? nodeText(doc, n) || n.label || n.kind : 'word';
+  }
+  if (anchor.relationId) {
+    const r = getRelation(doc.syntax, anchor.relationId);
+    return r ? `relation (${r.type})` : 'relation';
+  }
+  if (anchor.verseRef) return anchor.verseRef;
+  if (anchor.tokenIds && anchor.tokenIds.length > 0) {
+    const byId = new Map(doc.tokens.map((t) => [t.id, t]));
+    const surface = anchor.tokenIds
+      .map((id) => byId.get(id))
+      .filter((t): t is NonNullable<typeof t> => Boolean(t))
+      .sort((a, b) => a.index - b.index)
+      .map((t) => t.surface)
+      .join(' ');
+    return surface || 'selection';
+  }
+  return 'passage';
+}
 
 /**
  * Export dialogue. The diagram is vector, so SVG exports at any size; PNG lets the
@@ -50,6 +80,7 @@ export function ExportModal({
   // so exports paint the same swashes as the canvas (a sermon colour wins over
   // the contested wash, exactly as on screen).
   const sermonHighlights = useEditorStore((s) => s.sermon.highlights);
+  const sermonNotes = useEditorStore((s) => s.sermon.notes);
   const contestedAffected = useContestedAffectedNodes();
   const highlights = useMemo<SvgHighlights | undefined>(() => {
     const nodeFills = nodeHighlightColors(sermonHighlights);
@@ -71,6 +102,9 @@ export function ExportModal({
   const [width, setWidth] = useState(() => natural.width * 2);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // PDF only: consolidate document + sermon-prep notes in a section below the
+  // diagram. Defaults on so nothing is silently dropped from the printed page.
+  const [includeNotes, setIncludeNotes] = useState(true);
   const height = Math.round(width * aspect);
 
   // Close on Escape.
@@ -81,6 +115,23 @@ export function ExportModal({
   }, [onClose]);
 
   const setW = (v: number) => setWidth(Math.max(16, Math.min(20000, Math.round(v || 0))));
+
+  // Document notes + sermon-prep notes, resolved to a human anchor label
+  // against `doc` (the exported document — glossed, if gloss mode is active —
+  // so labels match what's on the printed diagram). Consolidated at the
+  // bottom of the PDF page by `buildPrintableSvgHtml`.
+  const exportNotes = useMemo(() => {
+    const list: { label: string; text: string }[] = [];
+    if (doc.notes && doc.notes.trim()) {
+      list.push({ label: 'Passage', text: doc.notes.trim() });
+    }
+    for (const n of sermonNotes) {
+      const label = sermonAnchorLabel(doc, n.anchor);
+      const titlePart = n.title ? `${n.title} ` : '';
+      list.push({ label, text: `— ${n.category}: ${titlePart}${n.body}`.trim() });
+    }
+    return list;
+  }, [doc, sermonNotes]);
 
   const doExport = async () => {
     setError(null);
@@ -93,6 +144,7 @@ export function ExportModal({
       const ok = printDocumentPdf(doc, opts, mode, highlights, {
         title: doc.title,
         date: new Date().toLocaleDateString(),
+        notes: includeNotes && exportNotes.length > 0 ? exportNotes : undefined,
       });
       if (ok) onClose();
       else setError('Couldn’t open the print dialog — allow pop-ups for this site and try again.');
@@ -193,10 +245,20 @@ export function ExportModal({
             px natural.)
           </p>
         ) : (
-          <p className="export-hint">
-            Your browser’s print dialog will open — choose “Save as PDF”. The page contains
-            the current diagram exactly as shown (same mode, spacing, colours, and highlights).
-          </p>
+          <>
+            <p className="export-hint">
+              Your browser’s print dialog will open — choose “Save as PDF”. The page contains
+              the current diagram exactly as shown (same mode, spacing, colours, and highlights).
+            </p>
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={includeNotes}
+                onChange={(e) => setIncludeNotes(e.target.checked)}
+              />
+              <span>Include notes</span>
+            </label>
+          </>
         )}
 
         {error && (

@@ -9,9 +9,10 @@ import {
   isEnglishSentenceEnd,
   type EnglishBibleBook,
 } from '@/domain/discourse';
-import { GNT_BOOKS, loadGntBook, type GntBook } from './gnt';
+import { GNT_BOOKS, loadGntBook } from './gnt';
 import { SBLGNT_BOOKS, loadSblgntBook } from './gnt-sblgnt';
 import { OPENTEXT_BOOKS, loadOpenTextBook } from './opentext-source';
+import { OT_BOOKS, loadOtBook } from './ot';
 import {
   ENGLISH_BIBLE_SOURCES,
   englishBibleBooksFor,
@@ -37,11 +38,14 @@ import type { SyntaxSourceId } from './sources';
 /** A Discourse source id — a syntax source OR a Discourse-only English Bible. */
 export type DiscourseSourceId = SyntaxSourceId | EnglishBibleSourceId;
 
-/** The sources a discourse range can load from (syntax + English Bibles). */
+/** The sources a discourse range can load from (syntax + English Bibles). Each
+ *  original-language label names its corpus (NT/OT) — none of them is a
+ *  whole-Bible dataset. */
 export const DISCOURSE_SOURCES: { id: DiscourseSourceId; label: string }[] = [
-  { id: 'macula-greek-sblgnt-lowfat', label: 'SBLGNT Lowfat' },
-  { id: 'macula-greek-nestle1904-lowfat', label: 'Nestle 1904 Lowfat' },
-  { id: 'opentext', label: 'OpenText syntax' },
+  { id: 'macula-greek-sblgnt-lowfat', label: 'SBLGNT Lowfat (NT)' },
+  { id: 'macula-greek-nestle1904-lowfat', label: 'Nestle 1904 Lowfat (NT)' },
+  { id: 'opentext', label: 'OpenText syntax (NT)' },
+  { id: 'macula-hebrew-wlc-lowfat', label: 'WLC Lowfat (OT)' },
   ...ENGLISH_BIBLE_SOURCES.filter((s) => s.id !== 'english-bsb' && s.id !== 'english-bsb-ot').map((s) => ({
     id: s.id,
     label: s.label,
@@ -51,14 +55,17 @@ export const DISCOURSE_SOURCES: { id: DiscourseSourceId; label: string }[] = [
 /** Books offered for a discourse source. */
 export function discourseBooksFor(sourceId: DiscourseSourceId): { num: number; name: string }[] {
   if (isEnglishBibleSource(sourceId)) return englishBibleBooksFor(sourceId);
+  if (sourceId === 'macula-hebrew-wlc-lowfat') return OT_BOOKS.map((b) => ({ num: b.num, name: b.name }));
   return sourceId === 'opentext'
     ? OPENTEXT_BOOKS.map((b) => ({ num: b.num, name: b.name }))
     : GNT_BOOKS.map((b) => ({ num: b.num, name: b.name }));
 }
 
 /** The text edition underlying each loadable syntax source (stamped on docs). */
-function editionOf(sourceId: SyntaxSourceId): string {
-  return sourceId === 'macula-greek-sblgnt-lowfat' ? 'sblgnt' : 'nestle1904';
+export function editionOf(sourceId: SyntaxSourceId): string {
+  if (sourceId === 'macula-hebrew-wlc-lowfat') return 'wlc';
+  if (sourceId === 'macula-greek-sblgnt-lowfat') return 'sblgnt';
+  return 'nestle1904';
 }
 
 /** Load a syntax book's sentence documents from the selected source (SW-cached). */
@@ -71,10 +78,19 @@ export async function loadDiscourseBookDocs(
     if (!b) throw new Error('This book has no OpenText analysis.');
     return loadOpenTextBook(b);
   }
-  if (sourceId === 'macula-greek-nestle1904-lowfat') {
-    return loadGntBook(GNT_BOOKS.find((x) => x.num === bookNum) as GntBook);
+  if (sourceId === 'macula-hebrew-wlc-lowfat') {
+    const b = OT_BOOKS.find((x) => x.num === bookNum);
+    if (!b) throw new Error(`No WLC book ${bookNum}.`);
+    return loadOtBook(b);
   }
-  return loadSblgntBook(SBLGNT_BOOKS.find((x) => x.num === bookNum) as GntBook);
+  if (sourceId === 'macula-greek-nestle1904-lowfat') {
+    const b = GNT_BOOKS.find((x) => x.num === bookNum);
+    if (!b) throw new Error(`No Nestle 1904 book ${bookNum}.`);
+    return loadGntBook(b);
+  }
+  const b = SBLGNT_BOOKS.find((x) => x.num === bookNum);
+  if (!b) throw new Error(`No SBLGNT book ${bookNum}.`);
+  return loadSblgntBook(b);
 }
 
 /**

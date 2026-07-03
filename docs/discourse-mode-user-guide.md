@@ -51,8 +51,11 @@ collapsed so the outline stays navigable; expand what you're working on.
   **marker chips** for discourse-relevant particles (γάρ, οὖν, δέ, ἀλλά,
   ἵνα…). A chip's wording is always *"possible …"* — particles are clues the
   source offers, never conclusions it draws.
-- **Relation arcs/brackets** in the left gutter connect related units;
-  chiasm / parallel / inclusio pairs draw dashed. Arcs are never the only
+- **Relation arcs/brackets** in a side gutter connect related units
+  (right side by default; switch sides with the *Relation side* control in
+  the Tools panel); chiasm / parallel / inclusio pairs draw dashed. The
+  gutter sizes itself to the relations — no relations (or Arcs off) means
+  no gutter, and hiding Labels compacts it further. Arcs are never the only
   reading: select a unit and its relations are **listed textually** in the
   inspector below.
 - Header toggles: Markers · Arcs · Labels · Full/Compact · Collapse/Expand
@@ -194,10 +197,13 @@ notes live in different keys and are unaffected.
 
 - **Save as PDF** — opens a print-ready outline; choose *"Save as PDF"* in your
   browser's print dialog (labels, references, optional text/glosses, notes, and
-  relations with arcs in a left gutter, laid out for the page);
+  relations with arcs in a side gutter, laid out for the page — notes are
+  consolidated in a Notes section at the bottom, controlled by the
+  *Include notes* checkbox);
 - the same outline as a self-contained **vector SVG** with the arc-annotated
-  outline (arcs render in a left gutter with centered labels; lane assignment
-  uses greedy interval packing so nested/overlapping relations step outward);
+  outline (arcs render in a side gutter with centered labels; lane assignment
+  uses deterministic interval packing so nested/overlapping relations step
+  outward — the same pure layout engine the on-screen view uses);
 - the full discourse **document as JSON** (schema-validated, re-importable);
 - your **edits as a patch** (compact JSON diff);
 - the **outline as Markdown** — labels, references, optional Greek text and

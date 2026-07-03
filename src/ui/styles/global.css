@@ -2744,21 +2744,21 @@ label.field.inline > span { margin-bottom: 0; }
 
 .discourse-view { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .discourse-scroll { flex: 1; overflow: auto; min-height: 0; }
-/* Text column + a RIGHT gutter for the relation arcs. The column is capped so
-   the gutter sits adjacent to the (max 760px) unit blocks instead of floating
-   off at a wide container's far edge: inner text width (max-width − left pad −
-   gutter) equals the unit max-width, so every full-width unit's right border
-   meets the gutter's left edge. `padding-right` is set inline (= ARC_GUTTER when
-   arcs are shown, else a small pad). */
+/* Text column + a relation-arc gutter on the LEFT or RIGHT (view preference,
+   `DiscourseViewToggles.relationSide`). The column is capped so the gutter
+   sits adjacent to the (max 760px) unit blocks instead of floating off at a
+   wide container's far edge. Padding + max-width are set INLINE from the
+   pure layout helper's `gutterWidth` (0 when arcs are off or there are none —
+   "no gutter ⇒ no wasted width"), so this rule only carries the vertical
+   padding and the box model; see `DiscourseView`'s `contentStyle`. */
 .discourse-content {
   position: relative;
-  padding: 12px 132px 40px 16px;
-  max-width: 908px;
+  padding-top: 12px;
+  padding-bottom: 40px;
 }
 .discourse-gutter {
   position: absolute;
   top: 0;
-  right: 0;
   bottom: 0;
   pointer-events: none;
 }
@@ -3079,6 +3079,15 @@ label.field.inline > span { margin-bottom: 0; }
   flex-direction: column;
   gap: 10px;
 }
+/* The always-visible (not Edit-mode-gated) relation-side preference row. */
+.discourse-relation-side-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 0;
+  font-size: 12px;
+}
+.discourse-relation-side-row .discourse-toolbar-group-label { width: auto; margin-bottom: 0; }
 .discourse-right .panel-body { overflow-y: auto; }
 .discourse-right-title {
   font-size: 12px;

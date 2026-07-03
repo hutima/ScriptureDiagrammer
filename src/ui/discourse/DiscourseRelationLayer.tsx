@@ -1,93 +1,93 @@
 import { memo } from 'react';
-import type { DiscourseRelation } from '@/domain/schema';
-import { resolvedRelationColor, relationTypeLabel } from '@/domain/discourse';
+import type { LaidOutRelation, RelationSide } from '@/domain/discourse';
+import { relationTypeLabel } from '@/domain/discourse';
 
 /**
- * SVG overlay drawing relation arcs/brackets in the RIGHT gutter of the
- * discourse view. Arcs connect the vertical midpoints of the two unit blocks;
- * nested (shorter) arcs sit closer to the text (smaller x) so crossings stay
- * readable, stepping OUTWARD (rightward) per lane. Arcs are never the ONLY
- * reading of a relation — the unit inspector lists relations textually for the
- * selected unit.
+ * SVG overlay drawing relation arcs/brackets beside the discourse outline —
+ * the RIGHT gutter by default, or the LEFT gutter when `side:'left'`. Pure
+ * presentation: every geometric decision (lane packing, endpoint nudging,
+ * the gutter width) was already made by `layoutDiscourseRelations`
+ * (`domain/discourse/relationLayout.ts`), the same helper the SVG/PDF export
+ * uses, so a printed page matches the screen. This component only maps the
+ * helper's side-agnostic "outward axis" `u` to a screen x and draws paths.
+ *
+ * SELECTABILITY: each relation gets its own wide (12px) INVISIBLE hit path
+ * with `pointerEvents:'stroke'`, separate from the thin visible stroke (which
+ * has `pointerEvents:'none'`). Earlier this component put `pointerEvents:'all'`
+ * on a <g> wrapping both — with several arcs' paths overlapping in the
+ * gutter, a selected/coloured arc's group could sit on top and swallow clicks
+ * meant for a neighbour, and there was no forgiving hit target at all for a
+ * thin 1.6px stroke. Splitting hit vs. visible geometry, and keeping hit
+ * paths in stable (non-reordered) input order, means each relation only ever
+ * claims its own stroke — a selected arc never monopolizes clicks.
  */
 
-export interface ArcSpec {
-  relation: DiscourseRelation;
-  /** Content-relative y midpoints of the two endpoint blocks. */
-  y1: number;
-  y2: number;
+/** Outward-axis `u` (0 at the gutter/text boundary) → screen x. For a RIGHT
+ *  gutter `u` already increases in screen-x direction (identity); for a LEFT
+ *  gutter the axis points the other way, so it mirrors around the gutter's
+ *  own width. Every path/arrowhead/label below is built in local `u`
+ *  coordinates and passed through this one function, so the same shapes
+ *  automatically point the right way on either side. */
+function outwardToScreenX(u: number, side: RelationSide, gutterWidth: number): number {
+  return side === 'right' ? u : gutterWidth - u;
 }
 
 export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
-  arcs,
+  relations,
+  gutterWidth,
+  side,
   height,
-  gutter,
   selectedRelationId,
   onSelect,
 }: {
-  arcs: ArcSpec[];
+  relations: LaidOutRelation[];
+  gutterWidth: number;
+  side: RelationSide;
   height: number;
-  gutter: number;
   selectedRelationId?: string;
   onSelect?: (relationId: string) => void;
 }) {
-  if (!arcs.length || height <= 0) return null;
-  // Shorter spans hug the text; longer spans bow farther into the gutter.
-  const sorted = [...arcs].sort(
-    (a, b) => Math.abs(a.y1 - a.y2) - Math.abs(b.y1 - b.y2),
-  );
-  // Lane assignment by greedy interval-graph colouring (like the KR line packer):
-  // two arcs share a lane ONLY when their vertical spans don't overlap, so a
-  // relation nested inside another is pushed to its own lane while independent
-  // arcs elsewhere in the passage reuse lane 0. This keeps clashing minimal
-  // instead of spending one lane per relation.
-  const lanes = new Map<string, number>();
-  const placed: { lane: number; top: number; bottom: number }[] = [];
-  for (const a of sorted) {
-    const top = Math.min(a.y1, a.y2);
-    const bottom = Math.max(a.y1, a.y2);
-    // Strict overlap (touching endpoints don't count as a clash).
-    const taken = new Set(
-      placed.filter((p) => p.top < bottom && p.bottom > top).map((p) => p.lane),
-    );
-    let lane = 0;
-    while (taken.has(lane)) lane++;
-    lanes.set(a.relation.id, lane);
-    placed.push({ lane, top, bottom });
-  }
-  const laneCount = Math.max(1, ...[...lanes.values()].map((l) => l + 1));
-  const laneStep = Math.max(12, Math.min(22, (gutter - 16) / laneCount));
+  if (!relations.length || height <= 0 || gutterWidth <= 0) return null;
+
+  const sx = (u: number) => outwardToScreenX(u, side, gutterWidth);
+
+  // The SELECTED relation's visible stroke draws LAST (on top of any
+  // overlapping neighbour) — but this is a purely visual re-order; the hit
+  // paths below are rendered in normal (stable, input) order so selecting one
+  // relation never changes which one "wins" a click at an overlap.
+  const visualOrder = selectedRelationId
+    ? [...relations].sort(
+        (a, b) =>
+          (a.relation.id === selectedRelationId ? 1 : 0) -
+          (b.relation.id === selectedRelationId ? 1 : 0),
+      )
+    : relations;
 
   return (
     <svg
       className="discourse-arcs"
-      width={gutter}
+      width={gutterWidth}
       height={height}
-      viewBox={`0 0 ${gutter} ${height}`}
+      viewBox={`0 0 ${gutterWidth} ${height}`}
+      // Decorative overlay: the side panel's relation list / unit inspector is
+      // the accessible path to the same correspondences, so the arcs (despite
+      // being clickable for sighted mouse users) stay out of the AT tree.
       aria-hidden="true"
     >
-      {sorted.map((a) => {
-        const { relation } = a;
-        const color = resolvedRelationColor(relation);
-        const lane = lanes.get(relation.id) ?? 0;
-        // Anchor at the LEFT edge of the (right-side) gutter, next to the text;
-        // arcs bow OUTWARD to the right, deeper lanes stepping farther out.
-        const x0 = 2;
-        const x = Math.min(gutter - 8, x0 + 8 + lane * laneStep);
-        const top = Math.min(a.y1, a.y2);
-        const bottom = Math.max(a.y1, a.y2);
-        const selected = relation.id === selectedRelationId;
-        const midY = (top + bottom) / 2;
+      {/* Invisible WIDE hit targets — one per relation, stable input order. */}
+      {relations.map((r) => {
+        const { relation } = r;
         const typeLabel = relationTypeLabel(relation.type);
-        const label = relation.label || typeLabel; // '' for a bare untyped link
-        // Tooltip: "<label> — <type>" collapses gracefully when either is empty.
-        const title = [label, typeLabel].filter(Boolean).join(' — ') || 'link';
-        const paired = relation.type === 'chiasm' || relation.type === 'parallel' || relation.type === 'inclusio';
+        const title = [relation.label, typeLabel].filter(Boolean).join(' — ') || 'link';
+        const d = `M ${sx(r.a1)} ${r.y1} H ${sx(r.laneU)} V ${r.y2} H ${sx(r.a2)}`;
         return (
-          <g
-            key={relation.id}
-            className={`discourse-arc${selected ? ' selected' : ''}`}
-            style={{ cursor: onSelect ? 'pointer' : 'default', pointerEvents: 'all' }}
+          <path
+            key={`hit-${relation.id}`}
+            d={d}
+            fill="none"
+            stroke="transparent"
+            strokeWidth={12}
+            style={{ cursor: onSelect ? 'pointer' : 'default', pointerEvents: 'stroke' }}
             onClick={(e) => {
               e.stopPropagation();
               onSelect?.(relation.id);
@@ -97,34 +97,53 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
               {title}
               {relation.confidence ? ` (${relation.confidence})` : ''}
             </title>
-            {/* Bracket-style path: out from the source, down/up, back to target. */}
+          </path>
+        );
+      })}
+
+      {/* Visible strokes + labels. pointerEvents:'none' throughout — all
+          interaction happens on the hit paths above. */}
+      {visualOrder.map((r) => {
+        const { relation } = r;
+        const selected = relation.id === selectedRelationId;
+        const laneX = sx(r.laneU);
+        const tipX = sx(r.a2);
+        const wingX = sx(r.a2 + 5); // 5px outward from the tip, toward the lane
+        const midY = (r.top + r.bottom) / 2;
+        return (
+          <g
+            key={relation.id}
+            className={`discourse-arc${selected ? ' selected' : ''}`}
+            style={{ pointerEvents: 'none' }}
+          >
+            {/* Bracket-style path: out from the source, down/up in its lane, back
+                to the target. */}
             <path
-              d={`M ${x0} ${a.y1} H ${x} V ${a.y2} H ${x0}`}
+              d={`M ${sx(r.a1)} ${r.y1} H ${laneX} V ${r.y2} H ${tipX}`}
               fill="none"
-              stroke={color}
+              stroke={r.color}
               strokeWidth={selected ? 2.4 : 1.6}
-              strokeDasharray={paired ? '5 3' : undefined}
+              strokeDasharray={r.dashed ? '5 3' : undefined}
               opacity={selected ? 1 : 0.8}
             />
-            {/* Arrowhead pointing back (leftward) into the target end, toward
-                the text the arc lands on. */}
+            {/* Arrowhead at the target tip, pointing back toward the text. */}
             <path
-              d={`M ${x0 + 5} ${a.y2 - 4} L ${x0} ${a.y2} L ${x0 + 5} ${a.y2 + 4}`}
+              d={`M ${wingX} ${r.y2 - 4} L ${tipX} ${r.y2} L ${wingX} ${r.y2 + 4}`}
               fill="none"
-              stroke={color}
+              stroke={r.color}
               strokeWidth={selected ? 2.2 : 1.6}
             />
-            {label && (
+            {r.label && (
               <text
-                x={x + 3}
+                x={sx(r.laneU + 3)}
                 y={midY}
                 className="discourse-arc-label"
-                fill={color}
+                fill={r.color}
                 textAnchor="middle"
                 dominantBaseline="central"
-                transform={`rotate(90 ${x + 3} ${midY})`}
+                transform={`rotate(90 ${sx(r.laneU + 3)} ${midY})`}
               >
-                {label}
+                {r.label}
               </text>
             )}
           </g>
