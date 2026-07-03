@@ -1,11 +1,22 @@
 import { useEffect } from 'react';
+import { useEditorStore } from '@/state';
+import { useTutorialStore } from '@/ui/tutorial/tutorialState';
 
 /**
  * "How to use" guide (opened from the top bar). Holds the usage instructions
  * that used to sit inline above each passage picker — moving them here frees
- * vertical space in the picker, which matters most on a phone.
+ * vertical space in the picker, which matters most on a phone. Also the home
+ * of the first-launch walkthrough's replay button.
  */
 export function GuideModal({ onClose }: { onClose: () => void }) {
+  const replayTour = () => {
+    const s = useEditorStore.getState();
+    // Discourse is a separate analysis layer without the tour's controls;
+    // step back to a syntax visualization before replaying.
+    if (s.diagramMode === 'discourse') s.setDiagramMode('phrase-block');
+    useTutorialStore.getState().start();
+    onClose();
+  };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
@@ -29,6 +40,18 @@ export function GuideModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="about-body">
+          <h3>Take the tour</h3>
+          <p>
+            New here? A short walkthrough loads John 1:1 and shows the English reading aids —
+            English glosses and the BSB parallel text change what you <em>read</em>, while the
+            diagram's structure keeps following the Greek grammar.
+          </p>
+          <p>
+            <button className="mini accept" onClick={replayTour}>
+              Replay the walkthrough
+            </button>
+          </p>
+
           <h3>Open a passage</h3>
           <ol className="guide-steps">
             <li>
@@ -45,9 +68,9 @@ export function GuideModal({ onClose }: { onClose: () => void }) {
             </li>
           </ol>
           <p>
-            Only Philippians ships with the app; other GNT books and all OT chapters download on
-            first use. <strong>Save offline</strong> keeps the current one for later, and an opened
-            passage is cached automatically.
+            John (SBLGNT) and Philippians ship with the app; other GNT books and all OT chapters
+            download on first use. <strong>Save offline</strong> keeps the current one for later,
+            and an opened passage is cached automatically.
           </p>
 
           <h3>Read the diagram</h3>

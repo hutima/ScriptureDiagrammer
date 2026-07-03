@@ -126,8 +126,15 @@ are tracked in
   CC BY 4.0 — the default edition — plus Nestle1904 LowFat,
   biblicalhumanities, as legacy/alternate) and OT (WLC LowFat,
   macula-hebrew), fetched on demand and cached; Philippians is bundled for
-  offline/first-run in both Greek editions. Hand-tagged sample documents are
+  offline/first-run in both Greek editions, and John is bundled for SBLGNT
+  (the first-launch walkthrough's passage). Hand-tagged sample documents are
   bundled too.
+- **First-launch walkthrough** — an optional, one-time tour (mobile-friendly)
+  that loads John 1:1 from the bundled SBLGNT and shows the English reading
+  aids: every step is skippable, Escape/Exit leaves immediately, nothing is
+  ever blocked, and it is replayable from the Guide (⋯ → Guide). English
+  glosses and the BSB parallel change only what you *read* — the diagram
+  structure always follows the Greek syntax.
 - **Strong's lexicon** — the whole Greek + Hebrew Strong's dictionary (Open
   Scriptures, public-domain Strong's 1890), bundled under `public/lexicon/` and
   loaded on demand for the add-a-word lemma search.

@@ -4,6 +4,7 @@ import { ResponsiveShell } from './shell/ResponsiveShell';
 import { UpdateModal } from './components/UpdateModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { DiagnosticsBanner } from './components/DiagnosticsBanner';
+import { FirstRunTutorial } from './tutorial/FirstRunTutorial';
 
 /**
  * Application shell. The responsive layout (mobile / tablet / desktop) and the
@@ -28,6 +29,9 @@ export function App() {
       {/* Shows the on-device error log after a reload (pinch white-screen
           diagnostic); renders nothing when the log is empty. */}
       <DiagnosticsBanner />
+      {/* Optional first-launch walkthrough (auto-offers once; replayable from
+          the Guide). Renders nothing outside an active tour. */}
+      <FirstRunTutorial />
     </ErrorBoundary>
   );
 }

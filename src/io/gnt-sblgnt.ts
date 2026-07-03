@@ -26,9 +26,10 @@ function localBase(): string {
   return `${base.replace(/\/$/, '')}/sblgnt/`;
 }
 
-/** Philippians is bundled (matching the Nestle1904 starter book) so the
- *  DEFAULT edition works offline on first run; the rest fetch on demand. */
-export const SBLGNT_BUNDLED_BOOKS = new Set<number>([11]);
+/** John (the first-launch tutorial passage) and Philippians (matching the
+ *  Nestle1904 starter book) are bundled so the DEFAULT edition works offline
+ *  on first run; the rest fetch on demand. */
+export const SBLGNT_BUNDLED_BOOKS = new Set<number>([4, 11]);
 
 /** The runtime cache the service worker keeps corpus XML in (see src/sw.ts). */
 const CORPUS_CACHE = 'gnt-books-v1';

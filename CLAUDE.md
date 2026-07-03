@@ -261,6 +261,9 @@ src/io/                 JSON / SVG / PNG / print + backup/import detection
 src/fixtures/           validated sample documents
 src/ui/responsive/      viewport detection + forced-desktop preference
 src/ui/shell/           ResponsiveShell, Mode/Visualization switchers
+src/ui/tutorial/        optional first-launch walkthrough (kr:tutorial:v1;
+                        observes the app via data-tour targets + a GntPicker
+                        bridge; never blocks input or touches document state)
 src/ui/editor/          editing core: view adapters, action sheet, modals
 src/ui/sermon/          sermon-prep drawer / mobile sheet / highlight toolbar
 src/ui/                 React app (panels, components, App)
