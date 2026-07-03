@@ -30,23 +30,69 @@ function highlightsByToken(highlights: TextHighlight[]): Map<string, TextHighlig
   return byToken;
 }
 
+/** App-mode-derived context the highlight painters need. */
+export type HighlightMode = 'edit' | 'explore' | 'study';
+
+interface HighlightCtx {
+  mode: HighlightMode;
+  /** relationId → resolved hex, for relation-scope highlights. */
+  relationColors?: Map<string, string>;
+  /** The currently selected relation (emphasised; others fade). */
+  selectedRelationId?: string;
+}
+
+/**
+ * A translucent tint for a relation-scope highlight from its relation's resolved
+ * colour, at an emphasis level: `strong` (the selected relation), `normal` (no
+ * relation selected), `faint` (a different relation is selected, or Study mode).
+ */
+function relationEmphasis(
+  h: TextHighlight,
+  ctx: HighlightCtx,
+): { hex: string; level: 'strong' | 'normal' | 'faint' } | null {
+  const hex = h.relationId ? ctx.relationColors?.get(h.relationId) : undefined;
+  // An orphaned relationId (relation deleted, or a stale patch) resolves to
+  // nothing → render neutral (ignored), never crash.
+  if (!hex) return null;
+  const selected = !!ctx.selectedRelationId && h.relationId === ctx.selectedRelationId;
+  let level: 'strong' | 'normal' | 'faint';
+  if (ctx.mode === 'study') level = 'faint';
+  else if (ctx.selectedRelationId) level = selected ? 'strong' : 'faint';
+  else level = 'normal';
+  return { hex, level };
+}
+
 /**
  * The class / inline style for a single token given the highlight covering it:
  *   - `scope:'study'` → the category colour as a translucent inline background
  *     (muted in Edit mode);
+ *   - `scope:'relation'` → the relation's resolved colour as a translucent tint,
+ *     emphasised when its relation is selected, faded when another is (or in
+ *     Study mode); an orphaned relationId renders neutral;
  *   - legacy / manual (`color`) → the existing `discourse-hl hl-<color>` class.
- * `scope:'relation'` is left neutral until Phase 5.
  */
 function tokenHighlightStyle(
   h: TextHighlight | undefined,
-  mutedStudy: boolean,
+  ctx: HighlightCtx,
 ): { className?: string; style?: React.CSSProperties } {
   if (!h) return {};
   if (h.scope === 'study') {
+    const muted = ctx.mode === 'edit';
     return {
-      className: `discourse-hl discourse-hl-study${mutedStudy ? ' muted' : ''}`,
-      style: { background: studyTint(h.category, mutedStudy) },
+      className: `discourse-hl discourse-hl-study${muted ? ' muted' : ''}`,
+      style: { background: studyTint(h.category, muted) },
     };
+  }
+  if (h.scope === 'relation') {
+    const em = relationEmphasis(h, ctx);
+    if (!em) return {};
+    const alpha = em.level === 'strong' ? '88' : em.level === 'faint' ? '22' : '55';
+    const style: React.CSSProperties = { background: `${em.hex}${alpha}` };
+    if (em.level === 'strong') {
+      style.textDecoration = 'underline';
+      style.textDecorationColor = em.hex;
+    }
+    return { className: `discourse-hl discourse-hl-relation${em.level === 'strong' ? ' strong' : ''}`, style };
   }
   if (h.color) return { className: `discourse-hl hl-${h.color}` };
   return {};
@@ -55,17 +101,18 @@ function tokenHighlightStyle(
 /**
  * Render a unit's tokens as per-token spans, tinting any token covered by a
  * highlight (later highlights in the array win on overlap). Study-scope
- * highlights paint in their category colour (muted in Edit mode). Real spaces
- * between tokens keep normal text flow.
+ * highlights paint in their category colour (muted in Edit mode); relation-scope
+ * highlights paint in their relation's colour. Real spaces between tokens keep
+ * normal text flow.
  */
 function renderTokensWithHighlights(
   tokens: DiscourseToken[],
   highlights: TextHighlight[],
-  mutedStudy: boolean,
+  ctx: HighlightCtx,
 ) {
   const byToken = highlightsByToken(highlights);
   return tokens.map((t, i) => {
-    const { className, style } = tokenHighlightStyle(byToken.get(t.id), mutedStudy);
+    const { className, style } = tokenHighlightStyle(byToken.get(t.id), ctx);
     return (
       <span key={t.id} className={className} style={style}>
         {t.surface}
