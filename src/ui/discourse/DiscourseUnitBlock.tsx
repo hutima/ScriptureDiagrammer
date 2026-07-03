@@ -1,12 +1,35 @@
 import { memo, useCallback, useRef, useState } from 'react';
 import type { DiscourseRow } from '@/domain/discourse';
 import { formatRange, MAX_USER_INDENT, MIN_USER_INDENT } from '@/domain/discourse';
+import type { DiscourseToken, DiscourseUnit } from '@/domain/schema';
 import type { DiscourseViewToggles } from '@/state';
 import { DiscourseMarkerChip } from './DiscourseMarkerChip';
 
 /** Horizontal pixels per indent level — matches the structural depth step. */
 const INDENT_STEP_PX = 26;
 const clampIndent = (n: number) => Math.max(MIN_USER_INDENT, Math.min(MAX_USER_INDENT, n));
+
+/**
+ * Render a unit's tokens as per-token spans, marking any token covered by one
+ * of `highlights` with `discourse-hl hl-<color>` (later highlights in the
+ * array win on overlap). Real spaces between tokens keep normal text flow.
+ */
+function renderTokensWithHighlights(
+  tokens: DiscourseToken[],
+  highlights: NonNullable<DiscourseUnit['textHighlights']>,
+) {
+  const colorByToken = new Map<string, string>();
+  for (const h of highlights) for (const tid of h.tokenIds) colorByToken.set(tid, h.color);
+  return tokens.map((t, i) => {
+    const color = colorByToken.get(t.id);
+    return (
+      <span key={t.id} className={color ? `discourse-hl hl-${color}` : undefined}>
+        {t.surface}
+        {i < tokens.length - 1 ? ' ' : ''}
+      </span>
+    );
+  });
+}
 
 /**
  * One discourse unit row: ref label, unit label, Greek text (or gloss text),
@@ -33,6 +56,9 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
   onTokenSplit,
   editing = false,
   onSetIndent,
+  highlightPicking = false,
+  onAddHighlight,
+  highlightColor,
 }: {
   row: DiscourseRow;
   view: DiscourseViewToggles;
@@ -53,6 +79,12 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
   editing?: boolean;
   /** Commit an absolute explicit indent for this unit (drag/keyboard). */
   onSetIndent?: (unitId: string, userIndent: number) => void;
+  /** Word-level "drag to highlight" mode is active for this unit. */
+  highlightPicking?: boolean;
+  /** Commit a text highlight over the dragged/clicked token span. */
+  onAddHighlight?: (unitId: string, tokenIds: string[]) => void;
+  /** The color new highlights preview as while picking. */
+  highlightColor?: string;
 }) {
   const { unit, tokens, markers, hasChildren } = row;
   const refLabel = formatRange(unit.refStart, unit.refEnd);
@@ -109,6 +141,50 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
     [onSetIndent, unit.id, baseIndent],
   );
 
+  // --- drag-to-highlight (word-level) --------------------------------------------
+  const hlParaRef = useRef<HTMLParagraphElement | null>(null);
+  const [hlDragStart, setHlDragStart] = useState<number | null>(null);
+  const [hlDragEnd, setHlDragEnd] = useState<number | null>(null);
+
+  const tokenIndexAt = useCallback((x: number, y: number): number | null => {
+    const el = document.elementFromPoint?.(x, y) as HTMLElement | null;
+    const span = el?.closest?.('[data-token-index]') as HTMLElement | null;
+    const idx = span?.dataset.tokenIndex;
+    return idx !== undefined ? Number(idx) : null;
+  }, []);
+
+  const onHlWordPointerDown = useCallback(
+    (e: React.PointerEvent, index: number) => {
+      e.stopPropagation();
+      hlParaRef.current?.setPointerCapture?.(e.pointerId);
+      setHlDragStart(index);
+      setHlDragEnd(index);
+    },
+    [],
+  );
+  const onHlPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (hlDragStart === null) return;
+      const idx = tokenIndexAt(e.clientX, e.clientY);
+      if (idx !== null) setHlDragEnd(idx);
+    },
+    [hlDragStart, tokenIndexAt],
+  );
+  const onHlPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (hlDragStart === null) return;
+      hlParaRef.current?.releasePointerCapture?.(e.pointerId);
+      const endIdx = hlDragEnd ?? hlDragStart;
+      const lo = Math.min(hlDragStart, endIdx);
+      const hi = Math.max(hlDragStart, endIdx);
+      setHlDragStart(null);
+      setHlDragEnd(null);
+      const ids = tokens.slice(lo, hi + 1).map((t) => t.id);
+      if (ids.length) onAddHighlight?.(unit.id, ids);
+    },
+    [hlDragStart, hlDragEnd, tokens, onAddHighlight, unit.id],
+  );
+
   return (
     <div
       ref={(el) => registerEl(unit.id, el)}
@@ -119,7 +195,9 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         multiSelected && !selected ? 'multi-selected' : '',
         relateTarget ? 'relate-target' : '',
         splitPicking ? 'split-picking' : '',
+        highlightPicking ? 'highlight-picking' : '',
         view.compact ? 'compact' : '',
+        unit.color ? `color-${unit.color}` : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -142,22 +220,26 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         }
       }}
     >
-      {editing && onSetIndent && (
-        <button
-          type="button"
-          className={`discourse-indent-handle${dragIndent !== null ? ' dragging' : ''}`}
-          aria-label="Drag to set indent"
-          title="Drag to indent (← / → to nudge)"
-          onPointerDown={onHandlePointerDown}
-          onPointerMove={onHandlePointerMove}
-          onPointerUp={onHandlePointerUp}
-          onKeyDown={onHandleKeyDown}
-          onClick={(e) => e.stopPropagation()}
-        >
-          ⋮⋮
-        </button>
-      )}
       <div className="discourse-unit-head">
+        {/* Indent drag handle — INLINE in the row head (an absolutely
+            positioned handle at the row's left edge sat under the arc gutter
+            and was effectively invisible). Horizontal drag snaps userIndent;
+            ← / → nudge when focused. */}
+        {editing && onSetIndent && (
+          <button
+            type="button"
+            className={`discourse-indent-handle${dragIndent !== null ? ' dragging' : ''}`}
+            aria-label="Drag to set indent"
+            title="Drag to indent (← / → to nudge)"
+            onPointerDown={onHandlePointerDown}
+            onPointerMove={onHandlePointerMove}
+            onPointerUp={onHandlePointerUp}
+            onKeyDown={onHandleKeyDown}
+            onClick={(e) => e.stopPropagation()}
+          >
+            ⋮⋮
+          </button>
+        )}
         {hasChildren && onToggleCollapsed && (
           <button
             type="button"
@@ -197,12 +279,14 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         {relateTarget && <span className="discourse-target-hint">← relate here</span>}
       </div>
 
-      {!isContainer && (isEnglish || view.showSourceText) && !splitPicking && (
+      {!isContainer && (isEnglish || view.showSourceText) && !splitPicking && !highlightPicking && (
         <p
           className={`discourse-text${isEnglish ? '' : ' greek'}${view.compact ? ' clamp' : ''}`}
           lang={isEnglish ? 'en' : 'grc'}
         >
-          {tokens.map((t) => t.surface).join(' ')}
+          {unit.textHighlights?.length
+            ? renderTokensWithHighlights(tokens, unit.textHighlights)
+            : tokens.map((t) => t.surface).join(' ')}
         </p>
       )}
       {!isContainer && splitPicking && (
@@ -231,11 +315,38 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
           ))}
         </p>
       )}
-      {!isContainer && view.showEnglish && gloss && !splitPicking && (
+      {!isContainer && highlightPicking && (
+        <p
+          ref={hlParaRef}
+          className={`discourse-text${isEnglish ? '' : ' greek'} discourse-hl-words`}
+          lang={isEnglish ? 'en' : 'grc'}
+          onPointerMove={onHlPointerMove}
+          onPointerUp={onHlPointerUp}
+        >
+          {tokens.map((t, i) => {
+            const lo = hlDragStart === null ? null : Math.min(hlDragStart, hlDragEnd ?? hlDragStart);
+            const hi = hlDragStart === null ? null : Math.max(hlDragStart, hlDragEnd ?? hlDragStart);
+            const picking = lo !== null && hi !== null && i >= lo && i <= hi;
+            return (
+              <span
+                key={t.id}
+                data-token-id={t.id}
+                data-token-index={i}
+                className={`discourse-hl-word${picking ? ` picking${highlightColor ? ` picking-${highlightColor}` : ''}` : ''}`}
+                onPointerDown={(e) => onHlWordPointerDown(e, i)}
+              >
+                {t.surface}
+                {i < tokens.length - 1 ? ' ' : ''}
+              </span>
+            );
+          })}
+        </p>
+      )}
+      {!isContainer && view.showEnglish && gloss && !splitPicking && !highlightPicking && (
         <p className={`discourse-gloss${view.compact ? ' clamp' : ''}`}>{gloss}</p>
       )}
 
-      {view.showMarkers && markers.length > 0 && !splitPicking && (
+      {view.showMarkers && markers.length > 0 && !splitPicking && !highlightPicking && (
         <div className="discourse-markers" aria-label="Discourse marker hints">
           {markers.map((m) => (
             <DiscourseMarkerChip key={m.id} marker={m} />

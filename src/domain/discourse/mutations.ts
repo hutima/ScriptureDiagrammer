@@ -4,7 +4,9 @@ import type {
   DiscourseRelation,
   DiscourseRelationType,
   DiscourseSuggestion,
+  DiscourseTextHighlight,
   DiscourseUnit,
+  DiscourseUnitColor,
   DiscourseUnitKind,
   Provenance,
 } from '@/domain/schema';
@@ -153,6 +155,23 @@ export function setDiscourseUnitNotes(
   return touchDoc(doc, units, now);
 }
 
+/**
+ * Set (or clear, with `undefined`) a unit's color tag — visual categorization
+ * only, no semantics. No-op if the unit is missing or the color is unchanged.
+ */
+export function setDiscourseUnitColor(
+  doc: DiscourseDocument,
+  unitId: string,
+  color: DiscourseUnitColor | undefined,
+  now?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  if (!unit) return doc;
+  if (color === unit.color) return doc;
+  const units = doc.units.map((u) => (u.id === unitId ? { ...u, color } : u));
+  return touchDoc(doc, units, now);
+}
+
 function setCollapsed(doc: DiscourseDocument, unitId: string, collapsed: boolean, now?: string) {
   if (!unitById(doc, unitId)) return doc;
   const units = doc.units.map((u) => (u.id === unitId ? { ...u, collapsed } : u));
@@ -165,6 +184,50 @@ export function collapseDiscourseUnit(doc: DiscourseDocument, unitId: string, no
 
 export function expandDiscourseUnit(doc: DiscourseDocument, unitId: string, now?: string) {
   return setCollapsed(doc, unitId, false, now);
+}
+
+// --- text highlights ---------------------------------------------------------------
+
+/**
+ * Add a user-authored partial-text highlight to a unit — `tokenIds` must all
+ * belong to the unit's own tokens (else this is a no-op, doc unchanged); they
+ * are re-ordered to match the unit's surface token order before being stored,
+ * so a highlight always reads as a contiguous run of the unit's text.
+ */
+export function addDiscourseTextHighlight(
+  doc: DiscourseDocument,
+  unitId: string,
+  tokenIds: string[],
+  color: DiscourseUnitColor,
+  now?: string,
+  id?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  if (!unit || !tokenIds.length) return doc;
+  const tokenSet = new Set(tokenIds);
+  if (!tokenIds.every((t) => unit.tokenIds.includes(t))) return doc;
+  const ordered = unit.tokenIds.filter((t) => tokenSet.has(t));
+  const highlight: DiscourseTextHighlight = { id: id ?? makeId('dh'), tokenIds: ordered, color };
+  const units = doc.units.map((u) =>
+    u.id === unitId ? { ...u, textHighlights: [...(u.textHighlights ?? []), highlight] } : u,
+  );
+  return touchDoc(doc, units, now);
+}
+
+/** Remove a highlight by id; drops the array entirely once it's empty. No-op if absent. */
+export function removeDiscourseTextHighlight(
+  doc: DiscourseDocument,
+  unitId: string,
+  highlightId: string,
+  now?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  if (!unit?.textHighlights?.some((h) => h.id === highlightId)) return doc;
+  const remaining = unit.textHighlights.filter((h) => h.id !== highlightId);
+  const units = doc.units.map((u) =>
+    u.id === unitId ? { ...u, textHighlights: remaining.length ? remaining : undefined } : u,
+  );
+  return touchDoc(doc, units, now);
 }
 
 // --- breaks (split / merge) --------------------------------------------------------
@@ -189,6 +252,23 @@ export function splitDiscourseUnit(
   const secondIds = unit.tokenIds.slice(idx);
   const firstSpan = refSpanOf(doc, firstIds);
   const secondSpan = refSpanOf(doc, secondIds);
+  // Partition the original unit's highlights the same way markers are
+  // re-scoped below: tokens falling in a half stay/move there. A highlight
+  // spanning both halves splits into two (the second half gets a
+  // deterministic `${id}_s` id); a highlight fully in one half just moves (or
+  // stays) whole, keeping its original id.
+  const firstIdSet = new Set(firstIds);
+  const secondIdSetForHighlights = new Set(secondIds);
+  const firstHighlights: DiscourseTextHighlight[] = [];
+  const secondHighlights: DiscourseTextHighlight[] = [];
+  for (const h of unit.textHighlights ?? []) {
+    const inFirst = h.tokenIds.filter((t) => firstIdSet.has(t));
+    const inSecond = h.tokenIds.filter((t) => secondIdSetForHighlights.has(t));
+    if (inFirst.length) firstHighlights.push({ ...h, tokenIds: inFirst });
+    if (inSecond.length) {
+      secondHighlights.push({ ...h, id: inFirst.length ? `${h.id}_s` : h.id, tokenIds: inSecond });
+    }
+  }
   const second: DiscourseUnit = {
     ...unit,
     id: `du_s_${atTokenId}`,
@@ -199,6 +279,7 @@ export function splitDiscourseUnit(
     refStart: secondSpan.start,
     refEnd: secondSpan.end,
     order: unit.order + 1,
+    textHighlights: secondHighlights.length ? secondHighlights : undefined,
     provenance: { ...MANUAL, reason: 'User-inserted discourse break.' },
   };
   if (unitById(doc, second.id)) return doc; // split already exists at this token
@@ -210,6 +291,7 @@ export function splitDiscourseUnit(
           sourceDocIds: sourceDocsOf(doc, firstIds),
           refStart: firstSpan.start,
           refEnd: firstSpan.end,
+          textHighlights: firstHighlights.length ? firstHighlights : undefined,
           provenance: { ...MANUAL, reason: 'User-inserted discourse break.' },
         }
       : u.parentId === unit.parentId && u.order > unit.order
@@ -249,12 +331,14 @@ export function mergeAdjacentDiscourseUnits(
 
   const tokenIds = [...a.tokenIds, ...b.tokenIds];
   const span = refSpanOf(doc, tokenIds);
+  const mergedHighlights = [...(a.textHighlights ?? []), ...(b.textHighlights ?? [])];
   const merged: DiscourseUnit = {
     ...a,
     tokenIds,
     sourceDocIds: sourceDocsOf(doc, tokenIds),
     refStart: span.start,
     refEnd: span.end,
+    textHighlights: mergedHighlights.length ? mergedHighlights : undefined,
     provenance: { ...MANUAL, reason: 'User-merged discourse units.' },
   };
   let units = doc.units

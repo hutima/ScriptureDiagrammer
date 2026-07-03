@@ -1,7 +1,46 @@
 import { useDiscourseStore } from '@/state';
-import { DiscourseRelationTypeSchema } from '@/domain/schema';
+import { DISCOURSE_UNIT_COLORS, DiscourseRelationTypeSchema } from '@/domain/schema';
+import type { DiscourseUnitColor } from '@/domain/schema';
 import { formatRange, relationTypeLabel } from '@/domain/discourse';
 import { DiscourseToolbar } from './DiscourseToolbar';
+
+/**
+ * A row of the seven color swatches (+ a "none" clear button). Shared by the
+ * unit's color-tag control and the highlight-color picker — `active` marks the
+ * currently selected color (clicking it again clears, via `onClear`).
+ */
+function SwatchRow({
+  active,
+  onPick,
+  onClear,
+  ariaPrefix,
+}: {
+  active: DiscourseUnitColor | undefined;
+  onPick: (color: DiscourseUnitColor) => void;
+  onClear?: () => void;
+  ariaPrefix: string;
+}) {
+  return (
+    <div className="discourse-swatch-row">
+      {DISCOURSE_UNIT_COLORS.map((c) => (
+        <button
+          key={c}
+          type="button"
+          className={`discourse-swatch swatch-${c}${active === c ? ' active' : ''}`}
+          aria-label={`${ariaPrefix} ${c}`}
+          aria-pressed={active === c}
+          title={c}
+          onClick={() => (active === c ? onClear?.() : onPick(c))}
+        />
+      ))}
+      {onClear && (
+        <button type="button" className="mini" onClick={onClear} aria-label={`Clear ${ariaPrefix.toLowerCase()}`}>
+          ✕ none
+        </button>
+      )}
+    </div>
+  );
+}
 
 /**
  * DISCOURSE SIDE PANEL — the tools + details column. Docked on the RIGHT of the
@@ -23,6 +62,12 @@ export function DiscourseSidePanel() {
   const select = useDiscourseStore((s) => s.select);
   const labelUnit = useDiscourseStore((s) => s.labelUnit);
   const setUnitNotes = useDiscourseStore((s) => s.setUnitNotes);
+  const setUnitColor = useDiscourseStore((s) => s.setUnitColor);
+  const highlightPickUnitId = useDiscourseStore((s) => s.highlightPickUnitId);
+  const beginHighlight = useDiscourseStore((s) => s.beginHighlight);
+  const highlightColor = useDiscourseStore((s) => s.highlightColor);
+  const setHighlightColor = useDiscourseStore((s) => s.setHighlightColor);
+  const removeTextHighlight = useDiscourseStore((s) => s.removeTextHighlight);
   const updateRelation = useDiscourseStore((s) => s.updateRelation);
   const deleteRelation = useDiscourseStore((s) => s.deleteRelation);
 
@@ -105,6 +150,58 @@ export function DiscourseSidePanel() {
                 }}
               />
             </label>
+          </div>
+
+          <div className="field discourse-color-field">
+            <span>Color</span>
+            <SwatchRow
+              active={selectedUnit.color}
+              onPick={(c) => setUnitColor(selectedUnit.id, c)}
+              onClear={() => setUnitColor(selectedUnit.id, undefined)}
+              ariaPrefix="Tag"
+            />
+          </div>
+
+          <div className="field discourse-color-field">
+            <span>Highlight text</span>
+            <div className="discourse-swatch-row">
+              <button
+                type="button"
+                className={`mini${highlightPickUnitId === selectedUnit.id ? ' active' : ''}`}
+                aria-pressed={highlightPickUnitId === selectedUnit.id}
+                onClick={() =>
+                  beginHighlight(highlightPickUnitId === selectedUnit.id ? null : selectedUnit.id)
+                }
+              >
+                {highlightPickUnitId === selectedUnit.id ? 'Click-drag the words…' : 'Highlight…'}
+              </button>
+              <SwatchRow active={highlightColor} onPick={setHighlightColor} ariaPrefix="Highlight color" />
+            </div>
+            {selectedUnit.textHighlights?.length ? (
+              <ul className="discourse-inspector-relations" aria-label="Text highlights">
+                {selectedUnit.textHighlights.map((h) => {
+                  const words = h.tokenIds
+                    .map((tid) => doc.tokens.find((t) => t.id === tid)?.surface ?? '')
+                    .filter(Boolean)
+                    .join(' ');
+                  return (
+                    <li key={h.id}>
+                      <span className={`discourse-swatch swatch-${h.color}`} aria-hidden="true" />{' '}
+                      <span>{words}</span>{' '}
+                      <button
+                        className="mini"
+                        aria-label="Remove highlight"
+                        onClick={() => removeTextHighlight(selectedUnit.id, h.id)}
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="discourse-inspector-notes muted">No highlights yet.</p>
+            )}
           </div>
 
           {unitRelations.length > 0 ? (

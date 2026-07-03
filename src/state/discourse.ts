@@ -4,12 +4,14 @@ import type {
   DiscourseGranularity,
   DiscourseRelation,
   DiscourseRelationType,
+  DiscourseUnitColor,
   DiscourseUnitKind,
   KrDocument,
 } from '@/domain/schema';
 import {
   acceptDiscourseSuggestion,
   addDiscourseRelation,
+  addDiscourseTextHighlight,
   assignMarkerScope,
   buildDiscourseDocumentFromPlainText,
   collapseDiscourseUnit,
@@ -25,6 +27,8 @@ import {
   nestDiscourseUnits,
   nudgeDiscourseUnitIndent,
   outdentDiscourseUnit,
+  removeDiscourseTextHighlight,
+  setDiscourseUnitColor,
   setDiscourseUnitIndent,
   rejectDiscourseSuggestion,
   removeDiscourseBreak,
@@ -115,6 +119,15 @@ export interface DiscourseState {
    */
   splitPickUnitId: string | null;
   /**
+   * The unit currently in "drag to highlight" mode: its tokens render as
+   * draggable words and a click-drag (or single click) commits a text
+   * highlight over the selected span. Mutually exclusive with the split/relate
+   * interactions.
+   */
+  highlightPickUnitId: string | null;
+  /** The color new highlights are created with (also drives the swatch UI). */
+  highlightColor: DiscourseUnitColor;
+  /**
    * Contiguous multi-selection of sibling units (shift-click), for wrapping
    * several units in a new parent group.
    */
@@ -201,6 +214,16 @@ export interface DiscourseActions {
   deleteUnit: (unitId: string) => void;
   labelUnit: (unitId: string, label: string) => void;
   setUnitNotes: (unitId: string, notes: string) => void;
+  /** Set (or clear, with `undefined`) a unit's color tag. */
+  setUnitColor: (unitId: string, color: DiscourseUnitColor | undefined) => void;
+  /** Enter/leave "drag to highlight" mode for a unit. */
+  beginHighlight: (unitId: string | null) => void;
+  /** Set the color new highlights are created with. */
+  setHighlightColor: (color: DiscourseUnitColor) => void;
+  /** Commit a text highlight over `tokenIds` (in the current `highlightColor`). */
+  addTextHighlight: (unitId: string, tokenIds: string[]) => void;
+  /** Remove one of a unit's text highlights by id. */
+  removeTextHighlight: (unitId: string, highlightId: string) => void;
   setUnitCollapsed: (unitId: string, collapsed: boolean) => void;
   collapseAll: (collapsed: boolean) => void;
   addRelation: (input: {
@@ -395,6 +418,8 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     pendingRelationSource: null,
     typeEditRelationId: null,
     splitPickUnitId: null,
+    highlightPickUnitId: null,
+    highlightColor: 'yellow',
     multiSelectedUnitIds: [],
     isDefaultDemo: false,
     firstLoadModalOpen: false,
@@ -432,6 +457,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
           pendingRelationSource: null,
           typeEditRelationId: null,
           splitPickUnitId: null,
+          highlightPickUnitId: null,
           multiSelectedUnitIds: [],
           // A range load clears the demo stamp; `loadDefaultDemo` re-sets it after.
           isDefaultDemo: false,
@@ -463,6 +489,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         pendingRelationSource: null,
         typeEditRelationId: null,
         splitPickUnitId: null,
+        highlightPickUnitId: null,
         multiSelectedUnitIds: [],
         isDefaultDemo: false,
         past: [],
@@ -554,6 +581,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         pendingRelationSource: null,
         typeEditRelationId: null,
         splitPickUnitId: null,
+        highlightPickUnitId: null,
         multiSelectedUnitIds: [],
         past: [],
         future: [],
@@ -611,6 +639,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         multiSelectedUnitIds: s.multiSelectedUnitIds.filter((id) => has(id)),
         pendingRelationSource: has(s.pendingRelationSource) ? s.pendingRelationSource : null,
         splitPickUnitId: has(s.splitPickUnitId) ? s.splitPickUnitId : null,
+        highlightPickUnitId: has(s.highlightPickUnitId) ? s.highlightPickUnitId : null,
         typeEditRelationId: after.relations.some((r) => r.id === s.typeEditRelationId)
           ? s.typeEditRelationId
           : null,
@@ -618,6 +647,16 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     },
     labelUnit: (unitId, label) => commit((d) => labelDiscourseUnit(d, unitId, label)),
     setUnitNotes: (unitId, notes) => commit((d) => setDiscourseUnitNotes(d, unitId, notes)),
+    setUnitColor: (unitId, color) => commit((d) => setDiscourseUnitColor(d, unitId, color)),
+    beginHighlight: (highlightPickUnitId) =>
+      set({ highlightPickUnitId, splitPickUnitId: null, pendingRelationSource: null, typeEditRelationId: null }),
+    setHighlightColor: (highlightColor) => set({ highlightColor }),
+    addTextHighlight: (unitId, tokenIds) => {
+      commit((d) => addDiscourseTextHighlight(d, unitId, tokenIds, get().highlightColor));
+      set({ highlightPickUnitId: null });
+    },
+    removeTextHighlight: (unitId, highlightId) =>
+      commit((d) => removeDiscourseTextHighlight(d, unitId, highlightId)),
     setUnitCollapsed: (unitId, collapsed) =>
       commit((d) => (collapsed ? collapseDiscourseUnit(d, unitId) : expandDiscourseUnit(d, unitId))),
     collapseAll: (collapsed) =>
@@ -640,7 +679,12 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     acceptSuggestion: (suggestionId) => commit((d) => acceptDiscourseSuggestion(d, suggestionId)),
     rejectSuggestion: (suggestionId) => commit((d) => rejectDiscourseSuggestion(d, suggestionId)),
     startRelation: (sourceUnitId) =>
-      set({ pendingRelationSource: sourceUnitId, typeEditRelationId: null, splitPickUnitId: null }),
+      set({
+        pendingRelationSource: sourceUnitId,
+        typeEditRelationId: null,
+        splitPickUnitId: null,
+        highlightPickUnitId: null,
+      }),
     cancelRelation: () => set({ pendingRelationSource: null }),
     pickRelationTarget: (targetUnitId) => {
       const source = get().pendingRelationSource;
@@ -658,7 +702,12 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
       commit((d) => updateDiscourseRelation(d, relationId, { type, label })),
     closeRelationTypeEditor: () => set({ typeEditRelationId: null }),
     beginSplit: (splitPickUnitId) =>
-      set({ splitPickUnitId, pendingRelationSource: null, typeEditRelationId: null }),
+      set({
+        splitPickUnitId,
+        pendingRelationSource: null,
+        typeEditRelationId: null,
+        highlightPickUnitId: null,
+      }),
 
     extendMultiSelect: (unitId) => {
       const { doc, selection, multiSelectedUnitIds } = get();
@@ -710,6 +759,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         pendingRelationSource: null,
         typeEditRelationId: null,
         splitPickUnitId: null,
+        highlightPickUnitId: null,
         multiSelectedUnitIds: [],
       });
     },
