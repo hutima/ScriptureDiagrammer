@@ -210,9 +210,36 @@ the current geometry.
   rail extension line reaches every packed foot (railRight/maxRight adjusted
   exactly). −0.2 Mpx² (17/210 docs, all negative; biggest Rom 9:32 −97px).
   Snapshot diffs bounds/compactness only; no guard changes.
-- [ ] Stage B4 — kr/clause.ts stackClauses / layoutClauseSpine right growth.
-- [ ] (optional, last) kr/coordination.ts fork member spread — only with fresh
-  before/after review of every fork-bearing passage.
+- [x] **Stage B4 — DECLINED with rationale.** Measured where the remaining
+  width lives (top-10 widest docs): the extreme right is content DEEP inside
+  stacked clause chains (Col 1:9–16 rightmost at y≈3100, Titus 2:11–14 at
+  y≈2200). But stacked members sit at a FIXED indent off a shared spine (the
+  connector must stay a short horizontal from the spine to the member's
+  baseline) and compound-spine members are VERB-ALIGNED (the dashed bar runs
+  verb-to-verb) — both are conventions this effort must not fight. Tucking a
+  member left would lengthen/slant connectors or break verb alignment; there
+  is no convention-safe horizontal reclaim inside the stack. The members'
+  INTERNALS are already packed by B1–B3.
+- [x] **Fork member spread (optional site 5) — DECLINED.** Visually the most
+  sensitive site, and fork coordinator placement is under active user-driven
+  rework (conjunction centering / open-side placement); packing the spread
+  concurrently would double the churn in the same pixels for a small win.
+
+## Compactness — final summary
+
+Corpus (210 documents): **127.46 → 119.31 Mpx² (−6.39% total area)**;
+summed width 164,729 → 154,510px (−6.2%) after B3.
+- Stage B1 (word cascades): −2.16%, 99 docs, biggest −273 kpx².
+- Stage B2 (baseline slot): −4.1% further, 80 docs, biggest −416 kpx².
+- Stage B3 (adjunct rail): −0.2 Mpx², 17 docs.
+- Every changed document shrank (the one pay-for-itself fallback, Mark
+  5:22–23, is +11px vs post-B1 but never worse than fully-classic).
+- Frozen guard exemptions after the program: line-guard 10 offenders (down
+  from 14 — four risers moved off hanging words by packing), rotated-text 1
+  (Eph 5:15–16 spine-bar label pair), connectivity 2 (unchanged, cosmetic).
+- Remaining known pockets (all convention-inherent): the genitive/apposition
+  staircase, pedestal ascents clearing baselines, stacked-clause spine
+  indents, compound-spine verb alignment, fork geometry.
 
 ## Prior investigation (context for the packer)
 
