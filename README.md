@@ -95,18 +95,21 @@ are tracked in
 - **Discourse mode** — a separate multi-verse / chapter / whole-book analysis
   layer (`Visualization → Discourse`): load a range through its own selector,
   block the passage into discourse units, insert breaks, indent/outdent an
-  interpretive outline, label units (A/B/A′…), and draw typed relations
-  (ground, inference, contrast, purpose, inclusio, chiasm…). Source particles
-  contribute marker chips and non-authoritative hints; the user's structure is
-  the analysis. Own document model, store, patches (`kr:discourse:*`), and
-  text exports (JSON / Markdown outline / relation table). See
+  interpretive outline, label units (A/B/A′…), and draw relations (ground,
+  inference, contrast, purpose, inclusio, chiasm…) — click **Relate**, then
+  source, then target to create an untyped link immediately; an optional modal
+  lets you assign a type, add a label, or delete it. Relation arcs render in
+  outline exports (PDF / SVG) in a left gutter with lane packing. Source
+  particles contribute marker chips and non-authoritative hints; the user's
+  structure is the analysis. Own document model, store, patches (`kr:discourse:*`),
+  and text exports (JSON / Markdown outline / relation table). See
   `docs/discourse-mode-user-guide.md`.
   - **English Bible sources** — Discourse mode can analyse an English Bible
-    directly (no Greek/Hebrew parse): the bundled **BSB**, plus **KJV** and
-    **ASV** as English-only sources fetched on demand from public-domain remote
-    data and cached. KJV/ASV carry **no** original-language linking, morphology,
-    lemmas, Strong's, or MACULA discourse-marker hints — only the conservative
-    English marker heuristic applies.
+    directly (no Greek/Hebrew parse): **BSB English (whole Bible)**, plus
+    **KJV** and **ASV** as English-only sources fetched on demand from
+    public-domain remote data and cached. KJV/ASV carry **no** original-language
+    linking, morphology, lemmas, Strong's, or MACULA discourse-marker hints —
+    only the conservative English marker heuristic applies.
   - **New text (plaintext)** — paste arbitrary prose and load it straight into
     Discourse mode as sentence units. It is tokenized locally and split into
     sentences; there is **no LLM call**, no syntax parse, and no `KrDocument`.
@@ -114,10 +117,11 @@ are tracked in
     guidance modal (reopenable from the ⓘ button) and offers a default demo
     passage, **Ephesians 2:12–19** (loaded from the bundled BSB, one verse per
     line, with a clearly-labelled **sample chiasm** of four correspondence arcs
-    already drawn — a demonstration, not an authoritative reading). The arcs are
-    ordinary editable/deletable relations, restored by Reset. You can remove the
-    demo so it is never auto-restored (a persistent choice that survives reloads
-    and PWA updates), distinct from resetting your edits.
+    already drawn with SHORT pair labels — a demonstration, not an authoritative
+    reading). The arcs are ordinary editable/deletable relations, restored by
+    Reset. You can remove the demo so it is never auto-restored (a persistent
+    choice that survives reloads and PWA updates), distinct from resetting your
+    edits.
 - **Gold-standard data** — GNT (SBLGNT LowFat, Clear-Bible MACULA Greek
   CC BY 4.0 — the default edition — plus Nestle1904 LowFat,
   biblicalhumanities, as legacy/alternate) and OT (WLC LowFat,

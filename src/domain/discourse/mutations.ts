@@ -623,7 +623,8 @@ export function addDiscourseRelation(
   input: {
     sourceUnitId: string;
     targetUnitId: string;
-    type: DiscourseRelationType;
+    /** Optional — a link can be created untyped and typed later (or never). */
+    type?: DiscourseRelationType;
     label?: string;
     markerIds?: string[];
     confidence?: 'high' | 'medium' | 'low';

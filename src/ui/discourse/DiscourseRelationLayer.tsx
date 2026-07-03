@@ -35,9 +35,27 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
   const sorted = [...arcs].sort(
     (a, b) => Math.abs(a.y1 - a.y2) - Math.abs(b.y1 - b.y2),
   );
+  // Lane assignment by greedy interval-graph colouring (like the KR line packer):
+  // two arcs share a lane ONLY when their vertical spans don't overlap, so a
+  // relation nested inside another is pushed to its own lane while independent
+  // arcs elsewhere in the passage reuse lane 0. This keeps clashing minimal
+  // instead of spending one lane per relation.
   const lanes = new Map<string, number>();
-  sorted.forEach((a, i) => lanes.set(a.relation.id, i));
-  const laneStep = Math.max(10, Math.min(22, (gutter - 16) / Math.max(1, arcs.length)));
+  const placed: { lane: number; top: number; bottom: number }[] = [];
+  for (const a of sorted) {
+    const top = Math.min(a.y1, a.y2);
+    const bottom = Math.max(a.y1, a.y2);
+    // Strict overlap (touching endpoints don't count as a clash).
+    const taken = new Set(
+      placed.filter((p) => p.top < bottom && p.bottom > top).map((p) => p.lane),
+    );
+    let lane = 0;
+    while (taken.has(lane)) lane++;
+    lanes.set(a.relation.id, lane);
+    placed.push({ lane, top, bottom });
+  }
+  const laneCount = Math.max(1, ...[...lanes.values()].map((l) => l + 1));
+  const laneStep = Math.max(12, Math.min(22, (gutter - 16) / laneCount));
 
   return (
     <svg
@@ -57,7 +75,10 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
         const bottom = Math.max(a.y1, a.y2);
         const selected = relation.id === selectedRelationId;
         const midY = (top + bottom) / 2;
-        const label = relation.label || relationTypeLabel(relation.type);
+        const typeLabel = relationTypeLabel(relation.type);
+        const label = relation.label || typeLabel; // '' for a bare untyped link
+        // Tooltip: "<label> — <type>" collapses gracefully when either is empty.
+        const title = [label, typeLabel].filter(Boolean).join(' — ') || 'link';
         const paired = relation.type === 'chiasm' || relation.type === 'parallel' || relation.type === 'inclusio';
         return (
           <g
@@ -70,7 +91,7 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
             }}
           >
             <title>
-              {label} — {relationTypeLabel(relation.type)}
+              {title}
               {relation.confidence ? ` (${relation.confidence})` : ''}
             </title>
             {/* Bracket-style path: out from the source, down/up, back to target. */}
@@ -89,17 +110,19 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
               stroke={color}
               strokeWidth={selected ? 2.2 : 1.6}
             />
-            <text
-              x={Math.max(4, x - 4)}
-              y={midY}
-              className="discourse-arc-label"
-              fill={color}
-              textAnchor="end"
-              dominantBaseline="middle"
-              transform={`rotate(-90 ${Math.max(4, x - 4)} ${midY})`}
-            >
-              {label}
-            </text>
+            {label && (
+              <text
+                x={x - 3}
+                y={midY}
+                className="discourse-arc-label"
+                fill={color}
+                textAnchor="middle"
+                dominantBaseline="central"
+                transform={`rotate(-90 ${x - 3} ${midY})`}
+              >
+                {label}
+              </text>
+            )}
           </g>
         );
       })}

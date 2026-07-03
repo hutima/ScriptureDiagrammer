@@ -1,7 +1,7 @@
 import type { DiscourseDocument, DiscoursePatch, DiscourseUnit } from '@/domain/schema';
 import { formatRange } from './refs';
 import { outlineOrder } from './mutations';
-import { relationTypeLabel } from './layout';
+import { relationColor, relationTypeLabel } from './layout';
 
 /**
  * DISCOURSE EXPORTS — pure serializers. JSON round-trips through the Zod
@@ -265,7 +265,10 @@ export function discourseOutlineSvg(
   const greek = doc.language !== 'en';
 
   const PAD = 24;
-  const WIDTH = 820;
+  // Left GUTTER carries the relation arcs (like the on-screen view), so the
+  // correspondence lines appear in the exported SVG / PDF, not just as text.
+  const GUTTER = doc.relations.length ? 132 : 0;
+  const WIDTH = 820 + GUTTER;
   const LINE = 20;
   const INDENT = 22;
   const CHARW = 7.1; // rough average glyph advance at 13px
@@ -274,7 +277,10 @@ export function discourseOutlineSvg(
 
   interface Line { x: number; cls: 'h' | 't' | 'g' | 'n' | 'r'; text: string; grc?: boolean }
   const lines: Line[] = [];
-  const wrapAt = (x: number) => Math.max(20, Math.floor((WIDTH - PAD - x) / CHARW));
+  const wrapAt = (x: number) => Math.max(20, Math.floor((WIDTH - GUTTER - PAD - x) / CHARW));
+  // y of each unit's heading line (arc endpoints connect these).
+  const headY = new Map<string, number>();
+  const yOfLineIndex = (i: number) => PAD + (i + 1) * LINE;
 
   lines.push({ x: 0, cls: 'h', text: doc.title });
   lines.push({
@@ -286,6 +292,7 @@ export function discourseOutlineSvg(
 
   for (const unit of outlineOrder(doc)) {
     const x = effectiveIndent(unit) * INDENT;
+    headY.set(unit.id, yOfLineIndex(lines.length)); // this heading's y
     lines.push({ x, cls: 'h', text: `• ${unitHeading(doc, unit)}` });
     if (includeText && unit.tokenIds.length) {
       const text = unit.tokenIds.map((tid) => tokens.get(tid)?.surface ?? '').join(' ').trim();
@@ -311,15 +318,92 @@ export function discourseOutlineSvg(
       const weight = l.cls === 'h' ? ' font-weight="600"' : '';
       const style = l.cls === 't' && l.grc ? ` font-family="${greekFont}"` : '';
       const italic = l.cls === 'g' ? ' font-style="italic"' : '';
-      return `<text x="${PAD + l.x}" y="${y}" fill="${color[l.cls]}"${weight}${style}${italic}>${escapeXml(l.text)}</text>`;
+      return `<text x="${GUTTER + PAD + l.x}" y="${y}" fill="${color[l.cls]}"${weight}${style}${italic}>${escapeXml(l.text)}</text>`;
     })
     .join('\n');
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${height}" viewBox="0 0 ${WIDTH} ${height}" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="13">`,
     `<rect width="${WIDTH}" height="${height}" fill="#ffffff"/>`,
+    GUTTER ? renderOutlineArcs(doc, headY, GUTTER + PAD - 6) : '',
     body,
     '</svg>',
+  ].join('\n');
+}
+
+/**
+ * Relation arcs for the SVG/PDF outline export — bracket paths in the left
+ * gutter connecting the two units' heading rows, with the SAME greedy lane
+ * packing and centred short labels as the on-screen `DiscourseRelationLayer`, so
+ * the printed correspondences match the view (and nested arcs don't clash).
+ */
+function renderOutlineArcs(
+  doc: DiscourseDocument,
+  headY: Map<string, number>,
+  rightX: number,
+): string {
+  const specs = doc.relations
+    .map((r) => ({ r, y1: headY.get(r.sourceUnitId), y2: headY.get(r.targetUnitId) }))
+    .filter((s): s is { r: DiscourseDocument['relations'][number]; y1: number; y2: number } =>
+      s.y1 !== undefined && s.y2 !== undefined,
+    )
+    .sort((a, b) => Math.abs(a.y1 - a.y2) - Math.abs(b.y1 - b.y2));
+  if (!specs.length) return '';
+  const lanes = new Map<string, number>();
+  const placed: { lane: number; top: number; bottom: number }[] = [];
+  for (const s of specs) {
+    const top = Math.min(s.y1, s.y2);
+    const bottom = Math.max(s.y1, s.y2);
+    const taken = new Set(placed.filter((p) => p.top < bottom && p.bottom > top).map((p) => p.lane));
+    let lane = 0;
+    while (taken.has(lane)) lane++;
+    lanes.set(s.r.id, lane);
+    placed.push({ lane, top, bottom });
+  }
+  const laneCount = Math.max(1, ...[...lanes.values()].map((l) => l + 1));
+  const laneStep = Math.max(14, Math.min(24, (rightX - 12) / laneCount));
+  return specs
+    .map((s) => {
+      const lane = lanes.get(s.r.id) ?? 0;
+      const x = Math.max(10, rightX - 6 - lane * laneStep);
+      const midY = (s.y1 + s.y2) / 2;
+      const col = relationColor(s.r.type);
+      const paired = s.r.type === 'chiasm' || s.r.type === 'parallel' || s.r.type === 'inclusio';
+      const dash = paired ? ' stroke-dasharray="5 3"' : '';
+      const label = s.r.label || relationTypeLabel(s.r.type);
+      const bracket = `<path d="M ${rightX} ${s.y1} H ${x} V ${s.y2} H ${rightX}" fill="none" stroke="${col}" stroke-width="1.5"${dash} opacity="0.85"/>`;
+      const arrow = `<path d="M ${rightX - 5} ${s.y2 - 4} L ${rightX} ${s.y2} L ${rightX - 5} ${s.y2 + 4}" fill="none" stroke="${col}" stroke-width="1.5"/>`;
+      const text = label
+        ? `<text x="${x - 3}" y="${midY}" fill="${col}" font-size="11" text-anchor="middle" dominant-baseline="central" transform="rotate(-90 ${x - 3} ${midY})">${escapeXml(label)}</text>`
+        : '';
+      return bracket + arrow + text;
+    })
+    .join('\n');
+}
+
+/**
+ * A print-ready HTML document wrapping the arc-annotated outline SVG — this is
+ * the discourse "Save as PDF" surface, so the printed page shows the same
+ * correspondence arcs as the on-screen view (the plain HTML outline lists
+ * relations only as text). Self-contained; the browser print dialog does the
+ * PDF step.
+ */
+export function discourseOutlineSvgPrintHtml(
+  doc: DiscourseDocument,
+  opts: OutlineRenderOptions = {},
+): string {
+  const svg = discourseOutlineSvg(doc, opts);
+  return [
+    '<!doctype html>',
+    '<html lang="en"><head><meta charset="utf-8">',
+    `<title>${escapeHtml(doc.title)}</title>`,
+    '<style>',
+    '  @media print { @page { margin: 12mm; } }',
+    '  body { margin: 0; padding: 16px; background: #fff; }',
+    '  svg { max-width: 100%; height: auto; }',
+    '</style></head><body>',
+    svg,
+    '</body></html>',
   ].join('\n');
 }
 
@@ -334,7 +418,7 @@ export function discourseRelationsCsv(doc: DiscourseDocument): string {
   const rows = doc.relations.map((r) =>
     [
       r.id,
-      r.type,
+      r.type ?? '',
       name(r.sourceUnitId),
       name(r.targetUnitId),
       r.label ?? '',

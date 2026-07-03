@@ -37,8 +37,9 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
   const multiSelected = useDiscourseStore((s) => s.multiSelectedUnitIds);
   const extendMultiSelect = useDiscourseStore((s) => s.extendMultiSelect);
   const pendingRelationSource = useDiscourseStore((s) => s.pendingRelationSource);
-  const setRelationDraft = useDiscourseStore((s) => s.setRelationDraft);
-  const relationDraft = useDiscourseStore((s) => s.relationDraft);
+  const pickRelationTarget = useDiscourseStore((s) => s.pickRelationTarget);
+  const typeEditRelationId = useDiscourseStore((s) => s.typeEditRelationId);
+  const closeRelationTypeEditor = useDiscourseStore((s) => s.closeRelationTypeEditor);
   const cancelRelation = useDiscourseStore((s) => s.cancelRelation);
   const splitPickUnitId = useDiscourseStore((s) => s.splitPickUnitId);
   const beginSplit = useDiscourseStore((s) => s.beginSplit);
@@ -114,7 +115,9 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
   const onUnitSelect = useCallback(
     (unitId: string, opts: { shift: boolean }) => {
       if (editing && pendingRelationSource && pendingRelationSource !== unitId) {
-        setRelationDraft({ sourceUnitId: pendingRelationSource, targetUnitId: unitId });
+        // Target picked → create the connector immediately (untyped); the type
+        // modal opens next for optional metadata.
+        pickRelationTarget(unitId);
         return;
       }
       if (editing && opts.shift) {
@@ -123,7 +126,7 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
       }
       select(selection.unitId === unitId ? {} : { unitId });
     },
-    [editing, pendingRelationSource, selection.unitId, select, setRelationDraft, extendMultiSelect],
+    [editing, pendingRelationSource, selection.unitId, select, pickRelationTarget, extendMultiSelect],
   );
 
   const onKeyDown = useCallback(
@@ -134,7 +137,10 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
       if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable) return;
       if (e.key === 'Escape') {
         if (splitPickUnitId) beginSplit(null);
-        else if (pendingRelationSource || relationDraft) cancelRelation();
+        // Before a target is picked → cancel, no link is created.
+        else if (pendingRelationSource) cancelRelation();
+        // After the link exists (modal open) → close the modal, KEEP the link.
+        else if (typeEditRelationId) closeRelationTypeEditor();
         else select({});
         return;
       }
@@ -187,7 +193,7 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
         }
       }
     },
-    [editing, doc, selection.unitId, splitPickUnitId, pendingRelationSource, relationDraft, beginSplit, cancelRelation, select, undo, redo, indentUnit, outdentUnit, mergeWithPrevious, deleteUnit],
+    [editing, doc, selection.unitId, splitPickUnitId, pendingRelationSource, typeEditRelationId, beginSplit, cancelRelation, closeRelationTypeEditor, select, undo, redo, indentUnit, outdentUnit, mergeWithPrevious, deleteUnit],
   );
 
   const selectedUnit = selection.unitId
@@ -220,6 +226,11 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
 
   return (
     <div className="discourse-view" onKeyDown={onKeyDown}>
+      {editing && pendingRelationSource && (
+        <div className="discourse-relate-banner" role="status">
+          Relating — click another unit to connect to it. <kbd>Esc</kbd> to cancel.
+        </div>
+      )}
       <div
         className="discourse-scroll"
         onClick={() => {
@@ -268,7 +279,7 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
         </div>
       </div>
 
-      {editing && relationDraft && <DiscourseRelationPicker />}
+      {editing && typeEditRelationId && <DiscourseRelationPicker />}
 
       {selectedUnit && (
         <aside className="discourse-inspector" aria-label="Selected unit details">

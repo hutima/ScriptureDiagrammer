@@ -4,44 +4,53 @@ import { DiscourseRelationTypeSchema, type DiscourseRelationType } from '@/domai
 import { formatRange, relationTypeLabel } from '@/domain/discourse';
 
 /**
- * Relation TYPE picker — shown once both ends of a new relation are chosen
- * (source unit → "Relate →" → target unit). Confirming creates a manual,
- * user-authored relation; Escape/Cancel discards the draft. A custom type
- * asks for its label.
+ * Optional relation-TYPE modal — shown AFTER the connector already exists (the
+ * link is created the moment both ends are picked). Relation type is optional
+ * metadata: choose one, add a label, leave it untyped, or delete the link.
+ * Dismissing (✕ / Escape / "Leave untyped") NEVER removes the connector.
  */
 export function DiscourseRelationPicker() {
   const doc = useDiscourseStore((s) => s.doc);
-  const draft = useDiscourseStore((s) => s.relationDraft);
-  const addRelation = useDiscourseStore((s) => s.addRelation);
-  const setRelationDraft = useDiscourseStore((s) => s.setRelationDraft);
-  const [label, setLabel] = useState('');
+  const relationId = useDiscourseStore((s) => s.typeEditRelationId);
+  const setRelationType = useDiscourseStore((s) => s.setRelationType);
+  const deleteRelation = useDiscourseStore((s) => s.deleteRelation);
+  const close = useDiscourseStore((s) => s.closeRelationTypeEditor);
+  const relation = doc?.relations.find((r) => r.id === relationId);
+  const [label, setLabel] = useState(relation?.label ?? '');
 
-  if (!doc || !draft) return null;
+  if (!doc || !relation) return null;
   const name = (id: string) => {
     const u = doc.units.find((x) => x.id === id);
     return u ? u.label || formatRange(u.refStart, u.refEnd) || u.kind : id;
   };
 
-  const choose = (type: DiscourseRelationType) => {
-    addRelation({
-      sourceUnitId: draft.sourceUnitId,
-      targetUnitId: draft.targetUnitId,
-      type,
-      label: label.trim() || undefined,
-    });
-    setRelationDraft(null);
+  const chooseType = (type: DiscourseRelationType) => {
+    setRelationType(relation.id, type, label.trim() || undefined);
+    close();
+  };
+  const leaveUntyped = () => {
+    // Persist a type-free link — keeping any label the user typed.
+    setRelationType(relation.id, undefined, label.trim() || undefined);
+    close();
+  };
+  const removeLink = () => {
+    deleteRelation(relation.id);
+    close();
   };
 
   return (
-    <div className="discourse-relation-picker" role="dialog" aria-label="Choose relation type">
+    <div className="discourse-relation-picker" role="dialog" aria-label="Relation type (optional)">
       <div className="discourse-relation-picker-head">
         <strong>
-          {name(draft.sourceUnitId)} → {name(draft.targetUnitId)}
+          {name(relation.sourceUnitId)} → {name(relation.targetUnitId)}
         </strong>
-        <button className="mini" onClick={() => setRelationDraft(null)} aria-label="Cancel">
+        <button className="mini" onClick={close} aria-label="Close — keep the link untyped">
           ✕
         </button>
       </div>
+      <p className="discourse-note">
+        The connection is created. Add a relation type (optional), or leave it untyped.
+      </p>
       <label className="field">
         <span>Label (optional)</span>
         <input
@@ -52,15 +61,23 @@ export function DiscourseRelationPicker() {
       </label>
       <div className="discourse-relation-types">
         {DiscourseRelationTypeSchema.options.map((t) => (
-          <button key={t} className="mini" onClick={() => choose(t)}>
+          <button
+            key={t}
+            className={`mini${relation.type === t ? ' accept' : ''}`}
+            onClick={() => chooseType(t)}
+          >
             {relationTypeLabel(t)}
           </button>
         ))}
       </div>
-      <p className="discourse-note">
-        The relation reads “<em>source</em> is the {`{type}`} of/for <em>target</em>” — your
-        analysis, stamped as user-authored.
-      </p>
+      <div className="discourse-relation-picker-actions">
+        <button className="mini" onClick={leaveUntyped}>
+          Leave untyped
+        </button>
+        <button className="mini danger" onClick={removeLink} aria-label="Delete this link">
+          Delete link
+        </button>
+      </div>
     </div>
   );
 }

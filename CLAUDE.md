@@ -414,7 +414,11 @@ its own document model, store, persistence, and renderer. See
   (`buildDiscourseDocumentFromEnglishBibleRange`, `language:'en'`) over a
   normalized `EnglishBibleBook` produced by `io/english-bible.ts` from the
   bundled BSB parallel data (NT: Strong's-tagged; OT: Hebrew-aligned, no
-  Strong's — tags are copied, never fabricated). `DiscourseSourceId =
+  Strong's — tags are copied, never fabricated). The source selector offers
+  **"BSB English (whole Bible)"** (`english-bsb-all`, 66-book canonical numbering:
+  OT books 1–39, NT books 40–66); it dispatches internally to the existing BSB
+  OT/NT data. The split ids `english-bsb` (NT) and `english-bsb-ot` (OT) remain
+  valid and loadable but are hidden from the selector. `DiscourseSourceId =
   SyntaxSourceId | EnglishBibleSourceId`; English sources appear ONLY in the
   Discourse source list, never in the syntax selectors.
   - **Remote KJV / ASV** — `io/english-bible-remote.ts` adds `english-kjv` and
@@ -436,13 +440,25 @@ its own document model, store, persistence, and renderer. See
   and the Discourse left-panel "New text" tab (`DiscoursePlaintextPicker`).
 - **Separation** — `useDiscourseStore` (`state/discourse.ts`) is a second
   zustand store: loading a discourse range never touches the syntax passage
-  and vice versa; a mode switch reloads neither. The left panel swaps the
-  syntax pickers for `DiscourseRangeSelector`; `ResponsiveShell` swaps the
+  and vice versa; a mode switch reloads neither. Entering Discourse mode
+  defaults the app mode to Edit (Discourse is manual-first and desktop-only so
+  Edit is always available); all three app modes remain selectable in the
+  switcher, and Study is kept if it was already active. The left panel swaps
+  the syntax pickers for `DiscourseRangeSelector`; `ResponsiveShell` swaps the
   canvas for `ui/discourse/DiscourseCanvas`.
 - **Edits** — pure mutations (`domain/discourse/mutations.ts`: split, merge,
   indent/outdent, wrap/unwrap, label, delete-unit, relations, suggestion accept)
   persisted as `DiscoursePatch` diffs under `kr:discourse:*` (own namespace;
-  edition + baseHash guarded). `deleteDiscourseUnit(s)` removes a unit (and its
+  edition + baseHash guarded). Relations follow a **relate-first workflow**: click
+  **Relate**, then the source unit, then the target unit to create an untyped link
+  immediately (store action `pickRelationTarget`); an optional "Relation type" modal
+  opens afterwards where you can assign a type, add a label, choose "Leave untyped",
+  or delete the link. Dismissing the modal (or pressing Escape *after* the link
+  exists) keeps the untyped link; Escape *before* picking a target cancels with no
+  link created. Relation `type` is now optional metadata — untyped links render as a
+  plain connector with no type caption. Store actions: `setRelationType` (updates
+  type on an existing relation id; passing undefined clears the type but keeps the
+  link), `closeRelationTypeEditor`. `deleteDiscourseUnit(s)` removes a unit (and its
   subtree), prunes emptied containers, resequences/respans, and drops dangling
   relations/markers/suggestions; the `deleteUnit` store action is undoable and
   patch-persisted. Editing discourse NEVER mutates any `KrDocument`.
@@ -472,7 +488,9 @@ its own document model, store, persistence, and renderer. See
   never a fixture — fully editable and stamped `isDefaultDemo` (drives the
   "Remove demo" button). The demo BASE is seeded with a **sample chiasm** —
   four `chiasm` arcs (2:12↔2:19, 2:13↔2:18, 2:14↔2:17, 2:15↔2:16), provenance
-  `manual`/low, labelled and clearly marked as sample material. Seeding the BASE
+  `manual`/low, with SHORT pair labels only ("A ↔ A′" … "D ↔ D′"); each arc's
+  fuller gloss (e.g. "alienated ↔ no longer strangers") lives in that relation's
+  `notes` field. Arcs are clearly marked as sample material. Seeding the BASE
   (deterministically) is the one sanctioned exception to "bases carry no
   user-facing relations": it means Reset restores the arcs, a NORMAL (non-demo)
   load of the same range never gets them, and stored user patches still apply.
@@ -486,3 +504,10 @@ its own document model, store, persistence, and renderer. See
   sets the hide flag (survives reloads/PWA updates) + forgets the range pointer,
   without touching syntax/sermon/unrelated-discourse state; `resetEdits` only
   discards edits and never sets the hide flag.
+- **Relation arcs in exports** — The "Save as PDF" export renders the
+  arc-annotated SVG outline with relation arcs printed in a left gutter
+  (function `discourseOutlineSvgPrintHtml` wrapping `discourseOutlineSvg`).
+  Arcs use greedy interval packing for lane assignment: arcs share a lane
+  unless their vertical spans overlap, so nested/overlapping relations step
+  outward and clashing stays minimal. Arc labels are centered. The downloadable
+  SVG exports include the same arcs with the same lane packing.

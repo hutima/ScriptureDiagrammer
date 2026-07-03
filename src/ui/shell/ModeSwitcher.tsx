@@ -9,7 +9,9 @@ const MODES: { id: AppMode; label: string; short: string }[] = [
 
 /**
  * The three user-facing modes. Edit is desktop-first: it is hidden on small
- * screens unless the user has forced desktop mode (`canEdit`).
+ * screens unless the user has forced desktop mode (`canEdit`). Discourse mode
+ * keeps all three modes available but *defaults* to Edit on entry (that default
+ * lives in ResponsiveShell) because Discourse is manual-first.
  */
 export function ModeSwitcher({ canEdit }: { canEdit: boolean }) {
   const appMode = useEditorStore((s) => s.appMode);
