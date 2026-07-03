@@ -317,63 +317,34 @@ export function DiagramCanvas() {
     return clampPan(x, y, scale, vp.clientWidth, vp.clientHeight, w, h);
   }, []);
 
-  /** Fit the whole diagram into the viewport (centred horizontally, top-aligned
-   *  so a tall passage starts at the top and you scroll down into it). */
-  const fit = useCallback(() => {
-    const vp = viewportRef.current;
-    if (!vp || layout.width <= 0) return;
-    const w = vp.clientWidth - PAD * 2;
-    const h = vp.clientHeight - PAD * 2;
-    const scale = clamp(Math.min(w / layout.width, h / layout.height, 1.5), MIN_SCALE, maxScale());
-    const x = Math.max(PAD, (vp.clientWidth - layout.width * scale) / 2);
-    setView({ x, y: PAD, scale });
-  }, [layout.width, layout.height, maxScale]);
-
-  /** Layout-space anchor for the diagram's FIRST word: the (preferably
-   *  non-rotated) text element of the syntax node that owns the document's first
-   *  token by index. Falls back to the first text element carrying a nodeId.
-   *  Null when the diagram has no positioned words (e.g. an empty layout). */
-  const firstWordAnchor = useCallback((): { x: number; y: number } | null => {
-    const textEls = layout.elements.filter((e) => e.kind === 'text' && e.nodeId) as {
-      x: number;
-      y: number;
-      nodeId?: string;
-      rotate?: number;
-    }[];
-    if (textEls.length === 0) return null;
-    const firstTok = [...doc.tokens].sort((a, b) => a.index - b.index)[0];
-    if (firstTok) {
-      const owner = doc.syntax.nodes.find((n) => n.tokenIds.includes(firstTok.id));
-      if (owner) {
-        const owned = textEls.filter((e) => e.nodeId === owner.id);
-        const a = owned.find((e) => !e.rotate) ?? owned[0];
-        if (a) return { x: a.x, y: a.y };
-      }
-    }
-    const a = textEls.find((e) => !e.rotate) ?? textEls[0];
-    return a ? { x: a.x, y: a.y } : null;
-  }, [layout.elements, doc.tokens, doc.syntax.nodes]);
-
-  /** Reset the view to 50% (clamped into the allowed range — the fit lock can
-   *  exceed 0.5 for a small diagram, and clamping handles that) centred on the
-   *  first word, so a new passage/mode always opens at a readable, consistently
-   *  placed spot. Falls back to fitting the whole diagram when no word is
-   *  positioned. This is what the "Reset zoom" toolbar button does too. */
+  /** Reset the view so a new passage/mode always opens at a consistent spot.
+   *  `minScale()` is the scale at which the whole diagram just fits the padded
+   *  viewport, capped at 100%. When that fit scale is at least 50% (so the whole
+   *  diagram fits somewhere in the 50–100% band), open it whole and centred in
+   *  the viewport. When it's too big to fit even at 50%, pin the zoom to exactly
+   *  50% and place the SVG's top-left corner at the viewport's top-left corner,
+   *  so a large passage starts at its beginning and you scroll into it. This is
+   *  what the "Reset zoom" toolbar button does too. */
   const resetZoom = useCallback(() => {
     const vp = viewportRef.current;
     if (!vp || layout.width <= 0) return;
-    const anchor = firstWordAnchor();
-    if (!anchor) {
-      fit();
+    const lo = minScale();
+    const hi = maxScale();
+    if (lo >= 0.5) {
+      // Fits within 50–100% zoom: show the whole diagram centred.
+      const scale = lo;
+      const x = (vp.clientWidth - layout.width * scale) / 2;
+      const y = (vp.clientHeight - layout.height * scale) / 2;
+      setView({ scale, ...clampView(x, y, scale) });
       return;
     }
-    const scale = clamp(0.5, minScale(), maxScale());
-    const { x, y } = viewCenteredOn(anchor.x, anchor.y, scale, vp.clientWidth, vp.clientHeight);
-    setView({ scale, ...clampView(x, y, scale) });
-  }, [layout.width, firstWordAnchor, fit, minScale, maxScale, clampView]);
+    // Too big to fit at 50%: pin to 50% with the SVG's top-left at the viewport's.
+    const scale = clamp(0.5, lo, hi);
+    setView({ scale, ...clampView(0, 0, scale) });
+  }, [layout.width, layout.height, minScale, maxScale, clampView]);
 
   // Reset when a new document is opened or the diagram mode changes (a different
-  // layout — its zoom/pan should always start fresh at 50% on the first word),
+  // layout — its zoom/pan should always start fresh at the resetZoom placement),
   // or the viewport first sizes up.
   useLayoutEffect(() => {
     resetZoom();
@@ -1106,7 +1077,7 @@ export function DiagramCanvas() {
               </div>
               <div className="canvas-zoom">
                 <button title="Zoom out" onClick={() => zoomBy(1 / 1.2)}>−</button>
-                <button title="Reset zoom (50%, centered on the first word)" aria-label="Reset zoom" onClick={resetZoom}>⤢</button>
+                <button title="Reset zoom (centered if it fits, else 50% from the top-left)" aria-label="Reset zoom" onClick={resetZoom}>⤢</button>
                 <button title="Zoom in" onClick={() => zoomBy(1.2)}>+</button>
               </div>
             </>
