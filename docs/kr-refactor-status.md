@@ -182,7 +182,27 @@ the current geometry.
   hanging word). Before/after renders of the 5 biggest movers eyeballed.
   (Also fixed: the compactness report script now suffixes duplicate corpus
   names so diffs pair correctly.)
-- [ ] Stage B2 — kr/clause.ts verb-modifier band vs complement start.
+- [x] **Stage B2 — kr/clause.ts baseline slot vs verb-modifier band.** Each
+  complement / pedestal is drawn at its classic position (past the verb
+  cascade's and previous complements' FULL recursive width) and slid left;
+  occupied excludes the horizontal y=0 main-line segments (the shared line a
+  complement rides), so cascade feet, ticks, words and deep content bound the
+  slide; a complement never starts before `xAfterVerb` (its no-cascade home).
+  The pre-drawn cascade-extension line was replaced by each complement's own
+  bridge to its PACKED separator (identical segment when nothing moves).
+  NEW GLOBAL GUARANTEE (document.ts): packing must PAY FOR ITSELF — if any
+  block shifted, the document is laid out again with packing off and the
+  packed result is kept only when its bounding box is strictly smaller.
+  Found the hard way: Mark 5:22–23's packed subject narrowed enough that the
+  clause spine's verb-alignment OUTLIER rule (spineOutlierGap) stopped firing
+  and verb alignment widened the compound by ~490px — width-sensitive policy
+  flips are inherent to downstream coupling, so the fallback is wholesale.
+  (Such a fallback disables B1 too for that document; net vs fully-classic is
+  never worse.) Results: −4.1% further (124.71 → 119.55 Mpx², cumulative
+  −6.20%), 80/210 docs changed, only real loss the Mark 5:22–23 fallback
+  (+11px vs post-B1, still far better than the alignment flip); two more
+  frozen line-guard offenders gone (κυρίῳ, Eph 5:17 κυρίου… now fixed by
+  packed pedestals). Snapshot diffs bounds/compactness only.
 - [ ] Stage B3 — kr/clause.ts clause-adjunct rail packing.
 - [ ] Stage B4 — kr/clause.ts stackClauses / layoutClauseSpine right growth.
 - [ ] (optional, last) kr/coordination.ts fork member spread — only with fresh

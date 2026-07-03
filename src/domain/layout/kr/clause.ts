@@ -27,6 +27,7 @@ import {
 import { drawDiagonalCoordination, drawDiagonalModifier } from './diagonal';
 import { blockAscent, pedestalRoom, rightWithinBand } from './geometry';
 import { drawInfinitive, layoutInfinitiveFork } from './infinitives';
+import { BandPacker } from './packing';
 import { layoutDiscourse } from './discourse';
 import { drawPp, drawPpCoordination } from './prepositions';
 import { eid, emptyBlock, impliedBlock, line, smallText, translate } from './primitives';
@@ -563,6 +564,9 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
   const predBlock = verbIsCoord ? layoutCompoundPredicate(ctx, verbNode!, seen) : verbBlock;
   const verbX0 = x;
   placeBlock(predBlock);
+  // Where the complements would begin with NO verb-modifier cascade — the
+  // minimum legal start for a PACKED complement (see the packing note below).
+  const xAfterVerb = x;
   // A self-contained open fork exposes its coordinate BAR as verbX; aim the
   // clause's verb point there so an OUTER coordination line meets this clause
   // through the predicate fork rather than at the (left-edge) divider.
@@ -754,9 +758,16 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
   const hasBaselineSlot = complementBlocks.length > 0 || pedestalRels.length > 0;
   if (vModRight > x) {
     const footEnd = Math.min(vModRight, vModFootRight + LAYOUT.diagRun);
-    const newX = hasBaselineSlot ? vModRight + LAYOUT.dependentGap : footEnd;
-    elements.push(line(eid(), x, 0, newX, 0, 'solid', 'baseline'));
-    if (hasBaselineSlot) x = newX;
+    if (hasBaselineSlot) {
+      // The classic cursor still starts complements past the cascade's FULL
+      // width, but the line out to the first complement is drawn by that
+      // complement's own bridge (below) so it can stop at the complement's
+      // PACKED separator instead of the classic one. Identical segment when
+      // nothing moves.
+      x = vModRight + LAYOUT.dependentGap;
+    } else {
+      elements.push(line(eid(), x, 0, footEnd, 0, 'solid', 'baseline'));
+    }
   }
 
   // The rightmost x the main line is ACTUALLY drawn to at y = 0 so far. The
@@ -765,30 +776,59 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
   // platform) — the y = 0 strip over that extra width is empty space. Anything
   // attached past it (the next separator, the adjunct rail, an apposition
   // stem) floated free of the line (the Col 1:13 "τοῦ υἱοῦ = …" disconnect).
-  const drawnZeroEnd = (): number => {
+  const drawnZeroEnd = (): number => drawnZeroEndBefore(elements.length);
+  /** Same, but only over `elements[0..end)` — the state before a slice was drawn. */
+  const drawnZeroEndBefore = (endIndex: number): number => {
     let end = 0;
-    for (const el of elements) {
+    for (let i = 0; i < endIndex; i++) {
+      const el = elements[i]!;
       if (el.kind === 'line' && Math.abs(el.y1) <= 0.01 && Math.abs(el.y2) <= 0.01) {
         end = Math.max(end, el.x1, el.x2);
       }
     }
     return end;
   };
-  // Bridge the hollow strip so the main line stays continuous up to `toX` —
-  // EXCEPT across an open coordination fork, whose members replace the line
-  // (the Gen 1:11 case: its adjuncts hang beneath the verb instead).
+  // Each complement bridges the hollow strip behind it so the main line stays
+  // continuous up to its (packed) separator — EXCEPT across an open
+  // coordination fork, whose members replace the line (the Gen 1:11 case: its
+  // adjuncts hang beneath the verb instead). `lastPlacedWasFork` carries that
+  // gate from one complement to the next.
   let lastPlacedWasFork = false;
-  const bridgeBaselineTo = (toX: number): void => {
-    if (lastPlacedWasFork) return;
-    const from = drawnZeroEnd();
-    if (from < toX - 0.5) elements.push(line(eid(), from, 0, toX, 0, 'solid', 'baseline'));
+
+  // BAND PACKING for the baseline slot (see kr/packing.ts): each complement /
+  // pedestal is drawn at its CLASSIC position — past the verb cascade's (and
+  // previous complements') FULL recursive width — then slid left into any
+  // pocket provably clear of everything already drawn. The occupied set
+  // excludes the horizontal y = 0 main-line segments (the shared line a
+  // complement legitimately rides); cascade feet, separator ticks, word texts
+  // and deep hanging content all participate, so a packed complement stops
+  // PACK_PAD clear of every foot and never reorders. The slide is bounded so
+  // a complement never starts before `xAfterVerb`, its no-cascade home.
+  const isMainLine = (el: DiagramElement): boolean =>
+    el.kind === 'line' && Math.abs(el.y1) <= 0.01 && Math.abs(el.y2) <= 0.01;
+  const packSlice = (lenBefore: number, classicSepX: number): number => {
+    if (!ctx.pack) return 0;
+    const slice = elements.slice(lenBefore);
+    const packer = new BandPacker();
+    packer.occupy(elements.slice(0, lenBefore).filter((el) => !isMainLine(el)));
+    const shift = packer.reclaim(slice, classicSepX - xAfterVerb);
+    if (shift > 0) {
+      ctx.packStats.shifted++;
+      elements.splice(
+        lenBefore,
+        slice.length,
+        ...translate({ width: 0, height: 0, elements: slice, wordLeft: 0, wordRight: 0 }, -shift, 0),
+      );
+    }
+    return shift;
   };
 
   // complements on the baseline, each with the appropriate separator
   complementBlocks.forEach(({ rel, block }) => {
     const sepX = x;
-    bridgeBaselineTo(sepX);
+    const wasFork = lastPlacedWasFork;
     lastPlacedWasFork = isWordCoordination(ctx, getNode(model, rel.dependentId)!);
+    const lenBefore = elements.length;
     if (rel.type === 'predicateNominative' || rel.type === 'predicateAdjective') {
       // line leaning back toward the verb
       elements.push(
@@ -807,6 +847,17 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     // baseline ending in a bare gap right before the slant (Col 1:15 "ὅς ἐστιν \ εἰκὼν").
     elements.push(line(eid(), sepX, 0, x, 0, 'solid', 'baseline', undefined, rel.id));
     placeBlock(block);
+    const shift = packSlice(lenBefore, sepX);
+    x -= shift;
+    // The bridge from the drawn main line to this complement's PACKED
+    // separator — gated on the PREVIOUS complement not being an open fork,
+    // exactly as bridgeBaselineTo did when it ran before the separator.
+    if (!wasFork) {
+      const from = drawnZeroEndBefore(lenBefore);
+      if (from < sepX - shift - 0.5) {
+        elements.push(line(eid(), from, 0, sepX - shift, 0, 'solid', 'baseline'));
+      }
+    }
   });
 
   // Noun-clause complements on pedestals, standing in their slot above the line.
@@ -821,10 +872,11 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     // Object separator tick (the direct-object stem), then the pedestal foot a
     // little to its right.
     const sepX = x;
-    bridgeBaselineTo(sepX);
+    const wasFork = lastPlacedWasFork;
     // A pedestal's platform lives ABOVE the line; the y = 0 strip across its
     // width past the foot is hollow, so a follower must bridge from the foot.
     lastPlacedWasFork = false;
+    const lenBefore = elements.length;
     elements.push(line(eid(), sepX, 0, sepX, -LAYOUT.separatorUp, 'solid', 'separator', undefined, rel.id));
     x += 6;
     const baseStart = x;
@@ -852,6 +904,14 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
       elements.push(smallText(eid(), connectX + 5, (apexY + baseY) / 2, rel.label, 'start', rel.id, rel.labelNodeId));
     }
     x = baseStart + block.width;
+    const shift = packSlice(lenBefore, sepX);
+    x -= shift;
+    if (!wasFork) {
+      const from = drawnZeroEndBefore(lenBefore);
+      if (from < sepX - shift - 0.5) {
+        elements.push(line(eid(), from, 0, sepX - shift, 0, 'solid', 'baseline'));
+      }
+    }
   });
 
   const baselineWidth = x;

@@ -221,8 +221,11 @@ export function layoutHead(
     // shift is bounded so this foot stays ≥ dependentGap right of the
     // previous foot; the continuous slide itself stops at any prior content.
     const drawn = elements.slice(lenBefore);
-    const shift = packer.reclaim(drawn, attachX0 - (prevFoot + LAYOUT.dependentGap));
+    const shift = ctx.pack
+      ? packer.reclaim(drawn, attachX0 - (prevFoot + LAYOUT.dependentGap))
+      : 0;
     if (shift > 0) {
+      ctx.packStats.shifted++;
       elements.splice(
         lenBefore,
         drawn.length,
