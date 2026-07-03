@@ -113,6 +113,55 @@ update the checklist as stages land.
   policy). Remaining 2 frozen: the hand-authored phil sample's spine
   micro-gap and Rom 11:33's divider-less exclamation line (both cosmetic
   test false-negatives, not user-visible defects).
+## Compactness (band packing) — in progress
+
+Priority order is absolute: (1) no clashes, (2) no disconnections,
+(3) compactness. A tighter placement that cannot be PROVEN clash-free keeps
+the current geometry.
+
+- [x] **Stage A — clash guard strengthened** (own PR). The harness now has
+  THREE clash guards (all frozen-offender snapshots, like connectivity):
+  1. *word-text × word-text* (pre-existing; zero collisions corpus-wide);
+  2. *line-through-word-text*: Liang–Barsky clip of every line against each
+     upright word's glyph box shrunk 2px/side; fires only when >4px of line
+     runs inside. Designed exemptions: (a) dashed `coordination` lines — the
+     compound-sentence verb spine passes BEHIND verb-aligned words by design,
+     halo-backed (kr/clause.ts, render/svg.ts); (b) a line TERMINATING on the
+     word's own baseline (endpoint within the word's span, ±4px of baseline) —
+     a junction, not a crossing (the spine lead stem ends at the first verb's
+     baseline). A pass-through line still fires. 14 pre-existing offenders
+     frozen across 13 passages — pedestal risers passing through words hanging
+     below the platform's baseline mid-span, and three dashed adjunct stems
+     crossing a below-verb modifier word (cosmetic, halo keeps words legible;
+     a proper fix means moving riser connect points = geometry churn, deferred).
+  3. *rotated (diagonal) texts*: each rotated text modelled as its rotated
+     bounding quad (measured width; ascent 13/descent 3, small 10/3), shrunk
+     3px/side, separating-axis test vs other rotated texts AND upright words.
+     ONE pre-existing offender frozen (Eph 5:15–16: the ὡς connector label and
+     ἀλλ coordinator both ride the spine bar at the same x, 3px apart — a real
+     pre-existing overprint of two small rotated labels; candidate cheap fix
+     is coordinator/label deconfliction in coordinatorMarks, deferred).
+  - COMPACTNESS METRIC added to the structural snapshot (`compactness:
+    w=<width/10> areaK=<area/1000>`) so every packing PR's win is measurable
+    and accidental growth visible. Exact-number reporting:
+    `npm run kr:compactness [-- save|diff <file.json>]`
+    (scripts/kr-compactness-report.mts; corpus shared via tests/kr-corpus.ts).
+    Baseline at Stage A: 210 documents, total area 127.46 Mpx².
+  - CALIBRATED the same way the connectivity guard was (hack, confirm red,
+    revert): shoving hanging blocks 80px left → 73 line-guard + 21
+    rotated-guard + 4 overlap-guard failures; piling coordinated-PP slants
+    10px apart → 9 rotated-guard (rotated×rotated) + overlap failures.
+- [ ] Stage B0 — packer core (occupied-region tracking + first-fit placement,
+  safe fallback = current output), landed UNUSED with unit tests.
+- [ ] Stage B1 — first call site: kr/word.ts layoutHead modifier cascade.
+- [ ] Stage B2 — kr/clause.ts verb-modifier band vs complement start.
+- [ ] Stage B3 — kr/clause.ts clause-adjunct rail packing.
+- [ ] Stage B4 — kr/clause.ts stackClauses / layoutClauseSpine right growth.
+- [ ] (optional, last) kr/coordination.ts fork member spread — only with fresh
+  before/after review of every fork-bearing passage.
+
+## Prior investigation (context for the packer)
+
 - Compactness ("band packing") — INVESTIGATED, groundwork landed, packer
   deferred. Diagnosis of the reported Rom 1:1–7 corner: the ἀγαπητοῖς
   phrase is (a) connected as of the hollow-baseline bridge fix, (b) its
