@@ -1,5 +1,8 @@
 import { z } from 'zod';
 import { ConfidenceSchema, LanguageSchema, ProvenanceSchema } from './primitives';
+// The study-highlight category enum is shared with the sermon layer. Importing
+// it here is SAFE (no cycle): `./sermon` imports only `zod`, never `./discourse`.
+import { HighlightCategorySchema } from './sermon';
 
 /**
  * DISCOURSE ANALYSIS LAYER — a multi-verse / chapter / whole-book layer that is
@@ -128,16 +131,32 @@ export const DiscourseUnitSchema = z.object({
   color: DiscourseUnitColorSchema.optional(),
   /**
    * User-authored partial-text highlights within this unit, token-anchored so
-   * they survive edits (drag across words to create). Independent of `color`
-   * (which tags the whole unit); a unit may have any number of highlights,
-   * each covering a contiguous run of its own tokens.
+   * they survive edits (drag across words to create). Independent of the unit
+   * `color` (which tags the whole unit); a unit may have any number of
+   * highlights, each covering a contiguous run of its own tokens.
+   *
+   * Two flavours coexist, distinguished by `scope`:
+   *   - ABSENT `scope` (legacy) — a plain manual colour highlight; its `color`
+   *     drives the rendered tint (`hl-<color>`). Unchanged from older builds.
+   *   - `scope: 'study'` — a Study-mode passage highlight tagged with a sermon
+   *     `category`; the renderer paints it in the category's colour (no `color`
+   *     needed). May carry a short `note`.
+   *   - `scope: 'relation'` — reserved for relation-scoped highlights (Phase 5);
+   *     tied to a `relationId`.
+   * `color` is therefore OPTIONAL: legacy + manual highlights set it; study /
+   * relation highlights derive their colour elsewhere. All fields are additive
+   * so patches stored by older builds still parse (Zod strips nothing declared).
    */
   textHighlights: z
     .array(
       z.object({
         id: z.string(),
         tokenIds: z.array(z.string()).min(1),
-        color: DiscourseUnitColorSchema,
+        color: DiscourseUnitColorSchema.optional(),
+        scope: z.enum(['study', 'relation']).optional(),
+        category: HighlightCategorySchema.optional(),
+        relationId: z.string().optional(),
+        note: z.string().optional(),
       }),
     )
     .optional(),
@@ -173,6 +192,25 @@ export const DiscourseRelationTypeSchema = z.enum([
 ]);
 export type DiscourseRelationType = z.infer<typeof DiscourseRelationTypeSchema>;
 
+/**
+ * A restrained named palette for OVERRIDING a relation arc's colour. Absent =
+ * the type-derived default (`relationColor`). Additive; never assume closed.
+ * The hex values live next to `relationColor()` in `domain/discourse/layout.ts`.
+ */
+export const DISCOURSE_RELATION_COLORS = [
+  'red',
+  'orange',
+  'olive',
+  'green',
+  'teal',
+  'blue',
+  'purple',
+  'slate',
+  'gray',
+] as const;
+export const DiscourseRelationColorSchema = z.enum(DISCOURSE_RELATION_COLORS);
+export type DiscourseRelationColor = z.infer<typeof DiscourseRelationColorSchema>;
+
 export const DiscourseRelationSchema = z.object({
   id: z.string(),
   sourceUnitId: z.string(),
@@ -186,6 +224,13 @@ export const DiscourseRelationSchema = z.object({
   type: DiscourseRelationTypeSchema.optional(),
   /** Free label shown on the arc (e.g. a custom relation's name). */
   label: z.string().optional(),
+  /**
+   * Optional colour OVERRIDE for the arc/label (a named palette value). Absent
+   * means the arc uses its type-derived default colour. Declaring it here is
+   * what lets the generic patch pipeline persist it (Zod strips undeclared
+   * keys); clearing it (undefined) reverts to the default via the diff.
+   */
+  color: DiscourseRelationColorSchema.optional(),
   /** Marker chips cited as evidence for this relation. */
   markerIds: z.array(z.string()).optional(),
   confidence: ConfidenceSchema.optional(),

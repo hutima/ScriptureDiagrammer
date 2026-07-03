@@ -20,7 +20,9 @@ export type IdPrefix =
   | 'du'
   | 'dr'
   // discourse text highlight (user-authored partial-text highlight)
-  | 'dh';
+  | 'dh'
+  // discourse relation-scope text highlight
+  | 'rh';
 
 export function makeId(prefix: IdPrefix): string {
   return `${prefix}_${nano()}`;

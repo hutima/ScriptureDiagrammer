@@ -458,7 +458,7 @@ export function layoutConstituency(
       if (meta) {
         elements.push(
           text(left + catW + (n.cat ? 6 : 0) + width(meta, true) / 2, y, meta, {
-            anchor: 'middle', small: true, italic: true, muted: true,
+            anchor: 'middle', small: true, italic: true, muted: true, glossKey: meta,
           }),
         );
       }

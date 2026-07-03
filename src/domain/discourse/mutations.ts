@@ -8,6 +8,7 @@ import type {
   DiscourseUnit,
   DiscourseUnitColor,
   DiscourseUnitKind,
+  HighlightCategory,
   Provenance,
 } from '@/domain/schema';
 import { compareRefs } from './refs';
@@ -210,6 +211,152 @@ export function addDiscourseTextHighlight(
   const highlight: DiscourseTextHighlight = { id: id ?? makeId('dh'), tokenIds: ordered, color };
   const units = doc.units.map((u) =>
     u.id === unitId ? { ...u, textHighlights: [...(u.textHighlights ?? []), highlight] } : u,
+  );
+  return touchDoc(doc, units, now);
+}
+
+/**
+ * Add a Study-mode passage highlight to a unit — like `addDiscourseTextHighlight`
+ * but stamped `scope: 'study'` and tagged with a sermon `category` (the renderer
+ * paints it in the category colour; no `color` is stored). `tokenIds` must all
+ * belong to the unit (else no-op) and are re-ordered to the unit's surface order.
+ */
+export function addDiscourseStudyHighlight(
+  doc: DiscourseDocument,
+  unitId: string,
+  tokenIds: string[],
+  category: HighlightCategory,
+  now?: string,
+  id?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  if (!unit || !tokenIds.length) return doc;
+  const tokenSet = new Set(tokenIds);
+  if (!tokenIds.every((t) => unit.tokenIds.includes(t))) return doc;
+  const ordered = unit.tokenIds.filter((t) => tokenSet.has(t));
+  const highlight: DiscourseTextHighlight = {
+    id: id ?? makeId('hl'),
+    tokenIds: ordered,
+    scope: 'study',
+    category,
+  };
+  const units = doc.units.map((u) =>
+    u.id === unitId ? { ...u, textHighlights: [...(u.textHighlights ?? []), highlight] } : u,
+  );
+  return touchDoc(doc, units, now);
+}
+
+/**
+ * Add a relation-scope passage highlight to a unit — like `addDiscourseStudyHighlight`
+ * but stamped `scope: 'relation'` and tied to a `relationId` (the renderer paints
+ * it in that relation's resolved colour, so no `color` is stored). `tokenIds` must
+ * all belong to the unit (else no-op) and are re-ordered to the unit's surface order.
+ */
+export function addDiscourseRelationHighlight(
+  doc: DiscourseDocument,
+  unitId: string,
+  tokenIds: string[],
+  relationId: string,
+  now?: string,
+  id?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  if (!unit || !tokenIds.length) return doc;
+  const tokenSet = new Set(tokenIds);
+  if (!tokenIds.every((t) => unit.tokenIds.includes(t))) return doc;
+  const ordered = unit.tokenIds.filter((t) => tokenSet.has(t));
+  const highlight: DiscourseTextHighlight = {
+    id: id ?? makeId('rh'),
+    tokenIds: ordered,
+    scope: 'relation',
+    relationId,
+  };
+  const units = doc.units.map((u) =>
+    u.id === unitId ? { ...u, textHighlights: [...(u.textHighlights ?? []), highlight] } : u,
+  );
+  return touchDoc(doc, units, now);
+}
+
+/**
+ * Toggle a single token in/out of a relation's highlights on a unit (the tap
+ * gesture in relation-highlight pick mode):
+ *   - if the token already sits in one of THIS relation's highlights, remove it
+ *     from that entry (shrinking/splitting it), dropping any entry left empty;
+ *   - otherwise add a new single-token `scope:'relation'` highlight for it.
+ * No-op if the token doesn't belong to the unit.
+ */
+export function toggleDiscourseRelationHighlightToken(
+  doc: DiscourseDocument,
+  unitId: string,
+  tokenId: string,
+  relationId: string,
+  now?: string,
+  id?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  if (!unit || !unit.tokenIds.includes(tokenId)) return doc;
+  const existing = unit.textHighlights ?? [];
+  const covering = existing.filter(
+    (h) => h.scope === 'relation' && h.relationId === relationId && h.tokenIds.includes(tokenId),
+  );
+  if (covering.length) {
+    const next = existing
+      .map((h) =>
+        covering.includes(h) ? { ...h, tokenIds: h.tokenIds.filter((t) => t !== tokenId) } : h,
+      )
+      .filter((h) => h.tokenIds.length);
+    const units = doc.units.map((u) =>
+      u.id === unitId ? { ...u, textHighlights: next.length ? next : undefined } : u,
+    );
+    return touchDoc(doc, units, now);
+  }
+  return addDiscourseRelationHighlight(doc, unitId, [tokenId], relationId, now, id);
+}
+
+/**
+ * Drop every `scope:'relation'` highlight whose `relationId` is not in `valid`
+ * (deleting a relation leaves no dangling relation highlights). Returns the same
+ * array reference when nothing changes, so callers can skip a needless copy.
+ */
+function pruneRelationHighlights(
+  units: DiscourseUnit[],
+  valid: Set<string>,
+): DiscourseUnit[] {
+  let changed = false;
+  const next = units.map((u) => {
+    if (!u.textHighlights?.length) return u;
+    const kept = u.textHighlights.filter(
+      (h) => h.scope !== 'relation' || (h.relationId != null && valid.has(h.relationId)),
+    );
+    if (kept.length === u.textHighlights.length) return u;
+    changed = true;
+    return { ...u, textHighlights: kept.length ? kept : undefined };
+  });
+  return changed ? next : units;
+}
+
+/** Set (or clear, with an empty string) a text highlight's short note. No-op if absent. */
+export function setDiscourseTextHighlightNote(
+  doc: DiscourseDocument,
+  unitId: string,
+  highlightId: string,
+  note: string,
+  now?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  const target = unit?.textHighlights?.find((h) => h.id === highlightId);
+  if (!target) return doc;
+  const trimmed = note.trim() || undefined;
+  if (trimmed === target.note) return doc;
+  const units = doc.units.map((u) =>
+    u.id === unitId
+      ? {
+          ...u,
+          textHighlights: u.textHighlights!.map((h) =>
+            h.id === highlightId ? { ...h, note: trimmed } : h,
+          ),
+        }
+      : u,
   );
   return touchDoc(doc, units, now);
 }
@@ -680,6 +827,9 @@ export function deleteDiscourseUnits(
   const relations = doc.relations.filter(
     (r) => !toDelete.has(r.sourceUnitId) && !toDelete.has(r.targetUnitId),
   );
+  // Relations whose endpoints were deleted are gone — prune any relation
+  // highlights that now dangle on the surviving units.
+  units = pruneRelationHighlights(units, new Set(relations.map((r) => r.id)));
   const markers = doc.markers.filter(
     (m) => !(m.scopeUnitId && toDelete.has(m.scopeUnitId)) && !deletedTokenIds.has(m.tokenId),
   );
@@ -758,9 +908,13 @@ export function deleteDiscourseRelation(
   now?: string,
 ): DiscourseDocument {
   if (!doc.relations.some((r) => r.id === relationId)) return doc;
+  const relations = doc.relations.filter((r) => r.id !== relationId);
+  // A deleted relation must take its scope:'relation' text highlights with it.
+  const units = pruneRelationHighlights(doc.units, new Set(relations.map((r) => r.id)));
   return {
     ...doc,
-    relations: doc.relations.filter((r) => r.id !== relationId),
+    units,
+    relations,
     updatedAt: now ?? new Date().toISOString(),
   };
 }

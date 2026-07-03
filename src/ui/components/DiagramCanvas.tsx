@@ -17,7 +17,7 @@ import {
   type ParallelView,
 } from '@/io';
 import type { KrDocument } from '@/domain/schema';
-import { MIN_SCALE, clamp, minZoomScale, maxZoomScale, clampPan } from '@/ui/zoom';
+import { MIN_SCALE, clamp, minZoomScale, maxZoomScale, clampPan, viewCenteredOn } from '@/ui/zoom';
 import { PhraseBlockView } from './diagram/PhraseBlockView';
 import { MorphologyView } from './diagram/MorphologyView';
 import { nodeHighlightColors, relationHighlightColors, KEY_HIGHLIGHT_CATEGORIES } from '@/ui/sermon/highlights';
@@ -325,17 +325,70 @@ export function DiagramCanvas() {
     setView({ x, y: PAD, scale });
   }, [layout.width, layout.height, maxScale]);
 
-  // Re-fit when a new document is opened, the diagram mode changes (a different
-  // layout — its zoom/pan should always start fresh), or the viewport first sizes
-  // up.
+  /** Layout-space anchor for the diagram's FIRST word: the (preferably
+   *  non-rotated) text element of the syntax node that owns the document's first
+   *  token by index. Falls back to the first text element carrying a nodeId.
+   *  Null when the diagram has no positioned words (e.g. an empty layout). */
+  const firstWordAnchor = useCallback((): { x: number; y: number } | null => {
+    const textEls = layout.elements.filter((e) => e.kind === 'text' && e.nodeId) as {
+      x: number;
+      y: number;
+      nodeId?: string;
+      rotate?: number;
+    }[];
+    if (textEls.length === 0) return null;
+    const firstTok = [...doc.tokens].sort((a, b) => a.index - b.index)[0];
+    if (firstTok) {
+      const owner = doc.syntax.nodes.find((n) => n.tokenIds.includes(firstTok.id));
+      if (owner) {
+        const owned = textEls.filter((e) => e.nodeId === owner.id);
+        const a = owned.find((e) => !e.rotate) ?? owned[0];
+        if (a) return { x: a.x, y: a.y };
+      }
+    }
+    const a = textEls.find((e) => !e.rotate) ?? textEls[0];
+    return a ? { x: a.x, y: a.y } : null;
+  }, [layout.elements, doc.tokens, doc.syntax.nodes]);
+
+  /** Reset the view to 50% (clamped into the allowed range — the fit lock can
+   *  exceed 0.5 for a small diagram, and clamping handles that) centred on the
+   *  first word, so a new passage/mode always opens at a readable, consistently
+   *  placed spot. Falls back to fitting the whole diagram when no word is
+   *  positioned. This is what the "Reset zoom" toolbar button does too. */
+  const resetZoom = useCallback(() => {
+    const vp = viewportRef.current;
+    if (!vp || layout.width <= 0) return;
+    const anchor = firstWordAnchor();
+    if (!anchor) {
+      fit();
+      return;
+    }
+    const scale = clamp(0.5, minScale(), maxScale());
+    const { x, y } = viewCenteredOn(anchor.x, anchor.y, scale, vp.clientWidth, vp.clientHeight);
+    setView({ scale, ...clampView(x, y, scale) });
+  }, [layout.width, firstWordAnchor, fit, minScale, maxScale, clampView]);
+
+  // Reset when a new document is opened or the diagram mode changes (a different
+  // layout — its zoom/pan should always start fresh at 50% on the first word),
+  // or the viewport first sizes up.
   useLayoutEffect(() => {
-    fit();
+    resetZoom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc.id, diagramMode]);
   useEffect(() => {
     const vp = viewportRef.current;
     if (!vp || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => fit());
+    // A window/panel resize must NOT reset zoom (that would yank the reader back
+    // to the first word on every layout reflow). Only re-clamp the current view:
+    // pull the scale back into range and keep the pan on-screen.
+    const ro = new ResizeObserver(() => {
+      const lo = minScale();
+      const hi = maxScale();
+      setView((v) => {
+        const scale = clamp(v.scale, lo, hi);
+        return { scale, ...clampView(v.x, v.y, scale) };
+      });
+    });
     ro.observe(vp);
     return () => ro.disconnect();
     // Re-attach when the SVG viewport (un)mounts, for the same reason the wheel
@@ -528,6 +581,19 @@ export function DiagramCanvas() {
     ) as { x: number; y: number; rotate?: number }[];
     const a = texts.find((e) => !e.rotate) ?? texts[0];
     return a ? { x: a.x, y: a.y } : null;
+  };
+
+  /** Double-clicking a word: select it (explicitly — the two single clicks that
+   *  precede a dblclick may have toggled it back off in a read-only view) and
+   *  zoom to 100% (clamped) centred on that word. */
+  const zoomToWord = (nodeId: string) => {
+    select({ nodeId });
+    const anchor = anchorFor(nodeId);
+    const vp = viewportRef.current;
+    if (!anchor || !vp) return;
+    const scale = clamp(1, minScale(), maxScale());
+    const { x, y } = viewCenteredOn(anchor.x, anchor.y, scale, vp.clientWidth, vp.clientHeight);
+    setView({ scale, ...clampView(x, y, scale) });
   };
 
   const linkPreview =
@@ -1024,7 +1090,7 @@ export function DiagramCanvas() {
               </div>
               <div className="canvas-zoom">
                 <button title="Zoom out" onClick={() => zoomBy(1 / 1.2)}>−</button>
-                <button title="Reset zoom (fit to view)" aria-label="Reset zoom" onClick={fit}>⤢</button>
+                <button title="Reset zoom (50%, centered on the first word)" aria-label="Reset zoom" onClick={resetZoom}>⤢</button>
                 <button title="Zoom in" onClick={() => zoomBy(1.2)}>+</button>
               </div>
             </>
@@ -1322,6 +1388,16 @@ export function DiagramCanvas() {
                     onMouseEnter={() => el.nodeId && onNodeHover(el.nodeId)}
                     onMouseLeave={() => el.nodeId && onNodeHover(undefined)}
                     onClick={onLabelClick}
+                    {...(el.nodeId && !linking
+                      ? {
+                          onDoubleClick: () => {
+                            // Don't let the pan/tap 'moved' guard eat the gesture;
+                            // a dblclick is stationary. Re-select explicitly so the
+                            // preceding click toggle can't leave it deselected.
+                            if (el.nodeId) zoomToWord(el.nodeId);
+                          },
+                        }
+                      : {})}
                   >
                     {el.text}
                   </text>
@@ -1335,6 +1411,33 @@ export function DiagramCanvas() {
               </g>
             ))}
             {linkPreview && <LinkPreviewOverlay from={linkPreview.from} to={linkPreview.to} />}
+            {/* Selected-word locator: when zoomed out (scale ≤ 0.5) a small red
+                ring marks the selected word so it's findable in the shrunk
+                diagram. It lives in the svg's viewBox coordinates, so it pans and
+                zooms with the content; a non-scaling stroke keeps its outline
+                crisp and `r = C / view.scale` keeps its on-screen size constant
+                (the svg's rasterScale baking cancels out, so the effective
+                on-screen scale of a viewBox length is exactly view.scale). */}
+            {selection.nodeId &&
+              view.scale <= 0.5 &&
+              (() => {
+                const a = anchorFor(selection.nodeId);
+                if (!a) return null;
+                const r = 18 / (view.scale || 0.5);
+                return (
+                  <circle
+                    className="kr-locator"
+                    cx={a.x}
+                    cy={a.y - 5}
+                    r={r}
+                    fill="none"
+                    style={{ stroke: 'var(--accent, #b90e31)' }}
+                    strokeWidth={2.5}
+                    vectorEffect="non-scaling-stroke"
+                    pointerEvents="none"
+                  />
+                );
+              })()}
           </svg>
         </div>
         {reveal && revealPos && (

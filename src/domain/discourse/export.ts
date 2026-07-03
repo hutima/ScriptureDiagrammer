@@ -1,7 +1,7 @@
 import type { DiscourseDocument, DiscoursePatch, DiscourseUnit } from '@/domain/schema';
 import { formatRange } from './refs';
 import { outlineOrder } from './mutations';
-import { relationColor, relationTypeLabel } from './layout';
+import { resolvedRelationColor, relationTypeLabel } from './layout';
 
 /**
  * DISCOURSE EXPORTS — pure serializers. JSON round-trips through the Zod
@@ -279,8 +279,8 @@ export function discourseOutlineSvg(
   const greek = doc.language !== 'en';
 
   const PAD = 24;
-  // Left GUTTER carries the relation arcs (like the on-screen view), so the
-  // correspondence lines appear in the exported SVG / PDF, not just as text.
+  // A RIGHT gutter carries the relation arcs (matching the on-screen view), so
+  // the correspondence lines appear in the exported SVG / PDF, not just as text.
   const GUTTER = doc.relations.length ? 132 : 0;
   const WIDTH = 820 + GUTTER;
   const LINE = 20;
@@ -332,29 +332,32 @@ export function discourseOutlineSvg(
       const weight = l.cls === 'h' ? ' font-weight="600"' : '';
       const style = l.cls === 't' && l.grc ? ` font-family="${greekFont}"` : '';
       const italic = l.cls === 'g' ? ' font-style="italic"' : '';
-      return `<text x="${GUTTER + PAD + l.x}" y="${y}" fill="${color[l.cls]}"${weight}${style}${italic}>${escapeXml(l.text)}</text>`;
+      return `<text x="${PAD + l.x}" y="${y}" fill="${color[l.cls]}"${weight}${style}${italic}>${escapeXml(l.text)}</text>`;
     })
     .join('\n');
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${height}" viewBox="0 0 ${WIDTH} ${height}" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="13">`,
     `<rect width="${WIDTH}" height="${height}" fill="#ffffff"/>`,
-    GUTTER ? renderOutlineArcs(doc, headY, GUTTER + PAD - 6) : '',
+    GUTTER ? renderOutlineArcs(doc, headY, WIDTH - GUTTER, GUTTER) : '',
     body,
     '</svg>',
   ].join('\n');
 }
 
 /**
- * Relation arcs for the SVG/PDF outline export — bracket paths in the left
+ * Relation arcs for the SVG/PDF outline export — bracket paths in the RIGHT
  * gutter connecting the two units' heading rows, with the SAME greedy lane
  * packing and centred short labels as the on-screen `DiscourseRelationLayer`, so
  * the printed correspondences match the view (and nested arcs don't clash).
+ * Arcs anchor at `leftX` (the gutter's left edge, next to the text) and step
+ * OUTWARD to the right per lane; the arrowhead points back left into the target.
  */
 function renderOutlineArcs(
   doc: DiscourseDocument,
   headY: Map<string, number>,
-  rightX: number,
+  leftX: number,
+  gutterW: number,
 ): string {
   const specs = doc.relations
     .map((r) => ({ r, y1: headY.get(r.sourceUnitId), y2: headY.get(r.targetUnitId) }))
@@ -375,20 +378,21 @@ function renderOutlineArcs(
     placed.push({ lane, top, bottom });
   }
   const laneCount = Math.max(1, ...[...lanes.values()].map((l) => l + 1));
-  const laneStep = Math.max(14, Math.min(24, (rightX - 12) / laneCount));
+  const laneStep = Math.max(14, Math.min(24, (gutterW - 12) / laneCount));
+  const x0 = leftX + 6; // anchor at the gutter's left edge, adjacent to the text
   return specs
     .map((s) => {
       const lane = lanes.get(s.r.id) ?? 0;
-      const x = Math.max(10, rightX - 6 - lane * laneStep);
+      const x = Math.min(leftX + gutterW - 10, x0 + lane * laneStep);
       const midY = (s.y1 + s.y2) / 2;
-      const col = relationColor(s.r.type);
+      const col = resolvedRelationColor(s.r);
       const paired = s.r.type === 'chiasm' || s.r.type === 'parallel' || s.r.type === 'inclusio';
       const dash = paired ? ' stroke-dasharray="5 3"' : '';
       const label = s.r.label || relationTypeLabel(s.r.type);
-      const bracket = `<path d="M ${rightX} ${s.y1} H ${x} V ${s.y2} H ${rightX}" fill="none" stroke="${col}" stroke-width="1.5"${dash} opacity="0.85"/>`;
-      const arrow = `<path d="M ${rightX - 5} ${s.y2 - 4} L ${rightX} ${s.y2} L ${rightX - 5} ${s.y2 + 4}" fill="none" stroke="${col}" stroke-width="1.5"/>`;
+      const bracket = `<path d="M ${x0} ${s.y1} H ${x} V ${s.y2} H ${x0}" fill="none" stroke="${col}" stroke-width="1.5"${dash} opacity="0.85"/>`;
+      const arrow = `<path d="M ${x0 + 5} ${s.y2 - 4} L ${x0} ${s.y2} L ${x0 + 5} ${s.y2 + 4}" fill="none" stroke="${col}" stroke-width="1.5"/>`;
       const text = label
-        ? `<text x="${x - 3}" y="${midY}" fill="${col}" font-size="11" text-anchor="middle" dominant-baseline="central" transform="rotate(-90 ${x - 3} ${midY})">${escapeXml(label)}</text>`
+        ? `<text x="${x + 3}" y="${midY}" fill="${col}" font-size="11" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${x + 3} ${midY})">${escapeXml(label)}</text>`
         : '';
       return bracket + arrow + text;
     })

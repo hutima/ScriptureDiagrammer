@@ -57,7 +57,21 @@ export function DiscourseToolbar() {
 
   return (
     <div className="discourse-toolbar" role="toolbar" aria-label="Discourse editing">
+      {/* PRIMARY — the marquee action, accent-filled and first. */}
+      <div className="discourse-toolbar-group primary">
+        <button
+          className={`mini primary${relating ? ' active' : ''}`}
+          disabled={!unit && !relating}
+          title="Relate this unit to another — click the target unit, then pick the relation type"
+          onClick={() => (relating ? cancelRelation() : unit && startRelation(unit.id))}
+        >
+          {relating ? 'Cancel relate' : 'Relate →'}
+        </button>
+      </div>
+
+      {/* STRUCTURE — reshape the unit boundaries and grouping. */}
       <div className="discourse-toolbar-group">
+        <span className="discourse-toolbar-group-label">Structure</span>
         <button
           className={`mini${splitting ? ' accept' : ''}`}
           disabled={!isLeaf && !splitting}
@@ -74,9 +88,30 @@ export function DiscourseToolbar() {
         >
           Merge ←
         </button>
+        <button
+          className="mini"
+          disabled={multi.length < 1}
+          title="Wrap the selected unit(s) in a new parent group (shift-click to select several)"
+          onClick={() => {
+            const label = window.prompt('Group label (“Household code”, “A”…)', '');
+            if (label !== null) wrapUnits(multi, { label });
+          }}
+        >
+          Group
+        </button>
+        <button
+          className="mini"
+          disabled={!isContainer}
+          title="Unwrap this group — its members take its place"
+          onClick={() => unit && unwrapUnit(unit.id)}
+        >
+          Ungroup
+        </button>
       </div>
 
+      {/* INDENT / ORDER — reposition without changing structure. */}
       <div className="discourse-toolbar-group">
+        <span className="discourse-toolbar-group-label">Indent / order</span>
         {/* Indent buttons drive the EXPLICIT per-line userIndent — the same
             action as the drag handle. Every line (including the first) moves
             independently; multi-selection nudges each selected line by 1.
@@ -115,32 +150,53 @@ export function DiscourseToolbar() {
         </button>
       </div>
 
+      {/* ANNOTATION */}
       <div className="discourse-toolbar-group">
-        <button
-          className="mini"
-          disabled={multi.length < 1}
-          title="Wrap the selected unit(s) in a new parent group (shift-click to select several)"
-          onClick={() => {
-            const label = window.prompt('Group label (“Household code”, “A”…)', '');
-            if (label !== null) wrapUnits(multi, { label });
-          }}
-        >
-          Group
-        </button>
-        <button
-          className="mini"
-          disabled={!isContainer}
-          title="Unwrap this group — its members take its place"
-          onClick={() => unit && unwrapUnit(unit.id)}
-        >
-          Ungroup
-        </button>
+        <span className="discourse-toolbar-group-label">Annotation</span>
         <button className="mini" disabled={!unit} title="Label this unit (A, B′, …)" onClick={promptLabel}>
           Label…
         </button>
       </div>
 
-      <div className="discourse-toolbar-group">
+      {/* HISTORY — secondary/muted. */}
+      <div className="discourse-toolbar-group subtle">
+        <span className="discourse-toolbar-group-label">History</span>
+        <button className="mini" disabled={!past.length} title="Undo (Ctrl/Cmd+Z)" onClick={undo}>
+          ↶ Undo
+        </button>
+        <button className="mini" disabled={!future.length} title="Redo (Ctrl/Cmd+Shift+Z)" onClick={redo}>
+          ↷ Redo
+        </button>
+        {confirmReset ? (
+          <>
+            <button
+              className="mini reject"
+              title="Discard ALL discourse edits for this range (syntax edits and sermon notes are untouched)"
+              onClick={() => {
+                resetEdits();
+                setConfirmReset(false);
+              }}
+            >
+              Really reset?
+            </button>
+            <button className="mini" onClick={() => setConfirmReset(false)}>
+              Keep edits
+            </button>
+          </>
+        ) : (
+          <button
+            className="mini"
+            disabled={!past.length && !localHasPatch(doc.id)}
+            title="Discard all discourse edits for this range — syntax edits and sermon notes are untouched"
+            onClick={() => setConfirmReset(true)}
+          >
+            Reset edits…
+          </button>
+        )}
+      </div>
+
+      {/* DESTRUCTIVE — separated, danger-styled, last. */}
+      <div className="discourse-toolbar-group destructive">
         {confirmDelete && isContainer ? (
           <>
             <button
@@ -174,52 +230,6 @@ export function DiscourseToolbar() {
             }}
           >
             {isContainer ? 'Delete group…' : 'Delete unit'}
-          </button>
-        )}
-      </div>
-
-      <div className="discourse-toolbar-group">
-        <button
-          className={`mini${relating ? ' accept' : ''}`}
-          disabled={!unit && !relating}
-          title="Relate this unit to another — click the target unit, then pick the relation type"
-          onClick={() => (relating ? cancelRelation() : unit && startRelation(unit.id))}
-        >
-          {relating ? 'Cancel relate' : 'Relate →'}
-        </button>
-      </div>
-
-      <div className="discourse-toolbar-group">
-        <button className="mini" disabled={!past.length} title="Undo (Ctrl/Cmd+Z)" onClick={undo}>
-          ↶ Undo
-        </button>
-        <button className="mini" disabled={!future.length} title="Redo (Ctrl/Cmd+Shift+Z)" onClick={redo}>
-          ↷ Redo
-        </button>
-        {confirmReset ? (
-          <>
-            <button
-              className="mini reject"
-              title="Discard ALL discourse edits for this range (syntax edits and sermon notes are untouched)"
-              onClick={() => {
-                resetEdits();
-                setConfirmReset(false);
-              }}
-            >
-              Really reset?
-            </button>
-            <button className="mini" onClick={() => setConfirmReset(false)}>
-              Keep edits
-            </button>
-          </>
-        ) : (
-          <button
-            className="mini"
-            disabled={!past.length && !localHasPatch(doc.id)}
-            title="Discard all discourse edits for this range — syntax edits and sermon notes are untouched"
-            onClick={() => setConfirmReset(true)}
-          >
-            Reset edits…
           </button>
         )}
       </div>

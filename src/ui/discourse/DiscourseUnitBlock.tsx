@@ -1,29 +1,120 @@
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import type { DiscourseRow } from '@/domain/discourse';
 import { formatRange, MAX_USER_INDENT, MIN_USER_INDENT } from '@/domain/discourse';
 import type { DiscourseToken, DiscourseUnit } from '@/domain/schema';
 import type { DiscourseViewToggles } from '@/state';
+import { highlightColor as categoryColor } from '@/ui/sermon/highlights';
 import { DiscourseMarkerChip } from './DiscourseMarkerChip';
 
 /** Horizontal pixels per indent level — matches the structural depth step. */
 const INDENT_STEP_PX = 26;
 const clampIndent = (n: number) => Math.max(MIN_USER_INDENT, Math.min(MAX_USER_INDENT, n));
 
+type TextHighlight = NonNullable<DiscourseUnit['textHighlights']>[number];
+
 /**
- * Render a unit's tokens as per-token spans, marking any token covered by one
- * of `highlights` with `discourse-hl hl-<color>` (later highlights in the
- * array win on overlap). Real spaces between tokens keep normal text flow.
+ * A translucent tint for a Study-scope highlight, from its sermon `category`
+ * colour. Translucent so the text stays legible; muted (much fainter) in Edit
+ * mode, where study highlights are secondary to the structural editing.
+ */
+function studyTint(category: string | undefined, muted: boolean): string {
+  const hex = categoryColor((category ?? 'emphasis') as never);
+  // 6-digit hex + 2-digit alpha; ~40% normally, ~13% when muted.
+  return `${hex}${muted ? '22' : '66'}`;
+}
+
+/** Resolve the last highlight covering each token id (later ones win on overlap). */
+function highlightsByToken(highlights: TextHighlight[]): Map<string, TextHighlight> {
+  const byToken = new Map<string, TextHighlight>();
+  for (const h of highlights) for (const tid of h.tokenIds) byToken.set(tid, h);
+  return byToken;
+}
+
+/** App-mode-derived context the highlight painters need. */
+export type HighlightMode = 'edit' | 'explore' | 'study';
+
+interface HighlightCtx {
+  mode: HighlightMode;
+  /** relationId → resolved hex, for relation-scope highlights. */
+  relationColors?: Map<string, string>;
+  /** The currently selected relation (emphasised; others fade). */
+  selectedRelationId?: string;
+}
+
+/**
+ * A translucent tint for a relation-scope highlight from its relation's resolved
+ * colour, at an emphasis level: `strong` (the selected relation), `normal` (no
+ * relation selected), `faint` (a different relation is selected, or Study mode).
+ */
+function relationEmphasis(
+  h: TextHighlight,
+  ctx: HighlightCtx,
+): { hex: string; level: 'strong' | 'normal' | 'faint' } | null {
+  const hex = h.relationId ? ctx.relationColors?.get(h.relationId) : undefined;
+  // An orphaned relationId (relation deleted, or a stale patch) resolves to
+  // nothing → render neutral (ignored), never crash.
+  if (!hex) return null;
+  const selected = !!ctx.selectedRelationId && h.relationId === ctx.selectedRelationId;
+  let level: 'strong' | 'normal' | 'faint';
+  if (ctx.mode === 'study') level = 'faint';
+  else if (ctx.selectedRelationId) level = selected ? 'strong' : 'faint';
+  else level = 'normal';
+  return { hex, level };
+}
+
+/**
+ * The class / inline style for a single token given the highlight covering it:
+ *   - `scope:'study'` → the category colour as a translucent inline background
+ *     (muted in Edit mode);
+ *   - `scope:'relation'` → the relation's resolved colour as a translucent tint,
+ *     emphasised when its relation is selected, faded when another is (or in
+ *     Study mode); an orphaned relationId renders neutral;
+ *   - legacy / manual (`color`) → the existing `discourse-hl hl-<color>` class.
+ */
+function tokenHighlightStyle(
+  h: TextHighlight | undefined,
+  ctx: HighlightCtx,
+): { className?: string; style?: React.CSSProperties } {
+  if (!h) return {};
+  if (h.scope === 'study') {
+    const muted = ctx.mode === 'edit';
+    return {
+      className: `discourse-hl discourse-hl-study${muted ? ' muted' : ''}`,
+      style: { background: studyTint(h.category, muted) },
+    };
+  }
+  if (h.scope === 'relation') {
+    const em = relationEmphasis(h, ctx);
+    if (!em) return {};
+    const alpha = em.level === 'strong' ? '88' : em.level === 'faint' ? '22' : '55';
+    const style: React.CSSProperties = { background: `${em.hex}${alpha}` };
+    if (em.level === 'strong') {
+      style.textDecoration = 'underline';
+      style.textDecorationColor = em.hex;
+    }
+    return { className: `discourse-hl discourse-hl-relation${em.level === 'strong' ? ' strong' : ''}`, style };
+  }
+  if (h.color) return { className: `discourse-hl hl-${h.color}` };
+  return {};
+}
+
+/**
+ * Render a unit's tokens as per-token spans, tinting any token covered by a
+ * highlight (later highlights in the array win on overlap). Study-scope
+ * highlights paint in their category colour (muted in Edit mode); relation-scope
+ * highlights paint in their relation's colour. Real spaces between tokens keep
+ * normal text flow.
  */
 function renderTokensWithHighlights(
   tokens: DiscourseToken[],
-  highlights: NonNullable<DiscourseUnit['textHighlights']>,
+  highlights: TextHighlight[],
+  ctx: HighlightCtx,
 ) {
-  const colorByToken = new Map<string, string>();
-  for (const h of highlights) for (const tid of h.tokenIds) colorByToken.set(tid, h.color);
+  const byToken = highlightsByToken(highlights);
   return tokens.map((t, i) => {
-    const color = colorByToken.get(t.id);
+    const { className, style } = tokenHighlightStyle(byToken.get(t.id), ctx);
     return (
-      <span key={t.id} className={color ? `discourse-hl hl-${color}` : undefined}>
+      <span key={t.id} className={className} style={style}>
         {t.surface}
         {i < tokens.length - 1 ? ' ' : ''}
       </span>
@@ -59,6 +150,14 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
   highlightPicking = false,
   onAddHighlight,
   highlightColor,
+  studyMode = false,
+  studySelectionTokenIds,
+  onStudySelect,
+  relationHighlightPicking = false,
+  onAddRelationHighlight,
+  onToggleRelationHighlightToken,
+  relationColors,
+  selectedRelationId,
 }: {
   row: DiscourseRow;
   view: DiscourseViewToggles;
@@ -85,11 +184,40 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
   onAddHighlight?: (unitId: string, tokenIds: string[]) => void;
   /** The color new highlights preview as while picking. */
   highlightColor?: string;
+  /** Study mode: render tokens as drag/tap-selectable spans for highlighting. */
+  studyMode?: boolean;
+  /** The current Study token selection FOR THIS UNIT (empty when the selection
+   *  lives on another unit). */
+  studySelectionTokenIds?: string[];
+  /** Replace the Study selection with `tokenIds` on this unit (drag = range,
+   *  tap = toggle a single token in/out of the current same-unit selection). */
+  onStudySelect?: (unitId: string, tokenIds: string[]) => void;
+  /** Relation-highlight pick mode is active (a relation is being highlighted):
+   *  render tokens as drag/tap spans that commit onto the picked relation. */
+  relationHighlightPicking?: boolean;
+  /** Commit a relation highlight over a dragged token range on this unit. */
+  onAddRelationHighlight?: (unitId: string, tokenIds: string[]) => void;
+  /** Toggle a single tapped token in/out of the picked relation's highlights. */
+  onToggleRelationHighlightToken?: (unitId: string, tokenId: string) => void;
+  /** relationId → resolved hex, so relation-scope highlights paint in colour. */
+  relationColors?: Map<string, string>;
+  /** The currently selected relation (its highlights are emphasised). */
+  selectedRelationId?: string;
 }) {
   const { unit, tokens, markers, hasChildren } = row;
   const refLabel = formatRange(unit.refStart, unit.refEnd);
   const isContainer = unit.tokenIds.length === 0;
   const gloss = tokens.map((t) => t.gloss ?? '').filter(Boolean).join(' ');
+
+  // The painter context for any highlight this row shows (study/relation tints).
+  const highlightCtx: HighlightCtx = useMemo(
+    () => ({
+      mode: studyMode ? 'study' : editing ? 'edit' : 'explore',
+      relationColors,
+      selectedRelationId,
+    }),
+    [studyMode, editing, relationColors, selectedRelationId],
+  );
 
   const baseIndent = unit.userIndent ?? 0;
   // While dragging, preview the snapped indent locally and commit once on drop
@@ -185,6 +313,112 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
     [hlDragStart, hlDragEnd, tokens, onAddHighlight, unit.id],
   );
 
+  // --- study-mode token selection (drag = range, tap = toggle) -------------------
+  const studyParaRef = useRef<HTMLParagraphElement | null>(null);
+  const [studyDragStart, setStudyDragStart] = useState<number | null>(null);
+  const [studyDragEnd, setStudyDragEnd] = useState<number | null>(null);
+  const studyMoved = useRef(false);
+  const studySelSet = useMemo(
+    () => new Set(studySelectionTokenIds ?? []),
+    [studySelectionTokenIds],
+  );
+
+  const onStudyPointerDown = useCallback(
+    (e: React.PointerEvent, index: number) => {
+      e.stopPropagation();
+      studyParaRef.current?.setPointerCapture?.(e.pointerId);
+      studyMoved.current = false;
+      setStudyDragStart(index);
+      setStudyDragEnd(index);
+    },
+    [],
+  );
+  const onStudyPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (studyDragStart === null) return;
+      const idx = tokenIndexAt(e.clientX, e.clientY);
+      if (idx === null) return;
+      if (idx !== studyDragStart) studyMoved.current = true;
+      setStudyDragEnd(idx);
+    },
+    [studyDragStart, tokenIndexAt],
+  );
+  const onStudyPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (studyDragStart === null) return;
+      studyParaRef.current?.releasePointerCapture?.(e.pointerId);
+      const endIdx = studyDragEnd ?? studyDragStart;
+      const lo = Math.min(studyDragStart, endIdx);
+      const hi = Math.max(studyDragStart, endIdx);
+      const dragged = studyMoved.current;
+      setStudyDragStart(null);
+      setStudyDragEnd(null);
+      studyMoved.current = false;
+      if (dragged) {
+        // Drag → contiguous range REPLACES the selection (always on this unit).
+        const ids = tokens.slice(lo, hi + 1).map((t) => t.id);
+        if (ids.length) onStudySelect?.(unit.id, ids);
+        return;
+      }
+      // Tap → toggle the single token in/out of the current same-unit selection.
+      const tapped = tokens[lo]?.id;
+      if (!tapped) return;
+      const nextSet = new Set(studySelSet);
+      if (nextSet.has(tapped)) nextSet.delete(tapped);
+      else nextSet.add(tapped);
+      const ids = tokens.filter((t) => nextSet.has(t.id)).map((t) => t.id);
+      onStudySelect?.(unit.id, ids);
+    },
+    [studyDragStart, studyDragEnd, tokens, studySelSet, onStudySelect, unit.id],
+  );
+
+  // --- relation-highlight pick (drag = add range, tap = toggle one) --------------
+  const relParaRef = useRef<HTMLParagraphElement | null>(null);
+  const [relDragStart, setRelDragStart] = useState<number | null>(null);
+  const [relDragEnd, setRelDragEnd] = useState<number | null>(null);
+  const relMoved = useRef(false);
+
+  const onRelPointerDown = useCallback((e: React.PointerEvent, index: number) => {
+    e.stopPropagation();
+    relParaRef.current?.setPointerCapture?.(e.pointerId);
+    relMoved.current = false;
+    setRelDragStart(index);
+    setRelDragEnd(index);
+  }, []);
+  const onRelPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (relDragStart === null) return;
+      const idx = tokenIndexAt(e.clientX, e.clientY);
+      if (idx === null) return;
+      if (idx !== relDragStart) relMoved.current = true;
+      setRelDragEnd(idx);
+    },
+    [relDragStart, tokenIndexAt],
+  );
+  const onRelPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (relDragStart === null) return;
+      relParaRef.current?.releasePointerCapture?.(e.pointerId);
+      const endIdx = relDragEnd ?? relDragStart;
+      const lo = Math.min(relDragStart, endIdx);
+      const hi = Math.max(relDragStart, endIdx);
+      const dragged = relMoved.current;
+      setRelDragStart(null);
+      setRelDragEnd(null);
+      relMoved.current = false;
+      if (dragged) {
+        // Drag → add the contiguous range as one highlight (one undo entry).
+        const ids = tokens.slice(lo, hi + 1).map((t) => t.id);
+        if (ids.length) onAddRelationHighlight?.(unit.id, ids);
+        return;
+      }
+      // Tap → toggle the single token in/out of THIS relation's highlights.
+      const tapped = tokens[lo]?.id;
+      if (tapped) onToggleRelationHighlightToken?.(unit.id, tapped);
+    },
+    [relDragStart, relDragEnd, tokens, onAddRelationHighlight, onToggleRelationHighlightToken, unit.id],
+  );
+
   return (
     <div
       ref={(el) => registerEl(unit.id, el)}
@@ -220,26 +454,26 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         }
       }}
     >
+      {/* Indent drag handle — a tall thin vertical line overlaid ABSOLUTELY at
+          the unit's left edge (the old left arc gutter that used to bury it is
+          gone). It sits between the unit border and the text with a wide
+          invisible hit area, drawing a 2px accent line on hover/drag. Absolute
+          so showing/hiding it between modes never shifts the text. Horizontal
+          drag snaps userIndent; ← / → nudge when focused. */}
+      {editing && onSetIndent && (
+        <button
+          type="button"
+          className={`discourse-indent-handle${dragIndent !== null ? ' dragging' : ''}`}
+          aria-label="Drag to set indent"
+          title="Drag to indent (← / → to nudge)"
+          onPointerDown={onHandlePointerDown}
+          onPointerMove={onHandlePointerMove}
+          onPointerUp={onHandlePointerUp}
+          onKeyDown={onHandleKeyDown}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
       <div className="discourse-unit-head">
-        {/* Indent drag handle — INLINE in the row head (an absolutely
-            positioned handle at the row's left edge sat under the arc gutter
-            and was effectively invisible). Horizontal drag snaps userIndent;
-            ← / → nudge when focused. */}
-        {editing && onSetIndent && (
-          <button
-            type="button"
-            className={`discourse-indent-handle${dragIndent !== null ? ' dragging' : ''}`}
-            aria-label="Drag to set indent"
-            title="Drag to indent (← / → to nudge)"
-            onPointerDown={onHandlePointerDown}
-            onPointerMove={onHandlePointerMove}
-            onPointerUp={onHandlePointerUp}
-            onKeyDown={onHandleKeyDown}
-            onClick={(e) => e.stopPropagation()}
-          >
-            ⋮⋮
-          </button>
-        )}
         {hasChildren && onToggleCollapsed && (
           <button
             type="button"
@@ -279,14 +513,95 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         {relateTarget && <span className="discourse-target-hint">← relate here</span>}
       </div>
 
-      {!isContainer && (isEnglish || view.showSourceText) && !splitPicking && !highlightPicking && (
+      {!isContainer &&
+        (isEnglish || view.showSourceText) &&
+        !splitPicking &&
+        !highlightPicking &&
+        !relationHighlightPicking &&
+        !studyMode && (
+          <p
+            className={`discourse-text${isEnglish ? '' : ' greek'}${view.compact ? ' clamp' : ''}`}
+            lang={isEnglish ? 'en' : 'grc'}
+          >
+            {unit.textHighlights?.length
+              ? renderTokensWithHighlights(tokens, unit.textHighlights, highlightCtx)
+              : tokens.map((t) => t.surface).join(' ')}
+          </p>
+        )}
+      {!isContainer && studyMode && !relationHighlightPicking && (isEnglish || view.showSourceText) && (
         <p
-          className={`discourse-text${isEnglish ? '' : ' greek'}${view.compact ? ' clamp' : ''}`}
+          ref={studyParaRef}
+          className={`discourse-text${isEnglish ? '' : ' greek'} discourse-study-words${view.compact ? ' clamp' : ''}`}
           lang={isEnglish ? 'en' : 'grc'}
+          onPointerMove={onStudyPointerMove}
+          onPointerUp={onStudyPointerUp}
         >
-          {unit.textHighlights?.length
-            ? renderTokensWithHighlights(tokens, unit.textHighlights)
-            : tokens.map((t) => t.surface).join(' ')}
+          {(() => {
+            const byToken = highlightsByToken(unit.textHighlights ?? []);
+            return tokens.map((t, i) => {
+              const lo =
+                studyDragStart === null
+                  ? null
+                  : Math.min(studyDragStart, studyDragEnd ?? studyDragStart);
+              const hi =
+                studyDragStart === null
+                  ? null
+                  : Math.max(studyDragStart, studyDragEnd ?? studyDragStart);
+              const inDrag = lo !== null && hi !== null && i >= lo && i <= hi;
+              const pending = inDrag || studySelSet.has(t.id);
+              // Study mode shows existing highlights clearly (not muted).
+              const { className: hlClass, style } = tokenHighlightStyle(byToken.get(t.id), highlightCtx);
+              return (
+                <span
+                  key={t.id}
+                  data-token-id={t.id}
+                  data-token-index={i}
+                  className={`discourse-study-word${hlClass ? ` ${hlClass}` : ''}${pending ? ' selected' : ''}`}
+                  style={style}
+                  onPointerDown={(e) => onStudyPointerDown(e, i)}
+                >
+                  {t.surface}
+                  {i < tokens.length - 1 ? ' ' : ''}
+                </span>
+              );
+            });
+          })()}
+        </p>
+      )}
+      {!isContainer && relationHighlightPicking && (isEnglish || view.showSourceText) && (
+        <p
+          ref={relParaRef}
+          className={`discourse-text${isEnglish ? '' : ' greek'} discourse-study-words${view.compact ? ' clamp' : ''}`}
+          lang={isEnglish ? 'en' : 'grc'}
+          onPointerMove={onRelPointerMove}
+          onPointerUp={onRelPointerUp}
+        >
+          {(() => {
+            const byToken = highlightsByToken(unit.textHighlights ?? []);
+            const lo = relDragStart === null ? null : Math.min(relDragStart, relDragEnd ?? relDragStart);
+            const hi = relDragStart === null ? null : Math.max(relDragStart, relDragEnd ?? relDragStart);
+            return tokens.map((t, i) => {
+              const inDrag = lo !== null && hi !== null && i >= lo && i <= hi;
+              const cov = byToken.get(t.id);
+              // A token already highlighted for THIS relation reads as selected.
+              const covered =
+                cov?.scope === 'relation' && cov.relationId === selectedRelationId;
+              const { className: hlClass, style } = tokenHighlightStyle(cov, highlightCtx);
+              return (
+                <span
+                  key={t.id}
+                  data-token-id={t.id}
+                  data-token-index={i}
+                  className={`discourse-study-word${hlClass ? ` ${hlClass}` : ''}${inDrag || covered ? ' selected' : ''}`}
+                  style={style}
+                  onPointerDown={(e) => onRelPointerDown(e, i)}
+                >
+                  {t.surface}
+                  {i < tokens.length - 1 ? ' ' : ''}
+                </span>
+              );
+            });
+          })()}
         </p>
       )}
       {!isContainer && splitPicking && (
@@ -346,7 +661,7 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         <p className={`discourse-gloss${view.compact ? ' clamp' : ''}`}>{gloss}</p>
       )}
 
-      {view.showMarkers && markers.length > 0 && !splitPicking && !highlightPicking && (
+      {editing && view.showMarkers && markers.length > 0 && !splitPicking && !highlightPicking && (
         <div className="discourse-markers" aria-label="Discourse marker hints">
           {markers.map((m) => (
             <DiscourseMarkerChip key={m.id} marker={m} />

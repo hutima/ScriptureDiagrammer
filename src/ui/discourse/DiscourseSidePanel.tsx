@@ -1,7 +1,11 @@
-import { useDiscourseStore } from '@/state';
-import { DISCOURSE_UNIT_COLORS, DiscourseRelationTypeSchema } from '@/domain/schema';
-import type { DiscourseUnitColor } from '@/domain/schema';
-import { formatRange, relationTypeLabel } from '@/domain/discourse';
+import { useEditorStore, useDiscourseStore } from '@/state';
+import {
+  DISCOURSE_RELATION_COLORS,
+  DISCOURSE_UNIT_COLORS,
+  DiscourseRelationTypeSchema,
+} from '@/domain/schema';
+import type { DiscourseRelationColor, DiscourseUnitColor } from '@/domain/schema';
+import { DISCOURSE_RELATION_PALETTE, formatRange, relationTypeLabel } from '@/domain/discourse';
 import { DiscourseToolbar } from './DiscourseToolbar';
 
 /**
@@ -43,6 +47,48 @@ function SwatchRow({
 }
 
 /**
+ * A row of relation-colour swatches plus an "Auto" reset. Distinct from the
+ * unit `SwatchRow` because the relation palette (`DISCOURSE_RELATION_COLORS`) is
+ * its own named set; "Auto" clears the override so the arc reverts to its
+ * type-derived default colour.
+ */
+function RelationColorRow({
+  active,
+  onPick,
+  onClear,
+}: {
+  active: DiscourseRelationColor | undefined;
+  onPick: (color: DiscourseRelationColor) => void;
+  onClear: () => void;
+}) {
+  return (
+    <div className="discourse-swatch-row">
+      <button
+        type="button"
+        className={`mini${active === undefined ? ' active' : ''}`}
+        aria-pressed={active === undefined}
+        title="Use the relation type's default colour"
+        onClick={onClear}
+      >
+        Auto
+      </button>
+      {DISCOURSE_RELATION_COLORS.map((c) => (
+        <button
+          key={c}
+          type="button"
+          className={`discourse-swatch${active === c ? ' active' : ''}`}
+          style={{ background: DISCOURSE_RELATION_PALETTE[c] }}
+          aria-label={`Relation colour ${c}`}
+          aria-pressed={active === c}
+          title={c}
+          onClick={() => (active === c ? onClear() : onPick(c))}
+        />
+      ))}
+    </div>
+  );
+}
+
+/**
  * DISCOURSE SIDE PANEL — the tools + details column. Docked on the RIGHT of the
  * outline when there is enough horizontal space (CSS media query; it wraps
  * below the outline on narrow layouts). Available in EVERY app mode — Discourse
@@ -52,11 +98,13 @@ function SwatchRow({
  * Three stacked sections:
  *   1. the action toolbar (every keyboard shortcut has a button);
  *   2. the selected UNIT's details — label, notes, and its relations;
- *   3. the selected RELATION's own detail card — type (optional), label,
- *      confidence, its OWN notes, marker evidence, delete. Clicking an arc in
- *      the gutter selects the relation directly (no unit needed).
+ *   3. the selected RELATION's own detail card — a vertical stack of type
+ *      (optional), label, confidence, colour, its OWN notes, a relation-
+ *      highlights placeholder, and delete. Clicking an arc selects the relation
+ *      directly (no unit needed).
  */
 export function DiscourseSidePanel() {
+  const appMode = useEditorStore((s) => s.appMode);
   const doc = useDiscourseStore((s) => s.doc);
   const selection = useDiscourseStore((s) => s.selection);
   const select = useDiscourseStore((s) => s.select);
@@ -68,6 +116,11 @@ export function DiscourseSidePanel() {
   const highlightColor = useDiscourseStore((s) => s.highlightColor);
   const setHighlightColor = useDiscourseStore((s) => s.setHighlightColor);
   const removeTextHighlight = useDiscourseStore((s) => s.removeTextHighlight);
+  const relationHighlightPickRelationId = useDiscourseStore(
+    (s) => s.relationHighlightPickRelationId,
+  );
+  const beginRelationHighlight = useDiscourseStore((s) => s.beginRelationHighlight);
+  const endRelationHighlight = useDiscourseStore((s) => s.endRelationHighlight);
   const updateRelation = useDiscourseStore((s) => s.updateRelation);
   const deleteRelation = useDiscourseStore((s) => s.deleteRelation);
 
@@ -89,18 +142,12 @@ export function DiscourseSidePanel() {
     if (!u) return id;
     return u.label || formatRange(u.refStart, u.refEnd) || u.kind;
   };
-  // Markers on either end of the selected relation, offered as evidence.
-  const relationMarkers = selectedRelation
-    ? doc.markers.filter(
-        (m) =>
-          m.scopeUnitId === selectedRelation.sourceUnitId ||
-          m.scopeUnitId === selectedRelation.targetUnitId,
-      )
-    : [];
 
   return (
     <aside className="discourse-side-panel" aria-label="Discourse tools and details">
-      <DiscourseToolbar />
+      {/* The action toolbar is Edit-mode only (D5) — Explore/Study read cleanly
+          without structural editing controls. */}
+      {appMode === 'edit' && <DiscourseToolbar />}
 
       {selectedUnit && (
         <section className="discourse-inspector" aria-label="Selected unit details">
@@ -289,44 +336,84 @@ export function DiscourseSidePanel() {
               <option value="low">low</option>
             </select>
           </label>
+          <div className="field">
+            <span>Color</span>
+            <RelationColorRow
+              active={selectedRelation.color}
+              onPick={(c) => updateRelation(selectedRelation.id, { color: c })}
+              onClear={() => updateRelation(selectedRelation.id, { color: undefined })}
+            />
+          </div>
           <label className="field">
             <span>Notes</span>
             <textarea
               key={`rn_${selectedRelation.id}`}
               defaultValue={selectedRelation.notes ?? ''}
-              rows={2}
+              rows={3}
               placeholder="Why these two units correspond…"
               onBlur={(e) =>
                 updateRelation(selectedRelation.id, { notes: e.target.value.trim() || undefined })
               }
             />
           </label>
-          {relationMarkers.length > 0 && (
-            <fieldset className="discourse-relation-markers">
-              <legend>Marker evidence</legend>
-              {relationMarkers.map((m) => {
-                const attached = selectedRelation.markerIds?.includes(m.id) ?? false;
-                return (
-                  <label key={m.id} className="checkbox-row">
-                    <input
-                      type="checkbox"
-                      checked={attached}
-                      onChange={(e) => {
-                        const cur = selectedRelation.markerIds ?? [];
-                        const next = e.target.checked
-                          ? [...cur, m.id]
-                          : cur.filter((id) => id !== m.id);
-                        updateRelation(selectedRelation.id, {
-                          markerIds: next.length ? next : undefined,
-                        });
-                      }}
-                    />
-                    <span className="greek">{m.surface}</span> <span>({m.ref})</span>
-                  </label>
-                );
-              })}
-            </fieldset>
-          )}
+          {/* Relation-scope text highlights (D2 relation half): a "Highlight
+              words in passage" pick mode + a summary list of this relation's
+              spans (unit ref + words), each removable. NOT token checkboxes. */}
+          {(() => {
+            const picking = relationHighlightPickRelationId === selectedRelation.id;
+            const spans = doc.units.flatMap((u) =>
+              (u.textHighlights ?? [])
+                .filter((h) => h.scope === 'relation' && h.relationId === selectedRelation.id)
+                .map((h) => {
+                  const words = h.tokenIds
+                    .map((tid) => doc.tokens.find((t) => t.id === tid)?.surface ?? '')
+                    .filter(Boolean)
+                    .join(' ');
+                  const shown = words.length > 42 ? `${words.slice(0, 42).trimEnd()}…` : words;
+                  return { unitId: u.id, hid: h.id, ref: unitName(u.id), words: shown };
+                }),
+            );
+            return (
+              <div className="field discourse-relation-highlights">
+                <span>Relation highlights</span>
+                <button
+                  type="button"
+                  className={`mini${picking ? ' active' : ''}`}
+                  aria-pressed={picking}
+                  onClick={() =>
+                    picking
+                      ? endRelationHighlight()
+                      : beginRelationHighlight(selectedRelation.id)
+                  }
+                >
+                  {picking ? 'Done' : 'Highlight words in passage'}
+                </button>
+                {spans.length ? (
+                  <ul className="discourse-inspector-relations" aria-label="Relation highlights">
+                    {spans.map((s) => (
+                      <li key={s.hid}>
+                        <span className="discourse-rel-type">{s.ref}</span>{' '}
+                        <span>{s.words}</span>{' '}
+                        <button
+                          className="mini"
+                          aria-label="Remove relation highlight"
+                          onClick={() => removeTextHighlight(s.unitId, s.hid)}
+                        >
+                          ✕
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="discourse-inspector-notes muted">
+                    {picking
+                      ? 'Drag across words in the passage to highlight them for this relation.'
+                      : 'No highlighted words yet.'}
+                  </p>
+                )}
+              </div>
+            );
+          })()}
           <div className="discourse-relation-picker-actions">
             <button
               className="mini danger"

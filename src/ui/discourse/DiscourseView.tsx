@@ -6,16 +6,17 @@ import {
   discourseRows,
   visibleRelationEndpoints,
 } from '@/domain/discourse';
+import { resolvedRelationColor } from '@/domain/discourse';
 import { DiscourseUnitBlock } from './DiscourseUnitBlock';
 import { DiscourseRelationLayer, type ArcSpec } from './DiscourseRelationLayer';
 import { DiscourseRelationPicker } from './DiscourseRelationPicker';
 
-/** Width of the left gutter the relation arcs live in. */
-const ARC_GUTTER = 116;
+/** Width of the RIGHT gutter the relation arcs live in. */
+const ARC_GUTTER = 132;
 
 /**
  * The discourse outline itself: a scrollable vertical list of unit blocks
- * (indented by outline depth) with an SVG relation-arc overlay in the left
+ * (indented by outline depth) with an SVG relation-arc overlay in the right
  * gutter and a textual inspector for the selected unit.
  *
  * In Edit mode (`editing`) the same list grows the structural affordances:
@@ -24,9 +25,21 @@ const ARC_GUTTER = 116;
  * Backspace merge · Ctrl/Cmd+Z undo), and inline label/notes/relation editing
  * in the inspector. Every shortcut has a toolbar equivalent.
  */
-export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument; editing?: boolean }) {
+export function DiscourseView({
+  doc,
+  editing = false,
+  studyMode = false,
+}: {
+  doc: DiscourseDocument;
+  editing?: boolean;
+  /** Study (sermon) mode: unit text renders as drag/tap-selectable token spans. */
+  studyMode?: boolean;
+}) {
   const view = useDiscourseStore((s) => s.view);
   const selection = useDiscourseStore((s) => s.selection);
+  const studySelection = useDiscourseStore((s) => s.studySelection);
+  const setStudySelection = useDiscourseStore((s) => s.setStudySelection);
+  const clearStudySelection = useDiscourseStore((s) => s.clearStudySelection);
   const select = useDiscourseStore((s) => s.select);
   const setUnitCollapsed = useDiscourseStore((s) => s.setUnitCollapsed);
   const multiSelected = useDiscourseStore((s) => s.multiSelectedUnitIds);
@@ -43,6 +56,12 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
   const beginHighlight = useDiscourseStore((s) => s.beginHighlight);
   const addTextHighlight = useDiscourseStore((s) => s.addTextHighlight);
   const highlightColor = useDiscourseStore((s) => s.highlightColor);
+  const relationHighlightPickRelationId = useDiscourseStore(
+    (s) => s.relationHighlightPickRelationId,
+  );
+  const endRelationHighlight = useDiscourseStore((s) => s.endRelationHighlight);
+  const addRelationHighlight = useDiscourseStore((s) => s.addRelationHighlight);
+  const toggleRelationHighlightToken = useDiscourseStore((s) => s.toggleRelationHighlightToken);
   const setUnitIndent = useDiscourseStore((s) => s.setUnitIndent);
   const nudgeUnitIndent = useDiscourseStore((s) => s.nudgeUnitIndent);
   const mergeWithPrevious = useDiscourseStore((s) => s.mergeWithPrevious);
@@ -52,6 +71,16 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
 
   const rows = useMemo(() => discourseRows(doc), [doc]);
   const visibleRows = useMemo(() => rows.filter((r) => r.visible), [rows]);
+
+  // relationId → resolved hex, so relation-scope text highlights paint in the
+  // arc's colour (and an orphaned relationId, absent here, renders neutral).
+  const relationColors = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of doc.relations) map.set(r.id, resolvedRelationColor(r));
+    return map;
+  }, [doc.relations]);
+
+  const relationPicking = editing && !!relationHighlightPickRelationId;
 
   // Relations per unit (for the row badge + the inspector list).
   const relationsByUnit = useMemo(() => {
@@ -125,20 +154,27 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (!editing) return;
       // Typing surfaces keep their native keys.
       const t = e.target as HTMLElement;
       if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable) return;
+      // Escape works in EVERY mode (Explore included): it cancels any pending
+      // edit pick, else deselects — clean reading still needs "press Esc to
+      // clear the selection".
       if (e.key === 'Escape') {
-        if (highlightPickUnitId) beginHighlight(null);
-        else if (splitPickUnitId) beginSplit(null);
+        if (editing && highlightPickUnitId) beginHighlight(null);
+        else if (editing && relationHighlightPickRelationId) endRelationHighlight();
+        else if (editing && splitPickUnitId) beginSplit(null);
         // Before a target is picked → cancel, no link is created.
-        else if (pendingRelationSource) cancelRelation();
+        else if (editing && pendingRelationSource) cancelRelation();
         // After the link exists (modal open) → close the modal, KEEP the link.
-        else if (typeEditRelationId) closeRelationTypeEditor();
+        else if (editing && typeEditRelationId) closeRelationTypeEditor();
+        // Study mode: a pending token selection clears first (before deselect).
+        else if (studyMode && studySelection) clearStudySelection();
         else select({});
         return;
       }
+      // The remaining shortcuts are structural edits — Edit mode only.
+      if (!editing) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         if (e.shiftKey) redo();
@@ -188,7 +224,7 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
         }
       }
     },
-    [editing, doc, selection.unitId, splitPickUnitId, highlightPickUnitId, pendingRelationSource, typeEditRelationId, beginSplit, beginHighlight, cancelRelation, closeRelationTypeEditor, select, undo, redo, nudgeUnitIndent, mergeWithPrevious, deleteUnit],
+    [editing, studyMode, studySelection, clearStudySelection, doc, selection.unitId, splitPickUnitId, highlightPickUnitId, relationHighlightPickRelationId, endRelationHighlight, pendingRelationSource, typeEditRelationId, beginSplit, beginHighlight, cancelRelation, closeRelationTypeEditor, select, undo, redo, nudgeUnitIndent, mergeWithPrevious, deleteUnit],
   );
 
   const multiSet = useMemo(() => new Set(multiSelected), [multiSelected]);
@@ -200,14 +236,28 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
           Relating — click another unit to connect to it. <kbd>Esc</kbd> to cancel.
         </div>
       )}
+      {relationPicking && (
+        <div className="discourse-relate-banner" role="status">
+          Highlighting this relation — drag across words to add them; tap a
+          highlighted word to remove it. <kbd>Esc</kbd> or “Done” to finish.
+        </div>
+      )}
       <div
         className="discourse-scroll"
         onClick={() => {
+          // A stray background click while picking relation words keeps the
+          // relation selected + pick mode active (exit via Esc / Done).
+          if (relationPicking) return;
           if (pendingRelationSource) cancelRelation();
+          else if (studyMode && studySelection) clearStudySelection();
           else select({});
         }}
       >
-        <div className="discourse-content" ref={contentRef} style={{ paddingLeft: view.showRelations ? ARC_GUTTER : 16 }}>
+        <div
+          className="discourse-content"
+          ref={contentRef}
+          style={{ paddingRight: view.showRelations ? ARC_GUTTER : 16 }}
+        >
           {view.showRelations && (
             <div className="discourse-gutter" style={{ width: ARC_GUTTER }}>
               <DiscourseRelationLayer
@@ -245,6 +295,18 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
                 highlightPicking={editing && highlightPickUnitId === row.unit.id}
                 onAddHighlight={(unitId, tokenIds) => addTextHighlight(unitId, tokenIds)}
                 highlightColor={highlightColor}
+                studyMode={studyMode}
+                studySelectionTokenIds={
+                  studySelection?.unitId === row.unit.id ? studySelection.tokenIds : undefined
+                }
+                onStudySelect={(unitId, tokenIds) =>
+                  setStudySelection(tokenIds.length ? { unitId, tokenIds } : null)
+                }
+                relationHighlightPicking={relationPicking}
+                onAddRelationHighlight={addRelationHighlight}
+                onToggleRelationHighlightToken={toggleRelationHighlightToken}
+                relationColors={relationColors}
+                selectedRelationId={selection.relationId}
               />
             ))}
           </div>

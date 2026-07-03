@@ -4,6 +4,7 @@ import {
   maxZoomScale,
   clampPan,
   clamp,
+  viewCenteredOn,
   MIN_SCALE,
   MAX_SCALE,
 } from '@/ui/zoom';
@@ -63,6 +64,31 @@ describe('zoom-in ceiling (maxZoomScale)', () => {
     expect(maxZoomScale(floor)).toBe(floor);
     // A normal floor leaves the fixed ceiling in place.
     expect(maxZoomScale(0.5)).toBe(MAX_SCALE);
+  });
+});
+
+describe('centre-on-point (viewCenteredOn)', () => {
+  it('places the target point at the viewport centre for the transform x + p*scale', () => {
+    // A word at layout (100, 40) at scale 0.5 in an 800×600 viewport must land at
+    // the centre (400, 300): x = 400 - 100*0.5 = 350, y = 300 - 40*0.5 = 280.
+    const { x, y } = viewCenteredOn(100, 40, 0.5, 800, 600);
+    expect(x).toBe(350);
+    expect(y).toBe(280);
+    // Verify the round-trip through the actual transform maths.
+    expect(x + 100 * 0.5).toBe(400);
+    expect(y + 40 * 0.5).toBe(300);
+  });
+
+  it('scales the offset with zoom so the point stays centred at 100%', () => {
+    const { x, y } = viewCenteredOn(200, 100, 1, 800, 600);
+    expect(x).toBe(800 / 2 - 200);
+    expect(y).toBe(600 / 2 - 100);
+  });
+
+  it('treats a degenerate target as the origin (no NaN offsets)', () => {
+    const { x, y } = viewCenteredOn(NaN, Infinity, 0.5, 800, 600);
+    expect(x).toBe(400);
+    expect(y).toBe(300);
   });
 });
 

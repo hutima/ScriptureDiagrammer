@@ -51,6 +51,29 @@ export function minZoomScale(
 }
 
 /**
+ * The pan offset `{x, y}` that places a layout-space point `(targetX, targetY)`
+ * at the centre of the viewport, given a scale. The canvas transform is
+ * `translate(x, y) scale(scale)` with origin `0 0`, so a layout point `p` lands
+ * on screen at `x + p*scale`; solving for the viewport centre gives the offsets
+ * below. Callers still clamp the result with {@link clampPan}. Returns the
+ * viewport-centre offsets (target ignored) when the target is degenerate.
+ */
+export function viewCenteredOn(
+  targetX: number,
+  targetY: number,
+  scale: number,
+  viewportW: number,
+  viewportH: number,
+): { x: number; y: number } {
+  const tx = Number.isFinite(targetX) ? targetX : 0;
+  const ty = Number.isFinite(targetY) ? targetY : 0;
+  return {
+    x: viewportW / 2 - tx * scale,
+    y: viewportH / 2 - ty * scale,
+  };
+}
+
+/**
  * Constrain a pan offset so the diagram can never be moved (or pinch-flung)
  * entirely out of view: at least `margin` px of it always stays inside the
  * viewport on each axis. A fast pinch — especially at minimum zoom, where the

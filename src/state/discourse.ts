@@ -6,11 +6,17 @@ import type {
   DiscourseRelationType,
   DiscourseUnitColor,
   DiscourseUnitKind,
+  HighlightCategory,
   KrDocument,
+  SermonAnchor,
+  SermonNoteCategory,
+  SermonPrepData,
 } from '@/domain/schema';
 import {
   acceptDiscourseSuggestion,
   addDiscourseRelation,
+  addDiscourseRelationHighlight,
+  addDiscourseStudyHighlight,
   addDiscourseTextHighlight,
   assignMarkerScope,
   buildDiscourseDocumentFromPlainText,
@@ -28,16 +34,20 @@ import {
   nudgeDiscourseUnitIndent,
   outdentDiscourseUnit,
   removeDiscourseTextHighlight,
+  setDiscourseTextHighlightNote,
   setDiscourseUnitColor,
   setDiscourseUnitIndent,
   rejectDiscourseSuggestion,
   removeDiscourseBreak,
   setDiscourseUnitNotes,
   splitDiscourseUnit,
+  toggleDiscourseRelationHighlightToken,
   unwrapDiscourseUnit,
   updateDiscourseRelation,
 } from '@/domain/discourse';
-import { isEmptyDiscoursePatch } from '@/domain/schema';
+import { emptySermonPrep, isEmptyDiscoursePatch } from '@/domain/schema';
+import * as sermonOps from '@/domain/sermon';
+import { loadSermonPrep, saveSermonPrep } from '@/persistence/userData';
 import { makeId } from '@/domain/model';
 import {
   applyStoredDiscoursePatch,
@@ -125,6 +135,14 @@ export interface DiscourseState {
    * interactions.
    */
   highlightPickUnitId: string | null;
+  /**
+   * The relation currently in "highlight its words in the passage" pick mode.
+   * When set, every leaf unit renders its tokens as drag/tap-selectable spans
+   * and a drag/tap commits a `scope:'relation'` highlight tied to this relation.
+   * Transient (never persisted, never in undo history). Mutually exclusive with
+   * the split / relate / unit-highlight pick modes and the Study token selection.
+   */
+  relationHighlightPickRelationId: string | null;
   /** The color new highlights are created with (also drives the swatch UI). */
   highlightColor: DiscourseUnitColor;
   /**
@@ -132,6 +150,21 @@ export interface DiscourseState {
    * several units in a new parent group.
    */
   multiSelectedUnitIds: string[];
+  /**
+   * STUDY MODE token selection (transient — never persisted, never in undo
+   * history). A drag/tap across a unit's words in Study mode fills this; the
+   * Study panel's category chips then turn it into a `scope:'study'` highlight.
+   * Always scoped to ONE unit — starting a selection in another unit replaces it.
+   */
+  studySelection: { unitId: string; tokenIds: string[] } | null;
+  /**
+   * The Study (sermon-prep) record for the LOADED discourse document — notes,
+   * observations, big idea + outline. Highlights live in the discourse doc
+   * itself (as `scope:'study'` text highlights), so they are NOT duplicated
+   * here. Kept OUT of the discourse undo stacks (sermon data is not document
+   * history), persisted separately under `kr:sermon:<discourseDocId>`.
+   */
+  sermon: SermonPrepData | null;
   // --- default demo + first-load guidance ---
   /**
    * Is the currently loaded document the built-in Ephesians 2:12–19 demo? Drives
@@ -224,6 +257,40 @@ export interface DiscourseActions {
   addTextHighlight: (unitId: string, tokenIds: string[]) => void;
   /** Remove one of a unit's text highlights by id. */
   removeTextHighlight: (unitId: string, highlightId: string) => void;
+  // --- relation highlights (drag/tap words onto the selected relation) ---
+  /** Enter "highlight this relation's words" pick mode (clears other pick modes). */
+  beginRelationHighlight: (relationId: string) => void;
+  /** Leave relation-highlight pick mode. */
+  endRelationHighlight: () => void;
+  /** Commit a relation highlight over `tokenIds` on a unit (drag range). No-op
+   *  unless a relation is in pick mode. */
+  addRelationHighlight: (unitId: string, tokenIds: string[]) => void;
+  /** Toggle a single token in/out of the picked relation's highlights (tap). */
+  toggleRelationHighlightToken: (unitId: string, tokenId: string) => void;
+  // --- study mode (token selection → category highlights + sermon record) ---
+  /** Set the transient Study token selection (one unit's words). */
+  setStudySelection: (selection: { unitId: string; tokenIds: string[] } | null) => void;
+  /** Clear the transient Study token selection. */
+  clearStudySelection: () => void;
+  /**
+   * Turn the current `studySelection` into a `scope:'study'` category highlight
+   * on its unit (undoable, patch-persisted), then clear the selection. No-op
+   * with no selection.
+   */
+  addStudyHighlight: (category: HighlightCategory) => void;
+  /** Remove any text highlight by id (study or manual). */
+  removeHighlightById: (unitId: string, highlightId: string) => void;
+  /** Set (or clear) a text highlight's short note. */
+  setHighlightNote: (unitId: string, highlightId: string, note: string) => void;
+  // --- study sermon record (notes / observations / outline; NOT undoable) ---
+  addStudyNote: (input: { anchor: SermonAnchor; category: SermonNoteCategory; body?: string }) => void;
+  removeStudyNote: (id: string) => void;
+  addStudyObservation: (body: string, anchor?: SermonAnchor) => void;
+  removeStudyObservation: (id: string) => void;
+  setStudyBigIdea: (text: string) => void;
+  addStudyOutlineSection: () => void;
+  updateStudyOutlineSection: (id: string, patch: { title?: string; body?: string }) => void;
+  removeStudyOutlineSection: (id: string) => void;
   setUnitCollapsed: (unitId: string, collapsed: boolean) => void;
   collapseAll: (collapsed: boolean) => void;
   addRelation: (input: {
@@ -370,7 +437,9 @@ function isDemoRange(s: {
 }
 
 const DEFAULT_VIEW: DiscourseViewToggles = {
-  showMarkers: true,
+  // Marker hint chips are OFF by default and only toggleable in Edit mode; a
+  // fresh read (Explore) stays uncluttered.
+  showMarkers: false,
   showRelations: true,
   showLabels: true,
   showSourceText: true,
@@ -387,6 +456,21 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     if (isEmptyDiscoursePatch(patch)) deleteDiscoursePatch(baseDoc.id);
     else saveDiscoursePatch(baseDoc.id, patch);
   };
+
+  /** Apply a pure sermon-prep transform to the loaded doc's study record and
+   *  persist it. Sermon data is NOT part of the discourse undo stacks. */
+  const commitSermon = (producer: (s: SermonPrepData) => SermonPrepData) => {
+    const { doc, sermon } = get();
+    if (!doc) return;
+    const current = sermon ?? emptySermonPrep(doc.id, new Date().toISOString());
+    const next = producer(current);
+    set({ sermon: next });
+    saveSermonPrep(next.passageId, next);
+  };
+
+  /** Load (or create) the study record for a freshly loaded discourse doc. */
+  const loadSermonFor = (docId: string): SermonPrepData =>
+    loadSermonPrep(docId) ?? emptySermonPrep(docId, new Date().toISOString());
 
   /** Apply a pure transform to the live doc, recording history + persisting. */
   const commit = (producer: (doc: DiscourseDocument) => DiscourseDocument) => {
@@ -419,8 +503,11 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     typeEditRelationId: null,
     splitPickUnitId: null,
     highlightPickUnitId: null,
+    relationHighlightPickRelationId: null,
     highlightColor: 'yellow',
     multiSelectedUnitIds: [],
+    studySelection: null,
+    sermon: null,
     isDefaultDemo: false,
     firstLoadModalOpen: false,
     newTextRequest: 0,
@@ -458,7 +545,10 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
           typeEditRelationId: null,
           splitPickUnitId: null,
           highlightPickUnitId: null,
+          relationHighlightPickRelationId: null,
           multiSelectedUnitIds: [],
+          studySelection: null,
+          sermon: loadSermonFor(base.id),
           // A range load clears the demo stamp; `loadDefaultDemo` re-sets it after.
           isDefaultDemo: false,
           past: [],
@@ -490,7 +580,10 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         typeEditRelationId: null,
         splitPickUnitId: null,
         highlightPickUnitId: null,
+        relationHighlightPickRelationId: null,
         multiSelectedUnitIds: [],
+        studySelection: null,
+        sermon: loadSermonFor(built.id),
         isDefaultDemo: false,
         past: [],
         future: [],
@@ -582,7 +675,10 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         typeEditRelationId: null,
         splitPickUnitId: null,
         highlightPickUnitId: null,
+        relationHighlightPickRelationId: null,
         multiSelectedUnitIds: [],
+        studySelection: null,
+        sermon: null,
         past: [],
         future: [],
       });
@@ -596,11 +692,18 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     requestNewText: () => set((s) => ({ newTextRequest: s.newTextRequest + 1 })),
 
     select: (selection) =>
-      set({
+      set((s) => ({
         selection,
         // A plain selection restarts the wrap multi-selection at the new unit.
         multiSelectedUnitIds: selection.unitId ? [selection.unitId] : [],
-      }),
+        // Selecting a DIFFERENT relation (or none) leaves relation-highlight pick
+        // mode — the tools belong to the relation currently being edited.
+        relationHighlightPickRelationId:
+          s.relationHighlightPickRelationId &&
+          s.relationHighlightPickRelationId !== selection.relationId
+            ? null
+            : s.relationHighlightPickRelationId,
+      })),
     setView: (patch) => set((s) => ({ view: { ...s.view, ...patch } })),
     setSuggestionsOpen: (suggestionsOpen) => set({ suggestionsOpen }),
 
@@ -637,9 +740,15 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
             : undefined,
         },
         multiSelectedUnitIds: s.multiSelectedUnitIds.filter((id) => has(id)),
+        studySelection: has(s.studySelection?.unitId) ? s.studySelection : null,
         pendingRelationSource: has(s.pendingRelationSource) ? s.pendingRelationSource : null,
         splitPickUnitId: has(s.splitPickUnitId) ? s.splitPickUnitId : null,
         highlightPickUnitId: has(s.highlightPickUnitId) ? s.highlightPickUnitId : null,
+        relationHighlightPickRelationId: after.relations.some(
+          (r) => r.id === s.relationHighlightPickRelationId,
+        )
+          ? s.relationHighlightPickRelationId
+          : null,
         typeEditRelationId: after.relations.some((r) => r.id === s.typeEditRelationId)
           ? s.typeEditRelationId
           : null,
@@ -649,7 +758,13 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     setUnitNotes: (unitId, notes) => commit((d) => setDiscourseUnitNotes(d, unitId, notes)),
     setUnitColor: (unitId, color) => commit((d) => setDiscourseUnitColor(d, unitId, color)),
     beginHighlight: (highlightPickUnitId) =>
-      set({ highlightPickUnitId, splitPickUnitId: null, pendingRelationSource: null, typeEditRelationId: null }),
+      set({
+        highlightPickUnitId,
+        splitPickUnitId: null,
+        pendingRelationSource: null,
+        typeEditRelationId: null,
+        relationHighlightPickRelationId: null,
+      }),
     setHighlightColor: (highlightColor) => set({ highlightColor }),
     addTextHighlight: (unitId, tokenIds) => {
       commit((d) => addDiscourseTextHighlight(d, unitId, tokenIds, get().highlightColor));
@@ -657,6 +772,59 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     },
     removeTextHighlight: (unitId, highlightId) =>
       commit((d) => removeDiscourseTextHighlight(d, unitId, highlightId)),
+
+    // --- relation highlights ----------------------------------------------------
+    beginRelationHighlight: (relationId) =>
+      set({
+        relationHighlightPickRelationId: relationId,
+        splitPickUnitId: null,
+        highlightPickUnitId: null,
+        pendingRelationSource: null,
+        typeEditRelationId: null,
+        studySelection: null,
+      }),
+    endRelationHighlight: () => set({ relationHighlightPickRelationId: null }),
+    addRelationHighlight: (unitId, tokenIds) => {
+      const relationId = get().relationHighlightPickRelationId;
+      if (!relationId) return;
+      commit((d) => addDiscourseRelationHighlight(d, unitId, tokenIds, relationId));
+    },
+    toggleRelationHighlightToken: (unitId, tokenId) => {
+      const relationId = get().relationHighlightPickRelationId;
+      if (!relationId) return;
+      commit((d) => toggleDiscourseRelationHighlightToken(d, unitId, tokenId, relationId));
+    },
+
+    // --- study mode -------------------------------------------------------------
+    setStudySelection: (studySelection) => set({ studySelection }),
+    clearStudySelection: () => set({ studySelection: null }),
+    addStudyHighlight: (category) => {
+      const sel = get().studySelection;
+      if (!sel || !sel.tokenIds.length) return;
+      commit((d) => addDiscourseStudyHighlight(d, sel.unitId, sel.tokenIds, category));
+      set({ studySelection: null });
+    },
+    removeHighlightById: (unitId, highlightId) =>
+      commit((d) => removeDiscourseTextHighlight(d, unitId, highlightId)),
+    setHighlightNote: (unitId, highlightId, note) =>
+      commit((d) => setDiscourseTextHighlightNote(d, unitId, highlightId, note)),
+
+    // --- study sermon record (separate from doc history) ------------------------
+    addStudyNote: (input) =>
+      commitSermon((s) => sermonOps.addNote(s, { ...input, body: input.body ?? '' }, new Date().toISOString()).data),
+    removeStudyNote: (id) => commitSermon((s) => sermonOps.removeNote(s, id, new Date().toISOString())),
+    addStudyObservation: (body, anchor) =>
+      commitSermon((s) => sermonOps.addObservation(s, { body, anchor }, new Date().toISOString()).data),
+    removeStudyObservation: (id) =>
+      commitSermon((s) => sermonOps.removeObservation(s, id, new Date().toISOString())),
+    setStudyBigIdea: (text) => commitSermon((s) => sermonOps.setBigIdea(s, text, new Date().toISOString())),
+    addStudyOutlineSection: () =>
+      commitSermon((s) => sermonOps.addOutlineSection(s, new Date().toISOString())),
+    updateStudyOutlineSection: (id, patch) =>
+      commitSermon((s) => sermonOps.updateOutlineSection(s, id, patch, new Date().toISOString())),
+    removeStudyOutlineSection: (id) =>
+      commitSermon((s) => sermonOps.removeOutlineSection(s, id, new Date().toISOString())),
+
     setUnitCollapsed: (unitId, collapsed) =>
       commit((d) => (collapsed ? collapseDiscourseUnit(d, unitId) : expandDiscourseUnit(d, unitId))),
     collapseAll: (collapsed) =>
@@ -674,7 +842,21 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     },
     updateRelation: (relationId, patch) =>
       commit((d) => updateDiscourseRelation(d, relationId, patch)),
-    deleteRelation: (relationId) => commit((d) => deleteDiscourseRelation(d, relationId)),
+    deleteRelation: (relationId) => {
+      commit((d) => deleteDiscourseRelation(d, relationId));
+      // Leaving a deleted relation's pick mode / selection behind would strand
+      // the highlight tools on a relation that no longer exists.
+      set((s) => ({
+        relationHighlightPickRelationId:
+          s.relationHighlightPickRelationId === relationId
+            ? null
+            : s.relationHighlightPickRelationId,
+        selection:
+          s.selection.relationId === relationId
+            ? { unitId: s.selection.unitId }
+            : s.selection,
+      }));
+    },
     setMarkerScope: (markerId, unitId) => commit((d) => assignMarkerScope(d, markerId, unitId)),
     acceptSuggestion: (suggestionId) => commit((d) => acceptDiscourseSuggestion(d, suggestionId)),
     rejectSuggestion: (suggestionId) => commit((d) => rejectDiscourseSuggestion(d, suggestionId)),
@@ -684,6 +866,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         typeEditRelationId: null,
         splitPickUnitId: null,
         highlightPickUnitId: null,
+        relationHighlightPickRelationId: null,
       }),
     cancelRelation: () => set({ pendingRelationSource: null }),
     pickRelationTarget: (targetUnitId) => {
@@ -707,6 +890,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         pendingRelationSource: null,
         typeEditRelationId: null,
         highlightPickUnitId: null,
+        relationHighlightPickRelationId: null,
       }),
 
     extendMultiSelect: (unitId) => {
@@ -760,7 +944,9 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         typeEditRelationId: null,
         splitPickUnitId: null,
         highlightPickUnitId: null,
+        relationHighlightPickRelationId: null,
         multiSelectedUnitIds: [],
+        studySelection: null,
       });
     },
   };

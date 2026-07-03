@@ -2,16 +2,21 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createElement } from 'react';
 import { render, cleanup } from '@testing-library/react';
 import {
+  addDiscourseRelation,
   addDiscourseTextHighlight,
+  applyDiscoursePatch,
   buildDiscourseDocumentFromPlainText,
+  diffDiscourseDocuments,
   discourseRows,
   leafUnits,
   mergeAdjacentDiscourseUnits,
   removeDiscourseTextHighlight,
+  resolvedRelationColor,
   setDiscourseUnitColor,
   splitDiscourseUnit,
+  updateDiscourseRelation,
 } from '@/domain/discourse';
-import { DiscourseDocumentSchema } from '@/domain/schema';
+import { DiscourseDocumentSchema, DiscoursePatchSchema } from '@/domain/schema';
 import { useDiscourseStore } from '@/state';
 import { DiscourseUnitBlock } from '@/ui/discourse/DiscourseUnitBlock';
 import { DiscourseSidePanel } from '@/ui/discourse/DiscourseSidePanel';
@@ -88,6 +93,54 @@ describe('unit color — pure model', () => {
     expect(pu.textHighlights).toEqual([
       { id: expect.any(String), tokenIds: [u.tokenIds[0]], color: 'yellow' },
     ]);
+  });
+});
+
+describe('relation color — resolution + patch round-trip', () => {
+  const NOW = '2026-01-01T00:00:00.000Z';
+
+  it('resolves an explicit override, else the type default', () => {
+    const doc = freshDoc();
+    const [a, b] = leafUnits(doc);
+    const withRel = addDiscourseRelation(
+      doc,
+      { id: 'dr_c', sourceUnitId: a!.id, targetUnitId: b!.id, type: 'ground' },
+      NOW,
+    );
+    const rel = withRel.relations[0]!;
+    // No override → type-derived colour (ground = warm brown).
+    expect(resolvedRelationColor(rel)).toBe('#8a5d3b');
+    // Override wins.
+    expect(resolvedRelationColor({ ...rel, color: 'teal' })).toBe('#2f6f6f');
+  });
+
+  it('persists a relation colour and clears it (Auto) through diff → JSON → apply', () => {
+    const base = freshDoc();
+    const [a, b] = leafUnits(base);
+    const withRel = addDiscourseRelation(
+      base,
+      { id: 'dr_c', sourceUnitId: a!.id, targetUnitId: b!.id, type: 'chiasm' },
+      NOW,
+    );
+
+    // Set the colour and round-trip the patch through serialization.
+    const colored = updateDiscourseRelation(withRel, 'dr_c', { color: 'purple' }, NOW);
+    let round = DiscoursePatchSchema.parse(
+      JSON.parse(JSON.stringify(diffDiscourseDocuments(withRel, colored, NOW))),
+    );
+    expect(applyDiscoursePatch(withRel, round).relations.find((r) => r.id === 'dr_c')!.color).toBe(
+      'purple',
+    );
+
+    // Clearing (updateRelation(id, {color: undefined})) must revert to no colour
+    // through the same pipeline — the diff drops the undefined field.
+    const cleared = updateDiscourseRelation(colored, 'dr_c', { color: undefined }, NOW);
+    round = DiscoursePatchSchema.parse(
+      JSON.parse(JSON.stringify(diffDiscourseDocuments(withRel, cleared, NOW))),
+    );
+    expect(
+      applyDiscoursePatch(withRel, round).relations.find((r) => r.id === 'dr_c')!.color,
+    ).toBeUndefined();
   });
 });
 

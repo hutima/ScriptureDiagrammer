@@ -10,6 +10,7 @@ import {
   type LoadedDiscourseBook,
 } from '@/io';
 import type { DiscourseGranularity } from '@/domain/schema';
+import { DiscourseOutlineNav } from './DiscourseOutlineNav';
 
 /**
  * DISCOURSE RANGE SELECTOR — the dedicated loader shown in the left panel
@@ -31,6 +32,8 @@ export function DiscourseRangeSelector() {
   const status = useDiscourseStore((s) => s.status);
   const error = useDiscourseStore((s) => s.error);
   const loadedTitle = useDiscourseStore((s) => s.doc?.title ?? null);
+  const doc = useDiscourseStore((s) => s.doc);
+  const [outlineOpen, setOutlineOpen] = useState(true);
   const setSourceId = useDiscourseStore((s) => s.setSourceId);
   const setBookNum = useDiscourseStore((s) => s.setBookNum);
   const setRange = useDiscourseStore((s) => s.setRange);
@@ -262,6 +265,26 @@ export function DiscourseRangeSelector() {
         <p className="discourse-note">
           Loaded: <strong>{loadedTitle}</strong>
         </p>
+      )}
+
+      {/* Passage outline — a navigable table of contents for the loaded range.
+          Lives here under Load range (formerly a canvas-toolbar toggle); the
+          jump-to-unit behaviour scrolls the canvas via a [data-unit-id]
+          querySelector, so it works from the left panel. Rendered only when a
+          document is loaded, so there is never an empty frame. */}
+      {doc && (
+        <section className="discourse-outline-section">
+          <button
+            type="button"
+            className="discourse-outline-toggle"
+            aria-expanded={outlineOpen}
+            onClick={() => setOutlineOpen((v) => !v)}
+          >
+            <span aria-hidden="true">{outlineOpen ? '▾' : '▸'}</span>
+            Passage outline
+          </button>
+          {outlineOpen && <DiscourseOutlineNav doc={doc} />}
+        </section>
       )}
     </div>
   );
