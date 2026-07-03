@@ -14,6 +14,9 @@ of text), not an individual word.
 ## Getting in and out
 
 1. Pick **Visualization → Discourse** (the mode selector in the diagram header).
+   The app mode switches to **Edit** (Discourse is manual-first and desktop-only,
+   so Edit is always available; you can switch to any other mode in the
+   mode switcher if you prefer).
 2. The passage panel on the left switches to the **discourse range selector**.
 3. Load a range. Your open syntax passage is untouched — switch back to any
    syntax view at any time and it is exactly where you left it; switch to
@@ -25,10 +28,11 @@ of text), not an individual word.
 The range selector offers:
 
 - **Source** — a Greek/Hebrew **syntax** source (SBLGNT Lowfat (default),
-  Nestle 1904 Lowfat, or OpenText) **or** an **English Bible** (BSB English for
-  the NT, BSB English OT for the Old Testament, **KJV**, or **ASV**). English
-  Bible sources are offered **only in Discourse mode** and load directly from
-  verse text — no Greek/Hebrew syntax parse is required (see *English Bible
+  Nestle 1904 Lowfat, or OpenText) **or** an **English Bible**. The English Bible
+  selector offers **BSB English (whole Bible)** (66-book canonical numbering: OT
+  books 1–39, NT books 40–66), plus **KJV** and **ASV** as English-only sources.
+  English Bible sources are offered **only in Discourse mode** and load directly
+  from verse text — no Greek/Hebrew syntax parse is required (see *English Bible
   discourse* below). KJV and ASV are English-only, fetched on demand from
   public-domain data and cached; they add **no** original-language linking,
   morphology, or discourse-marker hints.
@@ -73,7 +77,7 @@ the source data itself are never touched.
 | Label a unit (A, B′, "Household code"…) | **Label…** or the inspector | — |
 | Delete a unit / remove a verse | **Delete unit** (a group asks first, then deletes its whole subtree) | `Shift+Delete` / `Shift+Backspace` |
 | Notes | inspector | — |
-| Draw a relation | **Relate →**, click the target, pick the type | `Esc` cancels |
+| Draw a relation | **Relate →**, click source, click target — link created; optional modal for type | `Esc` before target cancels; after link, keeps it |
 | Undo / redo | **↶ / ↷** | `Ctrl/Cmd+Z`, `Ctrl/Cmd+Shift+Z` or `Ctrl/Cmd+Y` |
 | Discard all discourse edits | **Reset edits…** (asks first) | — |
 
@@ -101,9 +105,14 @@ reload, and **Reset edits** brings the verse back).
 
 **Relations** (ground, inference, result, purpose, condition, concession,
 contrast, series, coordinate, elaboration, explanation, quotation, inclusio,
-parallel, chiasm, custom) connect a *source* unit to a *target* unit. Select a
-relation in the inspector to edit its type, label, confidence, notes, and the
-marker chips you cite as evidence — or delete it.
+parallel, chiasm, custom) connect a *source* unit to a *target* unit. Click
+**Relate →**, then the source unit, then the target unit to create an untyped
+link immediately; an optional "Relation type" modal opens so you can assign a
+type, add a label, choose "Leave untyped", or delete the link. Dismissing the
+modal (or pressing Escape *after* the link is drawn) keeps the untyped link as a
+plain connector; Escape *before* picking a target cancels with no link created.
+Select a relation in the inspector to edit its type, label, confidence, notes,
+and the marker chips you cite as evidence — or delete it.
 
 **Chiasm / parallelism**: label units `A`, `B`, `C`, `C′`, `B′`, `A′` and pair
 them with `chiasm` / `parallel` relations — the paired arcs draw dashed.
