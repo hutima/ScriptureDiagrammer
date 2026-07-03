@@ -1,14 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDiscourseStore } from '@/state';
 import type { DiscourseDocument } from '@/domain/schema';
-import { DiscourseRelationTypeSchema } from '@/domain/schema';
 import {
   canIndent,
   canOutdent,
   childUnits,
   discourseRows,
-  formatRange,
-  relationTypeLabel,
   visibleRelationEndpoints,
 } from '@/domain/discourse';
 import { DiscourseUnitBlock } from './DiscourseUnitBlock';
@@ -49,10 +46,6 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
   const outdentUnit = useDiscourseStore((s) => s.outdentUnit);
   const mergeWithPrevious = useDiscourseStore((s) => s.mergeWithPrevious);
   const deleteUnit = useDiscourseStore((s) => s.deleteUnit);
-  const labelUnit = useDiscourseStore((s) => s.labelUnit);
-  const setUnitNotes = useDiscourseStore((s) => s.setUnitNotes);
-  const updateRelation = useDiscourseStore((s) => s.updateRelation);
-  const deleteRelation = useDiscourseStore((s) => s.deleteRelation);
   const undo = useDiscourseStore((s) => s.undo);
   const redo = useDiscourseStore((s) => s.redo);
 
@@ -196,32 +189,6 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
     [editing, doc, selection.unitId, splitPickUnitId, pendingRelationSource, typeEditRelationId, beginSplit, cancelRelation, closeRelationTypeEditor, select, undo, redo, indentUnit, outdentUnit, mergeWithPrevious, deleteUnit],
   );
 
-  const selectedUnit = selection.unitId
-    ? doc.units.find((u) => u.id === selection.unitId)
-    : undefined;
-  const selectedUnitRelations = selectedUnit
-    ? doc.relations.filter(
-        (r) => r.sourceUnitId === selectedUnit.id || r.targetUnitId === selectedUnit.id,
-      )
-    : [];
-  const unitName = (id: string) => {
-    const u = doc.units.find((x) => x.id === id);
-    if (!u) return id;
-    return u.label || formatRange(u.refStart, u.refEnd) || u.kind;
-  };
-  const [editingRelationId, setEditingRelationId] = useState<string | null>(null);
-  const editingRelation = editingRelationId
-    ? doc.relations.find((r) => r.id === editingRelationId)
-    : undefined;
-  // Markers available as evidence for the relation being edited (either end).
-  const relationMarkers = editingRelation
-    ? doc.markers.filter(
-        (m) =>
-          m.scopeUnitId === editingRelation.sourceUnitId ||
-          m.scopeUnitId === editingRelation.targetUnitId,
-      )
-    : [];
-
   const multiSet = useMemo(() => new Set(multiSelected), [multiSelected]);
 
   return (
@@ -281,168 +248,6 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
 
       {editing && typeEditRelationId && <DiscourseRelationPicker />}
 
-      {selectedUnit && (
-        <aside className="discourse-inspector" aria-label="Selected unit details">
-          <div className="discourse-inspector-head">
-            <strong>
-              {selectedUnit.label || formatRange(selectedUnit.refStart, selectedUnit.refEnd) || selectedUnit.kind}
-            </strong>
-            <span className="discourse-inspector-meta">
-              {selectedUnit.kind}
-              {selectedUnit.refStart && ` · ${formatRange(selectedUnit.refStart, selectedUnit.refEnd)}`}
-              {` · ${selectedUnit.provenance.source === 'manual' ? 'your structure' : 'from source boundaries'}`}
-            </span>
-            <button className="mini" onClick={() => select({})} aria-label="Close details">
-              ✕
-            </button>
-          </div>
-
-          {editing && (
-            <div className="discourse-inspector-edit">
-              <label className="field">
-                <span>Label</span>
-                <input
-                  key={selectedUnit.id}
-                  defaultValue={selectedUnit.label ?? ''}
-                  placeholder="A, B′, “Household code”…"
-                  onBlur={(e) => {
-                    if (e.target.value !== (selectedUnit.label ?? '')) labelUnit(selectedUnit.id, e.target.value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-                  }}
-                />
-              </label>
-              <label className="field">
-                <span>Notes</span>
-                <textarea
-                  key={`n_${selectedUnit.id}`}
-                  defaultValue={selectedUnit.notes ?? ''}
-                  rows={2}
-                  placeholder="Observations about this unit…"
-                  onBlur={(e) => {
-                    if (e.target.value !== (selectedUnit.notes ?? '')) setUnitNotes(selectedUnit.id, e.target.value);
-                  }}
-                />
-              </label>
-            </div>
-          )}
-          {!editing && selectedUnit.notes && (
-            <p className="discourse-inspector-notes">{selectedUnit.notes}</p>
-          )}
-
-          {selectedUnitRelations.length > 0 ? (
-            <ul className="discourse-inspector-relations" aria-label="Relations for this unit">
-              {selectedUnitRelations.map((r) => (
-                <li key={r.id}>
-                  <button
-                    className={`discourse-rel-item${selection.relationId === r.id ? ' selected' : ''}`}
-                    onClick={() => select({ unitId: selectedUnit.id, relationId: r.id })}
-                  >
-                    <span className="discourse-rel-type">{r.label || relationTypeLabel(r.type)}</span>{' '}
-                    {unitName(r.sourceUnitId)} → {unitName(r.targetUnitId)}
-                    {r.confidence ? ` (${r.confidence})` : ''}
-                  </button>
-                  {editing && (
-                    <>
-                      <button
-                        className="mini"
-                        title="Edit this relation"
-                        onClick={() => setEditingRelationId(editingRelationId === r.id ? null : r.id)}
-                      >
-                        {editingRelationId === r.id ? 'Close' : 'Edit'}
-                      </button>
-                      <button className="mini reject" title="Delete this relation" onClick={() => deleteRelation(r.id)}>
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="discourse-inspector-notes muted">
-              No relations touch this unit yet.
-              {editing && ' Use “Relate →” in the toolbar to draw one.'}
-            </p>
-          )}
-
-          {editing && editingRelation && (
-            <div className="discourse-relation-editor" aria-label="Relation editor">
-              <label className="field">
-                <span>Type</span>
-                <select
-                  value={editingRelation.type}
-                  onChange={(e) => updateRelation(editingRelation.id, { type: e.target.value as typeof editingRelation.type })}
-                >
-                  {DiscourseRelationTypeSchema.options.map((t) => (
-                    <option key={t} value={t}>
-                      {relationTypeLabel(t)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                <span>Label</span>
-                <input
-                  key={editingRelation.id}
-                  defaultValue={editingRelation.label ?? ''}
-                  onBlur={(e) => updateRelation(editingRelation.id, { label: e.target.value.trim() || undefined })}
-                />
-              </label>
-              <label className="field">
-                <span>Confidence</span>
-                <select
-                  value={editingRelation.confidence ?? ''}
-                  onChange={(e) =>
-                    updateRelation(editingRelation.id, {
-                      confidence: (e.target.value || undefined) as 'high' | 'medium' | 'low' | undefined,
-                    })
-                  }
-                >
-                  <option value="">—</option>
-                  <option value="high">high</option>
-                  <option value="medium">medium</option>
-                  <option value="low">low</option>
-                </select>
-              </label>
-              <label className="field">
-                <span>Notes</span>
-                <textarea
-                  key={`rn_${editingRelation.id}`}
-                  defaultValue={editingRelation.notes ?? ''}
-                  rows={2}
-                  onBlur={(e) => updateRelation(editingRelation.id, { notes: e.target.value.trim() || undefined })}
-                />
-              </label>
-              {relationMarkers.length > 0 && (
-                <fieldset className="discourse-relation-markers">
-                  <legend>Marker evidence</legend>
-                  {relationMarkers.map((m) => {
-                    const attached = editingRelation.markerIds?.includes(m.id) ?? false;
-                    return (
-                      <label key={m.id} className="checkbox-row">
-                        <input
-                          type="checkbox"
-                          checked={attached}
-                          onChange={(e) => {
-                            const cur = editingRelation.markerIds ?? [];
-                            const next = e.target.checked
-                              ? [...cur, m.id]
-                              : cur.filter((id) => id !== m.id);
-                            updateRelation(editingRelation.id, { markerIds: next.length ? next : undefined });
-                          }}
-                        />
-                        <span className="greek">{m.surface}</span> <span>({m.ref})</span>
-                      </label>
-                    );
-                  })}
-                </fieldset>
-              )}
-            </div>
-          )}
-        </aside>
-      )}
     </div>
   );
 }

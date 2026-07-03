@@ -18,6 +18,7 @@ import {
 import { DIAGRAM_MODES } from '@/domain/layout';
 import { useDiscourseStore } from '@/state';
 import { DiscourseView } from '@/ui/discourse/DiscourseView';
+import { DiscourseSidePanel } from '@/ui/discourse/DiscourseSidePanel';
 import { DiscourseUnitBlock } from '@/ui/discourse/DiscourseUnitBlock';
 
 /**
@@ -155,12 +156,30 @@ describe('DiscourseView (read-only render)', () => {
       { sourceUnitId: leaves[0]!.id, targetUnitId: leaves[19]!.id, type: 'chiasm', id: 'dr_c' },
       NOW,
     );
-    // Client render (not SSR) so the zustand selection state is live.
-    useDiscourseStore.setState({ selection: { unitId: leaves[0]!.id } });
-    const { container } = render(createElement(DiscourseView, { doc }));
+    // The textual listing lives in the side panel (docked next to the view).
+    useDiscourseStore.setState({ doc, selection: { unitId: leaves[0]!.id } });
+    const { container } = render(createElement(DiscourseSidePanel));
     const inspector = container.querySelector('.discourse-inspector');
     expect(inspector).toBeTruthy();
     expect(inspector!.textContent).toContain('chiasm');
     expect(inspector!.textContent).toContain('A′');
+  });
+
+  it("shows a relation's OWN detail card (with its own notes) when an arc is selected", () => {
+    let doc = ephesians();
+    const leaves = leafUnits(doc);
+    doc = addDiscourseRelation(
+      doc,
+      { sourceUnitId: leaves[0]!.id, targetUnitId: leaves[19]!.id, type: 'chiasm', id: 'dr_c', notes: 'mirrored themes' },
+      NOW,
+    );
+    // Arc click selects the RELATION only — no unit required.
+    useDiscourseStore.setState({ doc, selection: { relationId: 'dr_c' } });
+    const { container } = render(createElement(DiscourseSidePanel));
+    const editor = container.querySelector('.discourse-relation-editor');
+    expect(editor).toBeTruthy();
+    expect((editor!.querySelector('textarea') as HTMLTextAreaElement).value).toBe('mirrored themes');
+    // The action toolbar is present in the panel regardless of app mode.
+    expect(container.querySelector('.discourse-toolbar')).toBeTruthy();
   });
 });

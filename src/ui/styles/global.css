@@ -2997,6 +2997,41 @@ label.field.inline > span { margin-bottom: 0; }
 /* --- Discourse mode: suggestions panel --------------------------------------- */
 .discourse-body { display: flex; flex: 1; min-height: 0; }
 .discourse-body .discourse-view { flex: 1; min-width: 0; }
+/* Tools + details column: docked on the RIGHT by default; when the window is
+   too narrow for outline + panel side-by-side, it wraps to a full-width strip
+   below the outline (pure CSS — no JS measurement). */
+.discourse-side-panel {
+  flex: none;
+  width: 300px;
+  min-width: 260px;
+  overflow-y: auto;
+  border-left: 1px solid var(--line, #e2e5ea);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.discourse-side-panel .discourse-toolbar {
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--line, #e2e5ea);
+  padding-bottom: 8px;
+}
+.discourse-side-panel .discourse-inspector,
+.discourse-side-panel .discourse-relation-editor {
+  border-top: none;
+  margin: 0;
+}
+@media (max-width: 1279px) {
+  .discourse-body { flex-wrap: wrap; overflow-y: auto; }
+  .discourse-body .discourse-view { flex-basis: 100%; }
+  .discourse-side-panel {
+    width: 100%;
+    flex-basis: 100%;
+    border-left: none;
+    border-top: 1px solid var(--line, #e2e5ea);
+    max-height: 40vh;
+  }
+}
 .discourse-suggestions {
   width: 300px;
   flex: none;

@@ -3,7 +3,7 @@ import { useDiscourseStore, useEditorStore } from '@/state';
 import { VisualizationSwitcher } from '@/ui/shell/VisualizationSwitcher';
 
 import { DiscourseView } from './DiscourseView';
-import { DiscourseToolbar } from './DiscourseToolbar';
+import { DiscourseSidePanel } from './DiscourseSidePanel';
 import { DiscourseSuggestions } from './DiscourseSuggestions';
 import { DiscourseOutlineNav } from './DiscourseOutlineNav';
 import { DiscourseFirstLoadModal } from './DiscourseFirstLoadModal';
@@ -27,6 +27,7 @@ function sourceMetaLabel(doc: { sourceId: string; editionId?: string }): string 
       return 'ASV';
     case 'english-bsb':
     case 'english-bsb-ot':
+    case 'english-bsb-all':
       return 'BSB';
     case 'custom-plaintext':
       return 'Your text';
@@ -204,8 +205,6 @@ export function DiscourseCanvas() {
         onDismiss={dismissFirstLoadModal}
       />
 
-      {doc && appMode === 'edit' && <DiscourseToolbar />}
-
       {doc ? (
         <>
           <div className="discourse-title-row">
@@ -226,8 +225,15 @@ export function DiscourseCanvas() {
           </div>
           <div className="discourse-body">
             {outlineOpen && <DiscourseOutlineNav doc={doc} />}
-            <DiscourseView doc={doc} editing={appMode === 'edit'} />
+            {/* Discourse is manual-first: the outline is interactive in EVERY
+                app mode (the side panel's actions need target/split picking),
+                so `editing` is unconditional here — this is the discourse
+                layer only; syntax editing stays gated on Edit mode. */}
+            <DiscourseView doc={doc} editing />
             {suggestionsOpen && <DiscourseSuggestions />}
+            {/* Tools + unit/relation details — docks right, wraps below when
+                horizontal space runs out (pure CSS; see .discourse-side-panel). */}
+            <DiscourseSidePanel />
           </div>
         </>
       ) : (
