@@ -57,7 +57,10 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
         const bottom = Math.max(a.y1, a.y2);
         const selected = relation.id === selectedRelationId;
         const midY = (top + bottom) / 2;
-        const label = relation.label || relationTypeLabel(relation.type);
+        const typeLabel = relationTypeLabel(relation.type);
+        const label = relation.label || typeLabel; // '' for a bare untyped link
+        // Tooltip: "<label> — <type>" collapses gracefully when either is empty.
+        const title = [label, typeLabel].filter(Boolean).join(' — ') || 'link';
         const paired = relation.type === 'chiasm' || relation.type === 'parallel' || relation.type === 'inclusio';
         return (
           <g
@@ -70,7 +73,7 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
             }}
           >
             <title>
-              {label} — {relationTypeLabel(relation.type)}
+              {title}
               {relation.confidence ? ` (${relation.confidence})` : ''}
             </title>
             {/* Bracket-style path: out from the source, down/up, back to target. */}

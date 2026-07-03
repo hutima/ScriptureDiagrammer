@@ -89,9 +89,11 @@ export function visibleRelationEndpoints(
   return out;
 }
 
-/** Human label for a relation type (arc labels, relation lists). */
+/** Human label for a relation type (arc labels, relation lists). Empty for an
+ *  untyped link. */
 export function relationTypeLabel(type: DiscourseRelation['type']): string {
-  const labels: Record<DiscourseRelation['type'], string> = {
+  if (!type) return '';
+  const labels: Record<NonNullable<DiscourseRelation['type']>, string> = {
     coordinate: 'coordinate',
     series: 'series',
     contrast: 'contrast',

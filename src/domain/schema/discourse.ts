@@ -144,7 +144,13 @@ export const DiscourseRelationSchema = z.object({
   id: z.string(),
   sourceUnitId: z.string(),
   targetUnitId: z.string(),
-  type: DiscourseRelationTypeSchema,
+  /**
+   * Relation type is OPTIONAL metadata — a link can exist untyped. The Relate
+   * flow creates the connector as soon as both ends are picked, then offers a
+   * type in a modal you can dismiss. An untyped link renders as a plain
+   * connector with no type label.
+   */
+  type: DiscourseRelationTypeSchema.optional(),
   /** Free label shown on the arc (e.g. a custom relation's name). */
   label: z.string().optional(),
   /** Marker chips cited as evidence for this relation. */

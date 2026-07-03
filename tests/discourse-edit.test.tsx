@@ -40,7 +40,7 @@ async function loadEphesians() {
     future: [],
     selection: {},
     pendingRelationSource: null,
-    relationDraft: null,
+    typeEditRelationId: null,
     splitPickUnitId: null,
     multiSelectedUnitIds: [],
   });
@@ -116,19 +116,27 @@ describe('discourse edit mode (store walk-through)', () => {
     expect(localStorage.getItem(`kr:discourse:${doc().id}`)).toBeNull();
   });
 
-  it('relation flow: pick source, pick target, choose type', () => {
+  it('relation flow: pick source, pick target → untyped link created + type modal; set type later', () => {
     const s = () => store.getState();
     const [a, b] = leafUnits(s().doc!);
     s().startRelation(a!.id);
     expect(s().pendingRelationSource).toBe(a!.id);
-    s().setRelationDraft({ sourceUnitId: a!.id, targetUnitId: b!.id });
-    expect(s().pendingRelationSource).toBeNull();
-    s().addRelation({ sourceUnitId: a!.id, targetUnitId: b!.id, type: 'ground' });
+    // Picking the target creates the link IMMEDIATELY (untyped) and opens the modal.
+    s().pickRelationTarget(b!.id);
     expect(s().pendingRelationSource).toBeNull();
     expect(s().doc!.relations).toHaveLength(1);
-    s().updateRelation(s().doc!.relations[0]!.id, { type: 'inference', confidence: 'medium' });
-    expect(s().doc!.relations[0]!.type).toBe('inference');
-    s().deleteRelation(s().doc!.relations[0]!.id);
+    const relId = s().doc!.relations[0]!.id;
+    expect(s().doc!.relations[0]!.type).toBeUndefined();
+    expect(s().typeEditRelationId).toBe(relId);
+    // Setting a type updates the SAME relation (no second link).
+    s().setRelationType(relId, 'ground');
+    expect(s().doc!.relations).toHaveLength(1);
+    expect(s().doc!.relations[0]!.type).toBe('ground');
+    // Clearing the type keeps the link.
+    s().setRelationType(relId, undefined);
+    expect(s().doc!.relations).toHaveLength(1);
+    expect(s().doc!.relations[0]!.type).toBeUndefined();
+    s().deleteRelation(relId);
     expect(s().doc!.relations).toHaveLength(0);
   });
 
@@ -212,20 +220,27 @@ describe('discourse edit mode (UI)', () => {
     expect(store.getState().splitPickUnitId).toBeNull();
   });
 
-  it('clicking a target while relating stages the relation draft (type picker)', () => {
+  it('clicking a target creates the link immediately (untyped), then opens the optional type modal', () => {
     const doc0 = store.getState().doc!;
     const [a, b] = leafUnits(doc0);
     store.setState({ pendingRelationSource: a!.id });
     const { container } = render(createElement(DiscourseView, { doc: doc0, editing: true }));
     const targetEl = container.querySelector(`[data-unit-id="${b!.id}"]`)!;
     fireEvent.click(targetEl);
-    expect(store.getState().relationDraft).toEqual({ sourceUnitId: a!.id, targetUnitId: b!.id });
-    // The picker is visible; choosing a type creates the manual relation.
+    // The connector EXISTS now (untyped), and the type modal targets it.
+    const rels = store.getState().doc!.relations;
+    expect(rels).toHaveLength(1);
+    expect(rels[0]!.sourceUnitId).toBe(a!.id);
+    expect(rels[0]!.targetUnitId).toBe(b!.id);
+    expect(rels[0]!.type).toBeUndefined();
+    expect(store.getState().typeEditRelationId).toBe(rels[0]!.id);
+    expect(store.getState().pendingRelationSource).toBeNull();
+    // Choosing a type updates the SAME relation (no second link).
     cleanup();
     const { getByText } = render(createElement(DiscourseView, { doc: store.getState().doc!, editing: true }));
     fireEvent.click(getByText('ground'));
     expect(store.getState().doc!.relations).toHaveLength(1);
     expect(store.getState().doc!.relations[0]!.type).toBe('ground');
-    expect(store.getState().relationDraft).toBeNull();
+    expect(store.getState().typeEditRelationId).toBeNull();
   });
 });

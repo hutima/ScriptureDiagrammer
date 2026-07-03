@@ -34,6 +34,7 @@ import {
   updateDiscourseRelation,
 } from '@/domain/discourse';
 import { isEmptyDiscoursePatch } from '@/domain/schema';
+import { makeId } from '@/domain/model';
 import {
   applyStoredDiscoursePatch,
   clearLastDiscourseRange,
@@ -103,10 +104,11 @@ export interface DiscourseState {
   /** An in-progress "pick the target unit" relation interaction, if any. */
   pendingRelationSource: string | null;
   /**
-   * A relation whose source AND target are chosen, awaiting its TYPE in the
-   * picker. Confirming flows to `addRelation`; anything else cancels.
+   * The id of a relation whose (optional) TYPE is being chosen in the modal.
+   * The link is ALREADY created (untyped) by the time this is set — dismissing
+   * the modal simply leaves it untyped; it never deletes the link.
    */
-  relationDraft: { sourceUnitId: string; targetUnitId: string } | null;
+  typeEditRelationId: string | null;
   /**
    * The unit currently in "pick a split point" mode: its tokens render as
    * clickable words and the next token tapped becomes the start of a new unit.
@@ -214,8 +216,20 @@ export interface DiscourseActions {
   rejectSuggestion: (suggestionId: string) => void;
   startRelation: (sourceUnitId: string) => void;
   cancelRelation: () => void;
-  /** Both ends picked: stage the draft for the type picker. */
-  setRelationDraft: (draft: { sourceUnitId: string; targetUnitId: string } | null) => void;
+  /**
+   * Both ends picked: IMMEDIATELY create an untyped connector from the pending
+   * source to `targetUnitId`, then open the optional type modal for it. Relation
+   * type is optional metadata, never required to create the link.
+   */
+  pickRelationTarget: (targetUnitId: string) => void;
+  /** Set (or clear, with `undefined`) an existing relation's type + label. */
+  setRelationType: (
+    relationId: string,
+    type: DiscourseRelationType | undefined,
+    label?: string,
+  ) => void;
+  /** Close the optional type modal, leaving the link as-is (never deletes it). */
+  closeRelationTypeEditor: () => void;
   /** Enter/leave "pick a split point" mode for a unit. */
   beginSplit: (unitId: string | null) => void;
   /** Shift-click: extend a contiguous sibling multi-selection to `unitId`. */
@@ -376,7 +390,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     view: { ...DEFAULT_VIEW },
     suggestionsOpen: false,
     pendingRelationSource: null,
-    relationDraft: null,
+    typeEditRelationId: null,
     splitPickUnitId: null,
     multiSelectedUnitIds: [],
     isDefaultDemo: false,
@@ -413,7 +427,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
           error: null,
           selection: {},
           pendingRelationSource: null,
-          relationDraft: null,
+          typeEditRelationId: null,
           splitPickUnitId: null,
           multiSelectedUnitIds: [],
           // A range load clears the demo stamp; `loadDefaultDemo` re-sets it after.
@@ -444,7 +458,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         error: null,
         selection: {},
         pendingRelationSource: null,
-        relationDraft: null,
+        typeEditRelationId: null,
         splitPickUnitId: null,
         multiSelectedUnitIds: [],
         isDefaultDemo: false,
@@ -535,7 +549,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         isDefaultDemo: false,
         selection: {},
         pendingRelationSource: null,
-        relationDraft: null,
+        typeEditRelationId: null,
         splitPickUnitId: null,
         multiSelectedUnitIds: [],
         past: [],
@@ -594,10 +608,9 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         multiSelectedUnitIds: s.multiSelectedUnitIds.filter((id) => has(id)),
         pendingRelationSource: has(s.pendingRelationSource) ? s.pendingRelationSource : null,
         splitPickUnitId: has(s.splitPickUnitId) ? s.splitPickUnitId : null,
-        relationDraft:
-          s.relationDraft && has(s.relationDraft.sourceUnitId) && has(s.relationDraft.targetUnitId)
-            ? s.relationDraft
-            : null,
+        typeEditRelationId: after.relations.some((r) => r.id === s.typeEditRelationId)
+          ? s.typeEditRelationId
+          : null,
       }));
     },
     labelUnit: (unitId, label) => commit((d) => labelDiscourseUnit(d, unitId, label)),
@@ -624,11 +637,25 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     acceptSuggestion: (suggestionId) => commit((d) => acceptDiscourseSuggestion(d, suggestionId)),
     rejectSuggestion: (suggestionId) => commit((d) => rejectDiscourseSuggestion(d, suggestionId)),
     startRelation: (sourceUnitId) =>
-      set({ pendingRelationSource: sourceUnitId, relationDraft: null, splitPickUnitId: null }),
-    cancelRelation: () => set({ pendingRelationSource: null, relationDraft: null }),
-    setRelationDraft: (relationDraft) => set({ relationDraft, pendingRelationSource: null }),
+      set({ pendingRelationSource: sourceUnitId, typeEditRelationId: null, splitPickUnitId: null }),
+    cancelRelation: () => set({ pendingRelationSource: null }),
+    pickRelationTarget: (targetUnitId) => {
+      const source = get().pendingRelationSource;
+      if (!source || source === targetUnitId) {
+        set({ pendingRelationSource: null });
+        return;
+      }
+      // Create the connector NOW (untyped); the type is optional metadata added
+      // afterwards. A fixed id lets the modal target this exact relation.
+      const id = makeId('dr');
+      commit((d) => addDiscourseRelation(d, { id, sourceUnitId: source, targetUnitId }));
+      set({ pendingRelationSource: null, typeEditRelationId: id });
+    },
+    setRelationType: (relationId, type, label) =>
+      commit((d) => updateDiscourseRelation(d, relationId, { type, label })),
+    closeRelationTypeEditor: () => set({ typeEditRelationId: null }),
     beginSplit: (splitPickUnitId) =>
-      set({ splitPickUnitId, pendingRelationSource: null, relationDraft: null }),
+      set({ splitPickUnitId, pendingRelationSource: null, typeEditRelationId: null }),
 
     extendMultiSelect: (unitId) => {
       const { doc, selection, multiSelectedUnitIds } = get();
@@ -678,7 +705,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         future: [],
         selection: {},
         pendingRelationSource: null,
-        relationDraft: null,
+        typeEditRelationId: null,
         splitPickUnitId: null,
         multiSelectedUnitIds: [],
       });

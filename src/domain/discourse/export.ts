@@ -334,7 +334,7 @@ export function discourseRelationsCsv(doc: DiscourseDocument): string {
   const rows = doc.relations.map((r) =>
     [
       r.id,
-      r.type,
+      r.type ?? '',
       name(r.sourceUnitId),
       name(r.targetUnitId),
       r.label ?? '',
