@@ -116,6 +116,11 @@ export function DiscourseSidePanel() {
   const highlightColor = useDiscourseStore((s) => s.highlightColor);
   const setHighlightColor = useDiscourseStore((s) => s.setHighlightColor);
   const removeTextHighlight = useDiscourseStore((s) => s.removeTextHighlight);
+  const relationHighlightPickRelationId = useDiscourseStore(
+    (s) => s.relationHighlightPickRelationId,
+  );
+  const beginRelationHighlight = useDiscourseStore((s) => s.beginRelationHighlight);
+  const endRelationHighlight = useDiscourseStore((s) => s.endRelationHighlight);
   const updateRelation = useDiscourseStore((s) => s.updateRelation);
   const deleteRelation = useDiscourseStore((s) => s.deleteRelation);
 
@@ -351,16 +356,64 @@ export function DiscourseSidePanel() {
               }
             />
           </label>
-          {/* TODO(Phase 5): relation-scope text highlights land here — a summary
-              list of highlighted spans for this relation plus a "Highlight
-              words…" pick mode (D2 relation half). Placeholder only for now. */}
-          <div className="field discourse-relation-highlights">
-            <span>Relation highlights</span>
-            <p className="discourse-inspector-notes muted">
-              Select words in the passage to highlight them for this relation —
-              coming with the highlight tools.
-            </p>
-          </div>
+          {/* Relation-scope text highlights (D2 relation half): a "Highlight
+              words in passage" pick mode + a summary list of this relation's
+              spans (unit ref + words), each removable. NOT token checkboxes. */}
+          {(() => {
+            const picking = relationHighlightPickRelationId === selectedRelation.id;
+            const spans = doc.units.flatMap((u) =>
+              (u.textHighlights ?? [])
+                .filter((h) => h.scope === 'relation' && h.relationId === selectedRelation.id)
+                .map((h) => {
+                  const words = h.tokenIds
+                    .map((tid) => doc.tokens.find((t) => t.id === tid)?.surface ?? '')
+                    .filter(Boolean)
+                    .join(' ');
+                  const shown = words.length > 42 ? `${words.slice(0, 42).trimEnd()}…` : words;
+                  return { unitId: u.id, hid: h.id, ref: unitName(u.id), words: shown };
+                }),
+            );
+            return (
+              <div className="field discourse-relation-highlights">
+                <span>Relation highlights</span>
+                <button
+                  type="button"
+                  className={`mini${picking ? ' active' : ''}`}
+                  aria-pressed={picking}
+                  onClick={() =>
+                    picking
+                      ? endRelationHighlight()
+                      : beginRelationHighlight(selectedRelation.id)
+                  }
+                >
+                  {picking ? 'Done' : 'Highlight words in passage'}
+                </button>
+                {spans.length ? (
+                  <ul className="discourse-inspector-relations" aria-label="Relation highlights">
+                    {spans.map((s) => (
+                      <li key={s.hid}>
+                        <span className="discourse-rel-type">{s.ref}</span>{' '}
+                        <span>{s.words}</span>{' '}
+                        <button
+                          className="mini"
+                          aria-label="Remove relation highlight"
+                          onClick={() => removeTextHighlight(s.unitId, s.hid)}
+                        >
+                          ✕
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="discourse-inspector-notes muted">
+                    {picking
+                      ? 'Drag across words in the passage to highlight them for this relation.'
+                      : 'No highlighted words yet.'}
+                  </p>
+                )}
+              </div>
+            );
+          })()}
           <div className="discourse-relation-picker-actions">
             <button
               className="mini danger"

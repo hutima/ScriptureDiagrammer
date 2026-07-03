@@ -6,6 +6,7 @@ import {
   discourseRows,
   visibleRelationEndpoints,
 } from '@/domain/discourse';
+import { resolvedRelationColor } from '@/domain/discourse';
 import { DiscourseUnitBlock } from './DiscourseUnitBlock';
 import { DiscourseRelationLayer, type ArcSpec } from './DiscourseRelationLayer';
 import { DiscourseRelationPicker } from './DiscourseRelationPicker';
@@ -55,6 +56,12 @@ export function DiscourseView({
   const beginHighlight = useDiscourseStore((s) => s.beginHighlight);
   const addTextHighlight = useDiscourseStore((s) => s.addTextHighlight);
   const highlightColor = useDiscourseStore((s) => s.highlightColor);
+  const relationHighlightPickRelationId = useDiscourseStore(
+    (s) => s.relationHighlightPickRelationId,
+  );
+  const endRelationHighlight = useDiscourseStore((s) => s.endRelationHighlight);
+  const addRelationHighlight = useDiscourseStore((s) => s.addRelationHighlight);
+  const toggleRelationHighlightToken = useDiscourseStore((s) => s.toggleRelationHighlightToken);
   const setUnitIndent = useDiscourseStore((s) => s.setUnitIndent);
   const nudgeUnitIndent = useDiscourseStore((s) => s.nudgeUnitIndent);
   const mergeWithPrevious = useDiscourseStore((s) => s.mergeWithPrevious);
@@ -64,6 +71,16 @@ export function DiscourseView({
 
   const rows = useMemo(() => discourseRows(doc), [doc]);
   const visibleRows = useMemo(() => rows.filter((r) => r.visible), [rows]);
+
+  // relationId → resolved hex, so relation-scope text highlights paint in the
+  // arc's colour (and an orphaned relationId, absent here, renders neutral).
+  const relationColors = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of doc.relations) map.set(r.id, resolvedRelationColor(r));
+    return map;
+  }, [doc.relations]);
+
+  const relationPicking = editing && !!relationHighlightPickRelationId;
 
   // Relations per unit (for the row badge + the inspector list).
   const relationsByUnit = useMemo(() => {
@@ -145,6 +162,7 @@ export function DiscourseView({
       // clear the selection".
       if (e.key === 'Escape') {
         if (editing && highlightPickUnitId) beginHighlight(null);
+        else if (editing && relationHighlightPickRelationId) endRelationHighlight();
         else if (editing && splitPickUnitId) beginSplit(null);
         // Before a target is picked → cancel, no link is created.
         else if (editing && pendingRelationSource) cancelRelation();
@@ -206,7 +224,7 @@ export function DiscourseView({
         }
       }
     },
-    [editing, studyMode, studySelection, clearStudySelection, doc, selection.unitId, splitPickUnitId, highlightPickUnitId, pendingRelationSource, typeEditRelationId, beginSplit, beginHighlight, cancelRelation, closeRelationTypeEditor, select, undo, redo, nudgeUnitIndent, mergeWithPrevious, deleteUnit],
+    [editing, studyMode, studySelection, clearStudySelection, doc, selection.unitId, splitPickUnitId, highlightPickUnitId, relationHighlightPickRelationId, endRelationHighlight, pendingRelationSource, typeEditRelationId, beginSplit, beginHighlight, cancelRelation, closeRelationTypeEditor, select, undo, redo, nudgeUnitIndent, mergeWithPrevious, deleteUnit],
   );
 
   const multiSet = useMemo(() => new Set(multiSelected), [multiSelected]);
@@ -218,9 +236,18 @@ export function DiscourseView({
           Relating — click another unit to connect to it. <kbd>Esc</kbd> to cancel.
         </div>
       )}
+      {relationPicking && (
+        <div className="discourse-relate-banner" role="status">
+          Highlighting this relation — drag across words to add them; tap a
+          highlighted word to remove it. <kbd>Esc</kbd> or “Done” to finish.
+        </div>
+      )}
       <div
         className="discourse-scroll"
         onClick={() => {
+          // A stray background click while picking relation words keeps the
+          // relation selected + pick mode active (exit via Esc / Done).
+          if (relationPicking) return;
           if (pendingRelationSource) cancelRelation();
           else if (studyMode && studySelection) clearStudySelection();
           else select({});
@@ -275,6 +302,11 @@ export function DiscourseView({
                 onStudySelect={(unitId, tokenIds) =>
                   setStudySelection(tokenIds.length ? { unitId, tokenIds } : null)
                 }
+                relationHighlightPicking={relationPicking}
+                onAddRelationHighlight={addRelationHighlight}
+                onToggleRelationHighlightToken={toggleRelationHighlightToken}
+                relationColors={relationColors}
+                selectedRelationId={selection.relationId}
               />
             ))}
           </div>

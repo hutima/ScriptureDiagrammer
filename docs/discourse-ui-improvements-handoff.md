@@ -7,23 +7,36 @@
   Phase 7 (234c452 diagramMode persistence + leave-discourse→explore),
   Phase 8 (2e8d806 composite glosses). All pushed; suite was green at 0e05054
   (2064 tests) and 234c452.
-- IN PROGRESS Phase 5 (relation highlights): WIP commit fd3fe52 has store
-  actions + pure mutations (beginRelationHighlight/addRelationHighlight/
-  toggle mutation in mutations.ts + state/discourse.ts) but DOES NOT
-  TYPECHECK — 3 errors: mutations.ts:269 `makeId('rh')` prefix not in
-  IdPrefix union (add 'rh' to it in src/domain/model/ids.ts or reuse 'hl');
-  DiscourseUnitBlock.tsx:453,479 call sites pass boolean where new
-  HighlightCtx object expected (mid-refactor of tokenHighlightStyle).
-  REMAINING: finish UnitBlock render wiring (relation pick mode spans +
-  relation-color tints via resolvedRelationColor + relationId→relation map
-  from DiscourseView), banner + Done button, relation editor "Relation
-  highlights" section replacing the TODO(Phase 5) placeholder in
-  DiscourseSidePanel.tsx, prune highlights on relation delete, orphan
-  tolerance, Escape wiring, tests, full validation. Spec = section 3
-  "Phase 5" + D2 relation half + D3.
-- TODO Phase 9: full typecheck/test/build/lint, remove this file, push.
-  Then final deliverable summary (changed files, schema changes, Outline
-  move, highlight UX = hybrid token drag/tap, test results, risks).
+- DONE Phase 5 (relation highlights): completed on top of WIP fd3fe52.
+  `IdPrefix` gained `'rh'` (src/domain/model/ids.ts); the WIP
+  `tokenHighlightStyle`/`renderTokensWithHighlights` HighlightCtx refactor is
+  finished — DiscourseUnitBlock now takes `relationColors`
+  (relationId→resolved hex), `selectedRelationId`, a relation-highlight pick
+  branch (drag = add range, tap = toggle one, reusing the study drag/tap
+  span mechanics) and paints `scope:'relation'` tokens in the relation's
+  `resolvedRelationColor` (strong when its relation is selected, faint when
+  another is or in Study, neutral for an orphaned relationId). DiscourseView
+  threads the memoized `relationColors` map + selectedRelationId, mounts the
+  live pick banner, wires Escape (highlight-pick → **relation-highlight-pick**
+  → split-pick → cancelRelation → closeRelationTypeEditor → study → deselect)
+  and guards the background click so picking words never deselects the
+  relation. DiscourseSidePanel's relation editor replaces the TODO placeholder
+  with a "Highlight words in passage" / "Done" toggle + a compact summary list
+  of this relation's spans (unit ref + truncated words, each ✕-removable) and a
+  muted hint when empty. deleteRelation prunes its `scope:'relation'`
+  highlights (pure `pruneRelationHighlights` in mutations.ts, mirrored on
+  unit delete) and exits pick mode/selection. Arc selected-emphasis already
+  existed in DiscourseRelationLayer (strokeWidth 2.4/opacity 1). Tests:
+  `tests/discourse-relation-highlights.test.tsx` (12) cover add/toggle/
+  prune-on-relation-delete, diff→JSON→DiscoursePatchSchema.parse→apply
+  round-trip, relation-palette + orphan-neutral rendering, and store
+  begin/add/toggle/undo/redo/delete. Landed in the "Relation highlights:
+  drag/tap words in the passage onto the selected relation" commit (the commit
+  bearing this doc update) atop WIP fd3fe52.
+- Phase 9 validation (run at Phase 5): `npx tsc -b --noEmit` clean;
+  `npx vitest run` 2076/2076 pass (104 files; +12 new); `npm run build` OK;
+  `npm run lint` clean (0 problems). Remaining Phase 9 chore: delete THIS file
+  in a final cleanup commit and produce the deliverable summary.
 
 Branch: `claude/discourse-ui-improvements-1zp06b`. This file is the working
 plan for the staged implementation of the Discourse-mode UI overhaul, Study
