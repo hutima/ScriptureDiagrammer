@@ -353,6 +353,42 @@ export function outdentDiscourseUnit(
   return touchDoc(doc, units, now);
 }
 
+/** Bounds for the explicit per-line user indent (matches the drag handle). */
+export const MIN_USER_INDENT = 0;
+export const MAX_USER_INDENT = 8;
+
+/**
+ * Set a unit's EXPLICIT user indent to an ABSOLUTE level (clamped). This is
+ * independent of the structural outline (`parentId`/`depth`) and of every other
+ * line — it never touches neighbours. The drag handle and the indent/outdent
+ * buttons both funnel through here so button and drag share one undoable action.
+ */
+export function setDiscourseUnitIndent(
+  doc: DiscourseDocument,
+  unitId: string,
+  userIndent: number,
+  now?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  if (!unit) return doc;
+  const next = Math.max(MIN_USER_INDENT, Math.min(MAX_USER_INDENT, Math.round(userIndent)));
+  if (next === (unit.userIndent ?? 0)) return doc;
+  const units = doc.units.map((u) => (u.id === unitId ? { ...u, userIndent: next } : u));
+  return touchDoc(doc, units, now);
+}
+
+/** Nudge a unit's explicit user indent by a delta (e.g. +1 / -1), clamped. */
+export function nudgeDiscourseUnitIndent(
+  doc: DiscourseDocument,
+  unitId: string,
+  delta: number,
+  now?: string,
+): DiscourseDocument {
+  const unit = unitById(doc, unitId);
+  if (!unit) return doc;
+  return setDiscourseUnitIndent(doc, unitId, (unit.userIndent ?? 0) + delta, now);
+}
+
 /** Move a unit up/down among its siblings (delta of -1 or +1). */
 export function moveDiscourseUnit(
   doc: DiscourseDocument,

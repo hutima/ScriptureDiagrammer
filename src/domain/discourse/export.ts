@@ -11,6 +11,16 @@ import { relationTypeLabel } from './layout';
  * discourse view is HTML and exports these text forms instead.)
  */
 
+/**
+ * The visual indentation level for exports: the structural outline depth PLUS
+ * the explicit per-line user indent, matching the on-screen rendering
+ * (`(depth + userIndent) * step`). Every exporter uses this so a user's
+ * hand-set indentation carries into Markdown, HTML/PDF, and SVG.
+ */
+function effectiveIndent(unit: DiscourseUnit): number {
+  return unit.depth + (unit.userIndent ?? 0);
+}
+
 /** Pretty JSON of the (live, edited) discourse document. */
 export function discourseDocumentJson(doc: DiscourseDocument): string {
   return JSON.stringify(doc, null, 2);
@@ -61,7 +71,7 @@ export function discourseOutlineMarkdown(
 
   const lines: string[] = [`# ${doc.title}`, ''];
   for (const unit of outlineOrder(doc)) {
-    const pad = '  '.repeat(unit.depth);
+    const pad = '  '.repeat(effectiveIndent(unit));
     lines.push(`${pad}- **${unitHeading(doc, unit)}**`);
     if (includeText && unit.tokenIds.length) {
       const text = unit.tokenIds.map((tid) => tokens.get(tid)?.surface ?? '').join(' ').trim();
@@ -163,7 +173,7 @@ export function discourseOutlineHtml(
 
   const rows: string[] = [];
   for (const unit of outlineOrder(doc)) {
-    const indent = unit.depth * 22;
+    const indent = effectiveIndent(unit) * 22;
     const parts: string[] = [`<div class="u" style="margin-left:${indent}px">`];
     parts.push(`<div class="h">${escapeHtml(unitHeading(doc, unit))}</div>`);
     if (includeText && unit.tokenIds.length) {
@@ -275,7 +285,7 @@ export function discourseOutlineSvg(
   lines.push({ x: 0, cls: 'n', text: '' }); // spacer
 
   for (const unit of outlineOrder(doc)) {
-    const x = unit.depth * INDENT;
+    const x = effectiveIndent(unit) * INDENT;
     lines.push({ x, cls: 'h', text: `• ${unitHeading(doc, unit)}` });
     if (includeText && unit.tokenIds.length) {
       const text = unit.tokenIds.map((tid) => tokens.get(tid)?.surface ?? '').join(' ').trim();

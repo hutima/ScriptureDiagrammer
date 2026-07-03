@@ -81,6 +81,15 @@ the source data itself are never touched.
 unit under another says *"I read this as subordinate in the argument"* —
 nothing about the Greek clause structure changes.
 
+**Free-hand indent (drag handle).** In Edit mode each line shows a small
+**⋮⋮ handle** at its left edge. Drag it **horizontally** to set that line's own
+indent — it snaps to fixed steps, and moving one line never moves any other
+(indents are absolute per line, not inherited from the line above). Drag left to
+outdent, right to indent; the arrow keys **← / →** nudge a focused handle by one
+step. This is separate from `Tab`/`Shift+Tab`, which nest a unit in the outline.
+Your indentation is saved with your edits, restored by **Reset**, and carried
+into every export (Markdown, PDF, and SVG).
+
 **Deleting a unit** removes an unwanted verse or block from *this* analysis
 only. It is a discourse-layer edit: the source text, the syntax documents,
 sermon notes, and your syntax edits are never touched. Deleting a **group**
