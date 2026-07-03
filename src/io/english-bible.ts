@@ -31,7 +31,7 @@ import {
  */
 
 /** English Bible sources offered in Discourse mode (bundled BSB + remote KJV/ASV). */
-export type EnglishBibleSourceId = 'english-bsb' | 'english-bsb-ot' | RemoteEnglishSourceId;
+export type EnglishBibleSourceId = 'english-bsb' | 'english-bsb-ot' | 'english-bsb-all' | RemoteEnglishSourceId;
 
 export interface EnglishBibleSourceInfo {
   id: EnglishBibleSourceId;
@@ -44,6 +44,9 @@ export interface EnglishBibleSourceInfo {
 export const ENGLISH_BIBLE_SOURCES: EnglishBibleSourceInfo[] = [
   { id: 'english-bsb', label: 'BSB English', version: 'bsb', corpus: 'nt' },
   { id: 'english-bsb-ot', label: 'BSB English OT', version: 'bsb', corpus: 'ot' },
+  // Combined whole-Bible BSB source (dispatches to the OT/NT data above by
+  // canonical book number: 1-39 OT, 40-66 NT = gntNum + 39).
+  { id: 'english-bsb-all', label: 'BSB English (whole Bible)', version: 'bsb', corpus: 'full' },
   // Remote, English-only whole-Bible sources (KJV, ASV).
   ...REMOTE_ENGLISH_SOURCES.map(
     (s): EnglishBibleSourceInfo => ({ id: s.id, label: s.label, version: s.version, corpus: 'full' }),
@@ -60,6 +63,12 @@ export function englishBibleSourceInfo(id: EnglishBibleSourceId): EnglishBibleSo
 
 /** Books offered for an English Bible source (all books its corpus has data for). */
 export function englishBibleBooksFor(id: EnglishBibleSourceId): { num: number; name: string }[] {
+  if (id === 'english-bsb-all') {
+    return [
+      ...OT_BOOKS.map((b) => ({ num: b.num, name: b.name })),
+      ...GNT_BOOKS.map((b) => ({ num: b.num + 39, name: b.name })),
+    ];
+  }
   if (isRemoteEnglishSource(id)) return REMOTE_ENGLISH_BOOKS.map((b) => ({ num: b.num, name: b.name }));
   return englishBibleSourceInfo(id).corpus === 'ot'
     ? OT_BOOKS.map((b) => ({ num: b.num, name: b.name }))
@@ -253,6 +262,17 @@ export async function loadEnglishBibleBook(
   sourceId: EnglishBibleSourceId,
   bookNum: number,
 ): Promise<EnglishBibleBook> {
+  if (sourceId === 'english-bsb-all') {
+    if (bookNum <= 39) {
+      const book = OT_BOOKS.find((b) => b.num === bookNum);
+      if (!book) throw new Error('Unknown OT book for this source.');
+      return loadBsbOt('english-bsb-all', book);
+    }
+    const gntNum = bookNum - 39;
+    const book = GNT_BOOKS.find((b) => b.num === gntNum);
+    if (!book) throw new Error('Unknown NT book for this source.');
+    return loadBsbNt('english-bsb-all', book);
+  }
   if (isRemoteEnglishSource(sourceId)) return loadRemoteEnglishBibleBook(sourceId, bookNum);
   const info = englishBibleSourceInfo(sourceId);
   if (info.corpus === 'ot') {

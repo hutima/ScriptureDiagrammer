@@ -42,7 +42,10 @@ export const DISCOURSE_SOURCES: { id: DiscourseSourceId; label: string }[] = [
   { id: 'macula-greek-sblgnt-lowfat', label: 'SBLGNT Lowfat' },
   { id: 'macula-greek-nestle1904-lowfat', label: 'Nestle 1904 Lowfat' },
   { id: 'opentext', label: 'OpenText syntax' },
-  ...ENGLISH_BIBLE_SOURCES.map((s) => ({ id: s.id, label: s.label })),
+  ...ENGLISH_BIBLE_SOURCES.filter((s) => s.id !== 'english-bsb' && s.id !== 'english-bsb-ot').map((s) => ({
+    id: s.id,
+    label: s.label,
+  })),
 ];
 
 /** Books offered for a discourse source. */

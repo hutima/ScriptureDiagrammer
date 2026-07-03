@@ -183,20 +183,26 @@ describe('BSB English OT (real data, Hebrew-aligned, no Strong’s)', () => {
 });
 
 describe('English Bible source visibility', () => {
-  it('appears in the Discourse source list only, never in syntax source lists', () => {
-    const discIds = DISCOURSE_SOURCES.map((s) => s.id);
+  it('English sources are loadable and NEVER appear in the syntax source lists', () => {
     for (const s of ENGLISH_BIBLE_SOURCES) {
-      expect(discIds).toContain(s.id);
       expect(isEnglishBibleSource(s.id)).toBe(true);
-      // Never in the syntax selectors.
+      // Never in the syntax selectors — Discourse-only.
       expect(SYNTAX_SOURCES.some((x) => x.id === (s.id as unknown))).toBe(false);
       expect(ALL_SYNTAX_SOURCES.some((x) => x.id === (s.id as unknown))).toBe(false);
     }
-    // KJV / ASV ARE offered now — as remote, English-only Discourse sources —
-    // but still ONLY in Discourse mode, never in the syntax selectors.
+  });
+
+  it('shows the combined BSB + KJV/ASV in the Discourse selector, and hides the split BSB', () => {
+    const discIds = DISCOURSE_SOURCES.map((s) => s.id);
+    // The unified BSB (whole Bible) and the remote English-only Bibles are offered.
+    expect(discIds).toContain('english-bsb-all');
     expect(discIds).toContain('english-kjv');
     expect(discIds).toContain('english-asv');
-    expect(SYNTAX_SOURCES.some((x) => (x.id as unknown) === 'english-kjv')).toBe(false);
-    expect(ALL_SYNTAX_SOURCES.some((x) => (x.id as unknown) === 'english-asv')).toBe(false);
+    // The split BSB OT/NT ids stay loadable but are hidden from the selector so
+    // BSB reads as one source. (They remain valid English Bible sources.)
+    expect(discIds).not.toContain('english-bsb');
+    expect(discIds).not.toContain('english-bsb-ot');
+    expect(isEnglishBibleSource('english-bsb')).toBe(true);
+    expect(isEnglishBibleSource('english-bsb-ot')).toBe(true);
   });
 });
