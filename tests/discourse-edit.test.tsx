@@ -175,26 +175,34 @@ describe('discourse edit mode (UI)', () => {
     expect(getByText('Relate →')).toBeTruthy();
     expect(getByText('↶ Undo')).toBeTruthy();
     expect(getByText('↷ Redo')).toBeTruthy();
-    // The first unit has no previous sibling: indent + merge are disabled.
-    expect((getByText('→ Indent') as HTMLButtonElement).disabled).toBe(true);
+    // Indent drives the EXPLICIT per-line userIndent, so it works even on the
+    // FIRST unit (no previous sibling needed); merge still needs a predecessor.
+    expect((getByText('→ Indent') as HTMLButtonElement).disabled).toBe(false);
+    expect((getByText('← Outdent') as HTMLButtonElement).disabled).toBe(true); // already at 0
     expect((getByText('Merge ←') as HTMLButtonElement).disabled).toBe(true);
     expect(getByTitle(/Discard all discourse edits/i)).toBeTruthy();
   });
 
-  it('Tab indents and Shift+Tab outdents the selected unit', () => {
+  it('Tab indents and Shift+Tab outdents the selected unit (explicit userIndent — works on the FIRST unit)', () => {
     const s = store.getState();
-    const second = leafUnits(s.doc!)[1]!;
-    store.setState({ selection: { unitId: second.id } });
+    // The FIRST unit: the old structural indent could never move it; the
+    // explicit per-line indent can, and neighbours stay put.
+    const [first, second] = leafUnits(s.doc!);
+    store.setState({ selection: { unitId: first!.id } });
     const { container, rerender } = render(
       createElement(DiscourseView, { doc: store.getState().doc!, editing: true }),
     );
     const view = container.querySelector('.discourse-view')!;
+    const indentOf = (id: string) =>
+      store.getState().doc!.units.find((u) => u.id === id)!.userIndent ?? 0;
     fireEvent.keyDown(view, { key: 'Tab' });
-    expect(store.getState().doc!.units.find((u) => u.id === second.id)!.depth).toBe(1);
+    expect(indentOf(first!.id)).toBe(1);
+    expect(indentOf(second!.id)).toBe(0); // neighbour untouched
+    expect(store.getState().doc!.units.find((u) => u.id === first!.id)!.depth).toBe(0); // structure untouched
     // The canvas re-renders with the updated doc in the app; mirror that here.
     rerender(createElement(DiscourseView, { doc: store.getState().doc!, editing: true }));
     fireEvent.keyDown(view, { key: 'Tab', shiftKey: true });
-    expect(store.getState().doc!.units.find((u) => u.id === second.id)!.depth).toBe(0);
+    expect(indentOf(first!.id)).toBe(0);
   });
 
   it('Enter begins split-picking and clicking a word splits the unit', () => {

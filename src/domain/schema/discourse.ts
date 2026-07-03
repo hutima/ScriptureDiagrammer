@@ -71,6 +71,20 @@ export const DiscourseUnitKindSchema = z.enum([
 ]);
 export type DiscourseUnitKind = z.infer<typeof DiscourseUnitKindSchema>;
 
+/** User-chosen color tags for a discourse unit — visual categorization only,
+ *  no semantics. Additive; never assume closed. */
+export const DISCOURSE_UNIT_COLORS = [
+  'red',
+  'orange',
+  'yellow',
+  'green',
+  'blue',
+  'purple',
+  'gray',
+] as const;
+export const DiscourseUnitColorSchema = z.enum(DISCOURSE_UNIT_COLORS);
+export type DiscourseUnitColor = z.infer<typeof DiscourseUnitColorSchema>;
+
 /**
  * One discourse unit: a contiguous stretch of the loaded range (or a purely
  * interpretive container for other units). References are canonical
@@ -109,9 +123,28 @@ export const DiscourseUnitSchema = z.object({
   userIndent: z.number().int().nonnegative().optional(),
   collapsed: z.boolean().optional(),
   notes: z.string().optional(),
+  /** User-chosen color tag for the unit — visual categorization only, no
+   *  semantics. Absent means untagged; existing documents migrate unchanged. */
+  color: DiscourseUnitColorSchema.optional(),
+  /**
+   * User-authored partial-text highlights within this unit, token-anchored so
+   * they survive edits (drag across words to create). Independent of `color`
+   * (which tags the whole unit); a unit may have any number of highlights,
+   * each covering a contiguous run of its own tokens.
+   */
+  textHighlights: z
+    .array(
+      z.object({
+        id: z.string(),
+        tokenIds: z.array(z.string()).min(1),
+        color: DiscourseUnitColorSchema,
+      }),
+    )
+    .optional(),
   provenance: ProvenanceSchema,
 });
 export type DiscourseUnit = z.infer<typeof DiscourseUnitSchema>;
+export type DiscourseTextHighlight = NonNullable<DiscourseUnit['textHighlights']>[number];
 
 // --- relations -------------------------------------------------------------------
 

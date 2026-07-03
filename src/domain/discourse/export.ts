@@ -133,6 +133,17 @@ interface OutlineRenderOptions {
   includeNotes?: boolean;
 }
 
+/** Mid-tone hex per unit color tag, for the exported outline's left border. */
+const UNIT_COLOR_HEX: Record<string, string> = {
+  red: '#c0392b',
+  orange: '#ca6f1e',
+  yellow: '#b7950b',
+  green: '#1e8449',
+  blue: '#2e6da4',
+  purple: '#7d3c98',
+  gray: '#626f7a',
+};
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -174,7 +185,10 @@ export function discourseOutlineHtml(
   const rows: string[] = [];
   for (const unit of outlineOrder(doc)) {
     const indent = effectiveIndent(unit) * 22;
-    const parts: string[] = [`<div class="u" style="margin-left:${indent}px">`];
+    const colorHex = unit.color ? UNIT_COLOR_HEX[unit.color] : undefined;
+    const colorStyle = colorHex ? `border-left:3px solid ${colorHex};padding-left:6px` : '';
+    const style = [`margin-left:${indent}px`, colorStyle].filter(Boolean).join(';');
+    const parts: string[] = [`<div class="u" style="${style}">`];
     parts.push(`<div class="h">${escapeHtml(unitHeading(doc, unit))}</div>`);
     if (includeText && unit.tokenIds.length) {
       const text = unit.tokenIds.map((tid) => tokens.get(tid)?.surface ?? '').join(' ').trim();

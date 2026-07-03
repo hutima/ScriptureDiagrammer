@@ -2,8 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDiscourseStore } from '@/state';
 import type { DiscourseDocument } from '@/domain/schema';
 import {
-  canIndent,
-  canOutdent,
   childUnits,
   discourseRows,
   visibleRelationEndpoints,
@@ -41,9 +39,12 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
   const splitPickUnitId = useDiscourseStore((s) => s.splitPickUnitId);
   const beginSplit = useDiscourseStore((s) => s.beginSplit);
   const splitUnit = useDiscourseStore((s) => s.splitUnit);
-  const indentUnit = useDiscourseStore((s) => s.indentUnit);
+  const highlightPickUnitId = useDiscourseStore((s) => s.highlightPickUnitId);
+  const beginHighlight = useDiscourseStore((s) => s.beginHighlight);
+  const addTextHighlight = useDiscourseStore((s) => s.addTextHighlight);
+  const highlightColor = useDiscourseStore((s) => s.highlightColor);
   const setUnitIndent = useDiscourseStore((s) => s.setUnitIndent);
-  const outdentUnit = useDiscourseStore((s) => s.outdentUnit);
+  const nudgeUnitIndent = useDiscourseStore((s) => s.nudgeUnitIndent);
   const mergeWithPrevious = useDiscourseStore((s) => s.mergeWithPrevious);
   const deleteUnit = useDiscourseStore((s) => s.deleteUnit);
   const undo = useDiscourseStore((s) => s.undo);
@@ -129,7 +130,8 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
       const t = e.target as HTMLElement;
       if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable) return;
       if (e.key === 'Escape') {
-        if (splitPickUnitId) beginSplit(null);
+        if (highlightPickUnitId) beginHighlight(null);
+        else if (splitPickUnitId) beginSplit(null);
         // Before a target is picked → cancel, no link is created.
         else if (pendingRelationSource) cancelRelation();
         // After the link exists (modal open) → close the modal, KEEP the link.
@@ -153,12 +155,12 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
       const unit = doc.units.find((u) => u.id === unitId);
       if (!unit) return;
       if (e.key === 'Tab') {
+        // Tab drives the EXPLICIT per-line userIndent (same reducer as the
+        // toolbar buttons and the drag handle) — works on ANY line, including
+        // the first, and never moves neighbours. Structural nesting is the
+        // Group/Ungroup commands.
         e.preventDefault();
-        if (e.shiftKey) {
-          if (canOutdent(doc, unitId)) outdentUnit(unitId);
-        } else if (canIndent(doc, unitId)) {
-          indentUnit(unitId);
-        }
+        nudgeUnitIndent(unitId, e.shiftKey ? -1 : 1);
         return;
       }
       if (e.key === 'Enter') {
@@ -186,7 +188,7 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
         }
       }
     },
-    [editing, doc, selection.unitId, splitPickUnitId, pendingRelationSource, typeEditRelationId, beginSplit, cancelRelation, closeRelationTypeEditor, select, undo, redo, indentUnit, outdentUnit, mergeWithPrevious, deleteUnit],
+    [editing, doc, selection.unitId, splitPickUnitId, highlightPickUnitId, pendingRelationSource, typeEditRelationId, beginSplit, beginHighlight, cancelRelation, closeRelationTypeEditor, select, undo, redo, nudgeUnitIndent, mergeWithPrevious, deleteUnit],
   );
 
   const multiSet = useMemo(() => new Set(multiSelected), [multiSelected]);
@@ -240,6 +242,9 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
                 }}
                 editing={editing}
                 onSetIndent={setUnitIndent}
+                highlightPicking={editing && highlightPickUnitId === row.unit.id}
+                onAddHighlight={(unitId, tokenIds) => addTextHighlight(unitId, tokenIds)}
+                highlightColor={highlightColor}
               />
             ))}
           </div>

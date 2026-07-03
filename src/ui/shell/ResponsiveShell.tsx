@@ -6,6 +6,7 @@ import { DiagramCanvas } from '@/ui/components/DiagramCanvas';
 import { DiscourseCanvas } from '@/ui/discourse/DiscourseCanvas';
 import { LeftPanel } from '@/ui/panels/LeftPanel';
 import { RightPanel } from '@/ui/panels/RightPanel';
+import { DiscourseRightPanel } from '@/ui/discourse/DiscourseRightPanel';
 import { EditorController } from '@/ui/editor/EditorController';
 import { SermonPrepDrawer } from '@/ui/sermon/SermonPrepDrawer';
 import { MobileSermonPrepSheet } from '@/ui/sermon/MobileSermonPrepSheet';
@@ -105,7 +106,12 @@ export function ResponsiveShell() {
               <SermonPrepDrawer />
             </div>
           </aside>
-        ) : discourseMode ? null : ( // the right panel inspects the SYNTAX passage — hidden in Discourse mode
+        ) : discourseMode ? (
+          // Discourse gets its own tools/details column in the SAME right slot
+          // (collapsible like the syntax RightPanel); the syntax right panel
+          // stays hidden because it inspects the syntax passage.
+          <DiscourseRightPanel />
+        ) : (
           <RightPanel />
         )}
       </div>
