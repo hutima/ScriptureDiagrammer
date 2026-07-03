@@ -261,3 +261,24 @@ summed width 164,729 → 154,510px (−6.2%) after B3.
 ## Validation per stage
 
 `npm test` · `npm run typecheck` · `npm run build` (must all pass before PR).
+
+## Conjunction placement (user-reported rendering issues)
+
+- **Spine join labels centered on the clear bar segment** (kr/clause.ts,
+  layoutClauseSpine i>0): the label used to centre between the previous
+  member's LOWEST point (its cascade — which hangs right of the bar, not on
+  it) and the next word's top, biasing it onto the lower word. It now centres
+  between the previous member's baseline and this member's top, pushed down
+  only past elements that actually occupy the bar column (vertical dashed
+  bar/stem lines excluded — the label rides those), and treats the join's
+  own coordinator mark (drawn later) as an occupier. Falls back to the old
+  midpoint byte-for-byte when the label wouldn't fit the clear band.
+- **Fork conjunctions on the open side** (kr/coordination.ts ×3): a SINGLE
+  conjunction on a fork bar now sits on the open side (away from the
+  converging prongs) — matching what the infinitive/PP forks already did;
+  MULTIPLE marks on one bar (correlatives, several per-join) keep the throat
+  side per the owner's exception. Verified: εἴτε…εἴτε stack byte-identical.
+- All 2034 tests pass with ZERO snapshot changes (text positions aren't in
+  structural snapshots; no clash-guard offender appeared or moved wrongly —
+  the agent caught and pre-empted a would-be ὅτι × καὶ overprint in Mark 5:29
+  via the coordinator-occupier rule).

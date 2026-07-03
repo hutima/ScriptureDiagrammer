@@ -172,12 +172,16 @@ export function layoutCoordination(
 
   // The coordinator's dashed line is the full-height bar at the WIDE end of the
   // fork, joining the two prongs exactly where they meet the conjunct baselines
-  // (the way a hand-drawn Kellogg-Reed fork bridges the branches). The
-  // coordinator rides CENTRED on that bar, rotated upright and set into the open
-  // throat of the fork — away from the conjunct words — so it never overlaps them.
+  // (the way a hand-drawn Kellogg-Reed fork bridges the branches). A SINGLE
+  // coordinator rides CENTRED on that bar but set to the OPEN side of the fork
+  // (away from the prongs/junction) so it sits clear of the words; MULTIPLE marks
+  // (a correlative pair, or several per-join conjunctions on one bar) read better
+  // in the throat, so keep them on the junction side.
   const dashX = openLeft ? junctionX - prong : prong;
   elements.push(line(eid(), dashX, topY, dashX, botY, 'dashed', 'coordination', node.id));
-  const coordTx = dashX + (openLeft ? 8 : -8);
+  const coordTx = coords.length === 1
+    ? dashX + (openLeft ? -8 : 8) // open side (away from the prongs)
+    : dashX + (openLeft ? 8 : -8); // throat side (toward the junction)
   // Correlative pairs ride the members' baselines; every other conjunction rides
   // the visual middle of the gap between the two members it joins.
   elements.push(...coordinatorMarks(coords, baselines.map((b) => b - centerY), coordTx));
@@ -415,7 +419,9 @@ function layoutOpenPredicateFork(
   const topY = baselines[0]! - centerY;
   const botY = baselines[baselines.length - 1]! - centerY;
   elements.push(line(eid(), prong, topY, prong, botY, 'dashed', 'coordination', verbNode.id));
-  elements.push(...coordinatorMarks(coords, baselines.map((b) => b - centerY), prong - 7));
+  // A single conjunction rides the OPEN side of the fork (arms fan RIGHT, so
+  // open = right of the bar); multiple marks stay in the throat, just left of it.
+  elements.push(...coordinatorMarks(coords, baselines.map((b) => b - centerY), coords.length === 1 ? prong + 7 : prong - 7));
   return {
     width,
     height: botY + arms[arms.length - 1]!.height,
@@ -483,14 +489,16 @@ export function layoutCompoundPredicate(ctx: Ctx, verbNode: SyntaxNode, seen: Se
     elements.push(line(eid(), prong + maxW, by, rightX, 0, 'solid', 'coordination')); // right prong
   });
 
-  // Coordinator on the dashed bar joining the left corners, the conjunction
-  // riding it in the throat of the fork (just left of the corner column).
+  // Coordinator on the dashed bar joining the left corners. A single conjunction
+  // rides the OPEN side of the fork (the arms fan RIGHT, so open = right of the
+  // corner column); multiple marks (correlatives / several per-join) stay in the
+  // throat, just left of the column, where they read better.
   const topY = ys[0]! - centerY;
   const botY = ys[ys.length - 1]! - centerY;
   elements.push(line(eid(), prong, topY, prong, botY, 'dashed', 'coordination', verbNode.id));
   // Correlative pairs sit at their members' corners; every other conjunction rides
   // the visual middle of the gap between the two members it joins.
-  elements.push(...coordinatorMarks(coords, ys.map((yv) => yv - centerY), prong - 7));
+  elements.push(...coordinatorMarks(coords, ys.map((yv) => yv - centerY), coords.length === 1 ? prong + 7 : prong - 7));
 
   const lastBottom = botY + members[members.length - 1]!.height;
   return { width: rightX, height: lastBottom, elements, wordLeft: 0, wordRight: rightX };
