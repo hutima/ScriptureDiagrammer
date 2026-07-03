@@ -507,10 +507,19 @@ its own document model, store, persistence, and renderer. See
   sets the hide flag (survives reloads/PWA updates) + forgets the range pointer,
   without touching syntax/sermon/unrelated-discourse state; `resetEdits` only
   discards edits and never sets the hide flag.
-- **Relation arcs in exports** — The "Save as PDF" export renders the
-  arc-annotated SVG outline with relation arcs printed in a left gutter
-  (function `discourseOutlineSvgPrintHtml` wrapping `discourseOutlineSvg`).
-  Arcs use greedy interval packing for lane assignment: arcs share a lane
-  unless their vertical spans overlap, so nested/overlapping relations step
-  outward and clashing stays minimal. Arc labels are centered. The downloadable
-  SVG exports include the same arcs with the same lane packing.
+- **Relation arc layout (screen + exports)** — one PURE engine,
+  `domain/discourse/relationLayout.ts` (`layoutDiscourseRelations`), decides
+  every arc's lane, endpoint offsets, and the gutter width; the on-screen
+  `DiscourseRelationLayer` and the SVG/PDF exports (`discourseOutlineSvg`,
+  `discourseOutlineSvgPrintHtml`) both consume it, so print matches the view.
+  Lanes use deterministic interval packing (spans expanded by a small clearance
+  so near-identical vertical runs never share a lane); relations sharing a
+  source/target y get small deterministic ±px endpoint offsets so horizontal
+  runs never coincide. The gutter is DYNAMIC (0 with no relations; more compact
+  when labels are hidden — the one Labels toggle covers unit AND relation
+  labels). The view store's `relationSide` ('right' default, 'left' optional —
+  a Tools-panel control) picks the side; on the left, endpoints track each
+  unit's measured indent. Every arc renders a wide transparent hit path
+  separate from its visible stroke, so overlapping/selected/colored arcs stay
+  individually selectable. The "Save as PDF" export consolidates unit +
+  relation notes into a bottom Notes section (opt-out checkbox).
