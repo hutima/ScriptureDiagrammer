@@ -1,8 +1,12 @@
-import { memo } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import type { DiscourseRow } from '@/domain/discourse';
-import { formatRange } from '@/domain/discourse';
+import { formatRange, MAX_USER_INDENT, MIN_USER_INDENT } from '@/domain/discourse';
 import type { DiscourseViewToggles } from '@/state';
 import { DiscourseMarkerChip } from './DiscourseMarkerChip';
+
+/** Horizontal pixels per indent level — matches the structural depth step. */
+const INDENT_STEP_PX = 26;
+const clampIndent = (n: number) => Math.max(MIN_USER_INDENT, Math.min(MAX_USER_INDENT, n));
 
 /**
  * One discourse unit row: ref label, unit label, Greek text (or gloss text),
@@ -27,6 +31,8 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
   splitPicking = false,
   relateTarget = false,
   onTokenSplit,
+  editing = false,
+  onSetIndent,
 }: {
   row: DiscourseRow;
   view: DiscourseViewToggles;
@@ -43,11 +49,65 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
   splitPicking?: boolean;
   relateTarget?: boolean;
   onTokenSplit?: (unitId: string, tokenId: string) => void;
+  /** Edit mode: show the horizontal indent drag handle. */
+  editing?: boolean;
+  /** Commit an absolute explicit indent for this unit (drag/keyboard). */
+  onSetIndent?: (unitId: string, userIndent: number) => void;
 }) {
   const { unit, tokens, markers, hasChildren } = row;
   const refLabel = formatRange(unit.refStart, unit.refEnd);
   const isContainer = unit.tokenIds.length === 0;
   const gloss = tokens.map((t) => t.gloss ?? '').filter(Boolean).join(' ');
+
+  const baseIndent = unit.userIndent ?? 0;
+  // While dragging, preview the snapped indent locally and commit once on drop
+  // (keeps undo history to one entry per drag).
+  const [dragIndent, setDragIndent] = useState<number | null>(null);
+  const drag = useRef<{ startX: number; startIndent: number } | null>(null);
+  const shownIndent = dragIndent ?? baseIndent;
+
+  const onHandlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (!onSetIndent) return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.setPointerCapture(e.pointerId);
+      drag.current = { startX: e.clientX, startIndent: baseIndent };
+      setDragIndent(baseIndent);
+    },
+    [onSetIndent, baseIndent],
+  );
+  const onHandlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!drag.current) return;
+    const dx = e.clientX - drag.current.startX;
+    setDragIndent(clampIndent(drag.current.startIndent + Math.round(dx / INDENT_STEP_PX)));
+  }, []);
+  const onHandlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (!drag.current) return;
+      e.currentTarget.releasePointerCapture?.(e.pointerId);
+      const final = dragIndent ?? drag.current.startIndent;
+      drag.current = null;
+      setDragIndent(null);
+      if (final !== baseIndent) onSetIndent?.(unit.id, final);
+    },
+    [dragIndent, baseIndent, onSetIndent, unit.id],
+  );
+  const onHandleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!onSetIndent) return;
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        e.stopPropagation();
+        onSetIndent(unit.id, clampIndent(baseIndent + 1));
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        e.stopPropagation();
+        onSetIndent(unit.id, clampIndent(baseIndent - 1));
+      }
+    },
+    [onSetIndent, unit.id, baseIndent],
+  );
 
   return (
     <div
@@ -63,7 +123,7 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
       ]
         .filter(Boolean)
         .join(' ')}
-      style={{ marginLeft: unit.depth * 26 }}
+      style={{ marginLeft: (unit.depth + shownIndent) * INDENT_STEP_PX }}
       role="listitem"
       aria-label={`${unit.label ? `${unit.label}, ` : ''}${unit.kind} ${refLabel}`}
       data-unit-id={unit.id}
@@ -82,6 +142,21 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         }
       }}
     >
+      {editing && onSetIndent && (
+        <button
+          type="button"
+          className={`discourse-indent-handle${dragIndent !== null ? ' dragging' : ''}`}
+          aria-label="Drag to set indent"
+          title="Drag to indent (← / → to nudge)"
+          onPointerDown={onHandlePointerDown}
+          onPointerMove={onHandlePointerMove}
+          onPointerUp={onHandlePointerUp}
+          onKeyDown={onHandleKeyDown}
+          onClick={(e) => e.stopPropagation()}
+        >
+          ⋮⋮
+        </button>
+      )}
       <div className="discourse-unit-head">
         {hasChildren && onToggleCollapsed && (
           <button

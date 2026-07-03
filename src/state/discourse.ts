@@ -23,7 +23,9 @@ import {
   mergeAdjacentDiscourseUnits,
   moveDiscourseUnit,
   nestDiscourseUnits,
+  nudgeDiscourseUnitIndent,
   outdentDiscourseUnit,
+  setDiscourseUnitIndent,
   rejectDiscourseSuggestion,
   removeDiscourseBreak,
   setDiscourseUnitNotes,
@@ -186,6 +188,10 @@ export interface DiscourseActions {
   mergeWithPrevious: (unitId: string) => void;
   indentUnit: (unitId: string) => void;
   outdentUnit: (unitId: string) => void;
+  /** Set a unit's EXPLICIT per-line indent to an absolute level (drag handle). */
+  setUnitIndent: (unitId: string, userIndent: number) => void;
+  /** Nudge one or more units' explicit indent by a delta (buttons / +/- keys). */
+  nudgeUnitIndent: (unitIds: string | string[], delta: number) => void;
   moveUnit: (unitId: string, delta: number) => void;
   wrapUnits: (unitIds: string[], opts?: { label?: string; kind?: DiscourseUnitKind }) => void;
   unwrapUnit: (unitId: string) => void;
@@ -259,7 +265,24 @@ const DEMO_CHIASM_ARCS: { id: string; a: string; b: string; label: string }[] = 
   { id: 'dr_demo_chiasm_d', a: '2:15', b: '2:16', label: 'D ↔ D′ — one new humanity ↔ reconciled in one body' },
 ];
 
-/** Add the sample chiasm arcs to a fresh demo base (pure; deterministic ids). */
+/**
+ * Sample per-line indent staircase mirroring the chiasm (independent, absolute
+ * `userIndent` per verse — 0→3 then back to 0 around the 2:15/2:16 pivot). Like
+ * the arcs, it is demo/sample state seeded into the base (Reset restores it; a
+ * normal load has none) and every line is freely re-draggable afterwards.
+ */
+const DEMO_INDENTS: Record<string, number> = {
+  '2:12': 0,
+  '2:13': 1,
+  '2:14': 2,
+  '2:15': 3,
+  '2:16': 3,
+  '2:17': 2,
+  '2:18': 1,
+  '2:19': 0,
+};
+
+/** Seed the demo base with the sample chiasm arcs + indent staircase (pure). */
 function seedDemoChiasm(base: DiscourseDocument): DiscourseDocument {
   const byRef = new Map<string, string>();
   for (const u of leafUnits(base)) {
@@ -271,6 +294,13 @@ function seedDemoChiasm(base: DiscourseDocument): DiscourseDocument {
     reason: 'Sample chiasm — a demonstration structure, not an authoritative analysis.',
   };
   let doc = base;
+  // Explicit sample indentation, per verse (absolute; never inferred).
+  doc = {
+    ...doc,
+    units: doc.units.map((u) =>
+      u.refStart in DEMO_INDENTS ? { ...u, userIndent: DEMO_INDENTS[u.refStart] } : u,
+    ),
+  };
   for (const arc of DEMO_CHIASM_ARCS) {
     const sourceUnitId = byRef.get(arc.a);
     const targetUnitId = byRef.get(arc.b);
@@ -534,6 +564,13 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     mergeWithPrevious: (unitId) => commit((d) => removeDiscourseBreak(d, unitId)),
     indentUnit: (unitId) => commit((d) => indentDiscourseUnit(d, unitId)),
     outdentUnit: (unitId) => commit((d) => outdentDiscourseUnit(d, unitId)),
+    setUnitIndent: (unitId, userIndent) =>
+      commit((d) => setDiscourseUnitIndent(d, unitId, userIndent)),
+    nudgeUnitIndent: (unitIds, delta) => {
+      const ids = Array.isArray(unitIds) ? unitIds : [unitIds];
+      // Each selected line moves by the same delta, independently (no cascade).
+      commit((d) => ids.reduce((acc, id) => nudgeDiscourseUnitIndent(acc, id, delta), d));
+    },
     moveUnit: (unitId, delta) => commit((d) => moveDiscourseUnit(d, unitId, delta)),
     wrapUnits: (unitIds, opts) => commit((d) => nestDiscourseUnits(d, unitIds, opts ?? {})),
     unwrapUnit: (unitId) => commit((d) => unwrapDiscourseUnit(d, unitId)),

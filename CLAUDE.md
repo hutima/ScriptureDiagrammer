@@ -446,6 +446,19 @@ its own document model, store, persistence, and renderer. See
   subtree), prunes emptied containers, resequences/respans, and drops dangling
   relations/markers/suggestions; the `deleteUnit` store action is undoable and
   patch-persisted. Editing discourse NEVER mutates any `KrDocument`.
+- **Explicit per-line indent** — each unit carries an optional `userIndent`
+  (schema; absent = 0), an ABSOLUTE level independent of neighbours and of the
+  structural outline `depth`. It renders + exports at `(depth + (userIndent??0))
+  * step` (`export.ts` `effectiveIndent` keeps Markdown/HTML-PDF/SVG in step with
+  the canvas). Set it by dragging the horizontal handle on each row in Edit mode
+  (`DiscourseUnitBlock`, snap = 26px, `← / →` to nudge) or via
+  `setUnitIndent`/`nudgeUnitIndent`; the pure mutations are
+  `setDiscourseUnitIndent`/`nudgeDiscourseUnitIndent` (clamped
+  `MIN/MAX_USER_INDENT` 0–8). Split inherits the indent into both halves; merge
+  keeps the primary's. It is a normal unit field, so `diffDiscourseDocuments`
+  persists it, undo/redo + Reset cover it, and it never touches the structural
+  `parentId`/`depth` (Tab/Shift+Tab still nest). The default demo seeds a sample
+  0-1-2-3-3-2-1-0 staircase into its base alongside the chiasm arcs.
 - **Hints, not conclusions** — MACULA provides no discourse arcs. Markers and
   suggestions (`markers.ts`, `suggest.ts`) are low/medium-confidence,
   "possible …"-phrased, and only become structure through an explicit accept.

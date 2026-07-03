@@ -99,6 +99,14 @@ export const DiscourseUnitSchema = z.object({
   order: z.number().int().nonnegative(),
   /** 0 for top-level; parent.depth + 1 otherwise (kept consistent by helpers). */
   depth: z.number().int().nonnegative(),
+  /**
+   * Explicit, per-line user indentation (additive to the structural `depth`),
+   * set by the drag handle or the indent/outdent commands. It is independent of
+   * neighbouring lines — arbitrary patterns are allowed — and never inferred
+   * from them. Absolute (not a delta); absent means 0 so existing documents
+   * migrate unchanged. Rendered as `(depth + (userIndent ?? 0)) * step`.
+   */
+  userIndent: z.number().int().nonnegative().optional(),
   collapsed: z.boolean().optional(),
   notes: z.string().optional(),
   provenance: ProvenanceSchema,

@@ -131,6 +131,17 @@ describe('default demo — sample chiasm arcs', () => {
     }
   });
 
+  it('seeds the sample indent staircase (independent per-verse userIndent)', async () => {
+    stubFetch();
+    await useDiscourseStore.getState().loadDefaultDemo();
+    const ref = refToUnit();
+    const doc = useDiscourseStore.getState().doc!;
+    const indentAt = (r: string) => doc.units.find((u) => u.id === ref.get(r))!.userIndent ?? 0;
+    expect(['2:12', '2:13', '2:14', '2:15', '2:16', '2:17', '2:18', '2:19'].map(indentAt)).toEqual(
+      [0, 1, 2, 3, 3, 2, 1, 0],
+    );
+  });
+
   it('arcs are editable and deletable, and Reset restores them', async () => {
     stubFetch();
     await useDiscourseStore.getState().loadDefaultDemo();

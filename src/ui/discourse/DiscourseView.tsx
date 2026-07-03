@@ -44,6 +44,7 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
   const beginSplit = useDiscourseStore((s) => s.beginSplit);
   const splitUnit = useDiscourseStore((s) => s.splitUnit);
   const indentUnit = useDiscourseStore((s) => s.indentUnit);
+  const setUnitIndent = useDiscourseStore((s) => s.setUnitIndent);
   const outdentUnit = useDiscourseStore((s) => s.outdentUnit);
   const mergeWithPrevious = useDiscourseStore((s) => s.mergeWithPrevious);
   const deleteUnit = useDiscourseStore((s) => s.deleteUnit);
@@ -259,6 +260,8 @@ export function DiscourseView({ doc, editing = false }: { doc: DiscourseDocument
                   splitUnit(unitId, tokenId);
                   beginSplit(null);
                 }}
+                editing={editing}
+                onSetIndent={setUnitIndent}
               />
             ))}
           </div>
