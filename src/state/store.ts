@@ -68,7 +68,7 @@ import {
 import { diffDocuments, hashBase } from '@/domain/patch';
 import { isEmptySyntaxPatch } from '@/domain/schema';
 import { cloneSample } from '@/fixtures';
-import { DEFAULT_MODE, type ConstituencyVariant, type DiagramMode, type TreeOrientation } from '@/domain/layout';
+import { DEFAULT_MODE, DIAGRAM_MODES, type ConstituencyVariant, type DiagramMode, type TreeOrientation } from '@/domain/layout';
 import { loadForceDesktop, saveForceDesktop } from '@/ui/responsive/viewport';
 import { scheduleAutosave } from './autosave';
 import {
@@ -208,6 +208,35 @@ function saveTreeOrientation(value: TreeOrientation): void {
     else localStorage.removeItem(TREE_ORIENTATION_KEY);
   } catch {
     /* ignore */
+  }
+}
+
+/**
+ * Persist the chosen visualization across refreshes (same best-effort pattern as
+ * `treeOrientation`). The stored id is validated against the known DiagramMode
+ * ids; anything unknown (a removed mode, a corrupted value) falls back to
+ * DEFAULT_MODE so a bad string can never wedge the app. Note: `discourse` is a
+ * valid persisted value — ResponsiveShell forces it off on mobile viewports.
+ */
+const DIAGRAM_MODE_KEY = 'kr:diagramMode';
+const KNOWN_DIAGRAM_MODES = new Set<string>(DIAGRAM_MODES.map((m) => m.id));
+function loadDiagramMode(): DiagramMode {
+  if (typeof localStorage === 'undefined') return DEFAULT_MODE;
+  try {
+    const v = localStorage.getItem(DIAGRAM_MODE_KEY);
+    return v && KNOWN_DIAGRAM_MODES.has(v) ? (v as DiagramMode) : DEFAULT_MODE;
+  } catch {
+    return DEFAULT_MODE;
+  }
+}
+function saveDiagramMode(value: DiagramMode): void {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    // DEFAULT_MODE is the default, so store only an override.
+    if (value !== DEFAULT_MODE) localStorage.setItem(DIAGRAM_MODE_KEY, value);
+    else localStorage.removeItem(DIAGRAM_MODE_KEY);
+  } catch {
+    /* best-effort */
   }
 }
 
@@ -766,7 +795,7 @@ export const useEditorStore = create<EditorStore>((set, get) => {
     contestedBaseDoc: null,
     previewDoc: null,
     verticalScale: 1,
-    diagramMode: DEFAULT_MODE,
+    diagramMode: loadDiagramMode(),
     treeOrientation: loadTreeOrientation(),
     constituencyVariant: loadConstituencyVariant(),
     versesInPanel: loadVersesInPanel(),
@@ -1552,16 +1581,23 @@ export const useEditorStore = create<EditorStore>((set, get) => {
 
     setVerticalScale: (scale) => set({ verticalScale: Math.min(2.5, Math.max(0.6, scale)) }),
 
-    setDiagramMode: (mode) =>
+    setDiagramMode: (mode) => {
+      saveDiagramMode(mode);
+      // Leaving Discourse returns the interaction mode to Explore. (Entering
+      // Discourse is handled by ResponsiveShell's explore→edit effect, which
+      // also fires on a refresh that restores a persisted discourse mode.)
+      const leavingDiscourse = get().diagramMode === 'discourse' && mode !== 'discourse';
       set({
         diagramMode: mode,
+        ...(leavingDiscourse ? { appMode: 'explore' as const } : {}),
         // Mode-specific tools don't carry over; reset any in-progress link.
         activeEditTool: 'select',
         pendingLinkStart: null,
         linkPreviewTarget: null,
         relationshipDraft: null,
         selectedRange: [],
-      }),
+      });
+    },
 
     toggleSourceCompare: (on) => {
       const cur = get().sourceCompare;
