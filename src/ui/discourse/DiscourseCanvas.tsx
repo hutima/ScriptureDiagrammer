@@ -3,7 +3,6 @@ import { useDiscourseStore, useEditorStore } from '@/state';
 import { VisualizationSwitcher } from '@/ui/shell/VisualizationSwitcher';
 
 import { DiscourseView } from './DiscourseView';
-import { DiscourseSidePanel } from './DiscourseSidePanel';
 import { DiscourseSuggestions } from './DiscourseSuggestions';
 import { DiscourseOutlineNav } from './DiscourseOutlineNav';
 import { DiscourseFirstLoadModal } from './DiscourseFirstLoadModal';
@@ -231,9 +230,9 @@ export function DiscourseCanvas() {
                 layer only; syntax editing stays gated on Edit mode. */}
             <DiscourseView doc={doc} editing />
             {suggestionsOpen && <DiscourseSuggestions />}
-            {/* Tools + unit/relation details — docks right, wraps below when
-                horizontal space runs out (pure CSS; see .discourse-side-panel). */}
-            <DiscourseSidePanel />
+            {/* Tools + unit/relation details live in the SHELL's right-panel
+                slot (DiscourseRightPanel in ResponsiveShell), matching the
+                syntax modes' collapsible right column. */}
           </div>
         </>
       ) : (
