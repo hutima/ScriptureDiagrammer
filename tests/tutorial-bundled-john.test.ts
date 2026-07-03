@@ -12,9 +12,10 @@ import { lowfatToDocuments, sblgntDialect } from '@/io/lowfat';
  * the picker bridge match on).
  */
 describe('bundled SBLGNT John (first-run tutorial passage)', () => {
-  it('marks John (4) as bundled for SBLGNT, alongside Philippians (11)', () => {
+  it('marks John (4) as the one bundled SBLGNT book (Philippians was retired)', () => {
     expect(SBLGNT_BUNDLED_BOOKS.has(4)).toBe(true);
-    expect(SBLGNT_BUNDLED_BOOKS.has(11)).toBe(true);
+    expect(SBLGNT_BUNDLED_BOOKS.has(11)).toBe(false);
+    expect(SBLGNT_BUNDLED_BOOKS.size).toBe(1);
   });
 
   it('maps book 4 to the bundled file name', () => {

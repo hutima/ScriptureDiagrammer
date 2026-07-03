@@ -81,7 +81,7 @@ function booksFor(source: Source): { num: number; name: string }[] {
 function defaultBook(source: Source): number {
   if (source === 'ot') return 1; // Genesis
   if (source === 'opentext') return OPENTEXT_BOOKS.some((b) => b.num === 57) ? 57 : OPENTEXT_BOOKS[0]!.num;
-  return 11; // Philippians (bundled for both Lowfat editions)
+  return 4; // John (bundled for the default SBLGNT edition)
 }
 
 const POS_OPTIONS: { value: PartOfSpeech; label: string }[] = [
@@ -198,7 +198,7 @@ export function SearchPicker() {
   const setSearchPrefill = useEditorStore((s) => s.setSearchPrefill);
 
   const [source, setSource] = useState<Source>('sblgnt'); // the default Greek edition
-  const [bookNum, setBookNum] = useState(11); // Philippians (bundled offline)
+  const [bookNum, setBookNum] = useState(4); // John (bundled offline for SBLGNT)
   const [passages, setPassages] = useState<KrDocument[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

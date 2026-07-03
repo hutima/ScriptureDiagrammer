@@ -91,7 +91,8 @@ export function GntPicker() {
   // came from), so the selector reflects what you're reading and persists across
   // remounts — exactly like the Book selector.
   const [source, setSource] = useState<Source>(() => pickerSource(doc));
-  const [bookNum, setBookNum] = useState(currentBook?.num ?? 11);
+  // Default to John — the bundled SBLGNT starter book (and walkthrough passage).
+  const [bookNum, setBookNum] = useState(currentBook?.num ?? 4);
   // Desktop-only two-source side-by-side comparison.
   const vp = useViewport();
   const compareOn = useEditorStore((s) => s.sourceCompare.on);
@@ -136,8 +137,8 @@ export function GntPicker() {
 
   const books = booksFor(source);
   const book = books.find((b) => b.num === bookNum) ?? books[0]!;
-  // OpenText's bundled Philemon is always offline-ready; each Lowfat edition
-  // bundles Philippians only.
+  // OpenText's bundled Philemon is always offline-ready; SBLGNT bundles John
+  // (the starter/walkthrough book); Nestle1904 bundles nothing.
   const bundledSet =
     source === 'macula-greek-sblgnt-lowfat' ? SBLGNT_BUNDLED_BOOKS : BUNDLED_BOOKS;
   const bundled = source === 'opentext' || bundledSet.has(book.num);

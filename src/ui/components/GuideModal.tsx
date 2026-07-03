@@ -68,9 +68,9 @@ export function GuideModal({ onClose }: { onClose: () => void }) {
             </li>
           </ol>
           <p>
-            John (SBLGNT) and Philippians ship with the app; other GNT books and all OT chapters
-            download on first use. <strong>Save offline</strong> keeps the current one for later,
-            and an opened passage is cached automatically.
+            John (SBLGNT) ships with the app; other GNT books and all OT chapters download on
+            first use. <strong>Save offline</strong> keeps the current one for later, and an
+            opened passage is cached automatically.
           </p>
 
           <h3>Read the diagram</h3>
