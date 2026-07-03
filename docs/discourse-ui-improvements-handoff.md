@@ -1,4 +1,29 @@
-# Discourse UI improvements — handoff notes (Phase 1 complete)
+# Discourse UI improvements — handoff notes
+
+## PROGRESS (update me on every phase completion)
+- DONE Phase 1 (this doc), Phase 2 (a3a9398 Outline→left panel), Phase 3
+  (8c8680a right gutter/editor/toolbar/colors/handle), Phase 4 (0e05054
+  study highlights + discourse sermon record), Phase 6 (b7d9497 zoom UX),
+  Phase 7 (234c452 diagramMode persistence + leave-discourse→explore),
+  Phase 8 (2e8d806 composite glosses). All pushed; suite was green at 0e05054
+  (2064 tests) and 234c452.
+- IN PROGRESS Phase 5 (relation highlights): WIP commit fd3fe52 has store
+  actions + pure mutations (beginRelationHighlight/addRelationHighlight/
+  toggle mutation in mutations.ts + state/discourse.ts) but DOES NOT
+  TYPECHECK — 3 errors: mutations.ts:269 `makeId('rh')` prefix not in
+  IdPrefix union (add 'rh' to it in src/domain/model/ids.ts or reuse 'hl');
+  DiscourseUnitBlock.tsx:453,479 call sites pass boolean where new
+  HighlightCtx object expected (mid-refactor of tokenHighlightStyle).
+  REMAINING: finish UnitBlock render wiring (relation pick mode spans +
+  relation-color tints via resolvedRelationColor + relationId→relation map
+  from DiscourseView), banner + Done button, relation editor "Relation
+  highlights" section replacing the TODO(Phase 5) placeholder in
+  DiscourseSidePanel.tsx, prune highlights on relation delete, orphan
+  tolerance, Escape wiring, tests, full validation. Spec = section 3
+  "Phase 5" + D2 relation half + D3.
+- TODO Phase 9: full typecheck/test/build/lint, remove this file, push.
+  Then final deliverable summary (changed files, schema changes, Outline
+  move, highlight UX = hybrid token drag/tap, test results, risks).
 
 Branch: `claude/discourse-ui-improvements-1zp06b`. This file is the working
 plan for the staged implementation of the Discourse-mode UI overhaul, Study
