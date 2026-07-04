@@ -127,66 +127,96 @@ export function GuidedStepCard() {
 
   return (
     <div className="guided-step-card" data-tour="guided-step-card">
-      <div className="guided-step-head">
-        <span className="guided-step-ref">{guide.reference}</span>
-        <span className="guided-step-count">
-          Step {stepIndex + 1} of {guide.steps.length}
-        </span>
-      </div>
-      {stepIndex === 0 && guide.devotionalFrame && (
-        <p className="guided-frame">{renderBody(guide.devotionalFrame, guide, selectGreekTerm, english)}</p>
-      )}
-      <h3 className="guided-step-title">{step.title}</h3>
-      <p className="guided-step-body">{renderBody(step.body, guide, selectGreekTerm, english)}</p>
-      {step.implication && (
-        <p className="guided-implication">
-          <strong>Why it matters:</strong> {renderBody(step.implication, guide, selectGreekTerm, english)}
-        </p>
-      )}
-      {step.caution && (
-        <p className="guided-caution">
-          <strong>A caution:</strong> {renderBody(step.caution, guide, selectGreekTerm, english)}
-        </p>
-      )}
-      {chipTerms.length > 0 && (
-        <div className="guided-term-chips">
-          {chipTerms.map((t) => (
+      {/* Everything but the nav scrolls in its own inner area, so the nav below
+          reads as a fixed header/body/footer bar: it sits at the true bottom of
+          the card even when a step's prose is short (nothing to scroll), and it
+          stays put — never scrolling out of view — once prose is long enough to
+          scroll. See the CSS for `.guided-step-scroll` / `.guided-step-nav`. */}
+      <div className="guided-step-scroll">
+        <div className="guided-step-head">
+          <span className="guided-step-ref">{guide.reference}</span>
+          <span className="guided-step-count">
+            Step {stepIndex + 1} of {guide.steps.length}
+          </span>
+        </div>
+        {stepIndex === 0 && guide.devotionalFrame && (
+          <p className="guided-frame">{renderBody(guide.devotionalFrame, guide, selectGreekTerm, english)}</p>
+        )}
+        <h3 className="guided-step-title">{step.title}</h3>
+        <p className="guided-step-body">{renderBody(step.body, guide, selectGreekTerm, english)}</p>
+        {step.implication && (
+          <p className="guided-implication">
+            <strong>Why it matters:</strong> {renderBody(step.implication, guide, selectGreekTerm, english)}
+          </p>
+        )}
+        {step.caution && (
+          <p className="guided-caution">
+            <strong>A caution:</strong> {renderBody(step.caution, guide, selectGreekTerm, english)}
+          </p>
+        )}
+        {chipTerms.length > 0 && (
+          <div className="guided-term-chips">
+            {chipTerms.map((t) => (
+              <button
+                key={t.id}
+                className={`guided-term-chip${t.id === selectedTermId ? ' active' : ''}`}
+                onClick={() => selectGreekTerm(t.id === selectedTermId ? null : t.id)}
+              >
+                {t.surface}
+              </button>
+            ))}
+          </div>
+        )}
+        {contestedIssue && (
+          <div className="guided-contested">
+            {step.contested?.note && <p className="guided-contested-note">{step.contested.note}</p>}
             <button
-              key={t.id}
-              className={`guided-term-chip${t.id === selectedTermId ? ' active' : ''}`}
-              onClick={() => selectGreekTerm(t.id === selectedTermId ? null : t.id)}
+              className="btn guided-contested-btn"
+              title="Open the alternate-readings panel for this debated passage"
+              onClick={() => openContestedPanel(contestedIssue.id)}
             >
-              {t.surface}
+              See the alternate reading
             </button>
-          ))}
-        </div>
-      )}
-      {contestedIssue && (
-        <div className="guided-contested">
-          {step.contested?.note && <p className="guided-contested-note">{step.contested.note}</p>}
-          <button
-            className="btn guided-contested-btn"
-            title="Open the alternate-readings panel for this debated passage"
-            onClick={() => openContestedPanel(contestedIssue.id)}
-          >
-            See the alternate reading
-          </button>
-        </div>
-      )}
-      {term && <GuidedGreekTermPanel term={term} onClose={() => selectGreekTerm(null)} />}
-      {kinds.length > 0 && (
-        <div className="guided-legend" aria-label="Highlight legend">
-          {kinds.map((k) => (
-            <span key={k} className="guided-legend-item">
-              <span
-                className="guided-legend-swatch"
-                style={{ background: GUIDED_HIGHLIGHT_COLORS[k] }}
-              />
-              {KIND_LABELS[k]}
-            </span>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
+        {term && <GuidedGreekTermPanel term={term} onClose={() => selectGreekTerm(null)} />}
+        {kinds.length > 0 && (
+          <div className="guided-legend" aria-label="Highlight legend">
+            {kinds.map((k) => (
+              <span key={k} className="guided-legend-item">
+                <span
+                  className="guided-legend-swatch"
+                  style={{ background: GUIDED_HIGHLIGHT_COLORS[k] }}
+                />
+                {KIND_LABELS[k]}
+              </span>
+            ))}
+          </div>
+        )}
+        {guide.debateSummary && (
+          <details className="guided-debate">
+            <summary>Where readers differ</summary>
+            <p>{guide.debateSummary.issue}</p>
+            <ul>
+              {guide.debateSummary.views.map((v) => (
+                <li key={v.label}>
+                  <strong>{v.label}:</strong> {v.summary}
+                  {v.cautions && v.cautions.length > 0 && (
+                    <ul className="guided-debate-cautions">
+                      {v.cautions.map((c, i) => (
+                        <li key={i} className="guided-debate-caution">
+                          {c}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <p className="guided-debate-grammar">{guide.debateSummary.grammarOpensQuestionHow}</p>
+          </details>
+        )}
+      </div>
       <div className="guided-step-nav">
         <button className="btn guided-nav-back" disabled={stepIndex === 0} onClick={prevStep}>
           ← Back
@@ -199,29 +229,6 @@ export function GuidedStepCard() {
           Next →
         </button>
       </div>
-      {guide.debateSummary && (
-        <details className="guided-debate">
-          <summary>Where readers differ</summary>
-          <p>{guide.debateSummary.issue}</p>
-          <ul>
-            {guide.debateSummary.views.map((v) => (
-              <li key={v.label}>
-                <strong>{v.label}:</strong> {v.summary}
-                {v.cautions && v.cautions.length > 0 && (
-                  <ul className="guided-debate-cautions">
-                    {v.cautions.map((c, i) => (
-                      <li key={i} className="guided-debate-caution">
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
-          <p className="guided-debate-grammar">{guide.debateSummary.grammarOpensQuestionHow}</p>
-        </details>
-      )}
     </div>
   );
 }

@@ -236,6 +236,39 @@ describe('guided mode UI', () => {
     expect(secondarySvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
   });
 
+  it('wheel/trackpad zoom on the stacked secondary diagram scales it, same as the primary (D1)', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-lords-prayer-bread'));
+    const guide = getGuide('guide-lords-prayer-bread')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    act(() => useGuidedStore.getState().setStep(stackedIndex));
+    const { container } = render(createElement(DiagramCanvas));
+
+    const secondarySvg = Array.from(container.querySelectorAll('svg.diagram-paper')).find((el) =>
+      el.closest('.guided-stacked'),
+    ) as SVGSVGElement;
+    expect(secondarySvg).toBeTruthy();
+    const scroller = secondarySvg.closest('.vc-frame-scroll') as HTMLElement;
+    expect(scroller).toBeTruthy();
+
+    const widthBefore = Number(secondarySvg.getAttribute('width'));
+    // Zoom in (negative deltaY, matching a scroll-up / pinch-out gesture) —
+    // the same `wheelZoomFactor` math the primary canvas uses.
+    act(() => {
+      fireEvent.wheel(scroller, { deltaY: -300 });
+    });
+    const widthAfter = Number(secondarySvg.getAttribute('width'));
+    expect(widthAfter).toBeGreaterThan(widthBefore);
+
+    // Zoom back out (positive deltaY) shrinks it again — a real toggle, not a
+    // one-way ratchet.
+    act(() => {
+      fireEvent.wheel(scroller, { deltaY: 300 });
+    });
+    const widthAfterZoomOut = Number(secondarySvg.getAttribute('width'));
+    expect(widthAfterZoomOut).toBeLessThan(widthAfter);
+  });
+
   it('a non-stacked guide renders no secondary frame', () => {
     useGuidedStore.getState().enter('greek');
     act(() => useGuidedStore.getState().openGuide('guide-john-1-1'));
@@ -323,6 +356,26 @@ describe('guided mode UI', () => {
     expect(backAtStep3).toBeTruthy();
     expect(backAtStep3.hasAttribute('disabled')).toBe(false);
     expect(backAtStep3.className).toContain('guided-nav-back');
+  });
+
+  it('renders the step nav as a pinned footer sibling of the scrollable content, not inline in the flow (D2)', () => {
+    useGuidedStore.getState().enter('greek');
+    const { container } = render(createElement(GuidedStepCard));
+    const card = container.querySelector('.guided-step-card');
+    expect(card).toBeTruthy();
+    const scrollArea = container.querySelector('.guided-step-card > .guided-step-scroll');
+    const nav = container.querySelector('.guided-step-card > .guided-step-nav');
+    expect(scrollArea).toBeTruthy();
+    expect(nav).toBeTruthy();
+    // The nav is a direct sibling AFTER the scroll area (a footer outside the
+    // scrollable body), not nested inside it — so it can never scroll away.
+    expect(scrollArea!.contains(nav)).toBe(false);
+    expect(nav!.compareDocumentPosition(scrollArea!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    // The step's prose lives inside the scrollable area…
+    expect(scrollArea!.querySelector('.guided-step-body')).toBeTruthy();
+    // …and Back/Next live in the pinned nav, not inside the scroll area.
+    expect(scrollArea!.querySelector('.guided-nav-back')).toBeNull();
+    expect(nav!.querySelector('.guided-nav-back')).toBeTruthy();
   });
 
   it('gives guided mode the full viewport width on a narrow real screen (incl. forced desktop)', () => {

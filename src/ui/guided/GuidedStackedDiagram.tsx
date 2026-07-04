@@ -29,9 +29,12 @@ import { guidedHighlightMaps, resolveFocusIds, focusBounds } from './focus';
  * Like the main canvas's guided focus, the panel auto-scrolls ONCE per step
  * change so the step's secondary focus (or, absent one, its secondary
  * highlights) is centered in the visible area — never re-centering while the
- * reader drags/scrolls within the same step. There is no camera here (the
- * frame has no pan/zoom), so "jump" simply means setting the scroll offsets of
- * the frame's own scroll container.
+ * reader drags/scrolls within the same step. There is no independent camera
+ * here (unlike the primary canvas's transform-based pan/zoom): "jump" simply
+ * means setting the scroll offsets of the frame's own scroll container, and
+ * `StaticDiagramFrame`'s `zoomable` prop gives wheel/trackpad scroll-to-zoom
+ * the SAME feel as the primary diagram (shared `wheelZoomFactor` math), by
+ * scaling the SVG's own pixel size within that same scroll container.
  */
 export function GuidedStackedDiagram({
   step,
@@ -132,6 +135,7 @@ export function GuidedStackedDiagram({
         title=""
         highlightFills={maps}
         rtl={rtl}
+        zoomable
       />
     </div>
   );

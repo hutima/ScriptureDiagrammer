@@ -23,6 +23,18 @@ export const MAX_SCALE = 24;
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 /**
+ * Convert a wheel/trackpad `deltaY` into a multiplicative zoom factor (scroll
+ * up/away = zoom in, down/toward = zoom out). The one formula shared by every
+ * wheel-zoom surface — the interactive canvas (`DiagramCanvas`) and the guided
+ * mode's read-only secondary comparison diagram (`StaticDiagramFrame`) — so a
+ * wheel notch feels identical everywhere, however each surface applies the
+ * resulting scale (a CSS transform vs. a scaled SVG intrinsic size).
+ */
+export function wheelZoomFactor(deltaY: number): number {
+  return Math.exp(-deltaY * 0.0015);
+}
+
+/**
  * Upper bound for the view scale: the fixed {@link MAX_SCALE} ceiling, never below
  * `floor` so the zoom range can't invert against the zoom-out lock.
  */

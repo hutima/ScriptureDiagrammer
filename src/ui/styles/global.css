@@ -3659,14 +3659,48 @@ label.field.inline > span { margin-bottom: 0; }
    `display:grid`); a flex item without one already stretches to the full row
    (phone, stacked via the `max-width: 820px` rule below). */
 .guided-aside.guided-full-width { width: auto; }
+/* The generic `.panel-body` (padding + its own overflow:auto) is overridden
+   here so `.guided-step-card`'s own header/body/footer layout owns scrolling
+   and padding instead — see the comment below. */
+.guided-aside .panel-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+/* Guided content area is a header/body/footer layout: `.guided-step-card`
+   fills whatever height its host gives it (the desktop right-panel body, or
+   the mobile bottom card's capped height), `.guided-step-scroll` is the ONLY
+   part that scrolls, and `.guided-step-nav` is a fixed footer that therefore
+   always ends up at the true bottom of the content area — pinned near the
+   lower-right (the Next button) even when a step's prose is short, and never
+   scrolling out of reach when it's long. See `.guided-aside .panel-body` /
+   `.guided-mobile-card` below for the flex-column host each is rendered into. */
 .guided-step-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  /* Inherited by `.guided-step-scroll`'s padding-bottom below, so the
+     scrollable body's bottom padding tracks the footer's approximate height
+     (a fixed estimate — safe-area inset adds a little more, which is fine:
+     the goal is breathing room, not pixel-exact matching). */
+  --guided-nav-h: 46px;
+}
+.guided-step-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  font-size: 13px;
-  line-height: 1.5;
-  overflow-y: auto;
+  /* Breathing room so the last line of prose never sits flush against the
+     nav bar's top border, matching the bar's own vertical footprint. */
+  padding-bottom: calc(12px + var(--guided-nav-h, 46px));
 }
 .guided-step-head {
   display: flex;
@@ -3806,7 +3840,18 @@ label.field.inline > span { margin-bottom: 0; }
   border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.15);
 }
-.guided-step-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 2px; }
+.guided-step-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  /* Fixed footer: Back stays reachable on the left, Next sits at the
+     lower-right of the content area (space-between keeps both, per D2). */
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border, #e2e8f0);
+  background: var(--panel, #fff);
+}
 /* The base .btn (translucent white, tuned for the dark TopBar — see the
    .edit-guide-btn comment above) all but disappears here: the step card sits
    on the light panel background, so a white-on-near-white "← Back" button is
@@ -3841,7 +3886,13 @@ label.field.inline > span { margin-bottom: 0; }
   right: 8px;
   bottom: 8px;
   max-height: 45vh;
-  overflow-y: auto;
+  /* A flex column, NOT a scroller: `.guided-step-card` (its sole child) fills
+     it and owns scrolling internally (`.guided-step-scroll`) so the nav
+     footer stays visible instead of scrolling away with the card content. */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
   background: var(--bg, #fff);
   border: 1px solid var(--line, #d5dbe3);
   border-radius: 10px;
