@@ -58,9 +58,13 @@ import {
   hideDefaultDemo,
   isDefaultDemoHidden,
   isDiscourseFirstLoadModalDismissed,
+  isDiscourseRelationDetailsCollapsed,
+  isDiscourseToolbarGroupsCollapsed,
   loadLastDiscourseRange,
   saveDiscoursePatch,
   saveLastDiscourseRange,
+  setDiscourseRelationDetailsCollapsed,
+  setDiscourseToolbarGroupsCollapsed,
 } from '@/persistence/discourse';
 import { loadDiscourseRange, discourseBooksFor, DEFAULT_GNT_SOURCE } from '@/io';
 import type { DiscourseSourceId, LoadedDiscourseBook } from '@/io';
@@ -125,6 +129,16 @@ export interface DiscourseState {
   selection: DiscourseSelection;
   view: DiscourseViewToggles;
   suggestionsOpen: boolean;
+  /**
+   * Panel-collapse UI PREFERENCES (distinct from `view` above, which is
+   * deliberately never persisted): whether the Edit-mode toolbar's grouped
+   * tools (Structure / Indent / Annotation / History) and the relation
+   * editor's "Style & details" section are collapsed. Hydrated once from
+   * `kr:discoursePref:*` at store creation (a real page load re-reads them);
+   * both default OPEN (`false`).
+   */
+  toolbarGroupsCollapsed: boolean;
+  relationDetailsCollapsed: boolean;
   /** An in-progress "pick the target unit" relation interaction, if any. */
   pendingRelationSource: string | null;
   /**
@@ -257,6 +271,10 @@ export interface DiscourseActions {
   select: (selection: DiscourseSelection) => void;
   setView: (patch: Partial<DiscourseViewToggles>) => void;
   setSuggestionsOpen: (open: boolean) => void;
+  /** Collapse/expand the Edit-mode toolbar's grouped tools; persisted. */
+  setToolbarGroupsCollapsed: (collapsed: boolean) => void;
+  /** Collapse/expand the relation editor's "Style & details" section; persisted. */
+  setRelationDetailsCollapsed: (collapsed: boolean) => void;
   // --- edits (all pure-mutation wrappers; undoable; persisted as a patch) ---
   splitUnit: (unitId: string, atTokenId: string) => void;
   mergeUnits: (aId: string, bId: string) => void;
@@ -540,6 +558,8 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     selection: {},
     view: { ...DEFAULT_VIEW },
     suggestionsOpen: false,
+    toolbarGroupsCollapsed: isDiscourseToolbarGroupsCollapsed(),
+    relationDetailsCollapsed: isDiscourseRelationDetailsCollapsed(),
     pendingRelationSource: null,
     pendingRelationAwaitingSource: false,
     typeEditRelationId: null,
@@ -777,6 +797,14 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
       })),
     setView: (patch) => set((s) => ({ view: { ...s.view, ...patch } })),
     setSuggestionsOpen: (suggestionsOpen) => set({ suggestionsOpen }),
+    setToolbarGroupsCollapsed: (collapsed) => {
+      setDiscourseToolbarGroupsCollapsed(collapsed);
+      set({ toolbarGroupsCollapsed: collapsed });
+    },
+    setRelationDetailsCollapsed: (collapsed) => {
+      setDiscourseRelationDetailsCollapsed(collapsed);
+      set({ relationDetailsCollapsed: collapsed });
+    },
 
     splitUnit: (unitId, atTokenId) => commit((d) => splitDiscourseUnit(d, unitId, atTokenId)),
     mergeUnits: (aId, bId) => commit((d) => mergeAdjacentDiscourseUnits(d, aId, bId)),

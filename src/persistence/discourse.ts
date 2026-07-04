@@ -36,6 +36,16 @@ const FIRST_LOAD_MODAL_DISMISSED_KEY = `${DISCOURSE_PREF_PREFIX}firstLoadModalDi
 export const DEFAULT_DEMO_ID = 'ephesians-2-12-19';
 const HIDE_DEFAULT_DEMO_KEY = `${DISCOURSE_PREF_PREFIX}hideDefaultDemo:${DEFAULT_DEMO_ID}`;
 
+// Two independent panel-collapse preferences (same `kr:discoursePref:` prefix,
+// distinct keys so collapsing one never affects the other):
+//   - the Edit-mode toolbar's Structure/Indent/Annotation/History groups
+//     (Relate and Delete unit stay outside, always visible);
+//   - the relation editor's Type/Label/Confidence/Color/Dash/Width "Style &
+//     details" section (the header, Notes, highlights, and Delete stay outside).
+// Both default OPEN (absent key === not collapsed).
+const TOOLBAR_GROUPS_COLLAPSED_KEY = `${DISCOURSE_PREF_PREFIX}toolbarGroupsCollapsed`;
+const RELATION_DETAILS_COLLAPSED_KEY = `${DISCOURSE_PREF_PREFIX}relationDetailsCollapsed`;
+
 function safeGet(key: string): string | null {
   if (typeof localStorage === 'undefined') return null;
   try {
@@ -182,6 +192,30 @@ export function hideDefaultDemo(): void {
 /** Clear the hide flag so the default demo may auto-restore again. */
 export function unhideDefaultDemo(): void {
   safeRemove(HIDE_DEFAULT_DEMO_KEY);
+}
+
+/** Has the user collapsed the Edit-mode toolbar's grouped tools section? */
+export function isDiscourseToolbarGroupsCollapsed(): boolean {
+  return safeGet(TOOLBAR_GROUPS_COLLAPSED_KEY) === '1';
+}
+
+/** Persist the toolbar grouped-tools collapse state (removes the key when open,
+ *  so an absent key and an explicit "open" are indistinguishable — both mean
+ *  the OPEN default). */
+export function setDiscourseToolbarGroupsCollapsed(collapsed: boolean): void {
+  if (collapsed) safeSet(TOOLBAR_GROUPS_COLLAPSED_KEY, '1');
+  else safeRemove(TOOLBAR_GROUPS_COLLAPSED_KEY);
+}
+
+/** Has the user collapsed the relation editor's "Style & details" section? */
+export function isDiscourseRelationDetailsCollapsed(): boolean {
+  return safeGet(RELATION_DETAILS_COLLAPSED_KEY) === '1';
+}
+
+/** Persist the relation editor's "Style & details" collapse state. */
+export function setDiscourseRelationDetailsCollapsed(collapsed: boolean): void {
+  if (collapsed) safeSet(RELATION_DETAILS_COLLAPSED_KEY, '1');
+  else safeRemove(RELATION_DETAILS_COLLAPSED_KEY);
 }
 
 /** Forget the last-loaded range pointer (used when removing the default demo). */

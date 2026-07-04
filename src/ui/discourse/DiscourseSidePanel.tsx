@@ -93,6 +93,8 @@ export function DiscourseSidePanel() {
   const endRelationHighlight = useDiscourseStore((s) => s.endRelationHighlight);
   const updateRelation = useDiscourseStore((s) => s.updateRelation);
   const deleteRelation = useDiscourseStore((s) => s.deleteRelation);
+  const relationDetailsCollapsed = useDiscourseStore((s) => s.relationDetailsCollapsed);
+  const setRelationDetailsCollapsed = useDiscourseStore((s) => s.setRelationDetailsCollapsed);
 
   if (!doc) return null;
 
@@ -289,114 +291,134 @@ export function DiscourseSidePanel() {
               ✕
             </button>
           </div>
-          <label className="field">
-            <span>Type (optional)</span>
-            <select
-              value={selectedRelation.type ?? ''}
-              onChange={(e) =>
-                updateRelation(selectedRelation.id, {
-                  type: (e.target.value || undefined) as typeof selectedRelation.type,
-                })
-              }
-            >
-              <option value="">(untyped)</option>
-              {DiscourseRelationTypeSchema.options.map((t) => (
-                <option key={t} value={t}>
-                  {relationTypeLabel(t)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>Label</span>
-            <input
-              key={selectedRelation.id}
-              defaultValue={selectedRelation.label ?? ''}
-              placeholder="A ↔ A′, “ground for the command”…"
-              onBlur={(e) =>
-                updateRelation(selectedRelation.id, { label: e.target.value.trim() || undefined })
-              }
-            />
-          </label>
-          <label className="field">
-            <span>Confidence</span>
-            <select
-              value={selectedRelation.confidence ?? ''}
-              onChange={(e) =>
-                updateRelation(selectedRelation.id, {
-                  confidence: (e.target.value || undefined) as 'high' | 'medium' | 'low' | undefined,
-                })
-              }
-            >
-              <option value="">—</option>
-              <option value="high">high</option>
-              <option value="medium">medium</option>
-              <option value="low">low</option>
-            </select>
-          </label>
-          <div className="field discourse-relation-color-field">
-            <span>Color</span>
-            <RelationColorRow
-              active={selectedRelation.color}
-              // Picking a NAMED swatch also clears any custom hex override, so
-              // the two controls never disagree about which one is "active".
-              onPick={(c) => updateRelation(selectedRelation.id, { color: c, customColor: undefined })}
-              onClear={() => updateRelation(selectedRelation.id, { color: undefined, customColor: undefined })}
-            />
-            <input
-              type="color"
-              aria-label="Custom relation colour"
-              title="Custom colour"
-              className="discourse-color-input"
-              value={
-                isSafeHexColor(selectedRelation.customColor)
-                  ? selectedRelation.customColor
-                  : resolvedRelationColor(selectedRelation)
-              }
-              onChange={(e) => updateRelation(selectedRelation.id, { customColor: e.target.value })}
-            />
-            <span className="discourse-color-input-label">Custom</span>
-          </div>
-          <label className="field">
-            <span>Dash</span>
-            <select
-              value={selectedRelation.strokeDash ?? 'default'}
-              onChange={(e) =>
-                updateRelation(selectedRelation.id, {
-                  strokeDash:
-                    e.target.value === 'default'
-                      ? undefined
-                      : (e.target.value as NonNullable<typeof selectedRelation.strokeDash>),
-                })
-              }
-            >
-              <option value="default">Default</option>
-              <option value="solid">Solid</option>
-              <option value="dashed">Dashed</option>
-              <option value="dotted">Dotted</option>
-              <option value="dash-dot">Dash-dot</option>
-            </select>
-          </label>
-          <label className="field">
-            <span>Width</span>
-            <select
-              value={selectedRelation.strokeWidth ?? 'default'}
-              onChange={(e) =>
-                updateRelation(selectedRelation.id, {
-                  strokeWidth:
-                    e.target.value === 'default'
-                      ? undefined
-                      : (e.target.value as NonNullable<typeof selectedRelation.strokeWidth>),
-                })
-              }
-            >
-              <option value="default">Default</option>
-              <option value="thin">Thin</option>
-              <option value="normal">Normal</option>
-              <option value="medium">Medium</option>
-              <option value="thick">Thick</option>
-            </select>
-          </label>
+          {/* Collapsible "Style & details" — Type/Label/Confidence/Color/Dash/
+              Width. Open by default; collapsing frees vertical space for Notes
+              below (the same flex chain #1 fixes). The header above and Notes/
+              highlights/delete below always stay visible. Persisted separately
+              from the toolbar's collapse pref
+              (`kr:discoursePref:relationDetailsCollapsed`). */}
+          <button
+            type="button"
+            className="discourse-outline-toggle discourse-relation-details-toggle"
+            aria-expanded={!relationDetailsCollapsed}
+            aria-controls="discourse-relation-details"
+            onClick={() => setRelationDetailsCollapsed(!relationDetailsCollapsed)}
+          >
+            <span aria-hidden="true">{relationDetailsCollapsed ? '▸' : '▾'}</span>
+            Style &amp; details
+          </button>
+          {!relationDetailsCollapsed && (
+            <div id="discourse-relation-details" className="discourse-relation-details">
+              <label className="field">
+                <span>Type (optional)</span>
+                <select
+                  value={selectedRelation.type ?? ''}
+                  onChange={(e) =>
+                    updateRelation(selectedRelation.id, {
+                      type: (e.target.value || undefined) as typeof selectedRelation.type,
+                    })
+                  }
+                >
+                  <option value="">(untyped)</option>
+                  {DiscourseRelationTypeSchema.options.map((t) => (
+                    <option key={t} value={t}>
+                      {relationTypeLabel(t)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span>Label</span>
+                <input
+                  key={selectedRelation.id}
+                  defaultValue={selectedRelation.label ?? ''}
+                  placeholder="A ↔ A′, “ground for the command”…"
+                  onBlur={(e) =>
+                    updateRelation(selectedRelation.id, { label: e.target.value.trim() || undefined })
+                  }
+                />
+              </label>
+              <label className="field">
+                <span>Confidence</span>
+                <select
+                  value={selectedRelation.confidence ?? ''}
+                  onChange={(e) =>
+                    updateRelation(selectedRelation.id, {
+                      confidence: (e.target.value || undefined) as 'high' | 'medium' | 'low' | undefined,
+                    })
+                  }
+                >
+                  <option value="">—</option>
+                  <option value="high">high</option>
+                  <option value="medium">medium</option>
+                  <option value="low">low</option>
+                </select>
+              </label>
+              <div className="field discourse-relation-color-field">
+                <span>Color</span>
+                <RelationColorRow
+                  active={selectedRelation.color}
+                  // Picking a NAMED swatch also clears any custom hex override, so
+                  // the two controls never disagree about which one is "active".
+                  onPick={(c) => updateRelation(selectedRelation.id, { color: c, customColor: undefined })}
+                  onClear={() => updateRelation(selectedRelation.id, { color: undefined, customColor: undefined })}
+                />
+                <input
+                  type="color"
+                  aria-label="Custom relation colour"
+                  title="Custom colour"
+                  className="discourse-color-input"
+                  value={
+                    isSafeHexColor(selectedRelation.customColor)
+                      ? selectedRelation.customColor
+                      : resolvedRelationColor(selectedRelation)
+                  }
+                  onChange={(e) => updateRelation(selectedRelation.id, { customColor: e.target.value })}
+                />
+                <span className="discourse-color-input-label">Custom</span>
+              </div>
+              <label className="field">
+                <span>Dash</span>
+                <select
+                  value={selectedRelation.strokeDash ?? 'default'}
+                  onChange={(e) =>
+                    updateRelation(selectedRelation.id, {
+                      strokeDash:
+                        e.target.value === 'default'
+                          ? undefined
+                          : (e.target.value as NonNullable<typeof selectedRelation.strokeDash>),
+                    })
+                  }
+                >
+                  <option value="default">Default</option>
+                  <option value="solid">Solid</option>
+                  <option value="dashed">Dashed</option>
+                  <option value="dotted">Dotted</option>
+                  <option value="dash-dot">Dash-dot</option>
+                </select>
+              </label>
+              <label className="field">
+                <span>Width</span>
+                <select
+                  value={selectedRelation.strokeWidth ?? 'default'}
+                  onChange={(e) =>
+                    updateRelation(selectedRelation.id, {
+                      strokeWidth:
+                        e.target.value === 'default'
+                          ? undefined
+                          : (e.target.value as NonNullable<typeof selectedRelation.strokeWidth>),
+                    })
+                  }
+                >
+                  <option value="default">Default</option>
+                  <option value="thin">Thin</option>
+                  <option value="normal">Normal</option>
+                  <option value="medium">Medium</option>
+                  <option value="thick">Thick</option>
+                </select>
+              </label>
+            </div>
+          )}
           <label className="field discourse-notes-field">
             <span>Notes</span>
             <textarea
