@@ -48,7 +48,9 @@ as overlays** — using the smallest representation that captures the difference
 only on passages with contested data; a panel explains the issue in neutral
 language, you can **preview** an alternate (never saved) or **compare it
 side-by-side** with linked scrolling and difference highlighting, and on desktop
-**adopt** a structural alternate as your custom parse. Curated issues are
+**adopt** a structural alternate as your custom parse. Some Guided Exploration
+passages (e.g., Colossians 2:11–12) showcase an alternate reading to illustrate
+a contested decision. Curated issues are
 edition-scoped: `src/data/contestedSyntax.ts` (Nestle1904 GNT / WLC) and
 `src/data/contestedSyntaxSblgnt.ts` (SBLGNT — mirrors most of the same
 debates onto SBLGNT's own ids; a few await an SBLGNT converter fix, see
@@ -128,12 +130,20 @@ are tracked in
   macula-hebrew), fetched on demand and cached; John is bundled for SBLGNT
   (the default edition) for offline first-run — it is also the first-launch
   walkthrough's passage. Hand-tagged sample documents are bundled too.
-- **First-launch walkthrough** — an optional, one-time tour (mobile-friendly)
-  that loads John 1:1 from the bundled SBLGNT and shows the English reading
-  aids: every step is skippable, Escape/Exit leaves immediately, nothing is
-  ever blocked, and it is replayable from the Guide (⋯ → Guide). English
+- **Guided Exploration mode** (⋯ → How to Use / top button "✦ Guided") — an optional
+  introduction system with a **Guided library** of learning passages ordered by
+  difficulty (beginner → intermediate → advanced) with one-sentence summaries,
+  topic tags, and in-prose grammar-term help (dashed underline on genitive,
+  participle, apposition, etc.; click to open beginner-friendly definitions).
+  The **first-launch walkthrough** loads John 1:1 from the bundled SBLGNT and is
+  mobile-friendly; every step is skippable, Escape/Exit leaves immediately,
+  nothing is blocked, and it is replayable from ⋯ → How to Use. Some guides
+  showcase **Discourse mode** — e.g., Acts 2:39 linking to Hebrew Genesis 17:12
+  as a covenant-echo, Ephesians 2:12–19 on reconciliation, or Psalm 46 as a
+  proposed chiasm (loaded without the first-run modal). Step navigation uses a pinned footer with Back/Next, and
+  secondary diagrams support the same scroll-wheel zoom as the primary. English
   glosses and the BSB parallel change only what you *read* — the diagram
-  structure always follows the Greek syntax.
+  structure always follows the original syntax.
 - **Strong's lexicon** — the whole Greek + Hebrew Strong's dictionary (Open
   Scriptures, public-domain Strong's 1890), bundled under `public/lexicon/` and
   loaded on demand for the add-a-word lemma search.
