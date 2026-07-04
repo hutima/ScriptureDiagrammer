@@ -197,3 +197,109 @@ export function clearStemX(
   clear.sort((a, b) => Math.abs(a - preferred) - Math.abs(b - preferred) || b - a);
   return clear[0]!;
 }
+
+/**
+ * The bottom end (max y, block-local) of a coordination SPINE block's dashed
+ * bar, or null when the block is not a spine. A spine exposes its bar column as
+ * the block's connection point (`wordLeft === wordRight`, see layoutClauseSpine);
+ * a parent attaching from BELOW (a pedestal riser) must meet the bar at its
+ * BOTTOM — the last member's baseline — not run a second vertical the spine's
+ * whole height alongside it (which cut straight through the lower members'
+ * verbs: "Esau I hated" in Rom 9:13).
+ */
+export function spineBarBottom(block: Block): number | null {
+  if (block.wordLeft !== block.wordRight || block.wordLeft <= 0) return null;
+  let bottom = -Infinity;
+  for (const el of block.elements) {
+    if (
+      el.kind === 'line' &&
+      el.style === 'dashed' &&
+      el.role === 'coordination' &&
+      Math.abs(el.x1 - block.wordLeft) < 1 &&
+      Math.abs(el.x2 - block.wordLeft) < 1
+    ) {
+      bottom = Math.max(bottom, el.y1, el.y2);
+    }
+  }
+  return Number.isFinite(bottom) ? bottom : null;
+}
+
+/** Vertical clearance a gapped line keeps above/below the glyphs it skips. */
+const GAP_MARGIN = 2;
+/** A line's first/last few px are its junctions — never gapped away, so the
+ *  segment still touches whatever the original endpoint met (a baseline, the
+ *  spine bar) and the diagram stays connected. */
+const GAP_ENDPOINT_STUB = 3;
+
+/**
+ * Split DASHED VERTICAL lines so they visibly SKIP the upright words they
+ * cross, instead of drawing through the glyphs. The compound-sentence spine
+ * deliberately runs verb-to-verb down the verb column (see layoutClauseSpine),
+ * and the lead stub's stem drops through the first verb to reach the bar top;
+ * the renderer's paper halo kept the glyph strokes legible, but the line still
+ * showed between letters and across word spaces (Gen 17:12 "he will be
+ * circumcised" under its "and" lead). Gapping at the MEASURED glyph bands makes
+ * the pass-behind real geometry — identical in every renderer and export, and
+ * wider gloss text simply produces a taller word band, never a new crossing.
+ *
+ * Lines that cross nothing are returned as THE SAME OBJECT, so untouched
+ * passages stay byte-identical. Solid/dotted lines are never gapped — a solid
+ * structural line with a hole reads as two lines; a solid crossing is a layout
+ * bug to fix at its source (see clearStemX / the pedestal riser).
+ */
+export function gapDashedLinesBehindWords(els: readonly DiagramElement[]): DiagramElement[] {
+  // Upright word glyphs only: a rotated word lies ALONG its own line by design
+  // (diagonal modifiers, the spine coordinator marks), and a boxed chip paints
+  // its own opaque background.
+  const words = els.filter(
+    (el): el is TextElement => el.kind === 'text' && !el.rotate && !el.box,
+  );
+  if (!words.length) return [...els];
+  const out: DiagramElement[] = [];
+  for (const el of els) {
+    if (el.kind !== 'line' || el.style !== 'dashed' || Math.abs(el.x1 - el.x2) > 0.5) {
+      out.push(el);
+      continue;
+    }
+    const yLo = Math.min(el.y1, el.y2);
+    const yHi = Math.max(el.y1, el.y2);
+    // Glyph bands this line actually crosses (≥1px inside both glyph edges, so
+    // legitimately ABUTTING a word's edge never triggers a gap), clamped clear
+    // of the line's endpoints so junctions survive.
+    const bands: { lo: number; hi: number }[] = [];
+    for (const w of words) {
+      const width = measureText(w.text, w.small ? SMALL_FONT : undefined);
+      const x0 = w.anchor === 'middle' ? w.x - width / 2 : w.anchor === 'end' ? w.x - width : w.x;
+      if (el.x1 <= x0 + 1 || el.x1 >= x0 + width - 1) continue;
+      const asc = w.small ? 11 : 14;
+      const desc = w.small ? 3 : 4;
+      const lo = Math.max(w.y - asc - GAP_MARGIN, yLo + GAP_ENDPOINT_STUB);
+      const hi = Math.min(w.y + desc + GAP_MARGIN, yHi - GAP_ENDPOINT_STUB);
+      if (hi > lo) bands.push({ lo, hi });
+    }
+    if (!bands.length) {
+      out.push(el);
+      continue;
+    }
+    // Merge the bands, then emit the surviving segments in top-to-bottom order.
+    bands.sort((a, b) => a.lo - b.lo);
+    const merged: { lo: number; hi: number }[] = [];
+    for (const b of bands) {
+      const last = merged[merged.length - 1];
+      if (last && b.lo <= last.hi) last.hi = Math.max(last.hi, b.hi);
+      else merged.push({ ...b });
+    }
+    let cursor = yLo;
+    let piece = 0;
+    for (const b of merged) {
+      if (b.lo - cursor > 0.5) {
+        out.push({ ...el, id: piece++ ? `${el.id}g${piece}` : el.id, y1: cursor, y2: b.lo });
+      }
+      cursor = Math.max(cursor, b.hi);
+    }
+    if (yHi - cursor > 0.5) {
+      out.push({ ...el, id: piece++ ? `${el.id}g${piece}` : el.id, y1: cursor, y2: yHi });
+    }
+  }
+  return out;
+}

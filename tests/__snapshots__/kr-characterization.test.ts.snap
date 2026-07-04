@@ -476,17 +476,9 @@ exports[`KR characterization — lines do not run through word texts (frozen) > 
 
 exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt 2 Corinthians 5:4 1`] = `[]`;
 
-exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Colossians 1:9–16 1`] = `
-[
-  "stem/dashed × αἰτούμενοι",
-]
-`;
+exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Colossians 1:9–16 1`] = `[]`;
 
-exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Colossians 1:9–16 2`] = `
-[
-  "stem/dashed × αἰτούμενοι",
-]
-`;
+exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Colossians 1:9–16 2`] = `[]`;
 
 exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Colossians 1:16 1`] = `[]`;
 
@@ -526,11 +518,7 @@ exports[`KR characterization — lines do not run through word texts (frozen) > 
 
 exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Ephesians 5:28 1`] = `[]`;
 
-exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Ephesians 5:28–30 1`] = `
-[
-  "stem/dashed × θάλπει",
-]
-`;
+exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Ephesians 5:28–30 1`] = `[]`;
 
 exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Ephesians 5:31 1`] = `[]`;
 
@@ -544,11 +532,7 @@ exports[`KR characterization — lines do not run through word texts (frozen) > 
 
 exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Mark 5:21 1`] = `[]`;
 
-exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Mark 5:22–23 1`] = `
-[
-  "stem/dashed × (ἐστίν)",
-]
-`;
+exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Mark 5:22–23 1`] = `[]`;
 
 exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Mark 5:24 1`] = `[]`;
 
@@ -596,11 +580,7 @@ exports[`KR characterization — lines do not run through word texts (frozen) > 
 
 exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Mark 5:37 1`] = `[]`;
 
-exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Mark 5:38–39 1`] = `
-[
-  "stem/solid × καθεύδει",
-]
-`;
+exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Mark 5:38–39 1`] = `[]`;
 
 exports[`KR characterization — lines do not run through word texts (frozen) > sblgnt Mark 5:40 1`] = `[]`;
 
@@ -1312,7 +1292,7 @@ exports[`KR characterization — structural snapshots > nestle Colossians 1:9–
   "compactness": "w=1880 areaK=7231",
   "lines": {
     "baseline/solid": 90,
-    "coordination/dashed": 10,
+    "coordination/dashed": 16,
     "coordination/solid": 16,
     "divider/solid": 7,
     "separator/solid": 15,
@@ -1724,7 +1704,7 @@ exports[`KR characterization — structural snapshots > nestle Colossians 1:16�
   "compactness": "w=530 areaK=213",
   "lines": {
     "baseline/solid": 15,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 3,
     "slant/solid": 6,
   },
@@ -1791,12 +1771,12 @@ exports[`KR characterization — structural snapshots > nestle Mark 1:19–20 1`
   "compactness": "w=720 areaK=666",
   "lines": {
     "baseline/solid": 25,
-    "coordination/dashed": 2,
+    "coordination/dashed": 3,
     "coordination/solid": 3,
     "divider/solid": 3,
     "separator/solid": 7,
     "slant/solid": 9,
-    "stem/dashed": 4,
+    "stem/dashed": 5,
     "stem/solid": 7,
   },
   "nodeIds": [
@@ -1946,7 +1926,7 @@ exports[`KR characterization — structural snapshots > nestle Mark 5:25–27 1`
   "compactness": "w=970 areaK=1316",
   "lines": {
     "baseline/solid": 32,
-    "coordination/dashed": 2,
+    "coordination/dashed": 6,
     "divider/solid": 1,
     "separator/solid": 4,
     "slant/solid": 17,
@@ -2084,11 +2064,11 @@ exports[`KR characterization — structural snapshots > nestle Mark 5:28 1`] = `
   "compactness": "w=500 areaK=265",
   "lines": {
     "baseline/solid": 11,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 3,
     "separator/solid": 1,
     "slant/solid": 3,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_410050280020100",
@@ -2135,10 +2115,10 @@ exports[`KR characterization — structural snapshots > nestle Mark 5:29 1`] = `
   "compactness": "w=590 areaK=360",
   "lines": {
     "baseline/solid": 15,
-    "coordination/dashed": 1,
+    "coordination/dashed": 3,
     "divider/solid": 3,
     "slant/solid": 7,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 2,
   },
   "nodeIds": [
@@ -2204,11 +2184,11 @@ exports[`KR characterization — structural snapshots > nestle Mark 5:30 1`] = `
   "compactness": "w=740 areaK=534",
   "lines": {
     "baseline/solid": 20,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 2,
     "slant/solid": 9,
-    "stem/dashed": 5,
+    "stem/dashed": 6,
     "stem/solid": 3,
   },
   "nodeIds": [
@@ -2287,11 +2267,11 @@ exports[`KR characterization — structural snapshots > nestle Mark 5:31 1`] = `
   "compactness": "w=630 areaK=359",
   "lines": {
     "baseline/solid": 20,
-    "coordination/dashed": 2,
+    "coordination/dashed": 5,
     "divider/solid": 5,
     "separator/solid": 3,
     "slant/solid": 4,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 3,
   },
   "nodeIds": [
@@ -2468,7 +2448,7 @@ exports[`KR characterization — structural snapshots > nestle Mark 5:34 1`] = `
   "compactness": "w=370 areaK=126",
   "lines": {
     "baseline/solid": 9,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 1,
     "slant/solid": 3,
@@ -2515,7 +2495,7 @@ exports[`KR characterization — structural snapshots > nestle Mark 5:34 2`] = `
   "compactness": "w=390 areaK=131",
   "lines": {
     "baseline/solid": 10,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 1,
     "slant/solid": 4,
@@ -3397,12 +3377,12 @@ exports[`KR characterization — structural snapshots > sblgnt Colossians 1:9–
   "compactness": "w=2300 areaK=8325",
   "lines": {
     "baseline/solid": 96,
-    "coordination/dashed": 8,
+    "coordination/dashed": 13,
     "coordination/solid": 14,
     "divider/solid": 8,
     "separator/solid": 15,
     "slant/solid": 64,
-    "stem/dashed": 20,
+    "stem/dashed": 21,
     "stem/solid": 22,
   },
   "nodeIds": [
@@ -3809,12 +3789,12 @@ exports[`KR characterization — structural snapshots > sblgnt Colossians 1:9–
   "compactness": "w=2300 areaK=8325",
   "lines": {
     "baseline/solid": 96,
-    "coordination/dashed": 8,
+    "coordination/dashed": 13,
     "coordination/solid": 14,
     "divider/solid": 8,
     "separator/solid": 15,
     "slant/solid": 64,
-    "stem/dashed": 20,
+    "stem/dashed": 21,
     "stem/solid": 22,
   },
   "nodeIds": [
@@ -4305,7 +4285,7 @@ exports[`KR characterization — structural snapshots > sblgnt Colossians 1:16�
   "compactness": "w=530 areaK=213",
   "lines": {
     "baseline/solid": 15,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 3,
     "slant/solid": 6,
   },
@@ -4374,7 +4354,7 @@ exports[`KR characterization — structural snapshots > sblgnt Colossians 1:18�
   "compactness": "w=1260 areaK=2239",
   "lines": {
     "baseline/solid": 47,
-    "coordination/dashed": 3,
+    "coordination/dashed": 5,
     "coordination/solid": 2,
     "divider/solid": 6,
     "separator/solid": 13,
@@ -4560,11 +4540,11 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:3–4
   "compactness": "w=780 areaK=800",
   "lines": {
     "baseline/solid": 26,
-    "coordination/dashed": 4,
+    "coordination/dashed": 7,
     "coordination/solid": 6,
     "divider/solid": 5,
     "slant/solid": 6,
-    "stem/dashed": 4,
+    "stem/dashed": 5,
     "stem/solid": 4,
   },
   "nodeIds": [
@@ -4847,11 +4827,11 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:8 1`]
   "compactness": "w=480 areaK=161",
   "lines": {
     "baseline/solid": 13,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 2,
     "slant/solid": 3,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_s4_0",
@@ -4985,11 +4965,11 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:11–
   "compactness": "w=950 areaK=871",
   "lines": {
     "baseline/solid": 22,
-    "coordination/dashed": 1,
+    "coordination/dashed": 3,
     "divider/solid": 3,
     "separator/solid": 5,
     "slant/solid": 10,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 8,
   },
   "nodeIds": [
@@ -5129,7 +5109,7 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:14 1`
   "compactness": "w=590 areaK=386",
   "lines": {
     "baseline/solid": 13,
-    "coordination/dashed": 1,
+    "coordination/dashed": 3,
     "divider/solid": 4,
     "slant/solid": 4,
     "stem/dashed": 6,
@@ -5193,11 +5173,11 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:15–
   "compactness": "w=540 areaK=498",
   "lines": {
     "baseline/solid": 21,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 5,
     "separator/solid": 2,
     "slant/solid": 4,
-    "stem/dashed": 6,
+    "stem/dashed": 7,
     "stem/dotted": 1,
   },
   "nodeIds": [
@@ -5275,7 +5255,7 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:17 1`
   "compactness": "w=650 areaK=337",
   "lines": {
     "baseline/solid": 15,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 3,
     "slant/solid": 4,
@@ -5335,12 +5315,12 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:18–
   "compactness": "w=1180 areaK=1931",
   "lines": {
     "baseline/solid": 41,
-    "coordination/dashed": 5,
+    "coordination/dashed": 10,
     "coordination/solid": 9,
     "divider/solid": 3,
     "separator/solid": 5,
     "slant/solid": 16,
-    "stem/dashed": 7,
+    "stem/dashed": 8,
     "stem/solid": 9,
   },
   "nodeIds": [
@@ -5486,7 +5466,7 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:22–
   "compactness": "w=870 areaK=832",
   "lines": {
     "baseline/solid": 26,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 5,
     "separator/solid": 3,
     "slant/solid": 9,
@@ -5658,7 +5638,7 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:25–
   "compactness": "w=1370 areaK=1993",
   "lines": {
     "baseline/solid": 48,
-    "coordination/dashed": 3,
+    "coordination/dashed": 4,
     "coordination/solid": 5,
     "divider/solid": 7,
     "separator/solid": 9,
@@ -5881,12 +5861,12 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:28–
   "compactness": "w=1300 areaK=1183",
   "lines": {
     "baseline/solid": 29,
-    "coordination/dashed": 2,
+    "coordination/dashed": 3,
     "coordination/solid": 4,
     "divider/solid": 5,
     "separator/solid": 6,
     "slant/solid": 10,
-    "stem/dashed": 9,
+    "stem/dashed": 10,
     "stem/solid": 4,
   },
   "nodeIds": [
@@ -5993,7 +5973,7 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:31 1`
   "compactness": "w=600 areaK=367",
   "lines": {
     "baseline/solid": 16,
-    "coordination/dashed": 3,
+    "coordination/dashed": 6,
     "coordination/solid": 2,
     "divider/solid": 3,
     "separator/solid": 1,
@@ -6074,7 +6054,7 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:32 1`
   "compactness": "w=700 areaK=225",
   "lines": {
     "baseline/solid": 11,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 3,
     "slant/solid": 4,
@@ -6130,11 +6110,11 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:33 1`
   "compactness": "w=720 areaK=482",
   "lines": {
     "baseline/solid": 23,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 4,
     "separator/solid": 6,
     "slant/solid": 8,
-    "stem/dashed": 4,
+    "stem/dashed": 5,
     "stem/solid": 6,
   },
   "nodeIds": [
@@ -6218,7 +6198,7 @@ exports[`KR characterization — structural snapshots > sblgnt Hebrews 1:1–4 1
   "compactness": "w=2370 areaK=3574",
   "lines": {
     "baseline/solid": 56,
-    "coordination/dashed": 3,
+    "coordination/dashed": 4,
     "coordination/solid": 5,
     "divider/solid": 4,
     "separator/solid": 10,
@@ -6446,12 +6426,12 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 1:19–20 1`
   "compactness": "w=720 areaK=585",
   "lines": {
     "baseline/solid": 24,
-    "coordination/dashed": 2,
+    "coordination/dashed": 3,
     "coordination/solid": 3,
     "divider/solid": 3,
     "separator/solid": 7,
     "slant/solid": 9,
-    "stem/dashed": 4,
+    "stem/dashed": 5,
     "stem/solid": 6,
   },
   "nodeIds": [
@@ -6537,10 +6517,10 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:21 1`] = `
   "compactness": "w=680 areaK=376",
   "lines": {
     "baseline/solid": 17,
-    "coordination/dashed": 2,
+    "coordination/dashed": 5,
     "divider/solid": 3,
     "slant/solid": 10,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_s0_0",
@@ -6615,11 +6595,11 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:22–23 1`
   "compactness": "w=940 areaK=1250",
   "lines": {
     "baseline/solid": 41,
-    "coordination/dashed": 3,
+    "coordination/dashed": 6,
     "divider/solid": 8,
     "separator/solid": 7,
     "slant/solid": 9,
-    "stem/dashed": 17,
+    "stem/dashed": 18,
     "stem/solid": 8,
   },
   "nodeIds": [
@@ -6777,11 +6757,11 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:24 2`] = `
   "compactness": "w=420 areaK=130",
   "lines": {
     "baseline/solid": 11,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 2,
     "slant/solid": 1,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_s3_0",
@@ -6821,7 +6801,7 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:25–27 1`
   "compactness": "w=970 areaK=1316",
   "lines": {
     "baseline/solid": 31,
-    "coordination/dashed": 2,
+    "coordination/dashed": 6,
     "divider/solid": 1,
     "separator/solid": 3,
     "slant/solid": 17,
@@ -6960,7 +6940,7 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:25–27 2`
   "compactness": "w=970 areaK=1316",
   "lines": {
     "baseline/solid": 31,
-    "coordination/dashed": 2,
+    "coordination/dashed": 6,
     "divider/solid": 1,
     "separator/solid": 3,
     "slant/solid": 17,
@@ -7199,11 +7179,11 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:29 1`] = `
   "compactness": "w=800 areaK=566",
   "lines": {
     "baseline/solid": 16,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 1,
     "slant/solid": 7,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 5,
   },
   "nodeIds": [
@@ -7270,11 +7250,11 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:29 2`] = `
   "compactness": "w=800 areaK=566",
   "lines": {
     "baseline/solid": 16,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 1,
     "slant/solid": 7,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 5,
   },
   "nodeIds": [
@@ -7507,7 +7487,7 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:31 1`] = `
   "compactness": "w=770 areaK=473",
   "lines": {
     "baseline/solid": 20,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 5,
     "separator/solid": 4,
     "slant/solid": 4,
@@ -7578,7 +7558,7 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:31 2`] = `
   "compactness": "w=770 areaK=473",
   "lines": {
     "baseline/solid": 20,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 5,
     "separator/solid": 4,
     "slant/solid": 4,
@@ -7723,12 +7703,12 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:33 1`] = `
   "compactness": "w=550 areaK=442",
   "lines": {
     "baseline/solid": 21,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "coordination/solid": 4,
     "divider/solid": 4,
     "separator/solid": 2,
     "slant/solid": 6,
-    "stem/dashed": 5,
+    "stem/dashed": 6,
     "stem/solid": 3,
   },
   "nodeIds": [
@@ -7803,12 +7783,12 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:33 2`] = `
   "compactness": "w=550 areaK=442",
   "lines": {
     "baseline/solid": 21,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "coordination/solid": 4,
     "divider/solid": 4,
     "separator/solid": 2,
     "slant/solid": 6,
-    "stem/dashed": 5,
+    "stem/dashed": 6,
     "stem/solid": 3,
   },
   "nodeIds": [
@@ -7932,7 +7912,7 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:34 2`] = `
   "compactness": "w=390 areaK=131",
   "lines": {
     "baseline/solid": 10,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 1,
     "slant/solid": 4,
@@ -8030,7 +8010,7 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:34 4`] = `
   "compactness": "w=390 areaK=131",
   "lines": {
     "baseline/solid": 10,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 1,
     "slant/solid": 4,
@@ -8292,12 +8272,12 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:38–39 1`
   "compactness": "w=860 areaK=990",
   "lines": {
     "baseline/solid": 30,
-    "coordination/dashed": 5,
+    "coordination/dashed": 8,
     "coordination/solid": 8,
     "divider/solid": 6,
     "separator/solid": 2,
     "slant/solid": 8,
-    "stem/dashed": 8,
+    "stem/dashed": 9,
     "stem/solid": 4,
   },
   "nodeIds": [
@@ -8426,12 +8406,12 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:40 2`] = `
   "compactness": "w=620 areaK=482",
   "lines": {
     "baseline/solid": 18,
-    "coordination/dashed": 2,
+    "coordination/dashed": 3,
     "coordination/solid": 3,
     "divider/solid": 3,
     "separator/solid": 3,
     "slant/solid": 6,
-    "stem/dashed": 7,
+    "stem/dashed": 8,
     "stem/solid": 1,
   },
   "nodeIds": [
@@ -8585,11 +8565,11 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:42 1`] = `
   "compactness": "w=390 areaK=161",
   "lines": {
     "baseline/solid": 11,
-    "coordination/dashed": 1,
+    "coordination/dashed": 3,
     "divider/solid": 3,
     "separator/solid": 1,
     "slant/solid": 3,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_s20_0",
@@ -8672,11 +8652,11 @@ exports[`KR characterization — structural snapshots > sblgnt Mark 5:43 1`] = `
   "compactness": "w=720 areaK=354",
   "lines": {
     "baseline/solid": 16,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 4,
     "separator/solid": 6,
     "slant/solid": 4,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 3,
   },
   "nodeIds": [
@@ -9101,7 +9081,7 @@ exports[`KR characterization — structural snapshots > sblgnt Philemon 1:8–9 
   "compactness": "w=830 areaK=638",
   "lines": {
     "baseline/solid": 27,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 10,
     "slant/solid": 9,
@@ -9357,11 +9337,11 @@ exports[`KR characterization — structural snapshots > sblgnt Philemon 1:14 1`]
   "compactness": "w=670 areaK=384",
   "lines": {
     "baseline/solid": 19,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 3,
     "slant/solid": 8,
-    "stem/dashed": 4,
+    "stem/dashed": 5,
     "stem/dotted": 1,
   },
   "nodeIds": [
@@ -9433,7 +9413,7 @@ exports[`KR characterization — structural snapshots > sblgnt Philemon 1:15–1
   "compactness": "w=1120 areaK=988",
   "lines": {
     "baseline/solid": 25,
-    "coordination/dashed": 2,
+    "coordination/dashed": 3,
     "coordination/solid": 3,
     "divider/solid": 4,
     "separator/solid": 2,
@@ -9594,7 +9574,7 @@ exports[`KR characterization — structural snapshots > sblgnt Philemon 1:18 1`]
   "compactness": "w=520 areaK=221",
   "lines": {
     "baseline/solid": 13,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 2,
     "slant/solid": 2,
@@ -10032,7 +10012,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:1–2 1`
   "compactness": "w=800 areaK=589",
   "lines": {
     "baseline/solid": 25,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 5,
     "separator/solid": 4,
     "slant/solid": 11,
@@ -10130,7 +10110,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:3–5 1`
   "compactness": "w=1430 areaK=1453",
   "lines": {
     "baseline/solid": 42,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "coordination/solid": 6,
     "divider/solid": 5,
     "separator/solid": 8,
@@ -10371,11 +10351,11 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:6–7 1`
   "compactness": "w=640 areaK=392",
   "lines": {
     "baseline/solid": 23,
-    "coordination/dashed": 2,
+    "coordination/dashed": 5,
     "divider/solid": 4,
     "separator/solid": 3,
     "slant/solid": 3,
-    "stem/dashed": 4,
+    "stem/dashed": 5,
     "stem/solid": 2,
   },
   "nodeIds": [
@@ -10453,11 +10433,11 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:8 1`] = 
   "compactness": "w=840 areaK=505",
   "lines": {
     "baseline/solid": 18,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 3,
     "separator/solid": 1,
     "slant/solid": 6,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 4,
   },
   "nodeIds": [
@@ -10531,7 +10511,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:9 1`] = 
   "compactness": "w=840 areaK=423",
   "lines": {
     "baseline/solid": 16,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 4,
     "slant/solid": 4,
@@ -10600,7 +10580,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:10 1`] =
   "compactness": "w=610 areaK=255",
   "lines": {
     "baseline/solid": 13,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 1,
     "separator/solid": 3,
     "slant/solid": 5,
@@ -10659,12 +10639,12 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:11–12 
   "compactness": "w=840 areaK=828",
   "lines": {
     "baseline/solid": 28,
-    "coordination/dashed": 4,
+    "coordination/dashed": 9,
     "coordination/solid": 5,
     "divider/solid": 3,
     "separator/solid": 3,
     "slant/solid": 7,
-    "stem/dashed": 4,
+    "stem/dashed": 5,
     "stem/solid": 7,
   },
   "nodeIds": [
@@ -10768,7 +10748,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:13 1`] =
   "compactness": "w=550 areaK=237",
   "lines": {
     "baseline/solid": 11,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 2,
     "slant/solid": 2,
@@ -10903,7 +10883,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:15 1`] =
   "compactness": "w=700 areaK=453",
   "lines": {
     "baseline/solid": 19,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 5,
     "separator/solid": 4,
     "slant/solid": 1,
@@ -11015,7 +10995,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:17 1`] =
   "compactness": "w=830 areaK=696",
   "lines": {
     "baseline/solid": 24,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 4,
     "separator/solid": 2,
     "slant/solid": 12,
@@ -11120,10 +11100,10 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:18 1`] =
   "compactness": "w=580 areaK=267",
   "lines": {
     "baseline/solid": 17,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 4,
     "separator/solid": 4,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 6,
   },
   "nodeIds": [
@@ -11323,7 +11303,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:21 1`] =
   "compactness": "w=950 areaK=513",
   "lines": {
     "baseline/solid": 26,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 6,
     "slant/solid": 8,
@@ -11414,12 +11394,12 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:22–24 
   "compactness": "w=1440 areaK=1720",
   "lines": {
     "baseline/solid": 49,
-    "coordination/dashed": 3,
+    "coordination/dashed": 4,
     "coordination/solid": 5,
     "divider/solid": 4,
     "separator/solid": 10,
     "slant/solid": 16,
-    "stem/dashed": 10,
+    "stem/dashed": 11,
     "stem/solid": 9,
   },
   "nodeIds": [
@@ -11571,7 +11551,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:25 1`] =
   "compactness": "w=800 areaK=539",
   "lines": {
     "baseline/solid": 21,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 4,
     "slant/solid": 7,
@@ -11650,7 +11630,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:26 1`] =
   "compactness": "w=950 areaK=663",
   "lines": {
     "baseline/solid": 22,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 4,
     "separator/solid": 3,
     "slant/solid": 7,
@@ -11852,7 +11832,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:29 1`] =
   "compactness": "w=740 areaK=492",
   "lines": {
     "baseline/solid": 21,
-    "coordination/dashed": 1,
+    "coordination/dashed": 3,
     "divider/solid": 4,
     "separator/solid": 1,
     "slant/solid": 2,
@@ -12095,12 +12075,12 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:32–33 
   "compactness": "w=1200 areaK=1142",
   "lines": {
     "baseline/solid": 24,
-    "coordination/dashed": 2,
+    "coordination/dashed": 3,
     "coordination/solid": 2,
     "divider/solid": 4,
     "separator/solid": 1,
     "slant/solid": 5,
-    "stem/dashed": 7,
+    "stem/dashed": 8,
     "stem/solid": 7,
   },
   "nodeIds": [
@@ -12249,7 +12229,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:2 1`] =
   "compactness": "w=690 areaK=341",
   "lines": {
     "baseline/solid": 13,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 1,
     "slant/solid": 3,
@@ -12306,7 +12286,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:3 1`] =
   "compactness": "w=650 areaK=441",
   "lines": {
     "baseline/solid": 15,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 1,
     "separator/solid": 4,
     "slant/solid": 7,
@@ -12488,7 +12468,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:6 1`] =
   "compactness": "w=940 areaK=693",
   "lines": {
     "baseline/solid": 20,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 4,
     "separator/solid": 3,
     "slant/solid": 10,
@@ -12572,11 +12552,11 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:7 1`] =
   "compactness": "w=530 areaK=231",
   "lines": {
     "baseline/solid": 14,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 3,
     "slant/solid": 4,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_s38_0",
@@ -12625,7 +12605,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:8–9 1
   "compactness": "w=990 areaK=1655",
   "lines": {
     "baseline/solid": 48,
-    "coordination/dashed": 4,
+    "coordination/dashed": 9,
     "coordination/solid": 2,
     "divider/solid": 9,
     "separator/solid": 8,
@@ -12791,10 +12771,10 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:10 1`] 
   "compactness": "w=640 areaK=211",
   "lines": {
     "baseline/solid": 12,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "slant/solid": 2,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 2,
   },
   "nodeIds": [
@@ -13295,10 +13275,10 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:17 1`] 
   "compactness": "w=480 areaK=183",
   "lines": {
     "baseline/solid": 12,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "slant/solid": 4,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 1,
   },
   "nodeIds": [
@@ -13386,10 +13366,10 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:18 2`] 
   "compactness": "w=610 areaK=312",
   "lines": {
     "baseline/solid": 13,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "slant/solid": 10,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 1,
   },
   "nodeIds": [
@@ -13557,11 +13537,11 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:20 1`] 
   "compactness": "w=660 areaK=426",
   "lines": {
     "baseline/solid": 21,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 4,
     "separator/solid": 3,
     "slant/solid": 3,
-    "stem/dashed": 7,
+    "stem/dashed": 8,
   },
   "nodeIds": [
     "cl_s56_0",
@@ -13860,11 +13840,11 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:2–3 1
   "compactness": "w=1020 areaK=1105",
   "lines": {
     "baseline/solid": 33,
-    "coordination/dashed": 2,
+    "coordination/dashed": 5,
     "divider/solid": 7,
     "separator/solid": 5,
     "slant/solid": 13,
-    "stem/dashed": 10,
+    "stem/dashed": 11,
     "stem/dotted": 1,
   },
   "nodeIds": [
@@ -14118,7 +14098,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:6 1`] =
   "compactness": "w=370 areaK=105",
   "lines": {
     "baseline/solid": 11,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 1,
     "separator/solid": 1,
     "slant/solid": 2,
@@ -14169,7 +14149,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:7 1`] =
   "compactness": "w=720 areaK=362",
   "lines": {
     "baseline/solid": 16,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 4,
     "separator/solid": 3,
     "slant/solid": 2,
@@ -14324,7 +14304,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:9–10 
   "compactness": "w=880 areaK=814",
   "lines": {
     "baseline/solid": 28,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "coordination/solid": 4,
     "divider/solid": 4,
     "separator/solid": 6,
@@ -14551,7 +14531,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:12 1`] 
   "compactness": "w=760 areaK=435",
   "lines": {
     "baseline/solid": 17,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "separator/solid": 2,
     "slant/solid": 9,
@@ -14669,11 +14649,11 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:13–14
   "compactness": "w=640 areaK=321",
   "lines": {
     "baseline/solid": 24,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 4,
     "separator/solid": 4,
     "slant/solid": 7,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 1,
   },
   "nodeIds": [
@@ -14924,7 +14904,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:17–18
   "compactness": "w=1010 areaK=909",
   "lines": {
     "baseline/solid": 24,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 4,
     "separator/solid": 4,
     "slant/solid": 7,
@@ -15023,11 +15003,11 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:18 1`] 
   "compactness": "w=380 areaK=158",
   "lines": {
     "baseline/solid": 15,
-    "coordination/dashed": 1,
+    "coordination/dashed": 3,
     "divider/solid": 3,
     "separator/solid": 2,
     "slant/solid": 2,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_s80_0",
@@ -15119,7 +15099,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:20 1`] 
   "compactness": "w=470 areaK=198",
   "lines": {
     "baseline/solid": 9,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "divider/solid": 2,
     "slant/solid": 2,
     "stem/solid": 2,
@@ -15166,10 +15146,10 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:20 2`] 
   "compactness": "w=330 areaK=76",
   "lines": {
     "baseline/solid": 8,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 1,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_s83_0",
@@ -15296,7 +15276,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:22 2`] 
   "compactness": "w=650 areaK=397",
   "lines": {
     "baseline/solid": 18,
-    "coordination/dashed": 1,
+    "coordination/dashed": 3,
     "divider/solid": 4,
     "slant/solid": 4,
     "stem/dashed": 3,
@@ -15455,7 +15435,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:24 1`] 
   "compactness": "w=940 areaK=573",
   "lines": {
     "baseline/solid": 18,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 3,
     "slant/solid": 10,
     "stem/dashed": 3,
@@ -15543,7 +15523,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:25–26
   "compactness": "w=1080 areaK=850",
   "lines": {
     "baseline/solid": 30,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 6,
     "separator/solid": 6,
     "slant/solid": 13,
@@ -15768,7 +15748,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:28 1`] 
   "compactness": "w=620 areaK=267",
   "lines": {
     "baseline/solid": 15,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 2,
     "slant/solid": 7,
@@ -15885,7 +15865,7 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:30–31
   "compactness": "w=740 areaK=561",
   "lines": {
     "baseline/solid": 19,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 4,
     "separator/solid": 1,
     "slant/solid": 12,
@@ -16037,11 +16017,11 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:33 1`] 
   "compactness": "w=640 areaK=226",
   "lines": {
     "baseline/solid": 14,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 2,
     "slant/solid": 4,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_s97_1",
@@ -16162,10 +16142,10 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:35 1`] 
   "compactness": "w=420 areaK=139",
   "lines": {
     "baseline/solid": 8,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "slant/solid": 2,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_s100_0",
@@ -16294,7 +16274,7 @@ exports[`KR characterization — structural snapshots > sblgnt Titus 2:11–14 1
   "compactness": "w=1630 areaK=3936",
   "lines": {
     "baseline/solid": 52,
-    "coordination/dashed": 5,
+    "coordination/dashed": 6,
     "coordination/solid": 9,
     "divider/solid": 5,
     "separator/solid": 14,
@@ -16496,7 +16476,7 @@ exports[`KR characterization — structural snapshots > wlc Deuteronomy 6:4 1`] 
   "compactness": "w=410 areaK=172",
   "lines": {
     "baseline/solid": 10,
-    "coordination/dashed": 2,
+    "coordination/dashed": 3,
     "divider/solid": 2,
     "separator/solid": 3,
     "slant/solid": 2,
@@ -16641,7 +16621,7 @@ exports[`KR characterization — structural snapshots > wlc Genesis 1:2 1`] = `
   "compactness": "w=470 areaK=261",
   "lines": {
     "baseline/solid": 18,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "coordination/solid": 2,
     "divider/solid": 3,
     "separator/solid": 1,
@@ -16717,9 +16697,9 @@ exports[`KR characterization — structural snapshots > wlc Genesis 1:3 1`] = `
   "compactness": "w=240 areaK=68",
   "lines": {
     "baseline/solid": 8,
-    "coordination/dashed": 1,
+    "coordination/dashed": 3,
     "divider/solid": 3,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
   },
   "nodeIds": [
     "cl_h2_0",
@@ -16756,12 +16736,12 @@ exports[`KR characterization — structural snapshots > wlc Genesis 1:11 1`] = `
   "compactness": "w=660 areaK=606",
   "lines": {
     "baseline/solid": 31,
-    "coordination/dashed": 2,
+    "coordination/dashed": 4,
     "coordination/solid": 3,
     "divider/solid": 4,
     "separator/solid": 3,
     "slant/solid": 9,
-    "stem/dashed": 8,
+    "stem/dashed": 9,
     "stem/solid": 1,
   },
   "nodeIds": [
@@ -16858,11 +16838,11 @@ exports[`KR characterization — structural snapshots > wlc Psalms 1:1 1`] = `
   "compactness": "w=520 areaK=409",
   "lines": {
     "baseline/solid": 23,
-    "coordination/dashed": 1,
+    "coordination/dashed": 3,
     "divider/solid": 4,
     "separator/solid": 1,
     "slant/solid": 9,
-    "stem/dashed": 4,
+    "stem/dashed": 5,
     "stem/solid": 1,
   },
   "nodeIds": [
@@ -16941,11 +16921,11 @@ exports[`KR characterization — structural snapshots > wlc Psalms 1:2 1`] = `
   "compactness": "w=560 areaK=242",
   "lines": {
     "baseline/solid": 15,
-    "coordination/dashed": 1,
+    "coordination/dashed": 2,
     "divider/solid": 2,
     "separator/solid": 2,
     "slant/solid": 4,
-    "stem/dashed": 1,
+    "stem/dashed": 2,
     "stem/solid": 2,
   },
   "nodeIds": [
