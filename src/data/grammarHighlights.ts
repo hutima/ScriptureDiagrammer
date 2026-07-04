@@ -34,7 +34,7 @@ import { secondPeter1 } from './guides/2-peter-1-1';
  *   continuous". Say how the action is VIEWED; context sets the weight.
  * - Contested passages carry a `debateSummary` with FAIR summaries of the
  *   major readings; grammar opens and constrains the question, it rarely
- *   settles a doctrine by itself. A `confessionalFrame` (Reformed-Anglican
+ *   settles a doctrine by itself. A `confessionalFrame` (confessional Reformed
  *   where relevant) stays a clearly-separate, labelled note.
  * - Greek terms in step bodies are written as `[[termId]]` and resolved
  *   against `greekTerms`; details live in the term panel, not the step card.

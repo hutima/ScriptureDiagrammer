@@ -58,7 +58,7 @@ lay readers. Work in `/home/user/ScriptureDiagrammer`.
   fair `label` + `summary`, optional `cautions`) + `grammarOpensQuestionHow`
   (how the grammar frames but does NOT settle the question). Grammar rarely
   settles a whole doctrine by itself — say so.
-- **`confessionalFrame`** may state a confessional Reformed-Anglican reading,
+- **`confessionalFrame`** may state a confessional Reformed reading,
   but keep it a clearly-labelled SEPARATE note and represent other views fairly.
 
 ## Return
