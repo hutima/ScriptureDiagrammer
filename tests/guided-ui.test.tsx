@@ -164,8 +164,12 @@ describe('guided mode UI', () => {
     const e = useEditorStore.getState();
     expect(e.contested.showAlternateParsePanel).toBe(true);
     expect(e.contested.selectedContestedIssueId).toBe('iss_rom_9_5_doxology_sblgnt');
-    // The merged (9:3–5a + 9:5b) contested base was buildable inside guided mode.
-    expect(e.contestedBaseDoc).not.toBeNull();
+    // The christological reading is baked into the single loaded base document
+    // (doxology in apposition to Χριστός), so there is no separate on-demand
+    // merged base to build — the panel compares against the loaded doc itself.
+    const rel = e.doc.syntax.relations.find((r) => r.id === 'disc_r1');
+    expect(rel?.headId).toBe('s0_w_n45009005008');
+    expect(rel?.type).toBe('apposition');
   });
 
   it('a stacked step renders the secondary Hebrew frame with highlights on both diagrams', () => {
