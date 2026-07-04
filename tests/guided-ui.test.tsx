@@ -141,6 +141,11 @@ describe('guided mode UI', () => {
     // already gives the English on the same line, so assert the stable prefix.
     const inline = link!.querySelector('.guided-term-inline-gloss');
     expect(inline?.textContent?.trim().startsWith(`(${term.transliteration}`)).toBe(true);
+    // There must be a real space between the surface and the parenthetical —
+    // "θεὸς (theos)", never "θεὸς(theos)". The gap lives OUTSIDE the inline-block
+    // span (CSS collapses leading whitespace inside one), so assert on the link's
+    // full text rather than the span's.
+    expect(link!.textContent).toContain(`${term.surface} (${term.transliteration}`);
     unmount();
     // Greek display mode keeps the bare surface — no parenthetical.
     act(() => useGuidedStore.getState().leave());
