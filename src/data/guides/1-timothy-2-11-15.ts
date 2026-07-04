@@ -4,7 +4,7 @@ import type { GrammarHighlightGuide } from '@/domain/schema';
  * 1 Timothy 2:11–15 — one of the most-discussed passages in the New
  * Testament. The steps show what the Greek sentence says and how its pieces
  * connect — what is coordinated with what, and where each appeal attaches.
- * The guide is written from a confessional Reformed-Anglican / PCA stance
+ * The guide is written from a confessional Reformed / PCA stance
  * (the `confessionalFrame` leads with the complementarian reading as this
  * tradition's teaching, per the app owner's direction), while the
  * `debateSummary` keeps a genuinely fair statement of both major readings.
@@ -23,7 +23,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
   summary:
     'A close, careful look at the Greek of one of the New Testament’s most debated passages: what the diagram can show plainly (what is coordinated with what, and where Paul’s appeals attach) and what it leaves for the reader to weigh.',
   devotionalFrame:
-    'Few passages carry as much pastoral weight as this one, and it deserves care. The steps below show what the Greek sentence actually says and how its pieces connect. This guide is written from a confessional Reformed-Anglican stance that receives Paul’s instruction here as a standing pattern for the church’s teaching offices (see the confessional note beneath the steps) — and precisely because the passage is debated among faithful readers, the major alternative reading is also summarized fairly, with cautions for both. Read slowly, keep your Bible open beside the diagram, and let the text carry its full weight.',
+    'Few passages carry as much pastoral weight as this one, and it deserves care. The steps below show what the Greek sentence actually says and how its pieces connect. This guide is written from a confessional Reformed stance that receives Paul’s instruction here as a standing pattern for the church’s teaching offices (see the confessional note beneath the steps) — and precisely because the passage is debated among faithful readers, the major alternative reading is also summarized fairly, with cautions for both. Read slowly, keep your Bible open beside the diagram, and let the text carry its full weight.',
   steps: [
     {
       id: 'step-let-her-learn',
@@ -195,7 +195,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       'The diagram settles some things plainly: οὐδέ ties “to teach” and “to αὐθεντεῖν” into one coordinate pair, not two independent rules; ἀλλά sets a real, positive alternative (“but to be in quietness”) alongside the negated pair; and γάρ formally attaches the Adam-and-Eve sentences to verse 12 as Paul’s stated reason. What the grammar cannot settle by itself: whether the present tense of ἐπιτρέπω (“I am not permitting”) expresses a timeless rule or a decision for a live situation — Greek present-tense verbs carry both uses, and only context can choose between them; and what the rare verb αὐθεντεῖν, found nowhere else in the New Testament, actually meant in ordinary use. Those are lexical, historical, and whole-canon questions, not questions the syntax diagram can answer on its own — it clarifies exactly what is joined to what and where each appeal attaches, and leaves the weighing to the reader, alongside sound teaching and pastoral counsel.',
   },
   confessionalFrame:
-    'Historic Reformed-Anglican confessional teaching has generally read this passage (together with parallel texts) as establishing a settled pattern that reserves the teaching and governing offices of the visible church to men, while fully affirming women’s indispensable ministry in prayer, in teaching children and other women (Titus 2:3–5), in prophecy (1 Corinthians 11:5), and in every spiritual gift not tied to those offices. This is offered here as one confessional tradition’s reading, clearly labelled and distinct from the fair summary of both views above — not as a substitute for weighing them.',
+    'Historic confessional Reformed teaching has generally read this passage (together with parallel texts) as establishing a settled pattern that reserves the teaching and governing offices of the visible church to men, while fully affirming women’s indispensable ministry in prayer, in teaching children and other women (Titus 2:3–5), in prophecy (1 Corinthians 11:5), and in every spiritual gift not tied to those offices. This is offered here as one confessional tradition’s reading, clearly labelled and distinct from the fair summary of both views above — not as a substitute for weighing them.',
   greekTerms: [
     {
       id: 'manthaneto',

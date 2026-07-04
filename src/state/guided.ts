@@ -1,9 +1,12 @@
 import { create } from 'zustand';
-import type { GuidedDisplayMode } from '@/domain/schema';
+import type { GrammarHighlightGuide, GuidedDisplayMode, KrDocument } from '@/domain/schema';
 import type { DiagramMode } from '@/domain/layout';
 import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
 import { getGuidedDocument } from '@/fixtures/guided';
 import { useTutorialStore } from '@/ui/tutorial/tutorialState';
+// Import the pure viewport module directly (NOT the responsive index, whose
+// `useViewport` re-export imports this state package back — a module cycle).
+import { classifyWidth } from '@/ui/responsive/viewport';
 import { useEditorStore } from './store';
 import type { AppMode } from './types';
 
@@ -34,12 +37,42 @@ import type { AppMode } from './types';
 
 const GUIDED_SEEN_KEY = 'kr:guided:v1';
 
+/**
+ * Guided mode is a DESKTOP reading experience. This mirrors exactly how
+ * `canEdit` is derived in the shell (`canEdit = vp.isDesktop`): a real
+ * desktop-class width, OR the user's force-desktop preference — which lives in
+ * the editor store (CLAUDE.md §13) so a non-hook caller can read it too. The
+ * entry points are hidden on small screens; this check makes the store itself
+ * refuse a programmatic/stale `enter()` on a phone as a no-op.
+ */
+export function canEnterGuided(): boolean {
+  const width = typeof window === 'undefined' ? 1280 : window.innerWidth;
+  return classifyWidth(width) === 'desktop' || useEditorStore.getState().forceDesktop;
+}
+
 function markIntroSeen(): void {
   try {
     if (typeof localStorage !== 'undefined') localStorage.setItem(GUIDED_SEEN_KEY, 'seen');
   } catch {
     /* best-effort */
   }
+}
+
+/**
+ * After a guided passage loads (which clears the book reading context), set
+ * the context to the guide's OWN bundled passages. This mirrors what the
+ * pickers do after `loadDocument`, and it is what lets a cross-sentence
+ * contested issue (e.g. Romans 9:5, whose alternate reading is authored
+ * against the MERGED 9:3–5a + 9:5b document) build its combined base while
+ * guided mode is active — `mergedContestedBase` looks the spanned sentences
+ * up in `gntPassages`.
+ */
+function setGuideReadingContext(guide: GrammarHighlightGuide, loadedId: string): void {
+  const docs = guide.bundledPassageIds
+    .map((id) => getGuidedDocument(id))
+    .filter((d): d is KrDocument => !!d);
+  const index = docs.findIndex((d) => d.id === loadedId);
+  useEditorStore.getState().setGntContext(docs, Math.max(0, index));
 }
 
 interface PriorViewState {
@@ -102,6 +135,10 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
   },
 
   enter: (displayMode) => {
+    // Desktop-only: on a phone/tablet viewport (without force-desktop) a
+    // stale or programmatic enter() must be a no-op, mirroring how Edit mode
+    // is gated by `canEdit = vp.isDesktop`.
+    if (!canEnterGuided()) return;
     const editor = useEditorStore.getState();
     const prior: PriorViewState = {
       appMode: editor.appMode,
@@ -153,6 +190,7 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
     const editor = useEditorStore.getState();
     editor.loadDocument(doc, { corpus: 'gnt' });
     editor.setDiagramMode(guide.defaultDiagramMode);
+    setGuideReadingContext(guide, doc.id);
     set((s) => ({
       selectedGuideId: guideId,
       stepIndex: 0,
@@ -178,6 +216,7 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
         if (doc) {
           editor.loadDocument(doc, { corpus: 'gnt' });
           editor.setDiagramMode(guide.defaultDiagramMode);
+          setGuideReadingContext(guide, doc.id);
         }
       }
     }

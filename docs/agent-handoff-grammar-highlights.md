@@ -185,9 +185,9 @@ approval; only the Hebrews sample guide ships.
   for id inspection). `guided:dump` (new script) prints a bundled doc's
   tokens/nodes/relations locally for authoring — no network.
 - **Editorial stance (per Tim, in-session):** the 1 Timothy 2:11-15 guide
-  LEADS with the complementarian reading as the confessional
-  Reformed-Anglican/PCA position (devotionalFrame + confessionalFrame state
-  it plainly), while the debateSummary retains a genuinely fair statement of
+  LEADS with the complementarian reading as the confessional Reformed/PCA
+  position (devotionalFrame + confessionalFrame state it plainly), while the
+  debateSummary retains a genuinely fair statement of
   both major readings with cautions on each. All contested guides carry fair
   debateSummaries; every aspect claim passes the "no aorist = once-for-all"
   guardrail (grep-audited).
@@ -381,7 +381,7 @@ Check off the entries you approve; the next agent then (1) adds each range to
 (`npm run dump-syntax -- 'sblgnt:<ref>'`), (4) authors the guide, (5) runs
 `npm run guided:check`. Copy follows the guardrails (devotional register,
 translations affirmed, aspect never overstated, contested readings summarized
-fairly with the Reformed-Anglican note kept distinct and labelled).
+fairly with the confessional Reformed note kept distinct and labelled).
 
 ## Core set (recommended for v1)
 

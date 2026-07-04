@@ -40,6 +40,7 @@ import {
 import { SourceCompareView } from './SourceCompareView';
 import { DiagramGuideModal } from './DiagramGuideModal';
 import { useViewport } from '@/ui/responsive';
+import { GuidedStackedDiagram } from '@/ui/guided/GuidedStackedDiagram';
 import { GLOSS_TOGGLE_TIP, BSB_TOGGLE_TIP } from '@/ui/tutorial/tutorialSteps';
 
 const TENTATIVE = '#c2410c';
@@ -1546,6 +1547,13 @@ export function DiagramCanvas() {
             a connector label) — still show its parsing in the fixed detail card. */}
         {undrawnReveal && detailCard(undrawnReveal)}
       </div>
+      )}
+      {/* Guided-mode stacked parallel: a read-only secondary diagram beneath the
+          main one (e.g. an OT covenant text beside its NT echo). It never loads
+          into the store — the primary passage stays the loaded document. Only for
+          the SVG lenses; the HTML modes scroll their own content. */}
+      {guidedActive && guidedStep?.secondaryPassageId && !htmlMode && (
+        <GuidedStackedDiagram step={guidedStep} mode={diagramMode} glossMode={glossMode} />
       )}
     </div>
   );

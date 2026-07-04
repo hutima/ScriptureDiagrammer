@@ -29,11 +29,14 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
 
 const { lowfatToDocuments, sblgntDialect } = await import('../src/io/lowfat.ts');
+const { maculaHebrewToDocuments } = await import('../src/io/macula-hebrew.ts');
 const { GNT_BOOKS } = await import('../src/io/gnt.ts');
+const { OT_BOOKS, chapterFile } = await import('../src/io/ot.ts');
 const { KrDocumentSchema } = await import('../src/domain/schema/index.ts');
-const { GUIDED_PASSAGES } = await import('../src/data/guidedPassages.ts');
+const { GUIDED_PASSAGES, GUIDED_HEBREW_PASSAGES } = await import('../src/data/guidedPassages.ts');
 
 const SBLGNT_SRC = 'https://raw.githubusercontent.com/Clear-Bible/macula-greek/main/SBLGNT/lowfat/';
+const OT_SRC = 'https://raw.githubusercontent.com/Clear-Bible/macula-hebrew/main/WLC/lowfat/';
 
 async function loadXml(localRel: string, remote: string): Promise<string> {
   const local = resolve(root, localRel);
@@ -67,7 +70,10 @@ try {
   const { grammarHighlightGuides } = await import('../src/data/grammarHighlights.ts');
   for (const g of grammarHighlightGuides) {
     for (const id of g.bundledPassageIds) referenced.add(id);
-    for (const s of g.steps) if (s.passageId) referenced.add(s.passageId);
+    for (const s of g.steps) {
+      if (s.passageId) referenced.add(s.passageId);
+      if (s.secondaryPassageId) referenced.add(s.secondaryPassageId);
+    }
   }
 } catch (e) {
   console.warn('(could not read the guide registry; keeping all extracted docs)', e);
@@ -103,16 +109,55 @@ for (const p of GUIDED_PASSAGES) {
   console.log(`✓ ${p.book} ${p.chapter}:${p.verseFrom}–${p.verseTo} → ${ids.join(', ') || '(none referenced)'}`);
 }
 
+// --- Hebrew (WLC Lowfat) — a SEPARATE bundle for OT parallels stacked beneath a
+// guide's NT sentence (a step's `secondaryPassageId`). macula-hebrew ships one
+// file per CHAPTER, so a passage is picked by book + chapter; `public/ot/` is
+// empty in-repo, so the chapters are fetched from the upstream source.
+const hebrewDocuments: unknown[] = [];
+const hebrewManifest: { ref: string; book: string; passageIds: string[] }[] = [];
+
+for (const p of GUIDED_HEBREW_PASSAGES) {
+  const book = OT_BOOKS.find((b) => b.name === p.book);
+  if (!book) throw new Error(`Unknown OT book "${p.book}" in GUIDED_HEBREW_PASSAGES.`);
+  const file = chapterFile(book, p.chapter);
+  const xml = await loadXml(`public/ot/${file}`, OT_SRC + file);
+  const docs = maculaHebrewToDocuments(xml, {
+    book: book.name,
+    sourceId: 'macula-hebrew-wlc-lowfat',
+  });
+  const matched = docs.filter((d) => overlapsRange(d.title, p.chapter, p.verseFrom, p.verseTo));
+  if (!matched.length) {
+    throw new Error(`No WLC sentence matched ${p.book} ${p.chapter}:${p.verseFrom}-${p.verseTo}.`);
+  }
+  const ids: string[] = [];
+  for (const d of matched) {
+    if (filtering && !referenced.has(d.id)) continue;
+    const valid = KrDocumentSchema.parse(d);
+    if (!hebrewDocuments.some((x) => (x as { id: string }).id === valid.id)) hebrewDocuments.push(valid);
+    ids.push(valid.id);
+  }
+  hebrewManifest.push({ ref: `${p.book} ${p.chapter}:${p.verseFrom}–${p.verseTo}`, book: p.book, passageIds: ids });
+  console.log(`✓ ${p.book} ${p.chapter}:${p.verseFrom}–${p.verseTo} → ${ids.join(', ') || '(none referenced)'}`);
+}
+
 if (filtering) {
-  const missing = [...referenced].filter((id) => !documents.some((d) => (d as { id: string }).id === id));
+  const has = (id: string) =>
+    documents.some((d) => (d as { id: string }).id === id) ||
+    hebrewDocuments.some((d) => (d as { id: string }).id === id);
+  const missing = [...referenced].filter((id) => !has(id));
   if (missing.length) {
     throw new Error(
       `Guides reference passage ids not produced by any range: ${missing.join(', ')}. ` +
-        `Add the covering verse range to GUIDED_PASSAGES.`,
+        `Add the covering verse range to GUIDED_PASSAGES / GUIDED_HEBREW_PASSAGES.`,
     );
   }
-  console.log(`(lean bundle: kept ${documents.length} referenced document(s))`);
+  console.log(
+    `(lean bundle: kept ${documents.length} Greek + ${hebrewDocuments.length} Hebrew referenced document(s))`,
+  );
 }
+
+const outDir = resolve(root, 'src/fixtures/guided');
+mkdirSync(outDir, { recursive: true });
 
 const out = {
   version: 1,
@@ -123,9 +168,18 @@ const out = {
   manifest,
   documents,
 };
-
-const outDir = resolve(root, 'src/fixtures/guided');
-mkdirSync(outDir, { recursive: true });
 const outPath = resolve(outDir, 'grammar-highlights-sblgnt.json');
 writeFileSync(outPath, JSON.stringify(out, null, 1));
-console.log(`\nWrote ${documents.length} document(s) to ${outPath}`);
+console.log(`\nWrote ${documents.length} Greek document(s) to ${outPath}`);
+
+const outHe = {
+  version: 1,
+  sourceId: 'macula-hebrew-wlc-lowfat',
+  license: 'WLC Lowfat trees: Clear-Bible/macula-hebrew, CC BY 4.0.',
+  builtBy: 'scripts/build-guided-highlights.mts',
+  manifest: hebrewManifest,
+  documents: hebrewDocuments,
+};
+const outHePath = resolve(outDir, 'grammar-highlights-wlc.json');
+writeFileSync(outHePath, JSON.stringify(outHe, null, 1));
+console.log(`Wrote ${hebrewDocuments.length} Hebrew document(s) to ${outHePath}`);

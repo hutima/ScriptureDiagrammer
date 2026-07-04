@@ -11,7 +11,10 @@ import { lordsPrayerBread } from './guides/lords-prayer-bread';
 import { johnSin } from './guides/1-john-sin';
 import { firstPeter3 } from './guides/1-peter-3-18-22';
 import { acts2 } from './guides/acts-2-38';
+import { acts239 } from './guides/acts-2-39';
 import { romans6 } from './guides/romans-6-3-4';
+import { colossians2 } from './guides/colossians-2-11-12';
+import { romans8chain } from './guides/romans-8-28-30';
 import { ephesians1 } from './guides/ephesians-1-3-14';
 import { romans9doxology } from './guides/romans-9-5';
 import { romans9election } from './guides/romans-9-6-13';
@@ -34,7 +37,7 @@ import { secondPeter1 } from './guides/2-peter-1-1';
  *   continuous". Say how the action is VIEWED; context sets the weight.
  * - Contested passages carry a `debateSummary` with FAIR summaries of the
  *   major readings; grammar opens and constrains the question, it rarely
- *   settles a doctrine by itself. A `confessionalFrame` (Reformed-Anglican
+ *   settles a doctrine by itself. A `confessionalFrame` (confessional Reformed
  *   where relevant) stays a clearly-separate, labelled note.
  * - Greek terms in step bodies are written as `[[termId]]` and resolved
  *   against `greekTerms`; details live in the term panel, not the step card.
@@ -53,7 +56,10 @@ const guides: GrammarHighlightGuide[] = [
   // Contested / deeper — grammar opens the question.
   firstPeter3,
   acts2,
+  acts239,
   romans6,
+  colossians2,
+  romans8chain,
   ephesians1,
   romans9doxology,
   romans9election,

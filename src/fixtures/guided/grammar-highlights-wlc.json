@@ -1,0 +1,1819 @@
+{
+ "version": 1,
+ "sourceId": "macula-hebrew-wlc-lowfat",
+ "license": "WLC Lowfat trees: Clear-Bible/macula-hebrew, CC BY 4.0.",
+ "builtBy": "scripts/build-guided-highlights.mts",
+ "manifest": [
+  {
+   "ref": "Genesis 17:12–12",
+   "book": "Genesis",
+   "passageIds": [
+    "wlc_genesis_1_11"
+   ]
+  }
+ ],
+ "documents": [
+  {
+   "schemaVersion": 1,
+   "id": "wlc_genesis_1_11",
+   "title": "Genesis 17:12",
+   "language": "hbo",
+   "text": "וּבֶן־שְׁמֹנַ֣ת יָמִ֗ים יִמּ֥וֹל לָכֶ֛ם כָּל־זָכָ֖ר לְדֹרֹתֵיכֶ֑ם יְלִ֣יד בָּ֔יִת וּמִקְנַת־כֶּ֨סֶף֙ מִכֹּ֣ל בֶּן־נֵכָ֔ר אֲשֶׁ֛ר לֹ֥א מִֽזַּרְעֲךָ֖ הֽוּא׃",
+   "tokens": [
+    {
+     "id": "t_o010170120011",
+     "index": 0,
+     "surface": "וּ",
+     "lemma": "וְ",
+     "language": "hbo",
+     "pos": "conjunction",
+     "morphology": {
+      "extra": {
+       "translit": "û",
+       "ref": "GEN 17:12!1",
+       "strong": "2050b",
+       "lang": "H"
+      }
+     },
+     "gloss": "and",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120012",
+     "index": 1,
+     "surface": "בֶן",
+     "lemma": "בֵּן",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "construct",
+       "type": "common",
+       "translit": "ḇen-",
+       "ref": "GEN 17:12!1",
+       "strong": "1121",
+       "lang": "H",
+       "cat": "NP"
+      }
+     },
+     "gloss": "a.son",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120021",
+     "index": 2,
+     "surface": "שְׁמֹנַ֣ת",
+     "lemma": "שְׁמֹנֶה",
+     "language": "hbo",
+     "pos": "numeral",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "construct",
+       "type": "cardinal number",
+       "translit": "šəmōnaṯ",
+       "ref": "GEN 17:12!2",
+       "strong": "8083",
+       "lang": "H",
+       "cat": "NP"
+      }
+     },
+     "gloss": "of.eight",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120031",
+     "index": 3,
+     "surface": "יָמִ֗ים",
+     "lemma": "יוֹם",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "plural",
+      "extra": {
+       "state": "absolute",
+       "type": "common",
+       "translit": "yāmiym",
+       "ref": "GEN 17:12!3",
+       "strong": "3117",
+       "lang": "H"
+      }
+     },
+     "gloss": "days",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120041",
+     "index": 4,
+     "surface": "יִמּ֥וֹל",
+     "lemma": "מוּל",
+     "language": "hbo",
+     "pos": "verb",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "person": "third",
+      "extra": {
+       "stem": "niphal",
+       "type": "yiqtol",
+       "translit": "yimmôl",
+       "ref": "GEN 17:12!4",
+       "strong": "4135",
+       "lang": "H"
+      }
+     },
+     "gloss": "he.will.be.circumcised",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120051",
+     "index": 5,
+     "surface": "לָ",
+     "lemma": "לְ",
+     "language": "hbo",
+     "pos": "preposition",
+     "morphology": {
+      "extra": {
+       "ref": "GEN 17:12!5",
+       "strong": "3807a",
+       "lang": "H",
+       "cat": "PP"
+      }
+     },
+     "gloss": "to",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120052",
+     "index": 6,
+     "surface": "כֶ֛ם",
+     "lemma": "הוּא",
+     "language": "hbo",
+     "pos": "pronoun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "plural",
+      "person": "second",
+      "extra": {
+       "type": "pronominal",
+       "ref": "GEN 17:12!5",
+       "strong": "3641b",
+       "lang": "H"
+      }
+     },
+     "gloss": "you",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120061",
+     "index": 7,
+     "surface": "כָּל",
+     "lemma": "כֹּל",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "construct",
+       "type": "common",
+       "translit": "kol-",
+       "ref": "GEN 17:12!6",
+       "strong": "3605",
+       "lang": "H",
+       "cat": "NP"
+      }
+     },
+     "gloss": "every",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120071",
+     "index": 8,
+     "surface": "זָכָ֖ר",
+     "lemma": "זָכָר",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "absolute",
+       "type": "adjective",
+       "translit": "zāḵār",
+       "ref": "GEN 17:12!7",
+       "strong": "2145",
+       "lang": "H"
+      }
+     },
+     "gloss": "male",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120081",
+     "index": 9,
+     "surface": "לְ",
+     "lemma": "לְ",
+     "language": "hbo",
+     "pos": "preposition",
+     "morphology": {
+      "extra": {
+       "translit": "lə",
+       "ref": "GEN 17:12!8",
+       "strong": "3807a",
+       "lang": "H",
+       "cat": "PP"
+      }
+     },
+     "gloss": "for",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120082",
+     "index": 10,
+     "surface": "דֹרֹתֵי",
+     "lemma": "דּוֹר",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "plural",
+      "extra": {
+       "state": "construct",
+       "type": "common",
+       "ref": "GEN 17:12!8",
+       "strong": "1755",
+       "lang": "H",
+       "cat": "NP"
+      }
+     },
+     "gloss": "generations",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120083",
+     "index": 11,
+     "surface": "כֶ֑ם",
+     "lemma": "הוּא",
+     "language": "hbo",
+     "pos": "pronoun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "plural",
+      "person": "second",
+      "extra": {
+       "type": "pronominal",
+       "ref": "GEN 17:12!8",
+       "strong": "3641b",
+       "lang": "H"
+      }
+     },
+     "gloss": "your",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120091",
+     "index": 12,
+     "surface": "יְלִ֣יד",
+     "lemma": "יָלִיד",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "construct",
+       "type": "common",
+       "translit": "yəliyḏ",
+       "ref": "GEN 17:12!9",
+       "strong": "3211",
+       "lang": "H",
+       "cat": "NP"
+      }
+     },
+     "gloss": "one.born",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120101",
+     "index": 13,
+     "surface": "בָּ֔יִת",
+     "lemma": "בַּיִת",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "absolute",
+       "type": "common",
+       "translit": "bāyiṯ",
+       "ref": "GEN 17:12!10",
+       "strong": "1004",
+       "lang": "H"
+      }
+     },
+     "gloss": "of.[the].household",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120111",
+     "index": 14,
+     "surface": "וּ",
+     "lemma": "וְ",
+     "language": "hbo",
+     "pos": "conjunction",
+     "morphology": {
+      "extra": {
+       "translit": "û",
+       "ref": "GEN 17:12!11",
+       "strong": "2050b",
+       "lang": "H"
+      }
+     },
+     "gloss": "and",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120112",
+     "index": 15,
+     "surface": "מִקְנַת",
+     "lemma": "מִקְנָה",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "feminine",
+      "number": "singular",
+      "extra": {
+       "state": "construct",
+       "type": "common",
+       "translit": "miqnaṯ-",
+       "ref": "GEN 17:12!11",
+       "strong": "4736",
+       "lang": "H",
+       "cat": "NP"
+      }
+     },
+     "gloss": "a.purchase",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120121",
+     "index": 16,
+     "surface": "כֶּ֨סֶף֙",
+     "lemma": "כֶּסֶף",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "absolute",
+       "type": "common",
+       "translit": "kesep̄",
+       "ref": "GEN 17:12!12",
+       "strong": "3701",
+       "lang": "H"
+      }
+     },
+     "gloss": "of.silver",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120131",
+     "index": 17,
+     "surface": "מִ",
+     "lemma": "מִן",
+     "language": "hbo",
+     "pos": "preposition",
+     "morphology": {
+      "extra": {
+       "translit": "mi",
+       "ref": "GEN 17:12!13",
+       "strong": "4480",
+       "lang": "H",
+       "cat": "PP"
+      }
+     },
+     "gloss": "from",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120132",
+     "index": 18,
+     "surface": "כֹּ֣ל",
+     "lemma": "כֹּל",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "construct",
+       "type": "common",
+       "translit": "kōl",
+       "ref": "GEN 17:12!13",
+       "strong": "3605",
+       "lang": "H"
+      }
+     },
+     "gloss": "every",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120141",
+     "index": 19,
+     "surface": "בֶּן",
+     "lemma": "בֵּן",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "construct",
+       "type": "common",
+       "translit": "ben-",
+       "ref": "GEN 17:12!14",
+       "strong": "1121",
+       "lang": "H",
+       "cat": "NP"
+      }
+     },
+     "gloss": "son",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120151",
+     "index": 20,
+     "surface": "נֵכָ֔ר",
+     "lemma": "נֵכָר",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "absolute",
+       "type": "common",
+       "translit": "nēḵār",
+       "ref": "GEN 17:12!15",
+       "strong": "5236",
+       "lang": "H"
+      }
+     },
+     "gloss": "of.foreignness",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120161",
+     "index": 21,
+     "surface": "אֲשֶׁ֛ר",
+     "lemma": "אֲשֶׁר",
+     "language": "hbo",
+     "pos": "particle",
+     "morphology": {
+      "extra": {
+       "type": "relative",
+       "translit": "ʾăšer",
+       "ref": "GEN 17:12!16",
+       "strong": "0834",
+       "lang": "H"
+      }
+     },
+     "gloss": "who",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120171",
+     "index": 22,
+     "surface": "לֹ֥א",
+     "lemma": "לֹא",
+     "language": "hbo",
+     "pos": "adverb",
+     "morphology": {
+      "extra": {
+       "type": "negative",
+       "translit": "lōʾ",
+       "ref": "GEN 17:12!17",
+       "strong": "3808",
+       "lang": "H"
+      }
+     },
+     "gloss": "not",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120181",
+     "index": 23,
+     "surface": "מִֽ",
+     "lemma": "מִן",
+     "language": "hbo",
+     "pos": "preposition",
+     "morphology": {
+      "extra": {
+       "translit": "mi",
+       "ref": "GEN 17:12!18",
+       "strong": "4480",
+       "lang": "H",
+       "cat": "PP"
+      }
+     },
+     "gloss": "[is].one",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120182",
+     "index": 24,
+     "surface": "זַּרְעֲ",
+     "lemma": "זֶרַע",
+     "language": "hbo",
+     "pos": "noun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "state": "construct",
+       "type": "common",
+       "ref": "GEN 17:12!18",
+       "strong": "2233",
+       "lang": "H",
+       "cat": "NP"
+      }
+     },
+     "gloss": "of",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120183",
+     "index": 25,
+     "surface": "ךָ֖",
+     "lemma": "הוּא",
+     "language": "hbo",
+     "pos": "pronoun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "person": "second",
+      "extra": {
+       "type": "pronominal",
+       "ref": "GEN 17:12!18",
+       "strong": "3509b",
+       "lang": "H"
+      }
+     },
+     "gloss": "your.offspring",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_o010170120191",
+     "index": 26,
+     "surface": "הֽוּא",
+     "lemma": "הוּא",
+     "language": "hbo",
+     "pos": "pronoun",
+     "morphology": {
+      "gender": "masculine",
+      "number": "singular",
+      "person": "third",
+      "extra": {
+       "type": "personal",
+       "translit": "hûʾ:",
+       "ref": "GEN 17:12!19",
+       "strong": "1931",
+       "lang": "H"
+      }
+     },
+     "gloss": "he",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    }
+   ],
+   "syntax": {
+    "rootId": "cl_h11_0",
+    "nodes": [
+     {
+      "id": "cl_h11_0",
+      "kind": "clause",
+      "clauseType": "coordinate",
+      "tokenIds": [],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "cl_h11_1",
+      "kind": "clause",
+      "clauseType": "unknown",
+      "tokenIds": [],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120041",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120041"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120012",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120012"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120021",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120021"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120031",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120031"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120051",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120051"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120052",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120052"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "cl_h11_9",
+      "kind": "clause",
+      "clauseType": "unknown",
+      "tokenIds": [],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "impl_cl_h11_9",
+      "kind": "word",
+      "role": "predicate",
+      "tokenIds": [],
+      "implied": true,
+      "label": "(is)",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120061",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120061"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120071",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120071"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120081",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120081"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120082",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120082"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120083",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120083"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120091",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120091"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120101",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120101"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120111",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120111"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120112",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120112"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120121",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120121"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120131",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120131"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120141",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120141"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120151",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120151"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "cl_h11_19",
+      "kind": "clause",
+      "clauseType": "unknown",
+      "tokenIds": [],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "impl_cl_h11_19",
+      "kind": "word",
+      "role": "predicate",
+      "tokenIds": [],
+      "implied": true,
+      "label": "(is)",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120171",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120171"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120181",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120181"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120182",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120182"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120183",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120183"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120191",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120191"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120161",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120161"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120132",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120132"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_o010170120011",
+      "kind": "word",
+      "tokenIds": [
+       "t_o010170120011"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     }
+    ],
+    "relations": [
+     {
+      "id": "r_h11_2",
+      "type": "predicate",
+      "headId": "cl_h11_1",
+      "dependentId": "w_o010170120041",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_3",
+      "type": "apposition",
+      "headId": "w_o010170120021",
+      "dependentId": "w_o010170120031",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_4",
+      "type": "genitive",
+      "headId": "w_o010170120012",
+      "dependentId": "w_o010170120021",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_5",
+      "type": "subject",
+      "headId": "cl_h11_1",
+      "dependentId": "w_o010170120012",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_6",
+      "type": "prepositionObject",
+      "headId": "w_o010170120051",
+      "dependentId": "w_o010170120052",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_7",
+      "type": "adjunct",
+      "headId": "cl_h11_1",
+      "dependentId": "w_o010170120051",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_8",
+      "type": "conjunct",
+      "headId": "cl_h11_0",
+      "dependentId": "cl_h11_1",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_10",
+      "type": "predicate",
+      "headId": "cl_h11_9",
+      "dependentId": "impl_cl_h11_9",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_11",
+      "type": "apposition",
+      "headId": "w_o010170120061",
+      "dependentId": "w_o010170120071",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_12",
+      "type": "genitive",
+      "headId": "w_o010170120082",
+      "dependentId": "w_o010170120083",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_13",
+      "type": "prepositionObject",
+      "headId": "w_o010170120081",
+      "dependentId": "w_o010170120082",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_14",
+      "type": "prepositionalPhrase",
+      "headId": "w_o010170120061",
+      "dependentId": "w_o010170120081",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_15",
+      "type": "genitive",
+      "headId": "w_o010170120091",
+      "dependentId": "w_o010170120101",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_16",
+      "type": "coordinator",
+      "headId": "w_o010170120091",
+      "dependentId": "w_o010170120111",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_17",
+      "type": "genitive",
+      "headId": "w_o010170120112",
+      "dependentId": "w_o010170120121",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_18",
+      "type": "genitive",
+      "headId": "w_o010170120141",
+      "dependentId": "w_o010170120151",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_20",
+      "type": "predicate",
+      "headId": "cl_h11_19",
+      "dependentId": "impl_cl_h11_19",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_21",
+      "type": "adverbial",
+      "headId": "impl_cl_h11_19",
+      "dependentId": "w_o010170120171",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_22",
+      "type": "genitive",
+      "headId": "w_o010170120182",
+      "dependentId": "w_o010170120183",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_23",
+      "type": "prepositionObject",
+      "headId": "w_o010170120181",
+      "dependentId": "w_o010170120182",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_24",
+      "type": "adverbial",
+      "headId": "impl_cl_h11_19",
+      "dependentId": "w_o010170120181",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_25",
+      "type": "subject",
+      "headId": "cl_h11_19",
+      "dependentId": "w_o010170120191",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_26",
+      "type": "apposition",
+      "headId": "cl_h11_19",
+      "dependentId": "w_o010170120161",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_27",
+      "type": "apposition",
+      "headId": "w_o010170120141",
+      "dependentId": "cl_h11_19",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_28",
+      "type": "apposition",
+      "headId": "w_o010170120141",
+      "dependentId": "w_o010170120132",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_29",
+      "type": "prepositionObject",
+      "headId": "w_o010170120131",
+      "dependentId": "w_o010170120141",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_30",
+      "type": "prepositionalPhrase",
+      "headId": "w_o010170120112",
+      "dependentId": "w_o010170120131",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_31",
+      "type": "conjunct",
+      "headId": "w_o010170120091",
+      "dependentId": "w_o010170120112",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_32",
+      "type": "apposition",
+      "headId": "w_o010170120061",
+      "dependentId": "w_o010170120091",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_33",
+      "type": "subject",
+      "headId": "cl_h11_9",
+      "dependentId": "w_o010170120061",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_34",
+      "type": "conjunct",
+      "headId": "cl_h11_0",
+      "dependentId": "cl_h11_9",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_h11_35",
+      "type": "coordinator",
+      "headId": "cl_h11_0",
+      "dependentId": "w_o010170120011",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     }
+    ]
+   },
+   "sourceConstituency": {
+    "sourceId": "macula-hebrew-wlc-lowfat",
+    "root": {
+     "id": "sc0",
+     "kind": "wg",
+     "children": [
+      {
+       "id": "sc1",
+       "kind": "word",
+       "cat": "cj",
+       "tokenIds": [
+        "t_o010170120011"
+       ],
+       "children": []
+      },
+      {
+       "id": "sc2",
+       "kind": "wg",
+       "cat": "cl",
+       "rule": "S-V-PP",
+       "children": [
+        {
+         "id": "sc3",
+         "kind": "wg",
+         "cat": "np",
+         "role": "s",
+         "rule": "NPofNP",
+         "head": true,
+         "children": [
+          {
+           "id": "sc4",
+           "kind": "word",
+           "cat": "noun",
+           "tokenIds": [
+            "t_o010170120012"
+           ],
+           "children": []
+          },
+          {
+           "id": "sc5",
+           "kind": "wg",
+           "cat": "np",
+           "rule": "NumpNP",
+           "children": [
+            {
+             "id": "sc6",
+             "kind": "word",
+             "cat": "num",
+             "tokenIds": [
+              "t_o010170120021"
+             ],
+             "children": []
+            },
+            {
+             "id": "sc7",
+             "kind": "word",
+             "cat": "noun",
+             "tokenIds": [
+              "t_o010170120031"
+             ],
+             "children": []
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "sc8",
+         "kind": "word",
+         "cat": "verb",
+         "role": "v",
+         "tokenIds": [
+          "t_o010170120041"
+         ],
+         "children": []
+        },
+        {
+         "id": "sc9",
+         "kind": "wg",
+         "cat": "pp",
+         "role": "pp",
+         "rule": "PrepNp",
+         "head": true,
+         "children": [
+          {
+           "id": "sc10",
+           "kind": "word",
+           "cat": "prep",
+           "tokenIds": [
+            "t_o010170120051"
+           ],
+           "children": []
+          },
+          {
+           "id": "sc11",
+           "kind": "word",
+           "cat": "pron",
+           "tokenIds": [
+            "t_o010170120052"
+           ],
+           "children": []
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "id": "sc12",
+       "kind": "wg",
+       "cat": "cl",
+       "rule": "S2CL",
+       "children": [
+        {
+         "id": "sc13",
+         "kind": "wg",
+         "cat": "np",
+         "role": "s",
+         "rule": "Np-Appos",
+         "head": true,
+         "children": [
+          {
+           "id": "sc14",
+           "kind": "wg",
+           "cat": "np",
+           "rule": "NpPp",
+           "head": true,
+           "children": [
+            {
+             "id": "sc15",
+             "kind": "wg",
+             "cat": "np",
+             "rule": "QuanNP",
+             "head": true,
+             "children": [
+              {
+               "id": "sc16",
+               "kind": "word",
+               "cat": "noun",
+               "tokenIds": [
+                "t_o010170120061"
+               ],
+               "children": []
+              },
+              {
+               "id": "sc17",
+               "kind": "word",
+               "cat": "noun",
+               "tokenIds": [
+                "t_o010170120071"
+               ],
+               "children": []
+              }
+             ]
+            },
+            {
+             "id": "sc18",
+             "kind": "wg",
+             "cat": "pp",
+             "rule": "PrepNp",
+             "children": [
+              {
+               "id": "sc19",
+               "kind": "word",
+               "cat": "prep",
+               "tokenIds": [
+                "t_o010170120081"
+               ],
+               "children": []
+              },
+              {
+               "id": "sc20",
+               "kind": "wg",
+               "cat": "np",
+               "rule": "NPofNP",
+               "head": true,
+               "children": [
+                {
+                 "id": "sc21",
+                 "kind": "word",
+                 "cat": "noun",
+                 "tokenIds": [
+                  "t_o010170120082"
+                 ],
+                 "children": []
+                },
+                {
+                 "id": "sc22",
+                 "kind": "word",
+                 "cat": "pron",
+                 "tokenIds": [
+                  "t_o010170120083"
+                 ],
+                 "children": []
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "id": "sc23",
+           "kind": "wg",
+           "cat": "np",
+           "rule": "NpaNp",
+           "children": [
+            {
+             "id": "sc24",
+             "kind": "wg",
+             "cat": "np",
+             "rule": "NPofNP",
+             "head": true,
+             "children": [
+              {
+               "id": "sc25",
+               "kind": "word",
+               "cat": "noun",
+               "tokenIds": [
+                "t_o010170120091"
+               ],
+               "children": []
+              },
+              {
+               "id": "sc26",
+               "kind": "word",
+               "cat": "noun",
+               "tokenIds": [
+                "t_o010170120101"
+               ],
+               "children": []
+              }
+             ]
+            },
+            {
+             "id": "sc27",
+             "kind": "word",
+             "cat": "cj",
+             "tokenIds": [
+              "t_o010170120111"
+             ],
+             "children": []
+            },
+            {
+             "id": "sc28",
+             "kind": "wg",
+             "cat": "np",
+             "rule": "NpPp",
+             "children": [
+              {
+               "id": "sc29",
+               "kind": "wg",
+               "cat": "np",
+               "rule": "NPofNP",
+               "head": true,
+               "children": [
+                {
+                 "id": "sc30",
+                 "kind": "word",
+                 "cat": "noun",
+                 "tokenIds": [
+                  "t_o010170120112"
+                 ],
+                 "children": []
+                },
+                {
+                 "id": "sc31",
+                 "kind": "word",
+                 "cat": "noun",
+                 "tokenIds": [
+                  "t_o010170120121"
+                 ],
+                 "children": []
+                }
+               ]
+              },
+              {
+               "id": "sc32",
+               "kind": "wg",
+               "cat": "pp",
+               "rule": "PrepNp",
+               "children": [
+                {
+                 "id": "sc33",
+                 "kind": "word",
+                 "cat": "prep",
+                 "tokenIds": [
+                  "t_o010170120131"
+                 ],
+                 "children": []
+                },
+                {
+                 "id": "sc34",
+                 "kind": "wg",
+                 "cat": "np",
+                 "rule": "QuanNP",
+                 "head": true,
+                 "children": [
+                  {
+                   "id": "sc35",
+                   "kind": "word",
+                   "cat": "noun",
+                   "tokenIds": [
+                    "t_o010170120132"
+                   ],
+                   "children": []
+                  },
+                  {
+                   "id": "sc36",
+                   "kind": "wg",
+                   "cat": "np",
+                   "rule": "NpRelp",
+                   "head": true,
+                   "children": [
+                    {
+                     "id": "sc37",
+                     "kind": "wg",
+                     "cat": "np",
+                     "rule": "NPofNP",
+                     "head": true,
+                     "children": [
+                      {
+                       "id": "sc38",
+                       "kind": "word",
+                       "cat": "noun",
+                       "tokenIds": [
+                        "t_o010170120141"
+                       ],
+                       "children": []
+                      },
+                      {
+                       "id": "sc39",
+                       "kind": "word",
+                       "cat": "noun",
+                       "tokenIds": [
+                        "t_o010170120151"
+                       ],
+                       "children": []
+                      }
+                     ]
+                    },
+                    {
+                     "id": "sc40",
+                     "kind": "wg",
+                     "cat": "relp",
+                     "rule": "relCL",
+                     "children": [
+                      {
+                       "id": "sc41",
+                       "kind": "word",
+                       "cat": "rel",
+                       "tokenIds": [
+                        "t_o010170120161"
+                       ],
+                       "children": []
+                      },
+                      {
+                       "id": "sc42",
+                       "kind": "wg",
+                       "cat": "cl",
+                       "rule": "ADV-P-S",
+                       "head": true,
+                       "children": [
+                        {
+                         "id": "sc43",
+                         "kind": "word",
+                         "cat": "adv",
+                         "role": "adv",
+                         "tokenIds": [
+                          "t_o010170120171"
+                         ],
+                         "children": []
+                        },
+                        {
+                         "id": "sc44",
+                         "kind": "wg",
+                         "cat": "pp",
+                         "role": "p",
+                         "rule": "PrepNp",
+                         "head": true,
+                         "children": [
+                          {
+                           "id": "sc45",
+                           "kind": "word",
+                           "cat": "prep",
+                           "tokenIds": [
+                            "t_o010170120181"
+                           ],
+                           "children": []
+                          },
+                          {
+                           "id": "sc46",
+                           "kind": "wg",
+                           "cat": "np",
+                           "rule": "NPofNP",
+                           "head": true,
+                           "children": [
+                            {
+                             "id": "sc47",
+                             "kind": "word",
+                             "cat": "noun",
+                             "tokenIds": [
+                              "t_o010170120182"
+                             ],
+                             "children": []
+                            },
+                            {
+                             "id": "sc48",
+                             "kind": "word",
+                             "cat": "pron",
+                             "tokenIds": [
+                              "t_o010170120183"
+                             ],
+                             "children": []
+                            }
+                           ]
+                          }
+                         ]
+                        },
+                        {
+                         "id": "sc49",
+                         "kind": "word",
+                         "cat": "pron",
+                         "role": "s",
+                         "tokenIds": [
+                          "t_o010170120191"
+                         ],
+                         "children": []
+                        }
+                       ]
+                      }
+                     ]
+                    }
+                   ]
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "layoutHints": {},
+   "notes": "",
+   "createdAt": "2024-01-01T00:00:00.000Z",
+   "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+ ]
+}

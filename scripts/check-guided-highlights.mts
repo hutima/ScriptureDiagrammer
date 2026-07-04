@@ -15,12 +15,16 @@
  *    the term's `surface` matches the token's surface (a mismatch means the id
  *    points at the wrong word);
  *  - every `[[termId]]` marker in step bodies resolves to a Greek term;
- *  - every `greekTermIds` entry resolves.
+ *  - every `greekTermIds` entry resolves;
+ *  - every `step.contested.issueId` resolves to a REAL issue in the curated
+ *    contested-syntax registry, and that issue applies to the step's own
+ *    passage (its `passageId` or one of its `mergePassageIds`).
  *
  * Exits non-zero with a readable report on any failure.
  */
 const { grammarHighlightGuides } = await import('../src/data/grammarHighlights.ts');
 const { guidedDocuments } = await import('../src/fixtures/guided/index.ts');
+const { getIssueById } = await import('../src/domain/contested/index.ts');
 
 type Doc = (typeof guidedDocuments)[number];
 
@@ -92,11 +96,60 @@ for (const guide of grammarHighlightGuides) {
     for (const id of h?.relationIds ?? []) {
       if (!scope.relationIds.has(id)) fail(`${where}: highlight relation ${id} not in passage ${stepPassageId}`);
     }
+    // Stacked secondary passage — its focus/highlight ids resolve in the
+    // SECONDARY passage's OWN id pool (not the primary's), mirroring the
+    // per-step scope logic above.
+    if (step.secondaryPassageId) {
+      if (!bundledIds.has(step.secondaryPassageId)) {
+        fail(`${where}: secondaryPassageId "${step.secondaryPassageId}" is not in bundledPassageIds`);
+      }
+      const secDoc = present.find((d) => d.id === step.secondaryPassageId);
+      const secScope = secDoc ? idSets([secDoc]) : pool;
+      for (const id of step.secondaryFocus?.tokenIds ?? []) {
+        if (!secScope.tokenIds.has(id))
+          fail(`${where}: secondary focus token ${id} not in passage ${step.secondaryPassageId}`);
+      }
+      for (const id of step.secondaryFocus?.nodeIds ?? []) {
+        if (!secScope.nodeIds.has(id))
+          fail(`${where}: secondary focus node ${id} not in passage ${step.secondaryPassageId}`);
+      }
+      for (const id of step.secondaryFocus?.relationIds ?? []) {
+        if (!secScope.relationIds.has(id))
+          fail(`${where}: secondary focus relation ${id} not in passage ${step.secondaryPassageId}`);
+      }
+      const sh = step.secondaryHighlights;
+      for (const id of [
+        ...(sh?.addedNodeIds ?? []),
+        ...(sh?.changedNodeIds ?? []),
+        ...(sh?.removedNodeIds ?? []),
+        ...(sh?.emphasizedNodeIds ?? []),
+      ]) {
+        if (!secScope.nodeIds.has(id))
+          fail(`${where}: secondary highlight node ${id} not in passage ${step.secondaryPassageId}`);
+      }
+      for (const id of sh?.relationIds ?? []) {
+        if (!secScope.relationIds.has(id))
+          fail(`${where}: secondary highlight relation ${id} not in passage ${step.secondaryPassageId}`);
+      }
+    }
     for (const id of step.greekTermIds ?? []) {
       if (!termIds.has(id)) fail(`${where}: greekTermIds entry "${id}" has no matching term`);
     }
     for (const m of step.body.matchAll(/\[\[([a-zA-Z0-9_-]+)\]\]/g)) {
       if (!termIds.has(m[1]!)) fail(`${where}: body references unknown term [[${m[1]}]]`);
+    }
+    if (step.contested) {
+      const issue = getIssueById(step.contested.issueId);
+      if (!issue) {
+        fail(`${where}: contested issueId "${step.contested.issueId}" not in the contested registry`);
+      } else if (
+        issue.passageId !== stepPassageId &&
+        !(issue.mergePassageIds?.includes(stepPassageId!) ?? false)
+      ) {
+        fail(
+          `${where}: contested issue "${issue.id}" does not apply to passage ${stepPassageId} (issue passage: ${issue.passageId})`,
+        );
+      }
     }
     const hasFocus =
       (step.focus.tokenIds?.length ?? 0) +

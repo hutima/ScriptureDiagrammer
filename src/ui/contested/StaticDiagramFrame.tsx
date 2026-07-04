@@ -15,11 +15,38 @@ const INK = '#1f2933';
 
 export const StaticDiagramFrame = forwardRef<
   HTMLDivElement,
-  { doc: KrDocument; mode: DiagramMode; diff?: AlternateDiff | null; title: string; onScrollSync?: () => void }
->(function StaticDiagramFrame({ doc, mode, diff = null, title, onScrollSync }, ref) {
-  const layout = useMemo(() => layoutForMode(mode, doc, doc.layoutHints), [doc, mode]);
+  {
+    doc: KrDocument;
+    mode: DiagramMode;
+    diff?: AlternateDiff | null;
+    title: string;
+    onScrollSync?: () => void;
+    /**
+     * Optional highlight swashes (guided-mode stacked diagram), painted behind
+     * matching words / connector lines exactly like the live canvas does. When
+     * absent, no swashes are drawn — so the contested comparison usage is
+     * unchanged.
+     */
+    highlightFills?: { nodeFills: Map<string, string>; relationFills: Map<string, string> };
+    /**
+     * Right-to-left layout (Hebrew / Arabic). When omitted the layout engine
+     * still derives RTL from the document's own direction, so leaving it unset
+     * is identical to the previous behaviour.
+     */
+    rtl?: boolean;
+  }
+>(function StaticDiagramFrame(
+  { doc, mode, diff = null, title, onScrollSync, highlightFills, rtl },
+  ref,
+) {
+  const layout = useMemo(
+    () => layoutForMode(mode, doc, doc.layoutHints, { rtl }),
+    [doc, mode, rtl],
+  );
   const greek = doc.language === 'grc';
   const hebrew = doc.language === 'hbo';
+  const nodeFills = highlightFills?.nodeFills;
+  const relationFills = highlightFills?.relationFills;
 
   // Words impacted by the change, resolved AGAINST THIS FRAME'S document so the
   // base frame marks the OLD attachment and the variant frame marks the NEW one —
@@ -68,21 +95,35 @@ export const StaticDiagramFrame = forwardRef<
           {layout.elements.map((el) => {
             const hi = highlightForElement(el, diff);
             const hiClass = hi ? ` vc-hi vc-hi-${hi}` : '';
+            const relHl = el.relationId ? relationFills?.get(el.relationId) : undefined;
             if (el.kind === 'line') {
               const dash = dashFor(el.style);
               return (
-                <line
-                  key={el.id}
-                  className={`kr-line${hiClass}`}
-                  x1={el.x1}
-                  y1={el.y1}
-                  x2={el.x2}
-                  y2={el.y2}
-                  stroke={el.color ?? INK}
-                  strokeWidth={1.6}
-                  strokeLinecap="round"
-                  {...(dash ? { strokeDasharray: dash } : {})}
-                />
+                <g key={el.id}>
+                  {relHl && (
+                    <line
+                      x1={el.x1}
+                      y1={el.y1}
+                      x2={el.x2}
+                      y2={el.y2}
+                      stroke={relHl}
+                      strokeWidth={7}
+                      strokeLinecap="round"
+                      opacity={0.55}
+                    />
+                  )}
+                  <line
+                    className={`kr-line${hiClass}`}
+                    x1={el.x1}
+                    y1={el.y1}
+                    x2={el.x2}
+                    y2={el.y2}
+                    stroke={el.color ?? INK}
+                    strokeWidth={1.6}
+                    strokeLinecap="round"
+                    {...(dash ? { strokeDasharray: dash } : {})}
+                  />
+                </g>
               );
             }
             if (el.kind === 'curve') {
@@ -96,6 +137,9 @@ export const StaticDiagramFrame = forwardRef<
               const color = el.color ?? INK;
               return (
                 <g key={el.id}>
+                  {relHl && (
+                    <path d={d} fill="none" stroke={relHl} strokeWidth={7} strokeLinecap="round" opacity={0.55} />
+                  )}
                   <path
                     className={`kr-line${hiClass}`}
                     d={d}
@@ -116,8 +160,22 @@ export const StaticDiagramFrame = forwardRef<
             // A word is marked if it's directly changed OR it's an endpoint of a
             // changed/added/removed relation in this frame's tree.
             const textHi = hi ?? (el.nodeId && impactedNodes.has(el.nodeId) ? 'changed' : null);
+            // Guided-mode highlight swash: a soft fill behind the glyph, mirroring
+            // the live canvas's `hlByNode` painting (drawn under any diff outline).
+            const hlFill = el.nodeId ? nodeFills?.get(el.nodeId) : undefined;
             return (
               <g key={el.id}>
+                {hlFill && (
+                  <rect
+                    x={bx - 3}
+                    y={el.y - size * 0.72 - 1.5}
+                    width={w + 6}
+                    height={size * 0.95 + 3}
+                    rx={3}
+                    fill={hlFill}
+                    {...(el.rotate ? { transform: `rotate(${el.rotate} ${el.x} ${el.y})` } : {})}
+                  />
+                )}
                 {textHi && !el.rotate && (
                   <rect
                     className={`vc-hi-rect vc-hi-${textHi}`}

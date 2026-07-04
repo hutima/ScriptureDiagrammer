@@ -120,6 +120,24 @@ function heHeadFallback(kids: Element[]): Element | undefined {
   return kids.find((c) => !HE_FUNCTION_CLASSES.has(c.getAttribute('class') ?? '')) ?? kids[0];
 }
 
+/**
+ * Normalize Hebrew glosses for display. The tetragrammaton (יהוה) is traditionally
+ * rendered as "LORD" in English Bibles; this normalization ensures consistent
+ * display across all gloss contexts.
+ */
+function heGlossOf(w: Element): string | undefined {
+  const lemma = w.getAttribute('lemma');
+  const gloss = w.getAttribute('gloss') ?? w.getAttribute('english') ?? undefined;
+
+  // The tetragrammaton (יהוה, Strong's H3068) is always displayed as "LORD"
+  // regardless of the source gloss value ("Yahweh", "YHWH", etc.).
+  if (lemma === 'יהוה') {
+    return 'LORD';
+  }
+
+  return gloss;
+}
+
 /** macula-hebrew (WLC Lowfat): ids on xml:id, surface in text, RTL Hebrew. */
 export const hebrewDialect: LowfatDialect = {
   language: 'hbo',
@@ -127,7 +145,7 @@ export const hebrewDialect: LowfatDialect = {
   surfaceOf: (w) => (w.textContent ?? '').trim(),
   posOf: hePosOf,
   lemmaOf: (w) => w.getAttribute('lemma') ?? undefined,
-  glossOf: (w) => w.getAttribute('gloss') ?? w.getAttribute('english') ?? undefined,
+  glossOf: heGlossOf,
   morphOf: heMorphOf,
   headFallback: heHeadFallback,
 };

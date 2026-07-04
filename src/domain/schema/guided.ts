@@ -80,6 +80,22 @@ export const GuidedGreekTermSchema = z.object({
 });
 export type GuidedGreekTerm = z.infer<typeof GuidedGreekTermSchema>;
 
+/**
+ * Optional, ADDITIVE link from a step to a contested-syntax issue (§14 of
+ * CLAUDE.md): the step card offers "See the alternate reading", which opens the
+ * normal alternate-readings panel for that issue. Always a REAL issue id from
+ * the curated registry (validated by `guided:check`), and the issue must apply
+ * to the step's own passage (by `passageId` or `mergePassageIds`); the card
+ * renders nothing when the issue cannot be resolved.
+ */
+export const GuidedStepContestedSchema = z.object({
+  /** Id of a `ContestedSyntaxIssue` in the curated registry. */
+  issueId: z.string(),
+  /** Optional short lead-in shown beside the affordance. */
+  note: z.string().optional(),
+});
+export type GuidedStepContested = z.infer<typeof GuidedStepContestedSchema>;
+
 export const GuidedStepSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -106,6 +122,28 @@ export const GuidedStepSchema = z.object({
   caution: z.string().optional(),
   /** Terms surfaced as chips under this step (besides inline links). */
   greekTermIds: z.array(z.string()).optional(),
+  /** Optional pointer to a contested-syntax issue this step teaches from. */
+  contested: GuidedStepContestedSchema.optional(),
+  /**
+   * Optional SECONDARY passage stacked beneath the primary diagram for this
+   * step — a read-only comparison frame (e.g. an Old-Testament parallel laid
+   * out beside the New-Testament sentence the guide is walking). It is drawn by
+   * `GuidedStackedDiagram` and NEVER loaded into the editor store: the primary
+   * passage (`passageId`, else the guide's first) stays the one loaded document,
+   * so the reader keeps editing/inspecting the primary while seeing the parallel.
+   *
+   * MUST be one of the guide's `bundledPassageIds`. The secondary focus /
+   * highlights address the SECONDARY passage's own ids (validated by
+   * `guided:check` against that passage's id pool, not the primary's). When
+   * absent the step is an ordinary single-diagram step (zero change).
+   */
+  secondaryPassageId: z.string().optional(),
+  /** Optional heading for the stacked frame (e.g. "Genesis 17:12 — …"). */
+  secondaryTitle: z.string().optional(),
+  /** Focus/emphasis targets in the SECONDARY passage (its own real ids). */
+  secondaryFocus: GuidedFocusSchema.optional(),
+  /** Diff-style highlights in the SECONDARY passage (its own real ids). */
+  secondaryHighlights: GuidedHighlightsSchema.optional(),
 });
 export type GuidedStep = z.infer<typeof GuidedStepSchema>;
 
