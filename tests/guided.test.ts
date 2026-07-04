@@ -131,6 +131,36 @@ describe('guided store', () => {
     expect(e.doc.id).toBe(grammarHighlightGuides[0]!.bundledPassageIds[0]);
   });
 
+  it('multi-passage guide steps load the passage the step names', () => {
+    // The Lord's-Prayer comparison walks Matthew 6:11 then Luke 11:3: stepping
+    // onto a Luke step must load the Luke sentence through the normal path,
+    // and stepping back must return to Matthew.
+    const guide = getGuide('guide-lords-prayer-bread')!;
+    expect(guide.bundledPassageIds.length).toBeGreaterThanOrEqual(2);
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide(guide.id);
+    expect(useEditorStore.getState().doc.id).toBe(guide.steps[0]!.passageId);
+    const lukeIndex = guide.steps.findIndex((s) => s.passageId === 'sblgnt_luke_511');
+    expect(lukeIndex).toBeGreaterThan(0);
+    useGuidedStore.getState().setStep(lukeIndex);
+    expect(useEditorStore.getState().doc.id).toBe('sblgnt_luke_511');
+    useGuidedStore.getState().setStep(0);
+    expect(useEditorStore.getState().doc.id).toBe('sblgnt_matthew_143');
+  });
+
+  it('every guide in the library opens and lays out in its default mode', () => {
+    for (const g of grammarHighlightGuides) {
+      useGuidedStore.getState().openGuide(g.id);
+      const doc = useEditorStore.getState().doc;
+      expect(
+        g.steps[0]?.passageId ?? g.bundledPassageIds[0],
+        g.id,
+      ).toBe(doc.id);
+      // The default lens lays the loaded passage out without throwing.
+      expect(() => layoutDocument(doc, { mode: 'kellogg-reed' })).not.toThrow();
+    }
+  });
+
   it('enter(english) shows English aids but the parse stays the Greek syntax', () => {
     useGuidedStore.getState().enter('english');
     const e = useEditorStore.getState();

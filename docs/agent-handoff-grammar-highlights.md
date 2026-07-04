@@ -17,8 +17,10 @@ message prefixes (`fix(kr): …`, `feat(guided): …`, `feat(editor): …`).
 
 ## Current phase
 
-ALL implementation phases COMPLETE (1, 2, 4, 5). Phase 3 content authoring is
-the only open work, WAITING on Tim's approval of the proposal below.
+ALL PHASES COMPLETE, including Phase 3 content: Tim approved the full set and
+all 15 guides are authored, validated, and shipped (see "Phase 3 content —
+SHIPPED" below). The proposal checklist at the end of this file is now a
+historical record.
 
 ## Goal
 
@@ -162,6 +164,38 @@ approval; only the Hebrews sample guide ships.
   VisualizationSwitcher component patched in Phase 2 is only used by the
   Discourse canvas).
 
+### Phase 3 content — SHIPPED (Tim approved the full set)
+
+- **15 guides** live in `src/data/guides/` (one module each), assembled by
+  `src/data/grammarHighlights.ts` in difficulty-ramp order: John 1:1
+  (beginner on-ramp), Hebrews 1:1-4, Mark 5:25-34, Matthew 28:19-20,
+  Matthew 6:11 & Luke 11:3 (Lord's-Prayer bread comparison), 1 John 2:1 &
+  3:6-9, then the contested set: 1 Peter 3:18-22, Acts 2:38, Romans 6:3-4,
+  Ephesians 1:3-14, Romans 9:5, Romans 9:6-13, 1 Timothy 2:11-15,
+  Titus 2:13, 2 Peter 1:1.
+- **Multi-passage support** (the one infra addition Phase 3 needed):
+  `GuidedStepSchema.passageId` — a step names the bundled sentence it walks;
+  the guided store's `openGuide`/`setStep` load that passage through the
+  normal `loadDocument` path before focusing. `guided:check` is
+  passage-aware (a step's ids must exist in ITS OWN passage; `passageId`
+  must be in `bundledPassageIds`). Covered by store tests (Matthew→Luke→
+  Matthew round-trip) and browser QA (δὸς/δίδου render on the right steps).
+- **Bundle**: `guided:build` now keeps ONLY documents guides reference
+  (33 sentences, 836K pretty-printed; `--all` keeps every extracted sentence
+  for id inspection). `guided:dump` (new script) prints a bundled doc's
+  tokens/nodes/relations locally for authoring — no network.
+- **Editorial stance (per Tim, in-session):** the 1 Timothy 2:11-15 guide
+  LEADS with the complementarian reading as the confessional
+  Reformed-Anglican/PCA position (devotionalFrame + confessionalFrame state
+  it plainly), while the debateSummary retains a genuinely fair statement of
+  both major readings with cautions on each. All contested guides carry fair
+  debateSummaries; every aspect claim passes the "no aorist = once-for-all"
+  guardrail (grep-audited).
+- **TopBar launcher** (commit 96f63b9): Grammar Highlights now has its own
+  pill button beside the mode switcher — "✦ Grammar" opens the intro modal,
+  toggling to "✦ Leave guided" while active (replaces the separate top-bar
+  leave button; the ⋯ menu entry remains).
+
 ### Phase 5 — Edit-mode right-panel Preview tab ✅
 
 - `src/ui/editor/EditPreviewTab.tsx`: a READ-ONLY, always-current window into
@@ -258,8 +292,14 @@ Phase 2:
 ## Test commands run and results
 
 - `npm run typecheck` — clean.
-- `npm test` — 117 files / 2217 tests, ALL PASS (after Phase 5).
-- Final validation (2026-07-04): typecheck OK, test OK, build OK, guided:check OK.
+- `npm test` — 117 files / 2220 tests, ALL PASS (after Phase 3 content).
+- Final validation (2026-07-04, post-content): typecheck OK, 2220 tests OK,
+  build OK (precache 1754 KiB incl. the 33-sentence guided bundle),
+  guided:check OK (15 guides).
+- Browser QA (headless Chromium): library lists 15 guides; the Lord's-Prayer
+  guide opens on Matthew, steps 3-4 switch the canvas to Luke 11:3 (δίδου
+  renders), stepping back returns to Matthew (δὸς renders); the 1 Timothy
+  "Where readers differ" disclosure renders; Leave guided restores.
 - `npm run build` — succeeds (precache 1130 KiB; +64K = the guided bundle).
 - `npm run guided:check` — 1 guide validates.
 - Stress cases (Mark 5:26, Mark 1:19–20, Col 1:9–20, Gen 1:11, Hebrew RTL)
@@ -305,10 +345,8 @@ Phase 2:
 
 ## Known limitations / follow-up recommendations
 
-- Guided mode: a guide with MULTIPLE bundled passages opens only the first;
-  a step-level `passageId` switch is needed for the two-gospel comparisons
-  (Matt 6:11 / Luke 11:3, 1 John 2:1 / 3:6-9) — small store addition, flagged
-  in the proposal.
+- ~~Multi-passage guides~~ — DONE (step-level `passageId`, shipped with the
+  content batch).
 - Guided highlights render on-canvas only; they are NOT passed to SVG/PNG
   export (sermon highlights are). Harmless (guided is a reading mode), but
   `layoutToSvg({highlights})` accepts the same maps if export parity is wanted.

@@ -26,6 +26,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       title: 'Matthew: one plain request',
       body:
         'In Matthew, Jesus teaches: [[dos]] us [[sEmeron]] our daily bread. The diagram puts the command ["give"] on the main line, with "bread" standing as its direct object and "us" as the one receiving it. The verb’s form here — an aorist imperative — presents the whole act of asking as one simple request: give.',
+      passageId: 'sblgnt_matthew_143',
       focus: {
         nodeIds: [
           'cl_s143_0',
@@ -46,6 +47,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       title: 'A word no one is fully sure of',
       body:
         'The bread Jesus tells us to ask for is [[epiousios]] — usually translated "daily." The diagram shows it as a simple modifier hanging beneath "bread," alongside "our" (a genitive: bread that belongs to us). But the Greek word itself is a puzzle: it barely occurs anywhere else in surviving Greek writing, so nobody can be entirely certain what shade of meaning it carried.',
+      passageId: 'sblgnt_matthew_143',
       focus: {
         nodeIds: [
           'w_n40006011002',
@@ -84,6 +86,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       title: '"Day by day" — spelled out, not just implied',
       body:
         'Luke does not leave the "ongoing" sense to the verb alone. He adds a whole phrase: [[kathHemeran]], "according to the day" — "each day" or "day by day." In the diagram it hangs beneath the verb as its own modifying phrase, governing "day" the way a preposition governs its object. Luke states outright what the present tense only suggests.',
+      passageId: 'sblgnt_luke_511',
       focus: {
         nodeIds: [
           'w_n42011003006',
