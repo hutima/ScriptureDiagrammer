@@ -34,13 +34,21 @@ describe('guided mode UI', () => {
     expect(screen.getByText(/english mode/i)).toBeTruthy();
   });
 
-  it('choosing Greek mode enters guided mode and shows Leave guided mode', () => {
+  it('has a dedicated Grammar launcher button that opens the intro modal', () => {
+    render(createElement(TopBar));
+    const launch = screen.getByRole('button', { name: /✦ grammar/i });
+    fireEvent.click(launch);
+    expect(useGuidedStore.getState().introOpen).toBe(true);
+  });
+
+  it('choosing Greek mode enters guided mode; the launcher toggles to leave', () => {
     render(createElement(TopBar));
     act(() => useGuidedStore.getState().openIntro());
     fireEvent.click(screen.getByText(/greek mode/i));
     expect(useGuidedStore.getState().active).toBe(true);
     expect(useGuidedStore.getState().introOpen).toBe(false);
-    const leave = screen.getByRole('button', { name: /leave guided mode/i });
+    // The launcher now reads "Leave guided" and toggles guided mode off.
+    const leave = screen.getByRole('button', { name: /leave guided/i });
     fireEvent.click(leave);
     expect(useGuidedStore.getState().active).toBe(false);
   });
