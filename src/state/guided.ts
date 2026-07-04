@@ -5,6 +5,7 @@ import { visibleGrammarHighlightGuides, getGuide } from '@/data/grammarHighlight
 import { getGuidedDocument } from '@/fixtures/guided';
 import { useTutorialStore } from '@/ui/tutorial/tutorialState';
 import { useEditorStore } from './store';
+import { useDiscourseStore } from './discourse';
 import type { AppMode } from './types';
 
 /**
@@ -159,6 +160,9 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
       selectedGreekTermId: null,
       prior: null,
     });
+    // Drop any guided-discourse display so a later DIRECT Discourse-mode entry
+    // restores the user's own range (or the first-load modal) as normal.
+    useDiscourseStore.getState().exitGuidedDiscourse();
     if (!prior) return;
     const editor = useEditorStore.getState();
     // Restore where safe. The guided passage stays loaded (it is a normal
@@ -172,6 +176,24 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
   openGuide: (guideId) => {
     const guide = getGuide(guideId);
     if (!guide) return;
+    // A discourse-backed guide hosts the Discourse view (a separate analysis
+    // layer, not a syntax lens) instead of a KR diagram: mount DiscourseCanvas
+    // via the editor's `diagramMode` and drive the discourse store directly.
+    if (guide.kind === 'discourse' && guide.discourse) {
+      const editor = useEditorStore.getState();
+      editor.setDiagramMode('discourse');
+      void useDiscourseStore.getState().enterGuidedDiscourse(guide.discourse);
+      set((s) => ({
+        selectedGuideId: guideId,
+        stepIndex: 0,
+        selectedGreekTermId: null,
+        focusNonce: s.focusNonce + 1,
+      }));
+      return;
+    }
+    // Switching to a SYNTAX guide (possibly from a discourse one): tear down any
+    // guided-discourse display so the syntax passage owns the canvas again.
+    useDiscourseStore.getState().exitGuidedDiscourse();
     // Open on the first step's passage if it names one, else the guide's first.
     const firstPassage = guide.steps[0]?.passageId ?? guide.bundledPassageIds[0]!;
     const doc = getGuidedDocument(firstPassage);

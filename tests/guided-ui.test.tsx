@@ -90,12 +90,14 @@ describe('guided mode UI', () => {
     for (const g of visibleGrammarHighlightGuides) {
       expect(screen.getByText(g.title)).toBeTruthy();
     }
-    // …and hidden guides (Acts 2:39, pending its Discourse-mode rework) stay
-    // registered but never appear in the picker.
+    // …and hidden guides stay registered but never appear in the picker.
     for (const g of grammarHighlightGuides.filter((x) => x.hidden)) {
       expect(screen.queryByText(g.title)).toBeNull();
     }
-    expect(getGuide('guide-acts-2-39')?.hidden).toBe(true);
+    // Acts 2:39 was reworked into a discourse guide and un-hidden — it now
+    // appears in the visible library again.
+    expect(getGuide('guide-acts-2-39')?.hidden).toBeFalsy();
+    expect(visibleGrammarHighlightGuides.some((g) => g.id === 'guide-acts-2-39')).toBe(true);
   });
 
   it('step card renders term links, opens the detail panel, and navigates', () => {
@@ -185,29 +187,6 @@ describe('guided mode UI', () => {
     const rel = e.doc.syntax.relations.find((r) => r.id === 'disc_r1');
     expect(rel?.headId).toBe('s0_w_n45009005008');
     expect(rel?.type).toBe('apposition');
-  });
-
-  it('a stacked step renders the secondary Hebrew frame with highlights on both diagrams', () => {
-    useGuidedStore.getState().enter('greek');
-    act(() => useGuidedStore.getState().openGuide('guide-acts-2-39'));
-    const guide = getGuide('guide-acts-2-39')!;
-    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
-    expect(stackedIndex).toBeGreaterThan(0);
-    act(() => useGuidedStore.getState().setStep(stackedIndex));
-    const { container } = render(createElement(DiagramCanvas));
-
-    // The stacked secondary diagram is a Hebrew (RTL) frame.
-    const hebrewSvg = container.querySelector('svg.diagram-paper.hebrew');
-    expect(hebrewSvg).toBeTruthy();
-    // The primary (Greek) diagram is the non-Hebrew paper.
-    const greekSvg = container.querySelector('svg.diagram-paper:not(.hebrew)');
-    expect(greekSvg).toBeTruthy();
-
-    // A guided emphasis swash lands on BOTH an Acts word (primary) and a Genesis
-    // word (secondary) — one highlight colour, two stacked diagrams.
-    const emphasis = GUIDED_HIGHLIGHT_COLORS.emphasized;
-    expect(greekSvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
-    expect(hebrewSvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
   });
 
   it('a stacked step in the Lord\'s-Prayer guide renders both Gospels with highlights on each', () => {

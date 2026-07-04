@@ -2,7 +2,6 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { createElement } from 'react';
 import { render, cleanup } from '@testing-library/react';
 import { GuidedStackedDiagram } from '@/ui/guided/GuidedStackedDiagram';
-import { getGuide } from '@/data/grammarHighlights';
 import { getGuidedDocument } from '@/fixtures/guided';
 import { layoutForMode } from '@/domain/layout';
 import { docDirection, glossDoc } from '@/domain/model';
@@ -18,8 +17,19 @@ import type { GuidedStep } from '@/domain/schema';
  *      focus (or highlights, if no focus is given) is centered.
  */
 
-const guide = getGuide('guide-acts-2-39')!;
-const step: GuidedStep = guide.steps.find((s) => s.id === 'step-abraham-parallel')!;
+// A synthetic stacked step over the bundled WLC Hebrew (RTL) parallel document,
+// exercising GuidedStackedDiagram directly (decoupled from any specific guide —
+// the Acts 2:39 guide it used to borrow this from is now a discourse guide).
+const step: GuidedStep = {
+  id: 'stacked-hebrew-fixture',
+  title: 'Genesis 17:12 — the covenant sign given to Abraham',
+  body: '',
+  focus: {},
+  secondaryPassageId: 'wlc_genesis_1_11',
+  secondaryFocus: {
+    nodeIds: ['w_o010170120052', 'w_o010170120082', 'w_o010170120083', 'w_o010170120182'],
+  },
+};
 
 function textXs(svg: Element): number[] {
   return Array.from(svg.querySelectorAll('text')).map((t) => Number(t.getAttribute('x')));
@@ -89,7 +99,7 @@ describe('GuidedStackedDiagram — RTL/LTR flip for glossed English display', ()
 describe('GuidedStackedDiagram — auto-scroll to the secondary focus', () => {
   afterEach(cleanup);
 
-  it('resolves the acts-2-39 "step-abraham-parallel" secondary focus to non-empty bounds', () => {
+  it('resolves the Hebrew stacked step secondary focus to non-empty bounds', () => {
     const doc = getGuidedDocument(step.secondaryPassageId!)!;
     const layout = layoutForMode('kellogg-reed', doc, doc.layoutHints, { rtl: true });
     const { nodeIds, relationIds } = resolveFocusIds(doc, { ...step, focus: step.secondaryFocus ?? {} });

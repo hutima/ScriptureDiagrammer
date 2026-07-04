@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DiscourseGranularitySchema, DiscourseRelationTypeSchema } from './discourse';
 
 /**
  * GRAMMAR HIGHLIGHTS — the guided syntax-reading mode.
@@ -169,19 +170,85 @@ export type GuidedDebateSummary = z.infer<typeof GuidedDebateSummarySchema>;
 export const GuidedDifficultySchema = z.enum(['beginner', 'intermediate', 'advanced']);
 export type GuidedDifficulty = z.infer<typeof GuidedDifficultySchema>;
 
+/**
+ * DISCOURSE-BACKED guides (`kind: 'discourse'`) do not walk a syntax diagram —
+ * they host the Discourse view over one or more verse RANGES (each from any
+ * discourse source: a Greek/Hebrew syntax source, or an English Bible). This is
+ * for showing multi-verse / cross-passage discourse structure a Kellogg-Reed
+ * diagram cannot (covenant echoes, literary chiasms). The guide's steps stay
+ * prose-only (title/body/implication/caution) and drive the reader alongside the
+ * shared Discourse canvas; they carry no syntax focus ids.
+ */
+export const GuidedDiscourseRangeSchema = z.object({
+  /**
+   * A `DiscourseSourceId` (kept as a plain string here so the schema never
+   * depends on the io layer). Validated at load time by `loadDiscourseRange`.
+   */
+  sourceId: z.string(),
+  /** Book number in THAT source's own numbering (Greek NT 1–27, WLC/BSB-OT 1–39…). */
+  bookNum: z.number().int().positive(),
+  startRef: z.string(),
+  endRef: z.string(),
+  granularity: DiscourseGranularitySchema.default('verse'),
+  /** Optional short section heading for this range in the combined outline. */
+  label: z.string().optional(),
+});
+export type GuidedDiscourseRange = z.infer<typeof GuidedDiscourseRangeSchema>;
+
+/**
+ * A SAMPLE, clearly-labelled correspondence arc seeded for a discourse guide's
+ * display only (mirrors the Ephesians demo's sample chiasm). Endpoints address
+ * units by their `refStart` (e.g. "2:12"); an arc whose refs cannot be resolved
+ * in the combined document is silently skipped. Never persisted, never
+ * authoritative — it is teaching scaffolding for the proposed structure.
+ */
+export const GuidedDiscourseArcSchema = z.object({
+  id: z.string(),
+  sourceRef: z.string(),
+  targetRef: z.string(),
+  type: DiscourseRelationTypeSchema.default('parallel'),
+  label: z.string(),
+  notes: z.string().optional(),
+});
+export type GuidedDiscourseArc = z.infer<typeof GuidedDiscourseArcSchema>;
+
+export const GuidedDiscourseSpecSchema = z.object({
+  /** One or more verse ranges loaded and CONCATENATED into one discourse doc. */
+  ranges: z.array(GuidedDiscourseRangeSchema).min(1),
+  /** Optional sample arcs seeded into the combined doc for the guide's display. */
+  seededArcs: z.array(GuidedDiscourseArcSchema).optional(),
+});
+export type GuidedDiscourseSpec = z.infer<typeof GuidedDiscourseSpecSchema>;
+
 export const GrammarHighlightGuideSchema = z.object({
   id: z.string(),
   title: z.string(),
   /** Human reference, e.g. "Hebrews 1:1–4". */
   reference: z.string(),
-  /** Guides are authored against the SBLGNT Lowfat base only (for now). */
-  sourceId: z.literal('macula-greek-sblgnt-lowfat'),
   /**
-   * The bundled passage documents this guide walks through (ids of documents
-   * in the guided fixture, e.g. "sblgnt_hebrews_0"). The first is opened when
-   * the guide starts.
+   * What the guide displays:
+   *  - `'syntax'` (default) — the classic Grammar-Highlights walkthrough of a
+   *    bundled passage's syntax diagram (needs `sourceId` + `bundledPassageIds`);
+   *  - `'discourse'` — hosts the Discourse view over the `discourse` range spec
+   *    (no syntax diagram, no bundled passages, prose-only steps).
+   * Additive: absent = `'syntax'`, so every existing guide is unchanged (read
+   * sites treat `undefined` as `'syntax'`). Left optional — rather than
+   * `.default('syntax')` — so existing guide OBJECT LITERALS need not add it.
    */
-  bundledPassageIds: z.array(z.string()).min(1),
+  kind: z.enum(['syntax', 'discourse']).optional(),
+  /**
+   * Syntax guides are authored against the SBLGNT Lowfat base only (for now).
+   * Optional because a discourse guide has no single syntax source.
+   */
+  sourceId: z.literal('macula-greek-sblgnt-lowfat').optional(),
+  /**
+   * The bundled passage documents a SYNTAX guide walks through (ids of documents
+   * in the guided fixture, e.g. "sblgnt_hebrews_0"). The first is opened when
+   * the guide starts. Empty for a discourse guide (which loads ranges instead).
+   */
+  bundledPassageIds: z.array(z.string()).default([]),
+  /** Range spec for a `kind: 'discourse'` guide (required for those, else absent). */
+  discourse: GuidedDiscourseSpecSchema.optional(),
   defaultDiagramMode: z
     .enum(['kellogg-reed', 'phrase-block', 'dependency', 'dependency-tree', 'constituency', 'morphology'])
     .default('kellogg-reed'),
@@ -206,6 +273,31 @@ export const GrammarHighlightGuideSchema = z.object({
    * references stay valid) but never appear in the guided library picker.
    */
   hidden: z.boolean().optional(),
+}).superRefine((guide, ctx) => {
+  if (guide.kind === 'discourse') {
+    if (!guide.discourse) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `discourse guide "${guide.id}" must provide a "discourse" range spec`,
+        path: ['discourse'],
+      });
+    }
+  } else {
+    if (guide.bundledPassageIds.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `syntax guide "${guide.id}" must provide at least one bundledPassageIds entry`,
+        path: ['bundledPassageIds'],
+      });
+    }
+    if (!guide.sourceId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `syntax guide "${guide.id}" must provide a sourceId`,
+        path: ['sourceId'],
+      });
+    }
+  }
 });
 export type GrammarHighlightGuide = z.infer<typeof GrammarHighlightGuideSchema>;
 

@@ -22,6 +22,8 @@ import { romans9election } from './guides/romans-9-6-13';
 import { firstTimothy2 } from './guides/1-timothy-2-11-15';
 import { titus2 } from './guides/titus-2-13';
 import { secondPeter1 } from './guides/2-peter-1-1';
+import { ephesians212 } from './guides/ephesians-2-12-19';
+import { psalm46 } from './guides/psalm-46';
 
 /**
  * GRAMMAR HIGHLIGHTS registry — the curated guided walkthroughs, assembled
@@ -71,6 +73,10 @@ const guides: GrammarHighlightGuide[] = [
   firstTimothy2,
   titus2,
   secondPeter1,
+  // Discourse-backed guides (kind: 'discourse') — hosted in the Discourse view.
+  // (acts239 is registered above; it is now a discourse guide and un-hidden.)
+  ephesians212,
+  psalm46,
 ];
 
 export const grammarHighlightsRegistry: GrammarHighlightsRegistry =

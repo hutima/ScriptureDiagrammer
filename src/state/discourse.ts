@@ -6,6 +6,7 @@ import type {
   DiscourseRelationType,
   DiscourseUnitColor,
   DiscourseUnitKind,
+  GuidedDiscourseSpec,
   HighlightCategory,
   KrDocument,
   SermonAnchor,
@@ -29,6 +30,7 @@ import {
   labelDiscourseUnit,
   leafUnits,
   mergeAdjacentDiscourseUnits,
+  mergeDiscourseDocuments,
   moveDiscourseUnit,
   nestDiscourseUnits,
   nudgeDiscourseUnitIndent,
@@ -216,6 +218,16 @@ export interface DiscourseState {
   /** Is the one-time first-load Discourse guidance modal currently open? */
   firstLoadModalOpen: boolean;
   /**
+   * True while the loaded discourse document is being hosted BY GUIDED MODE (a
+   * discourse-backed guide), NOT by direct Discourse-mode entry. An explicit
+   * context flag (never route-inferred): it suppresses the "self-directed"
+   * first-load modal + demo auto-load (`enterDiscourseMode` early-returns), and
+   * marks the document as read-only teaching scaffolding — a guided visit never
+   * writes the `dismissed`/`hideDemo` prefs, so direct entry keeps first-visit
+   * semantics.
+   */
+  guidedContext: boolean;
+  /**
    * A one-shot request (a rising nonce) for the left panel to open its "New
    * text" tab — used by the modal's "Start with my own passage" action.
    */
@@ -262,6 +274,21 @@ export interface DiscourseActions {
    * discourse patches untouched.
    */
   removeDefaultDemo: () => void;
+  /**
+   * Load a discourse-backed GUIDED example: build each of the spec's ranges
+   * through the normal `loadDiscourseRange` pipeline, concatenate them into one
+   * combined document, seed any sample arcs, and publish it read-only with
+   * `guidedContext: true`. Does NOT save the last range, apply stored user
+   * patches, or touch the default-demo/hide prefs — a guided visit is isolated
+   * from direct Discourse-mode state.
+   */
+  enterGuidedDiscourse: (spec: GuidedDiscourseSpec) => Promise<void>;
+  /**
+   * Leave a guided-discourse display: clear the hosted document and the
+   * `guidedContext` flag so the NEXT direct entry to Discourse mode restores the
+   * user's own last range (or shows the first-load modal) exactly as normal.
+   */
+  exitGuidedDiscourse: () => void;
   /** Open the first-load guidance modal manually (e.g. an "About Discourse" button). */
   openFirstLoadModal: () => void;
   /** Dismiss the guidance modal and persist the dismissal (does NOT hide the demo). */
@@ -573,6 +600,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     sermon: null,
     isDefaultDemo: false,
     firstLoadModalOpen: false,
+    guidedContext: false,
     newTextRequest: 0,
     past: [],
     future: [],
@@ -704,6 +732,11 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
 
     enterDiscourseMode: async () => {
       const s = get();
+      // A guided-discourse example owns the store: never show the self-directed
+      // modal or auto-load the demo behind it (explicit context flag, not route
+      // inference). The guided visit also never marks the modal seen/dismissed,
+      // so direct entry keeps first-visit semantics.
+      if (s.guidedContext) return;
       // Already showing something (returning to the mode, or a load in flight):
       // never re-trigger the modal or clobber the document.
       if (s.doc || s.status === 'loading') return;
@@ -770,6 +803,126 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         multiSelectMode: false,
         studySelection: null,
         sermon: null,
+        past: [],
+        future: [],
+      });
+    },
+
+    enterGuidedDiscourse: async (spec) => {
+      const seq = ++loadSeq;
+      // Set the context flag SYNCHRONOUSLY so DiscourseCanvas's mount effect
+      // (enterDiscourseMode) short-circuits before the async load resolves.
+      set({ status: 'loading', error: null, guidedContext: true, firstLoadModalOpen: false });
+      try {
+        const parts: DiscourseDocument[] = [];
+        for (const r of spec.ranges) {
+          parts.push(
+            await loadDiscourseRange({
+              sourceId: r.sourceId as DiscourseSourceId,
+              bookNum: r.bookNum,
+              startRef: r.startRef,
+              endRef: r.endRef,
+              granularity: r.granularity,
+            }),
+          );
+        }
+        if (seq !== loadSeq) return;
+        const now = new Date().toISOString();
+        let merged =
+          parts.length === 1
+            ? parts[0]!
+            : mergeDiscourseDocuments(parts, {
+                id: `disc_guided_${parts.map((p) => p.id).join('+')}`.slice(0, 240),
+                title:
+                  spec.ranges
+                    .map((r) => r.label)
+                    .filter(Boolean)
+                    .join('  ·  ') || parts.map((p) => p.title).join('  ·  '),
+                now,
+              });
+        // Seed any SAMPLE arcs (by refStart) directly into the doc — teaching
+        // scaffolding, never persisted. Unresolved refs are skipped.
+        if (spec.seededArcs?.length) {
+          const byRef = new Map<string, string>();
+          for (const u of leafUnits(merged)) {
+            if (u.refStart && !byRef.has(u.refStart)) byRef.set(u.refStart, u.id);
+          }
+          const provenance = {
+            source: 'manual' as const,
+            confidence: 'low' as const,
+            reason: 'Sample discourse arc for a guided example — a proposed structure, not authoritative.',
+          };
+          for (const arc of spec.seededArcs) {
+            const sourceUnitId = byRef.get(arc.sourceRef);
+            const targetUnitId = byRef.get(arc.targetRef);
+            if (!sourceUnitId || !targetUnitId) continue;
+            merged = addDiscourseRelation(
+              merged,
+              {
+                id: arc.id,
+                sourceUnitId,
+                targetUnitId,
+                type: arc.type,
+                label: arc.label,
+                notes: arc.notes,
+                confidence: 'low',
+                provenance,
+              },
+              now,
+            );
+          }
+        }
+        set({
+          baseDoc: merged,
+          doc: merged,
+          status: 'loaded',
+          error: null,
+          guidedContext: true,
+          selection: {},
+          isDefaultDemo: false,
+          firstLoadModalOpen: false,
+          sermon: null,
+          pendingRelationSource: null,
+          pendingRelationAwaitingSource: false,
+          typeEditRelationId: null,
+          splitPickUnitId: null,
+          highlightPickUnitId: null,
+          relationHighlightPickRelationId: null,
+          multiSelectedUnitIds: [],
+          multiSelectMode: false,
+          studySelection: null,
+          past: [],
+          future: [],
+        });
+      } catch (e) {
+        if (seq !== loadSeq) return;
+        set({ status: 'error', error: (e as Error).message, guidedContext: true });
+      }
+    },
+
+    exitGuidedDiscourse: () => {
+      if (!get().guidedContext) return;
+      // Supersede any in-flight guided load and drop the hosted document so the
+      // NEXT direct discourse entry restores the user's own range (or the modal).
+      ++loadSeq;
+      set({
+        guidedContext: false,
+        baseDoc: null,
+        doc: null,
+        status: 'idle',
+        error: null,
+        selection: {},
+        isDefaultDemo: false,
+        sermon: null,
+        pendingRelationSource: null,
+        pendingRelationAwaitingSource: false,
+        typeEditRelationId: null,
+        splitPickUnitId: null,
+        highlightPickUnitId: null,
+        relationHighlightPickRelationId: null,
+        multiSelectedUnitIds: [],
+        multiSelectMode: false,
+        studySelection: null,
         past: [],
         future: [],
       });

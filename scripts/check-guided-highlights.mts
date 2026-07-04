@@ -41,6 +41,24 @@ const idSets = (docs: Doc[]) => ({
 });
 
 for (const guide of grammarHighlightGuides) {
+  // Discourse-backed guides host the Discourse view over verse RANGES rather
+  // than a bundled syntax diagram, so the token/node/relation id checks below
+  // do not apply. Validate their range spec instead and move on.
+  if (guide.kind === 'discourse') {
+    if (!guide.discourse || guide.discourse.ranges.length === 0) {
+      fail(`${guide.id}: discourse guide has no discourse.ranges`);
+    }
+    for (const r of guide.discourse?.ranges ?? []) {
+      if (!r.sourceId || !r.startRef || !r.endRef || !r.bookNum) {
+        fail(`${guide.id}: discourse range is missing sourceId/bookNum/startRef/endRef`);
+      }
+    }
+    if (guide.steps.length === 0) fail(`${guide.id}: guide has no steps`);
+    console.log(
+      `✓ ${guide.id} (discourse: ${guide.discourse?.ranges.length ?? 0} range(s), ${guide.steps.length} steps)`,
+    );
+    continue;
+  }
   const docs = guide.bundledPassageIds.map((id) => {
     const d = guidedDocuments.find((x) => x.id === id);
     if (!d) fail(`${guide.id}: bundled passage "${id}" is not in the guided bundle (run guided:build?)`);
