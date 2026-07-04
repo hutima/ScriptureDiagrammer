@@ -3782,6 +3782,29 @@ label.field.inline > span { margin-bottom: 0; }
   border: 1px solid rgba(0, 0, 0, 0.15);
 }
 .guided-step-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 2px; }
+/* The base .btn (translucent white, tuned for the dark TopBar — see the
+   .edit-guide-btn comment above) all but disappears here: the step card sits
+   on the light panel background, so a white-on-near-white "← Back" button is
+   invisible whether it's enabled OR disabled (confirmed by inspecting computed
+   styles — the effective colors have almost no contrast against #f8fafc/#fff
+   in either state). Give it the same light-card secondary treatment already
+   used for modal buttons (`.modal .btn`): visible border + background + dark
+   text when enabled, and a clearly muted (not merely fainter) look when
+   disabled at step 1. */
+.guided-nav-back {
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+}
+.guided-nav-back:hover:not(:disabled) {
+  background: var(--line);
+}
+.guided-nav-back:disabled {
+  opacity: 1;
+  color: var(--muted);
+  background: var(--panel);
+  border-color: var(--line);
+}
 .guided-debate summary { cursor: pointer; font-weight: 600; }
 .guided-debate-caution { color: var(--ink-soft, #64748b); }
 .guided-debate-grammar { font-style: italic; }

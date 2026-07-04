@@ -175,3 +175,56 @@ source mode (Greek surface never equals the pronoun) nor for a gloss that
 doesn't lead with the pronoun ("(you) | disciple" is preserved). Regression
 tests in `tests/gloss.test.ts` ("pro-drop subject fused into the verb gloss").
 2255 tests green (+3); guided:check: 18 guides validate.
+
+### Phase E — guided-mode narrow-viewport layout + invisible Back button — DONE
+Two user-reported UI bugs in guided mode, both reproduced against the live
+dev-server app (headless Chromium, iPhone width ~390×844, force-desktop
+preference ON via `localStorage['kr:forceDesktop']`) before any code changed.
+
+**Bug 1 — guided mode wasn't full-width on narrow viewports.** At a narrow
+REAL width with force-desktop on, `ResponsiveShell` still renders its desktop
+branch (three-column workspace), so `.guided-aside`'s explicit
+`width: var(--right-w, 360px)` capped the step card to ~300px in a 390px-wide
+stacked row (measured 300/390 ≈ 77%, matching the user's "~75%" — confirmed
+via `getBoundingClientRect()` before/after). Fix: `ResponsiveShell` now computes
+`guidedNarrow = guidedActive && vp.device !== 'desktop'` — `vp.device` is the
+REAL width classification, unaffected by the forced-desktop override, per
+CLAUDE.md §13 (`src/ui/responsive/viewport.ts`) — and adds a `guided-full-width`
+modifier class to the `.guided-aside` element when true; `global.css` adds
+`.guided-aside.guided-full-width { width: auto; }` so it fills its row (grid
+column on tablet, stretched flex row on phone) instead of capping. A second,
+one-time effect auto-collapses the left sources panel exactly when guided mode
+is newly entered on a narrow real screen (mirroring the existing mobile
+auto-collapse, but keyed off `vp.device` instead of `vp.isMobile` so it also
+fires under forced-desktop) — the user can still reopen it manually to switch
+guides. Real desktop widths are untouched (`guidedNarrow` is false there;
+verified three-column layout unchanged at 1400px).
+
+**Bug 2 — Back button invisible on step ≥ 2.** Reproduced: at step 3 the Back
+button (`GuidedStepCard.tsx`) IS present in the DOM and enabled
+(`disabled: false`), ruling out a conditional-render bug. Inspecting computed
+styles showed the base `.btn` (`color: rgb(245,247,250)` on
+`background: rgba(255,255,255,0.12)`, tuned for the dark TopBar per the
+existing `.edit-guide-btn` comment) has almost no contrast against the light
+`.guided-aside` panel (`#f8fafc`/`#fff`) in EITHER state — a 3×-scale
+screenshot crop confirms both step 1 (disabled) and step 3 (enabled) render
+as a barely-there ghost outline, with the enabled version if anything less
+distinguishable once composited. So the earlier hypothesis ("disabled visible,
+enabled invisible") was directionally right (styling, not a render bug) but
+the real defect is that the whole light-on-light treatment is broken, not
+just one state. Fix: `GuidedStepCard.tsx`'s Back button gets a new
+`guided-nav-back` class; `global.css` gives it the same light-card secondary
+treatment already used for modal buttons (`.modal .btn`) — visible border +
+background + dark text when enabled, and a distinctly muted (not just
+lower-opacity) look when disabled at step 1. Next's `.btn.primary` (already
+visible everywhere) is untouched. Before/after 3×-zoom screenshots of both
+states confirm the fix (Back now reads clearly in both the disabled and
+enabled states, at both 390px and 1400px width).
+
+Tests added to `tests/guided-ui.test.tsx`: Back present/enabled/carries
+`guided-nav-back` at step ≥ 2 (and present/disabled at step 1); `ResponsiveShell`
+carries `guided-full-width` on the aside + auto-collapses the left panel at a
+narrow real width with force-desktop on; the same assertions show the class is
+ABSENT at a real desktop width (three-column look preserved). 2258 tests green
+(+3); `npm run typecheck` clean. Layout/CSS + two class additions only — no
+document or syntax-state changes. This closes out the ledger.
