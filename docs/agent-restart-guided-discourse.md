@@ -2,23 +2,23 @@
 
 **Branch:** `claude/guided-discourse-syntax-fixes-g8hsod` (push target; never push elsewhere)
 **Base commit (main):** `ef08809a4e652b0e40602079f2de33921a1db670`
-**Latest commit:** `ef08809` (no work commits yet)
+**Latest commit:** `ef08809` — see git log
 
 ## Task list
 
 | # | Task | Status |
 |---|------|--------|
-| A1 | Rename top "Grammar" mode button to guided-exploration wording | in progress |
-| A2 | Three-dot menu: `Guide` → `How to Use` | in progress |
-| A3 | Remove ellipses from three-dot menu items | in progress |
-| A4 | Condense guided card summaries (~60–110 chars; John 1:1 example) | in progress |
-| A5 | Greek word + gloss pair line-breaking in guided prose | in progress |
-| B1 | Colossians 2:11–12 copy vs diagram (συνταφέντες apposition?) | todo |
-| B2 | Romans 9:6–13 intro: shorten drastically | todo |
-| B3 | Difficulty ordering + `topics?: string[]` tags on guides | todo |
+| A1 | Rename top "Grammar" mode button to guided-exploration wording | done (66e5ccd) |
+| A2 | Three-dot menu: `Guide` → `How to Use` | done (66e5ccd) |
+| A3 | Remove ellipses from three-dot menu items | done (66e5ccd) |
+| A4 | Condense guided card summaries (~60–110 chars; John 1:1 example) | done (66e5ccd) |
+| A5 | Greek word + gloss pair line-breaking in guided prose | done (66e5ccd) |
+| B1 | Colossians 2:11–12 copy vs diagram (συνταφέντες apposition?) | in progress |
+| B2 | Romans 9:6–13 intro: shorten drastically | in progress |
+| B3 | Difficulty ordering + `topics?: string[]` tags on guides | in progress |
 | C  | Lowfat 1 Cor 5:1 `ὥστε` missing (1904 + SBLGNT) + regression tests | in progress |
-| D1 | Stacked diagram zoom (Matt 6:11 / Luke 11:3 step 3, secondary diagram) | todo |
-| D2 | Guided Next button sticky near lower-right | todo |
+| D1 | Stacked diagram zoom (Matt 6:11 / Luke 11:3 step 3, secondary diagram) | in progress |
+| D2 | Guided Next button sticky near lower-right | in progress |
 | E  | Discourse-backed guided examples (Acts 2:39, Eph 2:12–19, Psalm 46 chiasm; suppress self-directed modal from guided) | todo |
 | F  | Guided grammar term help (dashed underline + glossary popover) | todo |
 | G  | (user, 2026-07-04) Matt 6:9 vocative cascade follow-up to #241: "the" slant under "heavens" still clashes with the dashed connector; extend the sub-baseline minimally so the connector joins clear of the modifier | in progress |
