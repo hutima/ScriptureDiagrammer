@@ -7,6 +7,14 @@ import type { GrammarHighlightGuide } from '@/domain/schema';
  * imperative δίδου pictures it as ongoing, reinforced by his added phrase
  * καθ' ἡμέραν ("day by day"). Authored against the bundled SBLGNT passages
  * `sblgnt_matthew_143` and `sblgnt_luke_511` (dump with `npm run guided:dump`).
+ *
+ * The comparison steps STACK the other Gospel beneath the one currently
+ * loaded (`secondaryPassageId`/`secondaryFocus`/`secondaryHighlights`), so
+ * δός and δίδου — and their aspect-relevant modifiers, σήμερον and
+ * τὸ καθ' ἡμέραν — are visible simultaneously rather than only by paging
+ * between steps. The opening step and the epiousios step stay full-screen
+ * single-diagram looks at Matthew; the alternation is kept where it still
+ * teaches well.
  */
 export const lordsPrayerBread: GrammarHighlightGuide = {
   id: 'guide-lords-prayer-bread',
@@ -67,7 +75,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       id: 'step-luke-present',
       title: 'Luke: the same prayer, a different verb form',
       body:
-        'Luke hands down the same line almost word for word — "our bread, the daily one" — but where Matthew has δός, Luke has [[didou]]. Same verb, same meaning "give," but a present-tense imperative instead of an aorist one. The aorist in Matthew viewed the asking as a whole, a single act; the present in Luke pictures the asking as ongoing, still in progress as it is spoken.',
+        'Luke hands down the same line almost word for word — "our bread, the daily one" — but where Matthew has δός, Luke has [[didou]]. Below you can see Matthew\'s wording at the same time: δός stays highlighted in the stacked panel, so the two verb forms sit side by side rather than one replacing the other on screen. Same verb, same meaning "give," but a present-tense imperative instead of an aorist one. The aorist in Matthew viewed the asking as a whole, a single act; the present in Luke pictures the asking as ongoing, still in progress as it is spoken.',
       passageId: 'sblgnt_luke_511',
       focus: {
         nodeIds: ['cl_s511_0', 'w_n42011003006', 'w_n42011003002'],
@@ -75,6 +83,13 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       },
       panZoom: { fit: 'nodes', padding: 130 },
       highlights: { emphasizedNodeIds: ['w_n42011003006'] },
+      secondaryPassageId: 'sblgnt_matthew_143',
+      secondaryTitle: 'Matthew 6:11 — δός, an aorist imperative',
+      secondaryFocus: {
+        nodeIds: ['cl_s143_0', 'w_n40006011006'],
+        relationIds: ['r_s143_1'],
+      },
+      secondaryHighlights: { emphasizedNodeIds: ['w_n40006011006'] },
       implication:
         'This is why some English Bibles render Luke’s line with more of a sense of continuation ("keep giving," "give … day by day") than Matthew’s. Both Gospels are translating the same underlying request faithfully — they simply preserve two verb pictures Jesus’ own words offered.',
       caution:
@@ -85,7 +100,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       id: 'step-luke-each-day',
       title: '"Day by day" — spelled out, not just implied',
       body:
-        'Luke does not leave the "ongoing" sense to the verb alone. He adds a whole phrase: [[kathHemeran]], "according to the day" — "each day" or "day by day." In the diagram it hangs beneath the verb as its own modifying phrase, governing "day" the way a preposition governs its object. Luke states outright what the present tense only suggests.',
+        'Luke does not leave the "ongoing" sense to the verb alone. He adds a whole phrase: [[kathHemeran]], "according to the day" — "each day" or "day by day." In the diagram it hangs beneath the verb as its own modifying phrase, governing "day" the way a preposition governs its object. Below, Matthew\'s σήμερον ("today") stays highlighted in the stacked panel, so you can compare the two Gospels\' modifiers directly: Matthew names the day itself, Luke names its recurrence. Luke states outright what the present tense only suggests.',
       passageId: 'sblgnt_luke_511',
       focus: {
         nodeIds: [
@@ -98,6 +113,13 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       },
       panZoom: { fit: 'nodes', padding: 130 },
       highlights: { emphasizedNodeIds: ['w_n42011003009', 'w_n42011003010'] },
+      secondaryPassageId: 'sblgnt_matthew_143',
+      secondaryTitle: 'Matthew 6:11 — σήμερον, "today"',
+      secondaryFocus: {
+        nodeIds: ['w_n40006011006', 'w_n40006011008'],
+        relationIds: ['r_s143_8'],
+      },
+      secondaryHighlights: { emphasizedNodeIds: ['w_n40006011008'] },
       implication:
         'Luke’s sense of a daily, repeated request comes as much from these two added words as from his choice of tense. Tense and vocabulary are working together, not one doing all the work.',
       greekTermIds: ['kathHemeran'],
@@ -106,13 +128,21 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       id: 'step-two-pictures',
       title: 'One petition, two faithful pictures',
       body:
-        'Set side by side, Matthew asks for [[dos]] — bread for today, one plain request. Luke asks for [[didou]] [[kathHemeran]] — bread, day by day, an asking pictured as ongoing. Neither Gospel is correcting the other, and neither reading contradicts your English Bible, whichever wording it uses. The grammar simply lets us see two true angles on what it means to depend on the Father for daily bread — right now, and every day after this one.',
+        'Set side by side, Matthew asks for [[dos]] — bread for today, one plain request. Luke asks for [[didou]] [[kathHemeran]] — bread, day by day, an asking pictured as ongoing. Below, both diagrams are stacked and highlighted together — Matthew\'s δός and σήμερον above Luke\'s δίδου and καθ\' ἡμέραν — so the comparison is visible, not just described. Neither Gospel is correcting the other, and neither reading contradicts your English Bible, whichever wording it uses. The grammar simply lets us see two true angles on what it means to depend on the Father for daily bread — right now, and every day after this one.',
       passageId: 'sblgnt_luke_511',
       focus: {
         nodeIds: ['cl_s511_0', 'w_n42011003006', 'w_n42011003009'],
         relationIds: ['r_s511_1', 'r_s511_10'],
       },
       panZoom: { fit: 'whole-diagram' },
+      highlights: { emphasizedNodeIds: ['w_n42011003006', 'w_n42011003009'] },
+      secondaryPassageId: 'sblgnt_matthew_143',
+      secondaryTitle: 'Matthew 6:11 — the same petition, one plain request',
+      secondaryFocus: {
+        nodeIds: ['cl_s143_0', 'w_n40006011006', 'w_n40006011008'],
+        relationIds: ['r_s143_1', 'r_s143_8'],
+      },
+      secondaryHighlights: { emphasizedNodeIds: ['w_n40006011006', 'w_n40006011008'] },
       implication:
         'This is exactly why English translations of Matthew and Luke differ here — and why both are faithful. The difference is a difference in picture, not in truth.',
       greekTermIds: ['epiousios'],

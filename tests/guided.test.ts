@@ -90,6 +90,26 @@ describe('guided registry and bundle', () => {
     }
   });
 
+  it('registers the Lord\'s-Prayer guide with Matthew/Luke stacked on the comparison steps', () => {
+    const guide = getGuide('guide-lords-prayer-bread');
+    expect(guide).toBeTruthy();
+    expect(guide!.bundledPassageIds).toEqual(['sblgnt_matthew_143', 'sblgnt_luke_511']);
+    // The comparison steps name a secondary passage that is one of the bundled ids.
+    const stacked = guide!.steps.filter((s) => s.secondaryPassageId);
+    expect(stacked.length).toBeGreaterThan(0);
+    for (const s of stacked) {
+      expect(guide!.bundledPassageIds).toContain(s.secondaryPassageId);
+      // The stacked frame is always the OTHER gospel from the step's own primary.
+      expect(s.secondaryPassageId).not.toBe(s.passageId ?? guide!.bundledPassageIds[0]);
+    }
+    // At least one step stacks Matthew's aorist δός beneath Luke's present δίδου
+    // so both imperatives are visible at once, not only by paging between steps.
+    const verbStep = guide!.steps.find((s) => s.id === 'step-luke-present')!;
+    expect(verbStep.secondaryPassageId).toBe('sblgnt_matthew_143');
+    expect(verbStep.focus.nodeIds).toContain('w_n42011003006'); // δίδου, primary
+    expect(verbStep.secondaryFocus?.nodeIds).toContain('w_n40006011006'); // δός, secondary
+  });
+
   it('registers the Romans 8:28–30 golden-chain guide against the one bundled sentence', () => {
     const guide = getGuide('guide-romans-8-28-30');
     expect(guide).toBeTruthy();
@@ -235,6 +255,27 @@ describe('guided focus helpers', () => {
       expect(Object.values(GUIDED_HIGHLIGHT_COLORS)).toContain(c);
     }
   });
+
+  it('builds highlight maps over the stacked Matthew SECONDARY passage in the Lord\'s-Prayer guide', () => {
+    const stackedGuide = getGuide('guide-lords-prayer-bread')!;
+    const stacked = stackedGuide.steps.find((s) => s.secondaryPassageId)!;
+    const secDoc = getGuidedDocument(stacked.secondaryPassageId!)!;
+    expect(secDoc.language).toBe('grc');
+    const { nodeFills } = guidedHighlightMaps(secDoc, {
+      ...stacked,
+      focus: stacked.secondaryFocus ?? {},
+      highlights: stacked.secondaryHighlights,
+    });
+    expect(nodeFills.size).toBeGreaterThan(0);
+    // Every highlighted node resolves in the SECONDARY (Matthew) passage, not
+    // the primary (Luke) one this step's own passageId names.
+    for (const id of nodeFills.keys()) {
+      expect(secDoc.syntax.nodes.some((n) => n.id === id), id).toBe(true);
+    }
+    for (const c of nodeFills.values()) {
+      expect(Object.values(GUIDED_HIGHLIGHT_COLORS)).toContain(c);
+    }
+  });
 });
 
 describe('guided store', () => {
@@ -289,6 +330,19 @@ describe('guided store', () => {
     // The secondary (Hebrew) passage is drawn read-only, never loaded into the
     // editor store — the primary Greek sentence stays the one loaded document.
     expect(useEditorStore.getState().doc.id).toBe('sblgnt_acts_47');
+  });
+
+  it('stepping onto a Lord\'s-Prayer stacked step keeps the primary (Luke) document loaded', () => {
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide('guide-lords-prayer-bread');
+    const guide = getGuide('guide-lords-prayer-bread')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    expect(stackedIndex).toBeGreaterThan(0);
+    useGuidedStore.getState().setStep(stackedIndex);
+    // The stacked step's own passageId is Luke — the secondary (Matthew) frame
+    // is drawn read-only and never loaded into the editor store.
+    expect(useEditorStore.getState().doc.id).toBe(guide.steps[stackedIndex]!.passageId);
+    expect(useEditorStore.getState().doc.id).toBe('sblgnt_luke_511');
   });
 
   it('every guide in the library opens and lays out in its default mode', () => {

@@ -117,14 +117,26 @@ for each following phase; each phase gets its own PR, merged before the next.
   clicking Next then Back returns to prior step (`tests/guided-ui.test.tsx`
   lines 108–110). 2248 tests green; no new files needed. This item is COMPLETE.
 
-### Phase C — Matt 6:11 ∥ Luke 11:3 stacked view
-The stacked-view infra (secondaryPassageId/secondaryFocus/secondaryHighlights/
-secondaryTitle, GuidedStackedDiagram) shipped with Acts 2:39. Convert the
-Lord's-Prayer guide (src/data/guides/lords-prayer-bread.ts, passages
-sblgnt_matthew_143 + sblgnt_luke_511) so the δός vs δίδου comparison shows both
-passages AT ONCE via the secondary fields (e.g. Matthew primary with Luke
-stacked on the comparison steps), instead of only alternating passages between
-steps. guided:check + guided/guided-ui tests. Small task, cheap model.
+### Phase C — Matt 6:11 ∥ Luke 11:3 stacked view — DONE
+Landed as this commit (guide + tests + this doc update all in one commit, per
+the task's ask — a commit cannot cite its own final hash, so check `git log`
+on this branch for the `feat(guided): stack Matthew and Luke in the
+daily-bread comparison` commit). The Lord's-Prayer guide
+(`src/data/guides/lords-prayer-bread.ts`) now uses the stacked-view fields
+that shipped with Acts 2:39 instead of only alternating passages between
+steps. Three comparison steps stack the OTHER gospel beneath the one
+currently loaded: `step-luke-present` (primary Luke) stacks Matthew's δός so
+both imperatives — δός and δίδου — render simultaneously; `step-luke-each-day`
+(primary Luke) stacks Matthew's σήμερον beside Luke's τὸ καθ' ἡμέραν;
+`step-two-pictures` (primary Luke) stacks the full Matthew close-up for the
+final side-by-side summary. The opening step and the epiousios step stay
+full-screen single-diagram looks at Matthew — the alternation is kept where
+it still teaches well. All ids reused are the same real ids already in the
+guide (re-verified via `npm run dump-syntax`); no bundle rebuild needed.
+Tests extended in `tests/guided.test.ts` (registry + secondary highlight-map
+resolution + store navigation) and `tests/guided-ui.test.tsx` (both Gospel
+diagrams render with highlights on each). 2252 tests green (+4); guided:check:
+18 guides validate.
 
 ### Phase D — final one fix
 Gloss-mode regression, Matthew 28:19–20: in English gloss mode the diagram
