@@ -25,7 +25,7 @@ import {
   layoutCoordination,
 } from './coordination';
 import { drawDiagonalCoordination, drawDiagonalModifier } from './diagonal';
-import { blockAscent, pedestalRoom, rightWithinBand } from './geometry';
+import { blockAscent, clearStemX, pedestalRoom, rightWithinBand } from './geometry';
 import { drawInfinitive, layoutInfinitiveFork } from './infinitives';
 import { BandPacker } from './packing';
 import { layoutDiscourse } from './discourse';
@@ -965,9 +965,19 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
       Math.max(block.height + LAYOUT.pedestalGap, LAYOUT.pedestalMinRiser)
     );
     elements.push(...translate(block, baseStart, baseY));
-    // Connect at the centre of the embedded clause's own baseline span.
-    const connectX = baseStart + (block.wordLeft + (block.wordRight || block.width)) / 2;
     const apexY = -LAYOUT.pedestalFootRise;
+    // Connect at the centre of the embedded clause's own baseline span — but
+    // slide off-centre if a below-baseline modifier of the clause hangs in the
+    // riser's band, so the riser (and the connector label riding it) doesn't run
+    // straight through that text (Rom 9:6 "τοῦ θεοῦ / of God" under the pedestal).
+    const centreX = baseStart + (block.wordLeft + (block.wordRight || block.width)) / 2;
+    const connectX = clearStemX(
+      elements.slice(elements.length - block.elements.length),
+      { yTop: baseY, yBottom: apexY },
+      centreX,
+      baseStart + LAYOUT.pedestalFootHalf,
+      baseStart + (block.wordRight || block.width) - LAYOUT.pedestalFootHalf,
+    );
     // The horizontal stretch of main line from the object stem out to the foot,
     // so the pedestal reads as THIS verb's direct object rather than a detached
     // "Y" floating off to the side.

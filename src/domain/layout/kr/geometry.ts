@@ -1,7 +1,8 @@
 import { LAYOUT } from '../constants';
 import { measureText, SMALL_FONT } from '../measure';
-import type { GrammarTone, TextElement } from '../types';
+import type { DiagramElement, GrammarTone, TextElement } from '../types';
 import type { Block } from './types';
+import { elementRects } from './packing';
 import { eid } from './primitives';
 
 /**
@@ -151,4 +152,48 @@ export function rightWithinBand(block: Block, band: number): number {
     if (topY <= band) right = Math.max(right, maxX);
   }
   return right;
+}
+
+/** Clearance a routed stem keeps on each side of hanging text it must miss. */
+const STEM_CLEAR_PAD = 4;
+
+/**
+ * Choose the x for a vertical stem (a pedestal riser, a clause spine) that must
+ * drop THROUGH the band between an elevated baseline and the main line, so it
+ * misses any content already hanging in that band. The classic `preferred` x
+ * (e.g. the centre of a pedestalled clause's baseline) is kept whenever it is
+ * clear — byte-identical output — but when a below-baseline modifier sits under
+ * it (the Rom 9:6 "τοῦ θεοῦ / of God" genitive under the pedestal riser, worse
+ * once glossed because "of God" is wider than "θεοῦ"), it slides to the nearest
+ * gap within `[lo, hi]`, biased RIGHT so a connector label written off the stem
+ * runs into already-clear space rather than back into the obstacle.
+ *
+ * `els` are the already-placed primitives in the SAME coordinate space as
+ * `preferred`; only those overlapping the open vertical band `(yTop, yBottom)`
+ * (i.e. hanging strictly below the elevated baseline) count as obstacles — the
+ * baseline row itself, which the stem legitimately meets, is excluded by the
+ * caller keeping it out of the band.
+ */
+export function clearStemX(
+  els: readonly DiagramElement[],
+  band: { yTop: number; yBottom: number },
+  preferred: number,
+  lo: number,
+  hi: number,
+): number {
+  const clamped = Math.min(Math.max(preferred, lo), hi);
+  const obstacles = elementRects(els)
+    .filter((r) => r.y1 > band.yTop + 0.5 && r.y0 < band.yBottom - 0.5)
+    .map((r) => ({ x0: r.x0 - STEM_CLEAR_PAD, x1: r.x1 + STEM_CLEAR_PAD }));
+  const inside = (x: number): boolean => obstacles.some((o) => x > o.x0 && x < o.x1);
+  if (!inside(clamped)) return clamped;
+  // Candidate landing spots: every obstacle edge (the flush-clear positions),
+  // plus the bounds. Keep those inside range and clear of every obstacle.
+  const cands = [lo, hi];
+  for (const o of obstacles) cands.push(o.x0, o.x1);
+  const clear = cands.filter((x) => x >= lo && x <= hi && !inside(x));
+  if (!clear.length) return clamped; // no provably-clear gap: leave it (no worse)
+  // Nearest to the classic centre, ties broken to the RIGHT (label-safe side).
+  clear.sort((a, b) => Math.abs(a - preferred) - Math.abs(b - preferred) || b - a);
+  return clear[0]!;
 }

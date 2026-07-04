@@ -9,6 +9,7 @@ import { ResponsiveShell } from '@/ui/shell/ResponsiveShell';
 import { useEditorStore, useGuidedStore } from '@/state';
 import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
 import { GUIDED_HIGHLIGHT_COLORS } from '@/ui/guided/focus';
+import { sampleDocuments } from '@/fixtures';
 
 /**
  * Grammar Highlights UI smoke — the entry flow (⋯ menu → intro modal → mode
@@ -110,6 +111,20 @@ describe('guided mode UI', () => {
     expect(useGuidedStore.getState().stepIndex).toBe(0);
   });
 
+  it('converts [[term]] markers in implication/caution prose, not just the body (Romans 9:6-13 step 1)', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-romans-9-6-13'));
+    const { container } = render(createElement(GuidedStepCard));
+    // The caution paragraph must show the tappable Greek surface, never the raw marker.
+    expect(container.textContent).not.toContain('[[');
+    const caution = container.querySelector('.guided-caution');
+    expect(caution).toBeTruthy();
+    const link = caution!.querySelector<HTMLButtonElement>('.guided-term-link');
+    expect(link?.textContent).toBe('ἐκπέπτωκεν');
+    fireEvent.click(link!);
+    expect(useGuidedStore.getState().selectedGreekTermId).toBe('ekpeptoken');
+  });
+
   it('a step with a contested reference offers "See the alternate reading" and opens the panel', () => {
     useGuidedStore.getState().enter('greek');
     act(() => useGuidedStore.getState().openGuide('guide-romans-9-5'));
@@ -185,35 +200,34 @@ describe('guided mode UI', () => {
     expect(container.querySelector('svg.diagram-paper.hebrew')).toBeNull();
   });
 
-  it('hides the guided entry points on a mobile viewport (desktop-only, like Edit)', () => {
+  it('keeps the guided entry points on a mobile viewport (unlike Edit, guided is available everywhere)', () => {
     setWidth(360);
     render(createElement(TopBar));
-    // No dedicated launcher…
-    expect(screen.queryByRole('button', { name: /✦ grammar/i })).toBeNull();
-    // …and no ⋯-menu item either.
+    // The dedicated launcher…
+    expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
+    // …and the ⋯-menu item are both still reachable on a phone.
     fireEvent.click(screen.getByRole('button', { name: '⋯' }));
-    expect(screen.queryByRole('menuitem', { name: /grammar highlights/i })).toBeNull();
+    expect(screen.getByRole('menuitem', { name: /grammar highlights/i })).toBeTruthy();
   });
 
-  it('the intro modal offers no enter action on mobile — a desktop-only note instead', () => {
+  it('the intro modal offers the Greek/English enter choice on mobile too', () => {
     setWidth(360);
     render(createElement(TopBar));
-    // Belt-and-suspenders: even if the modal is opened programmatically…
     act(() => useGuidedStore.getState().openIntro());
-    expect(screen.queryByText(/greek mode/i)).toBeNull();
-    expect(screen.queryByText(/english mode/i)).toBeNull();
-    expect(screen.getByText(/desktop-only/i)).toBeTruthy();
+    expect(screen.getByText(/greek mode/i)).toBeTruthy();
+    expect(screen.getByText(/english mode/i)).toBeTruthy();
   });
 
-  it('the store refuses a programmatic enter() on a mobile viewport', () => {
+  it('the store accepts a programmatic enter() on a mobile viewport', () => {
     setWidth(360);
     useGuidedStore.getState().enter('greek');
-    expect(useGuidedStore.getState().active).toBe(false);
-    // The editor state is untouched (no Explore/KR steering happened).
-    expect(useEditorStore.getState().doc.title).toBe('Guided UI');
+    expect(useGuidedStore.getState().active).toBe(true);
+    // The normal Explore/KR steering happened just as on desktop.
+    expect(useEditorStore.getState().appMode).toBe('explore');
+    expect(useEditorStore.getState().diagramMode).toBe('kellogg-reed');
   });
 
-  it('force-desktop counts as desktop: launcher shown and enter() works at a phone width', () => {
+  it('force-desktop still counts as desktop: launcher shown and enter() works at a phone width', () => {
     setWidth(360);
     useEditorStore.getState().setForceDesktop(true);
     render(createElement(TopBar));
@@ -292,5 +306,62 @@ describe('guided mode UI', () => {
     const aside = container.querySelector('.guided-aside');
     expect(aside).toBeTruthy();
     expect(aside!.className).not.toContain('guided-full-width');
+  });
+
+  it('drops the whole DIAGRAM control bar on a real mobile width while guided', () => {
+    setWidth(360);
+    useEditorStore.getState().setForceDesktop(false);
+    const { container } = render(createElement(ResponsiveShell));
+    act(() => useGuidedStore.getState().enter('greek'));
+    expect(container.querySelector('.mobile-main .panel-head')).toBeNull();
+    // The diagram itself still renders, expanded (no caret left to collapse it).
+    expect(container.querySelector('.mobile-main .canvas:not(.collapsed)')).toBeTruthy();
+  });
+
+  it('re-expands a diagram collapsed BEFORE guided entry (the caret is hidden with the bar)', () => {
+    setWidth(360);
+    useEditorStore.getState().setForceDesktop(false);
+    const { container } = render(createElement(ResponsiveShell));
+    // Collapse the diagram with the panel-head caret while guided is off …
+    const caret = container.querySelector<HTMLButtonElement>('.panel-head .collapse-btn, .panel-head button[title="Collapse diagram"]');
+    expect(caret).toBeTruthy();
+    act(() => caret!.click());
+    expect(container.querySelector('.canvas.collapsed')).toBeTruthy();
+    // … then enter guided: the bar (and its caret) disappears, so the diagram
+    // must be forced open again or the walkthrough would show nothing.
+    act(() => useGuidedStore.getState().enter('greek'));
+    expect(container.querySelector('.mobile-main .panel-head')).toBeNull();
+    expect(container.querySelector('.mobile-main .canvas:not(.collapsed)')).toBeTruthy();
+  });
+
+  it('keeps the DIAGRAM control bar for a forced-desktop guided reader at a phone width', () => {
+    setWidth(360);
+    useEditorStore.getState().setForceDesktop(true);
+    const { container } = render(createElement(ResponsiveShell));
+    act(() => useGuidedStore.getState().enter('greek'));
+    // Forced-desktop renders the desktop branch, so `.panel-head` lives directly
+    // under the syntax canvas rather than `.mobile-main`.
+    expect(container.querySelector('.panel-head')).toBeTruthy();
+  });
+
+  it('collapses the source strip on entering guided mode and restores it on leave', () => {
+    // A real doc with tokens so the source strip actually renders (the fresh
+    // `newDocument` from beforeEach has none). Retitled so `bookForDoc` finds no
+    // matching GNT book and the parallel-BSB fetch effect is a no-op, mirroring
+    // `source-strip-zoom.test.tsx`.
+    const johnOneOneA = {
+      ...sampleDocuments.find((d) => d.id === 'doc_sample_john_1_1a')!,
+      title: 'Sample sentence (guided collapse test)',
+    };
+    useEditorStore.setState({ doc: johnOneOneA, baseDoc: null, selection: {} });
+    render(createElement(DiagramCanvas));
+    const collapseBtn = () =>
+      document.querySelector('.source-bar .collapse-btn') as HTMLButtonElement | null;
+    // Not active yet: the strip starts expanded (normal default).
+    expect(collapseBtn()?.title).toBe('Hide source text');
+    act(() => useGuidedStore.getState().enter('greek'));
+    expect(collapseBtn()?.title).toBe('Show source text');
+    act(() => useGuidedStore.getState().leave());
+    expect(collapseBtn()?.title).toBe('Hide source text');
   });
 });
