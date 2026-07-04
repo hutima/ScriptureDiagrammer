@@ -132,3 +132,54 @@ describe('implied subject in gloss mode', () => {
     expect(texts).not.toContain('(you)');
   });
 });
+
+/**
+ * A pro-drop finite clause whose verb GLOSS fuses in the subject pronoun
+ * (ἐνετειλάμην → "I commanded", Matthew 28:20). In source mode the imputed subject
+ * "(ἐγώ)" and the verb "ἐνετειλάμην" read cleanly; but glossed, the imputed "(I)"
+ * would sit right beside "I commanded" — printing the subject twice. The layout
+ * must keep the pronoun in the subject slot only and drop its redundant copy from
+ * the verb, so it reads "(I) | commanded", exactly as the Greek reads
+ * "(ἐγώ) | ἐνετειλάμην".
+ */
+function proDropFused(): KrDocument {
+  return KrDocumentSchema.parse({
+    schemaVersion: 1, id: 'pf', title: 't', language: 'grc', text: 'ἐνετειλάμην',
+    createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+    layoutHints: {},
+    tokens: [
+      { id: 't_v', index: 0, surface: 'ἐνετειλάμην', pos: 'verb', gloss: 'I commanded',
+        morphology: { person: 'first', number: 'singular', mood: 'indicative' } },
+    ],
+    syntax: {
+      rootId: 'c0',
+      nodes: [
+        { id: 'c0', kind: 'clause', clauseType: 'independent', tokenIds: [] },
+        { id: 'v', kind: 'word', role: 'predicate', tokenIds: ['t_v'] },
+      ],
+      relations: [{ id: 'r1', type: 'predicate', headId: 'c0', dependentId: 'v' }],
+    },
+  });
+}
+
+describe('pro-drop subject fused into the verb gloss', () => {
+  it('does not print the imputed pronoun twice in gloss mode ("(I) | commanded")', () => {
+    const texts = diagramTexts(glossDoc(proDropFused()));
+    expect(texts).toContain('(I)');
+    expect(texts).toContain('commanded');
+    // the verb must NOT still carry the fused subject pronoun
+    expect(texts).not.toContain('I commanded');
+  });
+
+  it('leaves the Greek source untouched ("(ἐγώ) | ἐνετειλάμην")', () => {
+    const texts = diagramTexts(proDropFused());
+    expect(texts).toContain('(ἐγώ)');
+    expect(texts).toContain('ἐνετειλάμην');
+  });
+
+  it('does not strip a verb gloss that does not lead with the pronoun ("(you) | disciple")', () => {
+    const texts = diagramTexts(glossDoc(proDrop()));
+    expect(texts).toContain('(you)');
+    expect(texts).toContain('disciple');
+  });
+});

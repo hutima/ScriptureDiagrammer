@@ -5,6 +5,7 @@ import { TopBar } from '@/ui/components/TopBar';
 import { LeftPanel } from '@/ui/panels/LeftPanel';
 import { GuidedStepCard } from '@/ui/guided/GuidedStepCard';
 import { DiagramCanvas } from '@/ui/components/DiagramCanvas';
+import { ResponsiveShell } from '@/ui/shell/ResponsiveShell';
 import { useEditorStore, useGuidedStore } from '@/state';
 import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
 import { GUIDED_HIGHLIGHT_COLORS } from '@/ui/guided/focus';
@@ -245,5 +246,51 @@ describe('guided mode UI', () => {
     } finally {
       step.contested = original;
     }
+  });
+
+  it('Back is present, enabled, and carries the visible secondary-button styling on step >= 2', () => {
+    useGuidedStore.getState().enter('greek');
+    render(createElement(GuidedStepCard));
+    // Step 1: Back is present but disabled (the base .btn:disabled muted look).
+    const backAtStep1 = screen.getByRole('button', { name: /back/i });
+    expect(backAtStep1).toBeTruthy();
+    expect(backAtStep1.hasAttribute('disabled')).toBe(true);
+    expect(backAtStep1.className).toContain('guided-nav-back');
+    // Advance to step 3 — Back must still be IN THE DOM and now enabled, with
+    // the same visible-styling class (not the invisible base .btn look).
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(useGuidedStore.getState().stepIndex).toBe(2);
+    const backAtStep3 = screen.getByRole('button', { name: /back/i });
+    expect(backAtStep3).toBeTruthy();
+    expect(backAtStep3.hasAttribute('disabled')).toBe(false);
+    expect(backAtStep3.className).toContain('guided-nav-back');
+  });
+
+  it('gives guided mode the full viewport width on a narrow real screen (incl. forced desktop)', () => {
+    setWidth(390);
+    useEditorStore.getState().setForceDesktop(true);
+    // Mount BEFORE entering guided mode so the shell's auto-collapse effect
+    // sees the false → true transition (matching real usage: the app is
+    // already mounted when the reader taps into a guide).
+    const { container } = render(createElement(ResponsiveShell));
+    act(() => useGuidedStore.getState().enter('greek'));
+    // The right-slot step card carries the full-width modifier class …
+    const aside = container.querySelector('.guided-aside');
+    expect(aside).toBeTruthy();
+    expect(aside!.className).toContain('guided-full-width');
+    // … and the left sources panel auto-collapsed so it doesn't eat width.
+    expect(useEditorStore.getState().leftCollapsed).toBe(true);
+    expect(container.querySelector('.panel.left')?.className).toContain('collapsed');
+  });
+
+  it('keeps the normal three-column guided look at a real desktop width (no full-width class)', () => {
+    setWidth(1280);
+    useEditorStore.getState().setForceDesktop(false);
+    const { container } = render(createElement(ResponsiveShell));
+    act(() => useGuidedStore.getState().enter('greek'));
+    const aside = container.querySelector('.guided-aside');
+    expect(aside).toBeTruthy();
+    expect(aside!.className).not.toContain('guided-full-width');
   });
 });

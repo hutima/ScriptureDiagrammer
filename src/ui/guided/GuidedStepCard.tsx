@@ -149,7 +149,7 @@ export function GuidedStepCard() {
         </div>
       )}
       <div className="guided-step-nav">
-        <button className="btn" disabled={stepIndex === 0} onClick={prevStep}>
+        <button className="btn guided-nav-back" disabled={stepIndex === 0} onClick={prevStep}>
           ← Back
         </button>
         <button

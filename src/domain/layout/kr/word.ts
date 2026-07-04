@@ -37,8 +37,14 @@ export function layoutHead(
   collapsed = false,
   excludeCoordination = false,
   excludeApposIds?: ReadonlySet<string>,
+  // Overrides the head's displayed text. The clause layout uses this to drop a
+  // pro-drop subject pronoun that the verb's DISPLAYED gloss already carries (see
+  // `strippedProDropVerbText` in clause.ts) — a display-only concern, so the token
+  // model is untouched; only what this one head prints changes.
+  textOverride?: string,
 ): Block {
-  const text = nodeText(ctx.doc, node) || node.label || (node.implied ? ELISION_MARK : '∅');
+  const text =
+    textOverride ?? (nodeText(ctx.doc, node) || node.label || (node.implied ? ELISION_MARK : '∅'));
   const wordW = measureText(text) + LAYOUT.wordPadX * 2;
 
   // Every dependent of a word hangs beneath it. Word/modifier dependents flow

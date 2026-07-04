@@ -411,8 +411,20 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
   // The verb is rendered as a bare word; the CLAUSE owns the verb's complements
   // (baseline) and adjuncts (below), so they are not drawn twice.
   const verbNode = predicateRel ? getNode(model, predicateRel.dependentId) : undefined;
+  // A pro-drop clause imputes its subject pronoun from the verb (subjectFillerLabel
+  // below). In English-gloss mode a Greek finite verb's gloss ALSO carries that
+  // pronoun ("ἐνετειλάμην" → "I commanded"), so drawing the imputed "(I)" beside
+  // "I commanded" prints the subject twice. When that happens, keep the pronoun in
+  // the subject slot only and strip its redundant copy from the verb's displayed
+  // text, so the diagram reads "(I) | commanded" — exactly as the Greek reads
+  // "(ἐγώ) | ἐνετειλάμην". Display-only: the token gloss is never mutated.
+  const impliedSubjectLabel = !subjectRel ? subjectFillerLabel(ctx, verbNode) : undefined;
+  const strippedVerbText =
+    verbNode && impliedSubjectLabel
+      ? stripLeadingImputedPronoun(nodeText(ctx.doc, verbNode), impliedSubjectLabel)
+      : undefined;
   const verbBlock = verbNode
-    ? layoutHead(ctx, verbNode, seen, true)
+    ? layoutHead(ctx, verbNode, seen, true, false, undefined, strippedVerbText)
     : impliedBlock('(verb)');
 
   // A subjectless NONFINITE clause — a bare participle/infinitive (an adverbial
@@ -447,7 +459,7 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     pedestalSubject = probe.elements.length > 0;
   }
   const subjectBlock = !subjectRel
-    ? impliedBlock(subjectFillerLabel(ctx, verbNode))
+    ? impliedBlock(impliedSubjectLabel ?? subjectFillerLabel(ctx, verbNode))
     : pedestalSubject
       ? emptyBlock() // drawn as a pedestal below, not inline
       : subjectNode && isWordCoordination(ctx, subjectNode)
@@ -1119,6 +1131,29 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
  * node's token, or, for a compound predicate, its first conjunct verb (the fork's
  * arms agree in person with the one shared subject). Third person stays "(subject)".
  */
+/**
+ * When a pro-drop clause imputes its subject pronoun (`subjectFillerLabel`) AND
+ * the verb's DISPLAYED text already begins with that same pronoun — which happens
+ * in English-gloss mode, where a Greek finite verb's gloss fuses in its subject
+ * ("ἐνετειλάμην" → "I commanded") — return the verb text with that leading pronoun
+ * removed, so the diagram shows the subject once ("(I) | commanded") rather than
+ * twice. Returns undefined (no change) when nothing duplicates: the Greek surface
+ * ("ἐνετειλάμην" vs the pronoun "ἐγώ") never matches, so source mode is untouched,
+ * and a gloss that doesn't lead with the pronoun ("disciple" under "(you)") is
+ * left alone. Matching is case-insensitive on the first whitespace-delimited word;
+ * a strip that would empty the verb is refused.
+ */
+function stripLeadingImputedPronoun(
+  verbText: string,
+  impliedLabel: string,
+): string | undefined {
+  const pronoun = impliedLabel.replace(/^\(/, '').replace(/\)$/, '').trim();
+  if (!pronoun) return undefined;
+  const m = verbText.match(/^(\S+)(\s+)(.+)$/);
+  if (!m || m[1]!.toLowerCase() !== pronoun.toLowerCase()) return undefined;
+  return m[3];
+}
+
 function subjectFillerLabel(ctx: Ctx, verbNode: SyntaxNode | undefined): string {
   const verbTokenIds = verbNode
     ? [
