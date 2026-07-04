@@ -122,7 +122,7 @@ export const colossians2: GrammarHighlightGuide = {
       id: 'step-in-baptism',
       title: 'In baptism',
       body:
-        'The burial has a location: [[syntaphentes]] αὐτῷ (autō) ἐν τῷ [[baptismo]] — "buried with him in baptism." The diagram hangs the "in baptism" phrase beneath the participle. Here is a small window into the data: the SBLGNT base ships βαπτισμῷ (baptismō) with NO English gloss at all. In English-gloss mode the app now fills it from the word\'s dictionary form (βαπτισμός, baptismos → "baptism"), so the diagram reads fully in English instead of leaving one stray Greek word — a real data gloss always wins where one exists, and this fallback only steps in where the base left a blank.',
+        'The burial has a location: [[syntaphentes]] αὐτῷ (autō) ἐν τῷ [[baptismo]] — "buried with him in baptism." The diagram hangs the "in baptism" phrase beneath the participle.',
       focus: {
         nodeIds: ['w_n51002012001', 'w_n51002012003', 'w_n51002012005'],
         relationIds: ['r_s13_88', 'r_s13_85'],
