@@ -80,6 +80,26 @@ describe('macula-hebrew → KrDocument converter', () => {
     expect(verb.morphology?.extra?.strong).toBeTruthy();
   });
 
+  it('normalizes the tetragrammaton (יהוה) gloss to "LORD"', () => {
+    // The tetragrammaton is traditionally rendered as "LORD" in English Bibles.
+    // This test uses the Deuteronomy 6:4 (Shema) fixture which contains the
+    // tetragrammaton twice, glossed as "Yahweh" in the source XML.
+    const hebrewXml = readFileSync('tests/fixtures-macula-hebrew-deu-6-4.xml', 'utf8');
+    const docs = maculaHebrewToDocuments(hebrewXml);
+    expect(docs).toHaveLength(1);
+    const d = docs[0]!;
+
+    // Both instances of the tetragrammaton should gloss to "LORD", not "Yahweh".
+    const tetragrammatonTokens = d.tokens.filter((t) => t.gloss === 'LORD');
+    expect(tetragrammatonTokens.length).toBeGreaterThanOrEqual(2);
+    // Confirm they all have the lemma יהוה.
+    for (const tok of tetragrammatonTokens) {
+      expect(tok.morphology?.extra?.strong ?? tok.lemma).toBeDefined();
+      // The source fixture has lemma="יהוה" for these tokens.
+      expect(tok.lemma).toBe('יהוה');
+    }
+  });
+
   it('heads a determined noun phrase with the NOUN, not the article', () => {
     // macula-hebrew never marks word-level heads, so the converter must skip the
     // leading article/object-marker and head the phrase with the content noun.
