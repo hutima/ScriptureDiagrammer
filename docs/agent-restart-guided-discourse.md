@@ -13,9 +13,9 @@
 | A3 | Remove ellipses from three-dot menu items | done (66e5ccd) |
 | A4 | Condense guided card summaries (~60–110 chars; John 1:1 example) | done (66e5ccd) |
 | A5 | Greek word + gloss pair line-breaking in guided prose | done (66e5ccd) |
-| B1 | Colossians 2:11–12 copy vs diagram (συνταφέντες apposition?) | in progress |
-| B2 | Romans 9:6–13 intro: shorten drastically | in progress |
-| B3 | Difficulty ordering + `topics?: string[]` tags on guides | in progress |
+| B1 | Colossians 2:11–12 copy vs diagram (συνταφέντες apposition?) | done (5631a56) |
+| B2 | Romans 9:6–13 intro: shorten drastically | done (5631a56) |
+| B3 | Difficulty ordering + `topics?: string[]` tags on guides | done (5631a56) |
 | C  | Lowfat 1 Cor 5:1 `ὥστε` missing (1904 + SBLGNT) + regression tests | done (95fe9f1) |
 | D1 | Stacked diagram zoom (Matt 6:11 / Luke 11:3 step 3, secondary diagram) | in progress |
 | D2 | Guided Next button sticky near lower-right | in progress |
@@ -39,6 +39,10 @@ Run per-section: typecheck + test. Before final PR: typecheck, test, build, lint
 - Commit `ef08809` (#241) hid Acts 2:39 from the guided library — Section E restores it as discourse-backed.
 - Guides live in `src/data/guides/*.ts`; schema `src/domain/schema/guided.ts`; picker `src/ui/guided/GuidedPassagePicker.tsx`; state `src/state/guided.ts`.
 - Do not fix Lowfat issues in the renderer; converter is `src/io/lowfat.ts`.
+
+### Follow-up (logged, not blocking)
+
+- **Col 2:11–12 base-tree oddity:** in `sblgnt_colossians_13`, "ἐν ᾧ καὶ συνηγέρθητε" is not attached as a modifier of βαπτισμῷ; instead βαπτισμῷ hangs as `apposition` DEPENDENT of the clause (r_s13_86), so it draws trailing the clause cascade. Guide copy now matches the diagram; the head/dependent direction inherited from SBLGNT Lowfat deserves a data/inference review as separate follow-up work.
 
 ## Next command for the next agent
 
