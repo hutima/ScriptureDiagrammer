@@ -7,9 +7,13 @@
  *
  * Checks, per guide:
  *  - `bundledPassageIds` all exist in the guided bundle;
- *  - every focus/highlight token/node/relation id exists in those documents;
- *  - every Greek term's `tokenId` exists, and the term's `surface` matches the
- *    token's surface (a mismatch means the id points at the wrong word);
+ *  - every `step.passageId` (when present) is one of `bundledPassageIds`;
+ *  - every focus/highlight token/node/relation id exists in the STEP'S OWN
+ *    passage (step.passageId, else the guide's first passage) — so a
+ *    two-passage guide can't point a step at the wrong sentence's ids;
+ *  - every Greek term's `tokenId` exists somewhere in the guide's passages, and
+ *    the term's `surface` matches the token's surface (a mismatch means the id
+ *    points at the wrong word);
  *  - every `[[termId]]` marker in step bodies resolves to a Greek term;
  *  - every `greekTermIds` entry resolves.
  *
@@ -18,11 +22,19 @@
 const { grammarHighlightGuides } = await import('../src/data/grammarHighlights.ts');
 const { guidedDocuments } = await import('../src/fixtures/guided/index.ts');
 
+type Doc = (typeof guidedDocuments)[number];
+
 let failures = 0;
 const fail = (msg: string) => {
   failures++;
   console.error(`✗ ${msg}`);
 };
+
+const idSets = (docs: Doc[]) => ({
+  tokenIds: new Set(docs.flatMap((d) => d.tokens.map((t) => t.id))),
+  nodeIds: new Set(docs.flatMap((d) => d.syntax.nodes.map((n) => n.id))),
+  relationIds: new Set(docs.flatMap((d) => d.syntax.relations.map((r) => r.id))),
+});
 
 for (const guide of grammarHighlightGuides) {
   const docs = guide.bundledPassageIds.map((id) => {
@@ -31,14 +43,14 @@ for (const guide of grammarHighlightGuides) {
     return d;
   });
   const present = docs.filter((d): d is NonNullable<typeof d> => !!d);
-  const tokenIds = new Set(present.flatMap((d) => d.tokens.map((t) => t.id)));
+  const bundledIds = new Set(guide.bundledPassageIds);
+  // Pool (across all the guide's passages) — used for guide-global term ids.
+  const pool = idSets(present);
   const tokenSurface = new Map(present.flatMap((d) => d.tokens.map((t) => [t.id, t.surface] as const)));
-  const nodeIds = new Set(present.flatMap((d) => d.syntax.nodes.map((n) => n.id)));
-  const relationIds = new Set(present.flatMap((d) => d.syntax.relations.map((r) => r.id)));
   const termIds = new Set(guide.greekTerms.map((t) => t.id));
 
   for (const term of guide.greekTerms) {
-    if (!tokenIds.has(term.tokenId)) {
+    if (!pool.tokenIds.has(term.tokenId)) {
       fail(`${guide.id}: term "${term.id}" tokenId ${term.tokenId} not found`);
     } else if (tokenSurface.get(term.tokenId) !== term.surface) {
       fail(
@@ -47,16 +59,26 @@ for (const guide of grammarHighlightGuides) {
     }
   }
 
+  const firstPassage = guide.steps[0]?.passageId ?? guide.bundledPassageIds[0];
+
   for (const step of guide.steps) {
     const where = `${guide.id} / ${step.id}`;
+    // The passage this step is about — must be one the guide bundles.
+    const stepPassageId = step.passageId ?? firstPassage;
+    if (step.passageId && !bundledIds.has(step.passageId)) {
+      fail(`${where}: passageId "${step.passageId}" is not in bundledPassageIds`);
+    }
+    const stepDoc = present.find((d) => d.id === stepPassageId);
+    // Validate the step's structural ids against ITS OWN passage.
+    const scope = stepDoc ? idSets([stepDoc]) : pool;
     for (const id of step.focus.tokenIds ?? []) {
-      if (!tokenIds.has(id)) fail(`${where}: focus token ${id} not found`);
+      if (!scope.tokenIds.has(id)) fail(`${where}: focus token ${id} not in passage ${stepPassageId}`);
     }
     for (const id of step.focus.nodeIds ?? []) {
-      if (!nodeIds.has(id)) fail(`${where}: focus node ${id} not found`);
+      if (!scope.nodeIds.has(id)) fail(`${where}: focus node ${id} not in passage ${stepPassageId}`);
     }
     for (const id of step.focus.relationIds ?? []) {
-      if (!relationIds.has(id)) fail(`${where}: focus relation ${id} not found`);
+      if (!scope.relationIds.has(id)) fail(`${where}: focus relation ${id} not in passage ${stepPassageId}`);
     }
     const h = step.highlights;
     for (const id of [
@@ -65,10 +87,10 @@ for (const guide of grammarHighlightGuides) {
       ...(h?.removedNodeIds ?? []),
       ...(h?.emphasizedNodeIds ?? []),
     ]) {
-      if (!nodeIds.has(id)) fail(`${where}: highlight node ${id} not found`);
+      if (!scope.nodeIds.has(id)) fail(`${where}: highlight node ${id} not in passage ${stepPassageId}`);
     }
     for (const id of h?.relationIds ?? []) {
-      if (!relationIds.has(id)) fail(`${where}: highlight relation ${id} not found`);
+      if (!scope.relationIds.has(id)) fail(`${where}: highlight relation ${id} not in passage ${stepPassageId}`);
     }
     for (const id of step.greekTermIds ?? []) {
       if (!termIds.has(id)) fail(`${where}: greekTermIds entry "${id}" has no matching term`);

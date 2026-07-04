@@ -128,18 +128,25 @@ export function TopBar() {
 
       <ModeSwitcher canEdit={canEdit} locked={guidedActive} />
 
+      {/* Grammar Highlights is NOT a main app mode — it is a guided reading
+          overlay — so it gets its own smaller launcher button beside the mode
+          switcher rather than a segment inside it. */}
+      <button
+        className={`guided-launch${guidedActive ? ' active' : ''}`}
+        onClick={() => (guidedActive ? leaveGuided() : openGuidedIntro())}
+        title={
+          guidedActive
+            ? 'Leave Grammar highlights'
+            : 'Grammar highlights — guided Greek grammar walkthroughs'
+        }
+        aria-pressed={guidedActive}
+      >
+        {guidedActive ? '✦ Leave guided' : '✦ Grammar'}
+      </button>
+
       <div className="spacer" />
 
       <div className="btn-group">
-        {guidedActive && (
-          <button
-            className="btn"
-            onClick={leaveGuided}
-            title="Exit Grammar highlights and restore your previous view"
-          >
-            Leave guided mode
-          </button>
-        )}
         {!vp.isDesktop && (
           <button
             className="btn"
