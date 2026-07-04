@@ -3665,6 +3665,25 @@ label.field.inline > span { margin-bottom: 0; }
   background: color-mix(in srgb, var(--accent, #b90e31) 6%, transparent);
   font-style: italic;
 }
+/* Stacked secondary (parallel) diagram beneath the main guided canvas. */
+.guided-stacked {
+  display: flex;
+  flex-direction: column;
+  min-height: 140px;
+  max-height: 42%;
+  border-top: 2px solid var(--border, #d7dde3);
+  background: var(--paper, #fff);
+}
+.guided-stacked-head {
+  flex: none;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft, #475569);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  background: color-mix(in srgb, var(--accent, #b90e31) 5%, transparent);
+}
+.guided-stacked .vc-frame { flex: 1; min-height: 0; }
 .guided-step-title { margin: 2px 0 0; font-size: 15px; }
 .guided-step-body { margin: 0; }
 .guided-implication {
