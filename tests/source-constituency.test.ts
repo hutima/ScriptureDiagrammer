@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { lowfatToDocuments, sblgntDialect } from '@/io/lowfat';
 import { combinePassage } from '@/io/passage';
 import { layoutForMode } from '@/domain/layout';
+import { hasGloss } from '@/domain/model';
 import {
   KrDocumentSchema,
   type KrDocument,
@@ -115,6 +116,35 @@ describe('Constituency Tree mode renders the source tree (phase 11)', () => {
     expect(t).toContain('s');
     // Every word of the sentence is a leaf.
     for (const tok of doc.tokens) expect(t).toContain(tok.surface);
+  });
+
+  it('source role chips are tappable: they carry a resolvable srcrole:* gloss key', () => {
+    const doc = sblgntDocs()[0]!;
+    const chips = layoutForMode('constituency', doc, {})
+      .elements.filter(
+        (e): e is Extract<typeof e, { kind: 'text' }> => e.kind === 'text' && !!e.box,
+      );
+    // The raw source-role chips (s, o, …) must advertise a glossKey so the
+    // canvas makes them selectable for the glossary popup — this used to be
+    // app-role chips only, leaving source chips inert.
+    const sChip = chips.find((c) => c.text === 's');
+    const oChip = chips.find((c) => c.text === 'o');
+    expect(sChip?.glossKey).toBe('srcrole:s');
+    expect(oChip?.glossKey).toBe('srcrole:o');
+    // Every advertised key must actually resolve (no dead popovers).
+    for (const c of chips) if (c.glossKey) expect(hasGloss(c.glossKey)).toBe(true);
+  });
+
+  it('a combined "role · head" chip glosses by its role; a bare head marking by srcrole:head', () => {
+    const doc = nestleDocs()[0]!; // Nestle1904 marks heads
+    const chips = layoutForMode('constituency', doc, {})
+      .elements.filter(
+        (e): e is Extract<typeof e, { kind: 'text' }> => e.kind === 'text' && !!e.box,
+      );
+    const headOnly = chips.find((c) => c.text === 'head');
+    expect(headOnly?.glossKey).toBe('srcrole:head');
+    const combined = chips.find((c) => c.text.includes(' · head') && c.text !== 'head');
+    if (combined) expect(combined.glossKey).toMatch(/^srcrole:/);
   });
 
   it('honours the explicit variants and says which tree is shown', () => {

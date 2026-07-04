@@ -6,7 +6,9 @@ import type {
   SyntacticRole,
   SyntaxNode,
 } from '@/domain/schema';
-import { childRelations, getNode } from '@/domain/model';
+// `hasGloss` aliased: this module already has a local `hasGloss` boolean
+// ("any token carries an English gloss") inside `layoutConstituency`.
+import { childRelations, getNode, hasGloss as hasGlossEntry } from '@/domain/model';
 import type { DiagramElement, DiagramLayout } from '../types';
 import { LAYOUT, relationColor } from '../constants';
 import { finalize, line, resetIds, text, width } from './builder';
@@ -321,6 +323,21 @@ export function layoutConstituency(
     }
     return n.role ? SHORT_ROLE[n.role] : undefined;
   };
+  // What tapping a role chip explains: an app role glosses by its
+  // `SyntacticRole` key; a source chip (raw role / head marking) by its
+  // `srcrole:*` entry — a role wins over a bare head marking since it is the
+  // chip's primary claim. Guarded by `hasGlossEntry` so a rare unglossed
+  // source role degrades to a plain (non-tappable) chip, not a dead popover.
+  const chipGlossKey = (n: ConsNode): string | undefined => {
+    const key = n.role
+      ? n.role
+      : n.rawRole
+        ? `srcrole:${n.rawRole}`
+        : n.srcHead
+          ? 'srcrole:head'
+          : undefined;
+    return key && hasGlossEntry(key) ? key : undefined;
+  };
   const chipColor = (n: ConsNode): string =>
     n.role
       ? relationColor(n.role)
@@ -382,6 +399,7 @@ export function layoutConstituency(
       const p = xy.get(c)!;
       const color = chipColor(c);
       const lbl = chipLabel(c);
+      const gk = chipGlossKey(c);
       if (horiz) {
         // Branch steps rightward and stops at the role chip's LEFT edge (no line
         // under the bubble); the chip sits centred in the gap before the child.
@@ -393,7 +411,7 @@ export function layoutConstituency(
           const chipCx = wordLeft - 5 - bw / 2;
           x2 = chipCx - bw / 2;
           elements.push(
-            text(chipCx, p.y, lbl, { anchor: 'middle', small: true, italic: true, box: true, color, ...(c.role ? { glossKey: c.role } : {}) }),
+            text(chipCx, p.y, lbl, { anchor: 'middle', small: true, italic: true, box: true, color, ...(gk ? { glossKey: gk } : {}) }),
           );
         }
         elements.push(line(x1, y, x2, p.y, 'connector', 'solid', { color }));
@@ -404,7 +422,7 @@ export function layoutConstituency(
         if (lbl) {
           elements.push(
             text(p.x, p.y - LAYOUT.fontSize - 7, lbl, {
-              anchor: 'middle', small: true, italic: true, box: true, color, ...(c.role ? { glossKey: c.role } : {}),
+              anchor: 'middle', small: true, italic: true, box: true, color, ...(gk ? { glossKey: gk } : {}),
             }),
           );
         }
