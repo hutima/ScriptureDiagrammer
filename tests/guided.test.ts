@@ -90,6 +90,37 @@ describe('guided registry and bundle', () => {
     }
   });
 
+  it('registers the Romans 8:28–30 golden-chain guide against the one bundled sentence', () => {
+    const guide = getGuide('guide-romans-8-28-30');
+    expect(guide).toBeTruthy();
+    // The whole 8:28–30 range is ONE Greek sentence in the SBLGNT Lowfat base.
+    expect(guide!.bundledPassageIds).toEqual(['sblgnt_romans_216']);
+    for (const s of guide!.steps) {
+      expect(s.passageId ?? guide!.bundledPassageIds[0]).toBe('sblgnt_romans_216');
+    }
+    // The five chain-verb term chips all resolve to real tokens in the bundle.
+    const doc = guidedDocuments.find((d) => d.id === 'sblgnt_romans_216')!;
+    const chain = ['proegno', 'proorisen', 'ekalesen', 'edikaiosen', 'edoxasen'];
+    for (const id of chain) {
+      const term = guide!.greekTerms.find((t) => t.id === id);
+      expect(term, id).toBeTruthy();
+      const token = doc.tokens.find((t) => t.id === term!.tokenId);
+      expect(token?.surface, id).toBe(term!.surface);
+    }
+  });
+
+  it('the Romans 8:28 step teaches from the REAL textual-variant issue on its own passage', () => {
+    const guide = getGuide('guide-romans-8-28-30')!;
+    const step = guide.steps.find((s) => s.contested);
+    expect(step?.contested?.issueId).toBe('iss_rom_8_28_variant_sblgnt');
+    const issue = getIssueById('iss_rom_8_28_variant_sblgnt')!;
+    // The issue is authored against the very sentence the guide loads.
+    expect(issue.passageId).toBe('sblgnt_romans_216');
+    expect(getAlternateReadings(issue.id).map((r) => r.id)).toContain(
+      'alt_rom_8_28_god_subject_sblgnt',
+    );
+  });
+
   it('bundles the WLC Hebrew parallel document (language hbo)', () => {
     const heb = guidedDocuments.find((d) => d.id === 'wlc_genesis_1_11');
     expect(heb, 'wlc_genesis_1_11 must be in the guided bundle').toBeTruthy();

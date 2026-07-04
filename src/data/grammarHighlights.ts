@@ -13,6 +13,7 @@ import { firstPeter3 } from './guides/1-peter-3-18-22';
 import { acts2 } from './guides/acts-2-38';
 import { acts239 } from './guides/acts-2-39';
 import { romans6 } from './guides/romans-6-3-4';
+import { romans8chain } from './guides/romans-8-28-30';
 import { ephesians1 } from './guides/ephesians-1-3-14';
 import { romans9doxology } from './guides/romans-9-5';
 import { romans9election } from './guides/romans-9-6-13';
@@ -56,6 +57,7 @@ const guides: GrammarHighlightGuide[] = [
   acts2,
   acts239,
   romans6,
+  romans8chain,
   ephesians1,
   romans9doxology,
   romans9election,

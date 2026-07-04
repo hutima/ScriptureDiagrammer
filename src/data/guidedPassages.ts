@@ -45,6 +45,8 @@ export const GUIDED_PASSAGES: GuidedPassageRange[] = [
   { book: 'Romans', chapter: 6, verseFrom: 3, verseTo: 4 },
   // Ephesians 1:3–14 — the one long sentence; election + repeated PPs.
   { book: 'Ephesians', chapter: 1, verseFrom: 3, verseTo: 14 },
+  // Romans 8:28–30 — the ordo salutis "golden chain" of aorists.
+  { book: 'Romans', chapter: 8, verseFrom: 28, verseTo: 30 },
   // Romans 9:5 — punctuation and the Christological doxology.
   { book: 'Romans', chapter: 9, verseFrom: 5, verseTo: 5 },
   // Romans 9:6–13 — the argument's opening move ("not as though…").
