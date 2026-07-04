@@ -20,3 +20,4 @@ export * from './sermon';
 export * from './patch';
 export * from './contested';
 export * from './discourse';
+export * from './guided';

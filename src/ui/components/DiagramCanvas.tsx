@@ -1,6 +1,8 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useEditorStore } from '@/state';
+import { useEditorStore, useGuidedStore } from '@/state';
+import { getGuide } from '@/data/grammarHighlights';
+import { focusBounds, guidedHighlightMaps, resolveFocusIds } from '@/ui/guided/focus';
 import { layoutForMode, DIAGRAM_MODES, isEditableMode, DEFAULT_EDIT_MODE } from '@/domain/layout';
 import { measureText, SMALL_FONT, BASE_FONT } from '@/domain/layout/measure';
 import { dashFor, toneColor } from '@/domain/render';
@@ -193,11 +195,38 @@ export function DiagramCanvas() {
   // belongs to, grouped by verse (a passage stacks several verses).
   const sourceItems = useMemo(() => buildSourceItems(doc), [doc]);
 
+  // Grammar-highlights guided mode: the current step drives a one-shot pan/zoom
+  // focus (below) and step highlight swashes merged into the highlight lookups.
+  const guidedActive = useGuidedStore((s) => s.active);
+  const guidedGuideId = useGuidedStore((s) => s.selectedGuideId);
+  const guidedStepIndex = useGuidedStore((s) => s.stepIndex);
+  const guidedFocusNonce = useGuidedStore((s) => s.focusNonce);
+  const guidedStep = useMemo(() => {
+    if (!guidedActive || !guidedGuideId) return null;
+    const g = getGuide(guidedGuideId);
+    if (!g) return null;
+    return g.steps[Math.min(guidedStepIndex, g.steps.length - 1)] ?? null;
+  }, [guidedActive, guidedGuideId, guidedStepIndex]);
+  const guidedMaps = useMemo(
+    () => (guidedStep ? guidedHighlightMaps(doc, guidedStep) : null),
+    [guidedStep, doc],
+  );
+
   // Sermon-prep highlights, as a nodeId → colour lookup, so a tagged word shows
   // its category colour in the diagram AND the running text (not just the panel).
-  const hlByNode = useMemo(() => nodeHighlightColors(highlights), [highlights]);
+  // Guided-step highlights overlay them (they win on shared ids while a step is
+  // showing; both are non-destructive tints over the same primitives).
+  const hlByNode = useMemo(() => {
+    const m = nodeHighlightColors(highlights);
+    if (guidedMaps) for (const [k, v] of guidedMaps.nodeFills) m.set(k, v);
+    return m;
+  }, [highlights, guidedMaps]);
   // Highlighted relations paint a soft swash along their connector line.
-  const hlByRelation = useMemo(() => relationHighlightColors(highlights), [highlights]);
+  const hlByRelation = useMemo(() => {
+    const m = relationHighlightColors(highlights);
+    if (guidedMaps) for (const [k, v] of guidedMaps.relationFills) m.set(k, v);
+    return m;
+  }, [highlights, guidedMaps]);
 
   // Fetch the matching parallel book — Greek (GNT) or Hebrew (OT) — on open.
   useEffect(() => {
@@ -382,6 +411,44 @@ export function DiagramCanvas() {
     const hi = maxScale();
     setView((v) => (v.scale < lo ? { ...v, scale: lo } : v.scale > hi ? { ...v, scale: hi } : v));
   }, [layout.width, layout.height, minScale, maxScale]);
+
+  // Guided-mode step focus: pan/zoom ONCE per step/guide change (the nonce) onto
+  // the step's focus targets, then leave the camera alone — the reader explores
+  // freely between steps and is never re-centred mid-look. Runs after the
+  // doc-change resetZoom (a layout effect), so it wins on guide open.
+  const lastGuidedNonce = useRef(0);
+  useEffect(() => {
+    if (!guidedActive || !guidedStep) return;
+    if (guidedFocusNonce === lastGuidedNonce.current) return;
+    lastGuidedNonce.current = guidedFocusNonce;
+    if (htmlMode) return; // the HTML lenses scroll rather than pan a camera
+    const vp = viewportRef.current;
+    if (!vp) return;
+    const pz = guidedStep.panZoom;
+    if (pz?.fit === 'whole-diagram') {
+      resetZoom();
+      return;
+    }
+    const { nodeIds, relationIds } = resolveFocusIds(doc, guidedStep);
+    const b = focusBounds(layout, nodeIds, relationIds);
+    if (!b) {
+      resetZoom();
+      return;
+    }
+    const pad = pz?.padding ?? 100;
+    const w = b.x2 - b.x1 + pad * 2;
+    const h = b.y2 - b.y1 + pad * 2;
+    const lo = minScale();
+    const hi = maxScale();
+    // Fit the focused branch; cap the zoom-in so a one-word focus doesn't fill
+    // the screen with a single glyph (a step can override via minZoom/maxZoom).
+    let scale = clamp(Math.min(vp.clientWidth / w, vp.clientHeight / h), lo, hi);
+    scale = clamp(scale, pz?.minZoom ?? lo, Math.min(pz?.maxZoom ?? 1.6, hi));
+    const cx = (b.x1 + b.x2) / 2;
+    const cy = (b.y1 + b.y2) / 2;
+    const { x, y } = viewCenteredOn(cx, cy, scale, vp.clientWidth, vp.clientHeight);
+    setView({ scale, ...clampView(x, y, scale) });
+  }, [guidedFocusNonce, guidedActive, guidedStep, htmlMode, layout, doc, minScale, maxScale, clampView, resetZoom]);
 
   const zoomBy = useCallback((factor: number, cx?: number, cy?: number) => {
     // A degenerate pinch (two touches coinciding → 0/0) can hand us a NaN/∞

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useEditorStore } from '@/state';
+import { useEditorStore, useGuidedStore } from '@/state';
+import { GuidedStepCard } from '@/ui/guided/GuidedStepCard';
 import { useViewport } from '@/ui/responsive';
 import { TopBar } from '@/ui/components/TopBar';
 import { DiagramCanvas } from '@/ui/components/DiagramCanvas';
@@ -35,6 +36,10 @@ export function ResponsiveShell() {
   // document model, separate store); switching back re-mounts the syntax
   // canvas over the UNTOUCHED syntax state — no reload happens either way.
   const discourseMode = useEditorStore((s) => s.diagramMode === 'discourse');
+  // Grammar Highlights guided mode: the step card takes over the right slot on
+  // desktop (a bottom card on mobile), and Discourse — a separate analysis
+  // layer, not a syntax lens — can never be the active visualization inside it.
+  const guidedActive = useGuidedStore((s) => s.active);
 
   // On a phone, lead with the most finger-friendly syntax lens, and keep the
   // sources drawer closed so the diagram gets the screen. One-time per mount —
@@ -59,10 +64,17 @@ export function ResponsiveShell() {
 
   // Discourse is manual-first: entering it makes **Edit** the default app mode
   // in place of Explore (Study is kept if already active). Discourse is
-  // desktop-only, so Edit is always available here.
+  // desktop-only, so Edit is always available here. (Never inside guided mode,
+  // which pins Explore.)
   useEffect(() => {
-    if (discourseMode && appMode === 'explore' && vp.isDesktop) setAppMode('edit');
-  }, [discourseMode, appMode, vp.isDesktop, setAppMode]);
+    if (discourseMode && appMode === 'explore' && vp.isDesktop && !guidedActive) setAppMode('edit');
+  }, [discourseMode, appMode, vp.isDesktop, guidedActive, setAppMode]);
+
+  // Guided mode is syntax-only: if Discourse is somehow the active visualization
+  // (e.g. it was active when the guide was entered), fall back to KR.
+  useEffect(() => {
+    if (guidedActive && discourseMode) setDiagramMode('kellogg-reed');
+  }, [guidedActive, discourseMode, setDiagramMode]);
 
   if (vp.isMobile) {
     return (
@@ -82,6 +94,11 @@ export function ResponsiveShell() {
         {appMode === 'sermon' && (
           <MobileSermonPrepSheet onClose={() => useEditorStore.getState().setAppMode('explore')} />
         )}
+        {guidedActive && (
+          <div className="guided-mobile-card">
+            <GuidedStepCard />
+          </div>
+        )}
         <MobileAlternateReadingSheet />
         <EditorController />
       </div>
@@ -97,7 +114,18 @@ export function ResponsiveShell() {
         <main className="panel" style={{ borderRight: 'none', background: 'var(--bg)' }}>
           {discourseMode ? <DiscourseCanvas /> : <DiagramCanvas />}
         </main>
-        {appMode === 'sermon' ? (
+        {guidedActive && !discourseMode ? (
+          // Grammar Highlights: the walkthrough card owns the right slot (the
+          // reader info panel returns when the user leaves guided mode).
+          <aside className="panel right guided-aside">
+            <div className="panel-head">
+              <span className="panel-head-title">Grammar highlights</span>
+            </div>
+            <div className="panel-body">
+              <GuidedStepCard />
+            </div>
+          </aside>
+        ) : appMode === 'sermon' ? (
           <aside className="panel right sermon-aside">
             <div className="panel-head">
               <span className="panel-head-title">Study</span>

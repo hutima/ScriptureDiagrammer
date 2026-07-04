@@ -17,7 +17,7 @@ message prefixes (`fix(kr): …`, `feat(guided): …`, `feat(editor): …`).
 
 ## Current phase
 
-Phase 2 — Grammar highlights guided-mode infrastructure (Phase 1 COMPLETE).
+Phase 3 — Guided content proposal (Phases 1 + 2 COMPLETE).
 
 ## Goal
 
@@ -83,20 +83,55 @@ slash-before-fork structure; only `bounds`/`compactness` moved (~4–10px wider)
 line counts / texts / node-relation id sets identical. Updated with `-u`.
 5 new snapshots were written for the new Hebrews fixture.
 
-## In progress
+### Phase 2 — Grammar Highlights guided-mode infrastructure ✅
 
-- Phase 2 not yet started (next).
+All acceptance criteria met (see "Phase 2 detail" below):
+- ⋯ menu → `Grammar highlights…` opens the intro modal (Greek vs English mode).
+- Entering: snapshots prior `{appMode, diagramMode, glossMode,
+  sourceTextVersion}`, locks app mode to Explore (ModeSwitcher `locked` prop),
+  sets the guide's default visualization (KR), auto-opens the first guide, and
+  exits the first-run tutorial if it was running (they'd talk over each other).
+- English mode = `glossMode: true` + `sourceTextVersion: 'en'`; the parse and
+  diagram structure stay the Greek syntax (verified by test).
+- Top bar shows `Leave guided mode`; leaving restores the snapshot; the normal
+  pickers/right panel return (visually QA'd).
+- Left panel swaps ALL source pickers for the curated `GuidedPassagePicker`
+  (label: "Grammar Highlights — curated guided passages (SBLGNT text)", never
+  presented as unrestricted SBLGNT).
+- Discourse is filtered from the VisualizationSwitcher while guided is active,
+  and ResponsiveShell forces KR if discourse was somehow active.
+- Step card (right-panel slot on desktop, fixed bottom card on mobile):
+  title/body with `[[termId]]` → tappable Greek term links, term chips, term
+  detail panel (form/translit/lemma/gloss/parsing/explanation/implication/
+  caution), implication + caution callouts, highlight LEGEND (text + swatch —
+  never color alone), Back/Next, optional debateSummary disclosure.
+- Pan/zoom focus: `focusNonce` bumps once per step/guide change; DiagramCanvas
+  fits the focus targets' layout-space bbox (via `nodeId`/`relationId` stamps;
+  tokens resolve to their carrying nodes) with padding + zoom caps, honoring
+  `panZoom.fit: 'whole-diagram'`; the user pans/zooms freely afterwards (the
+  nonce guard means we NEVER re-center between steps).
+- Highlights: guided step highlights merge into the existing swash pipeline
+  (`hlByNode`/`hlByRelation`) — emphasized violet `#c4b5fd`, added blue
+  `#93c5fd`, changed yellow `#fde047`, removed red `#fca5a5`
+  (`GUIDED_HIGHLIGHT_COLORS` in `src/ui/guided/focus.ts`).
+- Data pipeline: `src/data/guidedPassages.ts` (approved ranges only) →
+  `npm run guided:build` (`scripts/build-guided-highlights.mts`, normal Lowfat
+  conversion so ids are identical to live loads) →
+  `src/fixtures/guided/grammar-highlights-sblgnt.json` (68K, Heb 1:1–4 only)
+  validated at module load; `npm run guided:check`
+  (`scripts/check-guided-highlights.mts`) validates every guide id (incl.
+  term surface ↔ token surface match) and fails non-zero.
+- Sample guide `guide-hebrews-1-1-4` (4 steps, 7 terms) in
+  `src/data/grammarHighlights.ts` — marked as the v1 SAMPLE; full list awaits
+  Tim's approval.
 
 ## Remaining
 
-- Phase 2: guided-mode infrastructure (three-dot menu entry, intro modal with
-  Greek/English choice, guided store state with prior-state save/restore,
-  curated `GuidedPassagePicker` replacing sources, step card w/ pan-zoom focus,
-  Greek term detail panel, bundled guided fixture + `guided:check` script,
-  `Leave guided mode` top-bar button, Discourse hidden while active).
 - Phase 3: guided content proposal for Tim (candidate list is in the task
   brief: Mark 5:25–34, Heb 1:1–4, 1 Pet 3:18–22, Matt 28:19–20, Matt 6:11 vs
-  Luke 11:3, 1 John 2:1 vs 3:6–9 + optional contested list) + one sample guide.
+  Luke 11:3, 1 John 2:1 vs 3:6–9 + optional contested list). Record the
+  proposal (with grammar hook / payoff / caution / difficulty / v1-or-later
+  per candidate) in this file + stop for approval before authoring.
 - Phase 4: Phrase/Block dynamic drag preview (`previewMoveNodeUnder` pure
   helper, ghost subtree, live reparent preview, cycle/conflict red feedback;
   commit via existing `dispatchEditIntent` moveNodeUnder only on drop).
@@ -112,10 +147,22 @@ line counts / texts / node-relation id sets identical. Updated with `-u`.
   layer), NOT the renderer and NOT source data. The fork keeps exposing its
   junction as `wordLeft === wordRight`; the clause/arm decides where the
   junction sits relative to the separator.
+- (Phase 2) Guided mode is an ORTHOGONAL overlay (a second zustand store,
+  `src/state/guided.ts`, mirroring the discourse-store pattern), NOT a new
+  `DiagramMode` — so none of the `diagramMode === 'discourse'` branches were
+  perturbed and Discourse is untouched. Guides load their passage through the
+  NORMAL `loadDocument` path (same ids as a live SBLGNT load, so stored user
+  patches still apply and every lens works). Guided focus resolves stable ids
+  to geometry via the `nodeId`/`relationId` stamps on layout primitives —
+  never DOM queries, never element ids. Only approved passages are bundled
+  (built by script, validated at load + by `guided:check`).
+- (Phase 2) Guided highlights ride the EXISTING sermon-highlight swash
+  mechanism (merged maps), so they render identically on canvas without new
+  renderer code; the renderer stays syntax-blind.
 
 ## Files changed and why
 
-- `docs/agent-handoff-grammar-highlights.md` — this handoff document.
+Phase 1:
 - `src/domain/layout/kr/clause.ts` — complement loop: fork after back-slant
   advances +10 (to the slash foot) instead of +6.
 - `src/domain/layout/kr/coordination.ts` — same rule in `layoutPredicateArm`;
@@ -127,11 +174,41 @@ line counts / texts / node-relation id sets identical. Updated with `-u`.
 - `tests/__snapshots__/kr-characterization.test.ts.snap` — 2 intentional
   compactness/bounds updates (Rom 11:9–10, 11:36) + 5 new Hebrews snapshots.
 
+Phase 2:
+- `src/domain/schema/guided.ts` (+ export in `schema/index.ts`) — Zod schemas:
+  `GrammarHighlightGuideSchema`, steps, focus, panZoom, highlights, Greek
+  terms, debate summaries, registry.
+- `src/data/guidedPassages.ts` — the approved passage ranges (build input).
+- `src/data/grammarHighlights.ts` — the registry + the Hebrews sample guide.
+- `src/fixtures/guided/grammar-highlights-sblgnt.json` — built guided bundle.
+- `src/fixtures/guided/index.ts` — bundle loader (validates at module load,
+  clones on hand-out).
+- `scripts/build-guided-highlights.mts`, `scripts/check-guided-highlights.mts`
+  + `guided:build`/`guided:check` npm scripts in `package.json`.
+- `src/state/guided.ts` (+ export in `state/index.ts`) — the guided store.
+- `src/ui/guided/` — `focus.ts` (pure focus/highlight helpers),
+  `GrammarHighlightsIntroModal.tsx`, `GuidedPassagePicker.tsx`,
+  `GuidedStepCard.tsx`, `GuidedGreekTermPanel.tsx`.
+- `src/ui/components/TopBar.tsx` — menu item, Leave button, intro modal mount,
+  ModeSwitcher lock.
+- `src/ui/shell/ModeSwitcher.tsx` — `locked` prop.
+- `src/ui/shell/VisualizationSwitcher.tsx` — Discourse filtered while guided.
+- `src/ui/shell/ResponsiveShell.tsx` — step card in the right slot (desktop) /
+  bottom card (mobile); KR fallback if discourse active; discourse Edit
+  default suppressed during guided.
+- `src/ui/panels/LeftPanel.tsx` — guided library swap.
+- `src/ui/components/DiagramCanvas.tsx` — guided highlight merge + one-shot
+  step focus pan/zoom effect.
+- `src/ui/styles/global.css` — `.guided-*` styles + `.tabs-static-label`.
+- `tests/guided.test.ts`, `tests/guided-ui.test.tsx` — 16 tests (registry
+  integrity, focus helpers over a real layout, store state machine, UI smoke).
+
 ## Test commands run and results
 
 - `npm run typecheck` — clean.
-- `npm test` — 113 files / 2187 tests, ALL PASS.
-- `npm run build` — succeeds (PWA precache built).
+- `npm test` — 115 files / 2203 tests, ALL PASS (after Phase 2).
+- `npm run build` — succeeds (precache 1130 KiB; +64K = the guided bundle).
+- `npm run guided:check` — 1 guide validates.
 - Stress cases (Mark 5:26, Mark 1:19–20, Col 1:9–20, Gen 1:11, Hebrew RTL)
   are all inside the characterization corpus → all pass.
 
@@ -156,24 +233,34 @@ line counts / texts / node-relation id sets identical. Updated with `-u`.
 
 ## Visual QA notes
 
-- Rendered SVGs (scratchpad, not committed): `heb1-before.svg` /
-  `heb1-after.svg`. After the fix the back-slant, the bridge baseline, and the
-  two fork prongs all meet at one point (1916.31, 541.57); ἀπαύγασμα arm above,
-  χαρακτὴρ arm below, καί on the dashed bar. No new text collisions (clash
-  guards in the characterization harness stayed green).
+- Phase 1: rendered SVGs (scratchpad, not committed): after the fix the
+  back-slant, the bridge baseline, and the two fork prongs all meet at one
+  point (1916.31, 541.57); ἀπαύγασμα arm above, χαρακτὴρ arm below, καί on the
+  dashed bar. No new text collisions (clash guards stayed green).
+- Phase 2 (headless-Chromium walkthrough of the real dev app, desktop 1500×950):
+  ⋯ menu shows "Grammar highlights…"; intro modal renders both mode choices;
+  Greek mode → left panel becomes the curated library ("Source: Grammar
+  Highlights — curated guided passages (SBLGNT text)"), top bar shows "Leave
+  guided mode", right panel shows the step card (devotional frame, term links,
+  legend "in focus"); step 1 highlights ἐλάλησεν + ὁ θεός with violet swashes;
+  step 3 pans/zooms cleanly onto the ὢν → ἀπαύγασμα/χαρακτήρ fork (Phase 1 fix
+  visibly correct on screen); tapping ἀπαύγασμα opens the term panel with
+  translit/lemma/gloss/parsing/explanation; Leave restores the normal pickers,
+  right panel, and prior visualization. Found + fixed during QA: the first-run
+  tutorial overlay could sit on top of guided mode → `enter()` now exits an
+  active tour.
 
 ## Next recommended action
 
-1. Commit Phase 1 (done if this file is committed alongside).
-2. Phase 2: read `src/ui/shell/` (top bar / three-dot menu), `src/state/`
-   (store, `AppMode`, `DiagramMode`), `src/ui/panels/` (left panel / sources),
-   and the tutorial (`src/ui/tutorial/`) for prior art on guided overlays.
-3. Design `src/domain/schema/guided.ts` + `src/data/grammarHighlights.ts` +
-   `src/state/guided.ts` (or a slice in the main store), then the UI under
-   `src/ui/guided/`.
-4. Build `scripts/build-guided-highlights.mts` to extract ONLY approved
-   passages into `src/fixtures/guided/grammar-highlights-sblgnt.json` and
-   `scripts/check-guided-highlights.mts` (`guided:check`) to validate ids.
+1. Phase 3: write the guided-example PROPOSAL into this document (candidates +
+   grammar hook / payoff / caution / difficulty / v1-or-later), commit, and
+   STOP for Tim's approval — do not author the full registry first.
+2. Then Phase 4 (Phrase/Block dynamic drag preview): inspect
+   `src/ui/editor/block/PhraseBlockEditor.tsx`, `src/ui/editor/hierarchy.ts`,
+   `src/ui/editor/dispatch.ts`; add a pure `previewMoveNodeUnder` helper.
+3. Then Phase 5 (Edit right-panel Preview tab): inspect
+   `src/ui/panels/RightPanel.tsx`, `src/ui/editor/EditCompareView.tsx`,
+   `src/domain/patch/` diff utilities.
 
 ## Decisions still needing Tim's approval
 

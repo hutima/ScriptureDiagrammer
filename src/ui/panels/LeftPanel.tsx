@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useEditorStore, useDiscourseStore } from '@/state';
+import { useEditorStore, useDiscourseStore, useGuidedStore } from '@/state';
+import { GuidedPassagePicker } from '@/ui/guided/GuidedPassagePicker';
 import { GntPicker } from './left/GntPicker';
 import { OtPicker } from './left/OtPicker';
 import { NewSourcePicker } from './left/NewSourcePicker';
@@ -34,6 +35,10 @@ export function LeftPanel({ hidden = false }: { hidden?: boolean }) {
   // syntax selection behind them — return untouched when the user leaves
   // Discourse mode; nothing is reloaded by the swap.
   const discourseMode = useEditorStore((s) => s.diagramMode === 'discourse');
+  // Grammar Highlights replaces the whole source/passage selection with the
+  // curated guided library while active — the reader browses approved guided
+  // examples only; the normal pickers return untouched on leave.
+  const guidedActive = useGuidedStore((s) => s.active);
   const [source, setSource] = useState<'gnt' | 'ot' | 'new' | 'search'>(docLang === 'hbo' ? 'ot' : 'gnt');
   // The syntax "New" tab depends on Edit mode / saved parses; the DISCOURSE
   // "New text" tab is always available in Discourse mode, so don't bounce it.
@@ -80,7 +85,12 @@ export function LeftPanel({ hidden = false }: { hidden?: boolean }) {
   return (
     <aside className={`panel left${hidden ? ' hidden' : ''}${collapsed ? ' collapsed' : ''}`}>
       <div className="tabs">
-        {!collapsed && discourseMode && (
+        {!collapsed && guidedActive && (
+          <span className="tabs-static-label" title="Curated Grammar Highlights library">
+            Grammar highlights
+          </span>
+        )}
+        {!collapsed && !guidedActive && discourseMode && (
           <>
             <button
               className={source !== 'search' && source !== 'new' ? 'active' : ''}
@@ -105,7 +115,7 @@ export function LeftPanel({ hidden = false }: { hidden?: boolean }) {
             </button>
           </>
         )}
-        {!collapsed && !discourseMode && (
+        {!collapsed && !guidedActive && !discourseMode && (
           <>
             {/* Bible order: Old Testament first, then the Greek New Testament. */}
             <button
@@ -150,7 +160,9 @@ export function LeftPanel({ hidden = false }: { hidden?: boolean }) {
         </button>
       </div>
       <div className="panel-body">
-        {discourseMode && source === 'new' ? (
+        {guidedActive ? (
+          <GuidedPassagePicker />
+        ) : discourseMode && source === 'new' ? (
           <DiscoursePlaintextPicker />
         ) : discourseMode && source !== 'search' ? (
           <DiscourseRangeSelector />
