@@ -21,7 +21,7 @@
 | D2 | Guided Next button sticky near lower-right | done (a214806) |
 | E  | Discourse-backed guided examples (Acts 2:39, Eph 2:12–19, Psalm 46 chiasm; suppress self-directed modal from guided) | done (0f07fc6) |
 | F  | Guided grammar term help (dashed underline + glossary popover) | done (2c9899f) |
-| I  | (user, 2026-07-04) Col 2:11-12: SBLGNT + 1904 Lowfat may misencode the passage; create a manual variant (contested-syntax alternate reading), use it for guided mode, lower rendering certainty to reflect multiple constructions | in progress |
+| I  | (user, 2026-07-04) Col 2:11-12: SBLGNT + 1904 Lowfat may misencode the passage; create a manual variant (contested-syntax alternate reading), use it for guided mode, lower rendering certainty to reflect multiple constructions. USER CLARIFICATION: default trees (SBLGNT βαπτισμῷ / 1904 βαπτίσματι) draw the two ἐν-phrases as parallel/appositional; copy must never claim a dependency the drawn tree does not draw; alternative goes through contested/alternate-reading infra, never a silent converter change; also verify the default tree DISPLAY faithfully renders the appositional model (report, do not fix, any layout discrepancy) | in progress |
 | H  | (user, 2026-07-04) Update README.md — ABSOLUTE LAST task in the PR, after F and final checks | todo |
 | G  | (user, 2026-07-04) Matt 6:9 vocative cascade follow-up to #241: "the" slant under "heavens" still clashes with the dashed connector; extend the sub-baseline minimally so the connector joins clear of the modifier | done (see log) |
 
