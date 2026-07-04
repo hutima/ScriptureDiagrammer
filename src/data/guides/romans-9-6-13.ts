@@ -22,15 +22,15 @@ export const romans9election: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
   summary:
-    'Paul defends God’s faithfulness by tracing his argument straight through Scripture — from "children of the flesh" versus "children of the promise" to God’s purpose "according to election," and finally to Jacob and Esau. The diagram follows the logic clause by clause.',
+    'Paul defends God’s faithfulness by tracing his argument straight through Scripture — from "children of the flesh" versus "children of the promise" to God’s purpose "according to election," and finally to Jacob and Esau, chosen before either was born or had done anything good or bad. The diagram follows the logic clause by clause, tracing God’s choice of these two individuals to its stated ground: not works, but him who calls.',
   devotionalFrame:
     'Romans 9 opens with Paul’s grief over Israel (vv. 1–5) and then faces a hard question head-on: if so much of Israel has not believed, has God’s own word failed? Verses 6–13 are Paul’s answer, and he builds it entirely out of Scripture. He first denies the failure outright (v. 6a). Then he explains why there is no failure: physical descent from Israel was never the same thing as belonging to true Israel (v. 6b–7) — not even being Abraham’s own son guaranteed inclusion, since God himself said the offspring would be reckoned "through Isaac." Verse 8 states the principle plainly: it is not the children of the flesh but the children of the promise who are counted as God’s offspring. Verses 9–10 press the point further — the promise was a spoken word, and Rebekah conceived twins by one and the same father, Isaac, removing any explanation by lineage. Then comes the sharpest case of all (vv. 11–13): before Jacob or Esau were born, or had done anything good or bad, in order that God’s purpose "according to election" might stand — not from works but from him who calls — it was said, "the elder will serve the younger," and Scripture adds, "Jacob I loved, but Esau I hated." Keep your own Bible open as you go. The diagram adds nothing to what your translation already says; it simply shows you the joints of Paul’s argument, so you can see him reasoning from Scripture toward God’s freedom in election — in defense of God’s own faithfulness, not against it.',
   debateSummary: {
     issue:
-      'Paul’s language here — God’s purpose "according to election," a choice made before either brother had done anything, and "Jacob I loved, Esau I hated" — is one of Scripture’s clearest statements about election. But election of WHOM, to WHAT? Readers have long disagreed about whether Paul is describing God’s sovereign choice of individual persons unto salvation, or God’s choice of a covenant line/nation for a role in redemptive history.',
+      'Paul’s language here — God’s purpose "according to election," a choice made before either brother had done anything, and "Jacob I loved, Esau I hated" — is one of Scripture’s clearest statements about election. But election of WHOM, to WHAT? Readers have long disagreed about whether Paul is describing God’s sovereign choice of individual persons unto salvation, or God’s choice of a covenant line/nation for a role in redemptive history. This guide teaches the first reading — individual, unconditional election — as its standard position in the main text above, and represents the second fairly below.',
     views: [
       {
-        label: 'Individual, unconditional election',
+        label: 'Individual, unconditional election (this guide’s standard reading)',
         summary:
           'On this reading, Paul’s point is that God freely and graciously chooses specific persons for salvation, apart from anything they do. The removal of birth order and behavior ("not yet born... not having done anything good or bad") is read as removing every possible human ground for God’s choice, and Jacob and Esau become a clear test case for that principle: God’s choice preceded any distinguishing act at all.',
         cautions: [
@@ -38,7 +38,7 @@ export const romans9election: GrammarHighlightGuide = {
         ],
       },
       {
-        label: 'Corporate / vocational election',
+        label: 'Corporate / vocational election (alternate reading)',
         summary:
           'On this reading, Paul is describing which LINE would carry God’s promise and which ROLE nations (Israel through Jacob, Edom through Esau) would play in redemptive history — not a decree about Jacob’s and Esau’s personal eternal destinies. "Jacob I loved, Esau I hated" quotes Malachi 1:2–3, addressed centuries later to the nations descended from the brothers; "hated" is read as covenantal preference or relative "loved less" — an idiom attested elsewhere (Genesis 29:31; Luke 14:26) — rather than personal animus toward Esau the man.',
         cautions: [
@@ -50,7 +50,7 @@ export const romans9election: GrammarHighlightGuide = {
       'The syntax does real work here: it isolates God’s "purpose according to election" from birth order, ancestry, and prior conduct, and it sets "not from works" against "from him who calls" as the two candidate grounds for that purpose — ruling the first one out. What the grammar cannot decide on its own is the SCOPE of the election in view — individual, corporate, or (as many hold) both together in different senses. That question is worked out through how Paul continues the argument across Romans 9–11 and through the reader’s wider theology, not by this passage’s parsing alone.',
   },
   confessionalFrame:
-    'Many in the Reformed tradition read this passage as one of Scripture’s clearest statements of God’s sovereign, gracious election of individuals to salvation — precisely because Paul grounds it in God’s calling rather than human merit or ancestry. This guide states that reading plainly, as one confessional stream reads the text, while representing the corporate/vocational reading fairly above; Christians in different traditions weigh the same grammar differently, and settling that is a matter for the whole counsel of Scripture, not for a syntax diagram.',
+    'This guide teaches this passage as one of Scripture’s clearest statements of God’s sovereign, gracious election of individual persons to salvation — a choice grounded in God’s own calling, not in birth order, ancestry, or foreseen merit. That is exactly why Paul, having just said this, anticipates an objection in the very next verse — "Is there injustice with God?" (9:14) — a question that only makes sense if the choice he has described discriminates between particular people, not merely assigns nations a role in history. Many in the Reformed tradition have read the passage this way for precisely this reason, and this guide states that reading plainly in its main text. The corporate/vocational alternative is represented fairly in the debate note above; Christians who hold it are reading the same grammar in good faith, but settling the fuller doctrinal question is ultimately a matter for the whole counsel of Scripture, not for a syntax diagram alone.',
   steps: [
     {
       id: 'step-word-not-failed',
@@ -74,7 +74,7 @@ export const romans9election: GrammarHighlightGuide = {
       id: 'step-flesh-and-promise',
       title: 'Children of the flesh, children of the promise',
       body:
-        'Paul has just said not all who descend from Israel belong to Israel (v. 6b), and not all of Abraham’s physical offspring are children of promise (v. 7) — only the line through Isaac. Verse 8 states the principle behind both examples, and the diagram shows it as two matched clauses joined by "but": "these" — the children of the [[sarkos]] — are not thereby the children of God; rather, the children of the [[epangelias]] are counted as offspring. Physical descent (σάρξ, flesh) and God’s spoken word (ἐπαγγελία, promise) sit on opposite sides of the same picture.',
+        'Paul has just said not all who descend from Israel belong to Israel (v. 6b), and not all of Abraham’s physical offspring are children of promise (v. 7) — only the line through Isaac. Verse 8 states the principle behind both examples, and the diagram shows it as two matched clauses joined by "but": "these" — the children of the [[sarkos]] — are not thereby the children of God; rather, the children of the [[epangelias]] are counted as offspring. Physical descent (σάρξ, sarx, flesh) and God’s spoken word (ἐπαγγελία, epangelia, promise) sit on opposite sides of the same picture.',
       passageId: 'sblgnt_romans_232',
       focus: {
         nodeIds: [
@@ -100,7 +100,7 @@ export const romans9election: GrammarHighlightGuide = {
       id: 'step-purpose-according-to-election',
       title: 'God’s purpose according to election',
       body:
-        'The hardest case comes next: Rebekah’s twins, conceived by the same father at the same time (v. 10). Paul says God spoke about them before either was born or had done anything good or bad — "in order that God’s purpose [[ekloge]] might stand, not from works but from [[kalountos]]." The diagram sets "πρόθεσις" (purpose) as the subject of that clause, "according to election" as the phrase describing it, and "not from works" against "from the one who calls" as the two candidate grounds for it. Grammar cannot remove birth order or behavior more thoroughly than this: neither son had even been born, let alone acted.',
+        'The hardest case comes next: Rebekah’s twins, conceived by the same father at the same time (v. 10). Paul says God spoke about them before either was born or had done anything good or bad — "in order that God’s purpose [[ekloge]] might stand, not from works but from [[kalountos]]." The diagram sets "πρόθεσις" (prothesis, purpose) as the subject of that clause, "according to election" as the phrase describing it, and "not from works" against "from the one who calls" as the two candidate grounds for it. Grammar cannot remove birth order or behavior more thoroughly than this: neither son had even been born, let alone acted.',
       passageId: 'sblgnt_romans_235',
       focus: {
         nodeIds: ['cl_s235_13', 'w_n45009011014', 'w_n45009011013', 'w_n45009012003', 'w_n45009012007'],
@@ -109,9 +109,9 @@ export const romans9election: GrammarHighlightGuide = {
       panZoom: { fit: 'nodes', padding: 150 },
       highlights: { emphasizedNodeIds: ['w_n45009011013', 'w_n45009012007'] },
       implication:
-        'Removing birth order and behavior from the picture makes God’s calling, not human achievement, the stated ground of his purpose here. Whatever else this passage settles, it clearly rules OUT "he chose the one who would go on to deserve it" as the explanation.',
+        'Removing birth order and behavior from the picture makes God’s calling, not human achievement, the stated ground of his purpose here. Paul is describing God’s choice between Jacob and Esau as individuals — made before either had done anything, for better or worse — and grounded in nothing but the God who calls. That is exactly why Paul goes on to anticipate an objection in the very next verse, "Is there injustice with God?" (9:14): a question that only makes sense if God’s choice discriminates between particular people, not merely between nations after the fact.',
       caution:
-        '"Election" (ἐκλογή) is Paul’s own word here, but the sentence does not by itself answer every question we might ask about it — WHO exactly is in view (individual persons, a covenant line, or both) is the very question the rest of the chapter, and the rest of Scripture, has to answer. See the debate note below.',
+        '[[ekloge]] is Paul’s own word here. Grammar can rule out one thing with precision — that God chose based on foreseen works — without independently proving every further point a reader might draw from it; this guide reads the WHO of that choice as individual persons (see above), while the corporate/vocational alternative is presented fairly in the debate note below.',
       greekTermIds: ['ekloge', 'kalountos'],
     },
     {
@@ -135,7 +135,7 @@ export const romans9election: GrammarHighlightGuide = {
       panZoom: { fit: 'nodes', padding: 140 },
       highlights: { emphasizedNodeIds: ['w_n45009012012', 'w_n45009012013', 'w_n45009012015'] },
       implication:
-        'This first oracle (echoing Genesis 25:23) speaks about the relationship BETWEEN the brothers — and the peoples descended from them — before it says anything sharper. Paul is building toward the more personal-sounding pair of verbs in the very next line.',
+        'This first oracle (echoing Genesis 25:23) names the relationship between the brothers themselves before Paul intensifies it. He is building toward the sharper, unmistakably personal pair of verbs in the very next line — "Jacob I loved, Esau I hated" — where the same choice is stated of each brother by name, not merely of the nations that would one day descend from them.',
     },
     {
       id: 'step-jacob-loved-esau-hated',
@@ -161,7 +161,7 @@ export const romans9election: GrammarHighlightGuide = {
         emphasizedNodeIds: ['w_n45009013004', 'w_n45009013005', 'w_n45009013008', 'w_n45009013009'],
       },
       implication:
-        'This is the line every reader has to reckon with honestly. However you understand its scope — see the debate note below — Paul is not softening it; he is quoting it as Scripture’s own description of God’s freedom to choose.',
+        'This is the line every reader has to reckon with honestly: before Jacob or Esau had done anything, good or bad, Paul says God loved one and hated the other — a choice between two individual persons, not a verdict on nations pronounced after the fact. Paul is not softening it; he is quoting it as Scripture’s own description of God’s freedom to choose apart from anything either brother had done. (Readers differ on how the corporate dimension of Malachi’s original setting bears on Paul’s point here — see the debate note below — but Paul’s own argument turns on birth order and personal conduct, not national history.)',
       caution:
         '"Hated" translates a real word, and readers should not soften it into nothing. But Hebrew and Greek both use love/hate language for relative preference as well as emotion (compare Genesis 29:31; Luke 14:26, where "hating" one’s family means loving them less by comparison). Which sense is at work here — and what it implies about Esau himself — is exactly the question the debate note below addresses; the parallel grammar shows only that both verbs are asserted of God with equal directness.',
       greekTermIds: ['egapesa', 'emisesa'],

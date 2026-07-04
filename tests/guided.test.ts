@@ -71,10 +71,14 @@ describe('guided registry and bundle', () => {
     const step = guide.steps.find((s) => s.contested);
     expect(step?.contested?.issueId).toBe('iss_rom_9_5_doxology_sblgnt');
     const issue = getIssueById('iss_rom_9_5_doxology_sblgnt')!;
-    // The issue spans both bundled sentences (a cross-boundary merge issue).
-    expect(issue.mergePassageIds).toEqual(['sblgnt_romans_228', 'sblgnt_romans_229']);
+    // The christological reading is now BAKED into the single merged base
+    // document, so this is an ordinary single-passage issue (no cross-boundary
+    // merge) authored against the one bundled sentence id.
+    expect(issue.mergePassageIds).toBeUndefined();
+    expect(issue.passageId).toBe('sblgnt_romans_228');
+    // The demoted alternate is the independent-doxology reading.
     expect(getAlternateReadings(issue.id).map((r) => r.id)).toContain(
-      'alt_rom_9_5_to_christ_sblgnt',
+      'alt_rom_9_5_independent_doxology_sblgnt',
     );
   });
 
@@ -358,32 +362,38 @@ describe('guided store', () => {
     }
   });
 
-  it('opening a guide sets the reading context to its bundled passages', () => {
+  it('opening a guide sets the reading context to its one merged bundled passage', () => {
     useGuidedStore.getState().enter('greek');
     useGuidedStore.getState().openGuide('guide-romans-9-5');
     const e = useEditorStore.getState();
-    expect(e.gntPassages.map((d) => d.id)).toEqual(['sblgnt_romans_228', 'sblgnt_romans_229']);
+    // The two source sentences are baked into ONE merged christological base doc.
+    expect(e.gntPassages.map((d) => d.id)).toEqual(['sblgnt_romans_228']);
     expect(e.gntIndex).toBe(0);
   });
 
-  it('the Romans 9:5 cross-boundary alternate previews structurally inside guided mode', () => {
-    // The alternate reading is authored against the MERGED 9:3–5a + 9:5b
-    // document; the guided reading context makes both sentences available so
-    // `openContestedPanel` can build that combined base.
+  it('the Romans 9:5 base is christological and the demoted alternate previews structurally', () => {
     useGuidedStore.getState().enter('greek');
     useGuidedStore.getState().openGuide('guide-romans-9-5');
+    // The guided base IS the merged christological document: the doxology clause
+    // hangs off Χριστός (s0_w_n45009005008) in apposition by default.
+    const baseRel = useEditorStore
+      .getState()
+      .doc.syntax.relations.find((r) => r.id === 'disc_r1');
+    expect(baseRel?.headId).toBe('s0_w_n45009005008');
+    expect(baseRel?.type).toBe('apposition');
+
     useEditorStore.getState().openContestedPanel('iss_rom_9_5_doxology_sblgnt');
-    const e = useEditorStore.getState();
-    expect(e.contested.showAlternateParsePanel).toBe(true);
-    expect(e.contestedBaseDoc).not.toBeNull();
-    e.previewAlternateReading('alt_rom_9_5_to_christ_sblgnt');
+    expect(useEditorStore.getState().contested.showAlternateParsePanel).toBe(true);
+    useEditorStore
+      .getState()
+      .previewAlternateReading('alt_rom_9_5_independent_doxology_sblgnt');
     const preview = useEditorStore.getState().previewDoc;
     expect(preview).not.toBeNull();
-    // The doxology clause now hangs off Χριστός in apposition, exactly as the
-    // registry's syntaxPatch describes.
+    // The demoted alternate detaches the doxology back into its own independent
+    // sentence beneath the discourse root.
     const rel = preview!.syntax.relations.find((r) => r.id === 'disc_r1');
-    expect(rel?.headId).toBe('s0_w_n45009005008');
-    expect(rel?.type).toBe('apposition');
+    expect(rel?.headId).toBe('disc_root');
+    expect(rel?.type).toBe('adjunct');
     // Previewing never touches the loaded document.
     expect(useEditorStore.getState().doc.id).toBe('sblgnt_romans_228');
   });

@@ -239,7 +239,7 @@ const RAW = {
       label: 'ὁ ὢν ἐπὶ πάντων θεός — doxology or description of Christ',
       shortLabel: 'Doxology',
       summary:
-        'The base data sets ὁ ὢν ἐπὶ πάντων θεὸς εὐλογητός as its OWN sentence — an independent doxology to God. An alternate punctuation reads it in apposition to ὁ Χριστός at the end of the previous clause (“Christ, who is over all, God blessed forever”). Because the two readings differ at the SENTENCE boundary, the two sentences are shown merged so the alternate can attach the doxology to Christ structurally rather than as a footnote.',
+        'This Nestle1904 base sets ὁ ὢν ἐπὶ πάντων θεὸς εὐλογητός as its OWN sentence — an independent doxology to God. The app’s preferred and standard reading, shown structurally in the SBLGNT-anchored Romans 9:5 Grammar Highlights guide, is the christological one: the clause read in apposition to ὁ Χριστός at the end of the previous clause (“Christ, who is over all, God blessed forever”). Because the two readings differ at the SENTENCE boundary, the two sentences are shown merged so the apposition-to-Christ reading can attach the doxology to Christ structurally rather than as a footnote.',
       pastoralNote:
         'The punctuation choice carries real Christological weight: whether Paul here calls the Messiah “God over all, blessed forever,” or breaks into a separate doxology to the Father.',
       affectedTokenIds: [
@@ -1130,9 +1130,10 @@ const RAW = {
       passageId: 'gnt_romans_228',
       label: 'Refers to Christ',
       shortLabel: 'of Christ',
-      interpretation: 'The clause describes Christ as “over all, God blessed forever”.',
+      interpretation:
+        'The clause describes Christ as “over all, God blessed forever” — the app’s preferred and standard reading.',
       description:
-        'Read with the previous clause: ὁ Χριστὸς … ὁ ὢν ἐπὶ πάντων θεός — Christ is the one who is over all, God blessed forever. The doxology attaches in apposition to Χριστός instead of standing as its own sentence.',
+        'Read with the previous clause: ὁ Χριστὸς … ὁ ὢν ἐπὶ πάντων θεός — Christ is the one who is over all, God blessed forever. The doxology attaches in apposition to Χριστός instead of standing as its own sentence. This is the reading the app teaches as standard (drawn structurally in the SBLGNT-anchored Romans 9:5 Grammar Highlights guide); the Nestle1904 base above is fetched live from upstream and still shows two separate sentences, so here the christological reading is offered as this overlay rather than baked into the base tree.',
       sourceType: 'syntax-only',
       confidence: 'medium',
       syntaxPatch: {

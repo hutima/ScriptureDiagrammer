@@ -21,16 +21,16 @@ export const firstTimothy2: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
   summary:
-    'A close, careful look at the Greek of one of the New Testament’s most debated passages: what the diagram can show plainly (what is coordinated with what, and where Paul’s appeals attach) and what it leaves for the reader to weigh.',
+    'A close, careful look at the Greek of one of the New Testament’s most debated passages: what the diagram can show plainly (what is coordinated with what, and where Paul’s appeals attach), read alongside the historic, majority reading of the church, and what it still leaves for the reader to weigh.',
   devotionalFrame:
-    'Few passages carry as much pastoral weight as this one, and it deserves care. The steps below show what the Greek sentence actually says and how its pieces connect. This guide is written from a confessional Reformed stance that receives Paul’s instruction here as a standing pattern for the church’s teaching offices (see the confessional note beneath the steps) — and precisely because the passage is debated among faithful readers, the major alternative reading is also summarized fairly, with cautions for both. Read slowly, keep your Bible open beside the diagram, and let the text carry its full weight.',
+    'Few passages carry as much pastoral weight as this one, and it deserves care. The steps below show what the Greek sentence actually says and how its pieces connect. This guide is written from a confessional Reformed stance that receives Paul’s instruction here — along with most of the church across its history — as a standing pattern for the church’s teaching offices, grounded not merely in the Ephesian situation but in the created order Paul appeals to in verse 13 (see the confessional note beneath the steps). Because this passage is debated more actively among evangelicals than most, the strongest form of the alternative reading is also summarized fairly below, with honest cautions for both. Read slowly, keep your Bible open beside the diagram, and let the text carry its full weight.',
   steps: [
     {
       id: 'step-let-her-learn',
       title: 'Let her learn, in quietness',
       passageId: 'sblgnt_1-timothy_16',
       body:
-        'Paul’s sentence opens positively: [[manthaneto]], “let her learn” — a command, not only a restriction. The diagram puts γυνή (“a woman”) on the left of the subject–predicate divider and the imperative μανθανέτω on the right, with two phrases hanging beneath the verb: “in [[hesychia]]” and “in all submissiveness.” The instruction to learn comes first; the manner named alongside it is quietness and submissiveness — words this same letter also uses for a peaceable, orderly life (1 Timothy 2:2).',
+        'Paul’s sentence opens positively: [[manthaneto]], “let her learn” — a command, not only a restriction. The diagram puts γυνή (gynē, “a woman”) on the left of the subject–predicate divider and the imperative [[manthaneto]] on the right, with two phrases hanging beneath the verb: “in [[hesychia]]” and “in all submissiveness.” The instruction to learn comes first; the manner named alongside it is quietness and submissiveness — words this same letter also uses for a peaceable, orderly life (1 Timothy 2:2).',
       focus: {
         nodeIds: [
           'w_n54002011001',
@@ -48,7 +48,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       implication:
         'Before anything is restricted, something is commanded: a woman is told to be a learner. In a setting where the theological training needed to teach had rarely, if ever, been given to women, being told to learn was itself significant.',
       caution:
-        'ἡσυχία describes a settled demeanor, not literal silence; the diagram shows it modifying HOW she learns, not whether she may speak at all.',
+        '[[hesychia]] describes a settled demeanor, not literal silence; the diagram shows it modifying HOW she learns, not whether she may speak at all.',
       greekTermIds: ['manthaneto', 'hesychia'],
     },
     {
@@ -56,7 +56,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       title: 'One verb governs the whole sentence',
       passageId: 'sblgnt_1-timothy_17',
       body:
-        'Verse 12 turns from command to restriction, and the diagram shows exactly how much weight rests on a single verb: [[epitrepo]], “I do not permit,” spoken by Paul in his own voice and joined to what came before by δέ. Everything that follows — “to teach,” “to exercise authority,” “but to be in quietness” — is one large complement clause hanging beneath this one verb as its direct object. The next two steps open up what is inside that clause.',
+        'Verse 12 turns from command to restriction, and the diagram shows exactly how much weight rests on a single verb: [[epitrepo]], “I do not permit,” spoken by Paul in his own voice and joined to what came before by δέ (de, “and/but”). Everything that follows — “to teach,” “to exercise authority,” “but to be in quietness” — is one large complement clause hanging beneath this one verb as its direct object. The next two steps open up what is inside that clause.',
       focus: {
         nodeIds: ['cl_s17_0', 'w_n54002012005', 'w_n54002012002', 'cl_s17_2'],
         relationIds: ['r_s17_1', 'r_s17_21', 'r_s17_20'],
@@ -72,7 +72,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       title: 'Two infinitives, joined as one pair',
       passageId: 'sblgnt_1-timothy_17',
       body:
-        'Inside that clause, the diagram shows a small coordinate structure: “to teach” (διδάσκειν, with the woman named as its understood subject) and “to [[authentein]] over a man” are joined by [[oude]] (“nor”) into a single pair. αὐθεντεῖν itself takes ἀνδρός (“a man,” genitive) as its own object — the diagram draws that connection directly, a solid line from the infinitive to its object. Whatever Paul is not permitting is this joined pair, taken together.',
+        'Inside that clause, the diagram shows a small coordinate structure: “to teach” (διδάσκειν, didaskein, with the woman named as its understood subject) and “to [[authentein]] over a man” are joined by [[oude]] (“nor”) into a single pair. [[authentein]] itself takes ἀνδρός (andros, “a man,” genitive) as its own object — the diagram draws that connection directly, a solid line from the infinitive to its object. Whatever Paul is not permitting is this joined pair, taken together.',
       focus: {
         nodeIds: [
           'cl_s17_3',
@@ -89,7 +89,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       panZoom: { fit: 'nodes', padding: 120 },
       highlights: { emphasizedNodeIds: ['w_n54002012006', 'w_n54002012007'] },
       caution:
-        'Coordination with οὐδέ shows these two actions are treated as a matched pair grammatically; it does not, by itself, say whether Paul means two closely related expressions of one problem or two distinct activities.',
+        'Coordination with [[oude]] shows these two actions are treated as a matched pair grammatically; it does not, by itself, say whether Paul means two closely related expressions of one problem or two distinct activities.',
       greekTermIds: ['authentein', 'oude'],
     },
     {
@@ -97,7 +97,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       title: 'A negative half, and a positive alternative',
       passageId: 'sblgnt_1-timothy_17',
       body:
-        'Zooming out one level, the diagram shows that paired clause (teach / [[authentein]]) negated as a whole by οὐκ, then joined by ἀλλά (“but”) to a second clause: “but to be in [[hesychia]]” — the same word for quietness used already in verse 11. Negative half and positive half stand side by side as one coordinate unit, and that whole unit is what [[epitrepo]] governs.',
+        'Zooming out one level, the diagram shows that paired clause (teach / [[authentein]]) negated as a whole by οὐκ (ouk, “not”), then joined by ἀλλά (alla, “but”) to a second clause: “but to be in [[hesychia]]” — the same word for quietness used already in verse 11. Negative half and positive half stand side by side as one coordinate unit, and that whole unit is what [[epitrepo]] governs.',
       focus: {
         nodeIds: [
           'cl_s17_2',
@@ -121,7 +121,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       title: 'For: the appeal to Adam and Eve',
       passageId: 'sblgnt_1-timothy_18',
       body:
-        'Verses 13–14 are formally attached to what precedes by [[gar]] (“for”) — the diagram draws this connective joining the two sentences at the top level, marking everything that follows as Paul’s stated reason. The first sentence sets Adam and Eve side by side: Adam was formed πρῶτος (“first”), then Eve. The second contrasts them again: Adam “was not deceived,” but the woman, [[exapatetheisa]] (“having been deceived”), “has come into transgression.” The diagram shows this participle feeding directly into the main verb as the stated reason for what happened to her.',
+        'Verses 13–14 are formally attached to what precedes by [[gar]] (“for”) — the diagram draws this connective joining the two sentences at the top level, marking everything that follows as Paul’s stated reason. The first sentence sets Adam and Eve side by side: Adam was formed πρῶτος (prōtos, “first”), then Eve. The second contrasts them again: Adam “was not deceived,” but the woman, [[exapatetheisa]] (“having been deceived”), “has come into transgression.” The diagram shows this participle feeding directly into the main verb as the stated reason for what happened to her.',
       focus: {
         nodeIds: [
           'cl_s18_0',
@@ -162,20 +162,20 @@ export const firstTimothy2: GrammarHighlightGuide = {
         emphasizedNodeIds: ['w_n54002013002', 'w_n54002013001', 'w_n54002014007', 'w_n54002014008'],
       },
       implication:
-        'The grammar is clear that Paul offers this pair of statements as support for verse 12, and clear about the sequence (Adam, then Eve) and about who was and was not described as deceived. What that appeal establishes — a timeless creation pattern, a situational parallel to being deceived, or both — is exactly the question taken up fairly below.',
+        'The grammar is clear that Paul offers this pair of statements as support for verse 12, clear about the sequence (Adam, then Eve), and clear about who was and was not described as deceived. Paul reaches back past the Ephesian situation to the created order itself — which is why the historic, majority reading of the church has taken this appeal as grounding a lasting pattern for the church rather than a merely local fix. That is not the only reading held by faithful evangelicals, though, and the strongest form of the alternative is taken up fairly below.',
       caution:
-        'Notice the two different verbs: Adam “was not deceived” (ἀπατάω); Eve is described with the compound ἐξαπατάω, which many read as intensified — “thoroughly deceived.” The grammar records that difference; it does not by itself explain why the text draws it.',
+        'Notice the two different verbs: Adam “was not deceived” (ἀπατάω, apataō); Eve is described with the compound ἐξαπατάω (exapataō), which many read as intensified — “thoroughly deceived.” The grammar records that difference; it does not by itself explain why the text draws it.',
       greekTermIds: ['gar', 'exapatetheisa'],
     },
   ],
   debateSummary: {
     issue:
-      'What do Paul’s instruction not to permit a woman to teach or to αὐθεντεῖν over a man (2:11–12), and his appeal to Adam and Eve (2:13–14), establish for the church: a permanent pattern for how the gathered church orders teaching and governing authority between men and women, or a corrective addressed to a specific problem in the Ephesian church?',
+      'What do Paul’s instruction not to permit a woman to teach or to αὐθεντεῖν (authentein, “exercise authority”) over a man (2:11–12), and his appeal to Adam and Eve (2:13–14), establish for the church: a permanent pattern for how the gathered church orders teaching and governing authority between men and women, or a corrective addressed to a specific problem in the Ephesian church?',
     views: [
       {
-        label: 'Complementarian: a standing pattern grounded in creation',
+        label: 'Complementarian: the historic, majority reading, grounded in creation order',
         summary:
-          'On this reading, Paul states a durable instruction for the gathered church, not a passing fix for a local crisis: a woman is not to teach or exercise authority over a man in that setting. Paul grounds the instruction not in the Ephesian situation but in the created order itself — Adam was formed first, then Eve, and Eve, not Adam, was deceived — pointing past the immediate circumstances to how God ordered the man–woman relationship from the beginning. On this view the ordinary sense of αὐθεντεῖν (“to exercise authority”) stands, and the instruction coheres with Paul’s comparable teaching elsewhere about the ordering of teaching and governing roles in the gathered assembly (e.g. 1 Corinthians 14:34–35).',
+          'This is the reading the church has held through most of its history, and the majority reading among evangelicals today: Paul states a durable instruction for the gathered church, not a passing fix for a local crisis — a woman is not to teach or exercise authority over a man in that setting. Paul grounds the instruction not in the Ephesian situation but in the created order itself — Adam was formed first, then Eve, and Eve, not Adam, was deceived — pointing past the immediate circumstances to how God ordered the man–woman relationship from the beginning. On this view the ordinary sense of αὐθεντεῖν (authentein, “to exercise authority”) stands, and the instruction coheres with Paul’s comparable teaching elsewhere about the ordering of teaching and governing roles in the gathered assembly (e.g. 1 Corinthians 14:34–35).',
         cautions: [
           'This view has to take care that a restriction on teaching/governing roles in the gathered assembly is not extended beyond what the text addresses into every sphere of life or every kind of speech.',
           'It must hold the creation appeal alongside Paul’s full teaching elsewhere honoring women’s giftedness, ministry, and authority in other spheres (Romans 16; Philippians 4:2–3; Titus 2:3–5; Acts 18:26).',
@@ -184,15 +184,15 @@ export const firstTimothy2: GrammarHighlightGuide = {
       {
         label: 'Egalitarian: a situational correction for Ephesus',
         summary:
-          'On this reading, Paul answers a specific, local problem: false teachers had already led some astray in Ephesus (1 Timothy 1:3–7, 19–20), and women there appear among those vulnerable to being deceived by such teaching (compare 1 Timothy 5:13; 2 Timothy 3:6–7), likely owing to a lack of the theological training given to men. On this view αὐθεντεῖν — a word found nowhere else in the New Testament and only rarely in surviving Greek of the period — may denote not ordinary teaching authority but something more forceful: to “domineer,” or to seize or assume authority illegitimately. Paul’s concern, then, is a specific, disruptive exercise of self-appointed authority by untrained women, not women teaching or leading as such; the appeal to Adam and Eve illustrates being deceived (paralleling the false teachers’ effect on the untrained) rather than stating a timeless creation ordinance for church office.',
+          'On this reading, Paul answers a specific, local problem: false teachers had already led some astray in Ephesus (1 Timothy 1:3–7, 19–20), and women there appear among those vulnerable to being deceived by such teaching (compare 1 Timothy 5:13; 2 Timothy 3:6–7), likely owing to a lack of the theological training given to men. On this view αὐθεντεῖν (authentein) — a word found nowhere else in the New Testament and only rarely in surviving Greek of the period — may denote not ordinary teaching authority but something more forceful: to “domineer,” or to seize or assume authority illegitimately. Paul’s concern, then, is a specific, disruptive exercise of self-appointed authority by untrained women, not women teaching or leading as such; the appeal to Adam and Eve illustrates being deceived (paralleling the false teachers’ effect on the untrained) rather than stating a timeless creation ordinance for church office.',
         cautions: [
           'This view rests significant weight on a disputed sense of a very rare word, drawn from a small body of comparative evidence — that lexical case has to be argued on its own terms, not assumed.',
-          'It should not flatten the Adam-and-Eve appeal into “mere illustration” if the flow of Paul’s argument (marked by γάρ) suggests he intends it to carry more argumentative weight than that.',
+          'It should not flatten the Adam-and-Eve appeal into “mere illustration” if the flow of Paul’s argument (marked by γάρ, gar, “for”) suggests he intends it to carry more argumentative weight than that.',
         ],
       },
     ],
     grammarOpensQuestionHow:
-      'The diagram settles some things plainly: οὐδέ ties “to teach” and “to αὐθεντεῖν” into one coordinate pair, not two independent rules; ἀλλά sets a real, positive alternative (“but to be in quietness”) alongside the negated pair; and γάρ formally attaches the Adam-and-Eve sentences to verse 12 as Paul’s stated reason. What the grammar cannot settle by itself: whether the present tense of ἐπιτρέπω (“I am not permitting”) expresses a timeless rule or a decision for a live situation — Greek present-tense verbs carry both uses, and only context can choose between them; and what the rare verb αὐθεντεῖν, found nowhere else in the New Testament, actually meant in ordinary use. Those are lexical, historical, and whole-canon questions, not questions the syntax diagram can answer on its own — it clarifies exactly what is joined to what and where each appeal attaches, and leaves the weighing to the reader, alongside sound teaching and pastoral counsel.',
+      'The diagram settles some things plainly: οὐδέ (oude, “nor”) ties “to teach” and “to αὐθεντεῖν” (authentein, “exercise authority”) into one coordinate pair, not two independent rules; ἀλλά (alla, “but”) sets a real, positive alternative (“but to be in quietness”) alongside the negated pair; and γάρ (gar, “for”) formally attaches the Adam-and-Eve sentences to verse 12 as Paul’s stated reason, grounding it in the creation account rather than leaving it unsupported. What the grammar cannot settle by itself: whether the present tense of ἐπιτρέπω (epitrepō, “I am not permitting”) expresses a timeless rule or a decision for a live situation — Greek present-tense verbs carry both uses, and only context can choose between them; and precisely what the rare verb αὐθεντεῖν, found nowhere else in the New Testament and rendered “exercise authority” by some and “domineer” by others, meant in ordinary use. Those are lexical, historical, and whole-canon questions, not questions the syntax diagram can answer on its own — it clarifies exactly what is joined to what and where each appeal attaches, and leaves the weighing to the reader, alongside sound teaching and pastoral counsel.',
   },
   confessionalFrame:
     'Historic confessional Reformed teaching has generally read this passage (together with parallel texts) as establishing a settled pattern that reserves the teaching and governing offices of the visible church to men, while fully affirming women’s indispensable ministry in prayer, in teaching children and other women (Titus 2:3–5), in prophecy (1 Corinthians 11:5), and in every spiritual gift not tied to those offices. This is offered here as one confessional tradition’s reading, clearly labelled and distinct from the fair summary of both views above — not as a substitute for weighing them.',
@@ -247,7 +247,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       gloss: 'to exercise authority over',
       parsing: 'present active infinitive',
       explanation:
-        'This verb occurs nowhere else in the New Testament (a hapax legomenon), and only rarely in surviving Greek from this period. The diagram shows it taking ἀνδρός (“a man”) as its object, joined to διδάσκειν (“to teach”) by οὐδέ. What the verb itself denotes — ordinary authority, or something more forceful like “domineer” or “usurp authority” — is a genuine lexical question.',
+        'This verb occurs nowhere else in the New Testament (a hapax legomenon), and only rarely in surviving Greek from this period. The diagram shows it taking ἀνδρός (andros, “a man”) as its object, joined to διδάσκειν (didaskein, “to teach”) by οὐδέ (oude, “nor”). What the verb itself denotes — ordinary authority, or something more forceful like “domineer” or “usurp authority” — is a genuine lexical question.',
       implication:
         'Because the diagram can show exactly what αὐθεντεῖν is coordinated with and what its object is, it clarifies the sentence’s shape; it cannot, by grammar alone, settle which shade of meaning the rare verb carries.',
       caution:
@@ -262,7 +262,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       gloss: 'nor',
       parsing: 'correlative negative conjunction',
       explanation:
-        'οὐδέ links διδάσκειν (“to teach”) and αὐθεντεῖν (“to exercise authority”) into a single joined pair beneath one negation — grammatically, whatever is restricted is this pair taken together, not two separate, independent rules.',
+        'οὐδέ links διδάσκειν (didaskein, “to teach”) and αὐθεντεῖν (authentein, “to exercise authority”) into a single joined pair beneath one negation — grammatically, whatever is restricted is this pair taken together, not two separate, independent rules.',
       implication:
         'The diagram shows one coordinate node holding both infinitives; how the two actions relate in meaning — a single combined idea, two closely related actions, or two of a kind — is part of the passage’s wider debate.',
     },
@@ -288,7 +288,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
       gloss: 'having been deceived',
       parsing: 'aorist passive participle, nominative feminine singular',
       explanation:
-        'Verse 14 uses two related verbs: Adam “was not deceived” (ἀπατάω, v.14a), while the woman is described with the intensified compound ἐξαπατάω, “having been thoroughly deceived.” The participle attaches as the reason feeding the main verb γέγονεν (“has come to be”): she has come into transgression by way of having been deceived.',
+        'Verse 14 uses two related verbs: Adam “was not deceived” (ἀπατάω, apataō, v.14a), while the woman is described with the intensified compound ἐξαπατάω (exapataō), “having been thoroughly deceived.” The participle attaches as the reason feeding the main verb γέγονεν (gegonen, “has come to be”): she has come into transgression by way of having been deceived.',
       caution:
         'The aorist participle views the deceiving as a completed event prior to the coming-into-transgression; it does not by itself explain WHY only Eve is described this way — that question belongs to the wider discussion, not the grammar alone.',
     },

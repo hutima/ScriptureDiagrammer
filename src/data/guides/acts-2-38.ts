@@ -24,22 +24,22 @@ export const acts2: GrammarHighlightGuide = {
     'Reformed and Anglican teaching typically reads this verse alongside the rest of Acts (where forgiveness is repeatedly tied to believing — e.g. Acts 10:43; 16:31) and holds that baptism here functions as a sign and seal of the forgiveness received through repentance and faith, publicly marking what God has done, rather than a ritual that produces forgiveness apart from faith. Other traditions weigh the same grammar differently; this note names one confessional reading, not the only faithful one.',
   debateSummary: {
     issue:
-      'What does the prepositional phrase εἰς ἄφεσιν τῶν ἁμαρτιῶν ("for/unto the forgiveness of sins") attach to, and what relationship does it describe — is baptism the means, the accompanying sign, or the occasion of forgiveness? The identical phrase εἰς ἄφεσιν ἁμαρτιῶν appears in Matthew 26:28, where Jesus says his blood is poured out "for the forgiveness of sins" — a use everyone agrees does not make the blood a mechanical ritual cause, which shapes how interpreters weigh the same preposition here.',
+      'What does the prepositional phrase εἰς ἄφεσιν τῶν ἁμαρτιῶν (eis aphesin tōn hamartiōn, "for/unto the forgiveness of sins") attach to, and what relationship does it describe — is baptism the means, the accompanying sign, or the occasion of forgiveness? The identical phrase εἰς ἄφεσιν ἁμαρτιῶν (eis aphesin hamartiōn) appears in Matthew 26:28, where Jesus says his blood is poured out "for the forgiveness of sins" — a use everyone agrees does not make the blood a mechanical ritual cause, which shapes how interpreters weigh the same preposition here.',
     views: [
       {
         label: 'Causal/telic, tied to the whole call',
         summary:
-          'εἰς ἄφεσιν τῶν ἁμαρτιῶν describes the goal of the whole compound response Peter has just commanded — repenting AND being baptized together — not of baptism considered on its own. Forgiveness is the outcome toward which the entire turn to Christ, professed and enacted, is headed.',
+          'εἰς ἄφεσιν τῶν ἁμαρτιῶν (eis aphesin tōn hamartiōn, "for the forgiveness of sins") describes the goal of the whole compound response Peter has just commanded — repenting AND being baptized together — not of baptism considered on its own. Forgiveness is the outcome toward which the entire turn to Christ, professed and enacted, is headed.',
         cautions: [
-          'The diagram attaches this phrase directly to βαπτισθήτω, the nearer verb, so this reading has to argue past the immediate syntax — from the flow of the passage and Peter\'s other sermons — rather than from this clause alone.',
+          'The diagram attaches this phrase directly to βαπτισθήτω (baptisthētō, "let him be baptized"), the nearer verb, so this reading has to argue past the immediate syntax — from the flow of the passage and Peter\'s other sermons — rather than from this clause alone.',
         ],
       },
       {
         label: '"With a view to" / "because of" forgiveness (the disputed causal εἰς)',
         summary:
-          'εἰς + accusative can mark purpose or result ("so that you receive forgiveness") or, some argue, a backward-looking basis ("because forgiveness has already been granted") — the same debate surrounds εἰς in Matthew 26:28. Both uses are grammatically possible; which one is meant here cannot be read off the preposition by itself.',
+          'εἰς (eis, "into, unto, for") + accusative can mark purpose or result ("so that you receive forgiveness") or, some argue, a backward-looking basis ("because forgiveness has already been granted") — the same debate surrounds εἰς in Matthew 26:28. Both uses are grammatically possible; which one is meant here cannot be read off the preposition by itself.',
         cautions: [
-          'A purely retrospective/causal εἰς is contested by many grammarians as a rare use, hard to establish from other examples in Acts.',
+          'A purely retrospective/causal εἰς (eis, "into, unto, for") is contested by many grammarians as a rare use, hard to establish from other examples in Acts.',
         ],
       },
       {
@@ -47,12 +47,12 @@ export const acts2: GrammarHighlightGuide = {
         summary:
           'On this reading, repentance is where forgiveness is received by faith, and baptism is the God-appointed public sign and seal that goes with it — close enough together, in the sentence and in the event, that Peter can describe them with one shared purpose clause without making baptism itself the cause of forgiveness.',
         cautions: [
-          'This view has to explain why βαπτισθήτω, not μετανοήσατε, is the verb nearest εἰς ἄφεσιν in the Greek word order — a fair question it answers from theology found elsewhere in Acts and the epistles, not from this verse\'s syntax alone.',
+          'This view has to explain why βαπτισθήτω (baptisthētō, "be baptized"), not μετανοήσατε (metanoēsate, "repent"), is the verb nearest εἰς ἄφεσιν (eis aphesin, "for/unto forgiveness") in the Greek word order — a fair question it answers from theology found elsewhere in Acts and the epistles, not from this verse\'s syntax alone.',
         ],
       },
     ],
     grammarOpensQuestionHow:
-      'εἰς + accusative is genuinely flexible — purpose, result, reference, and (more rarely argued) cause are all attested uses of the construction. The lowfat parse attaches the phrase to βαπτισθήτω because it is the nearest verb, which narrows the search but does not by itself decide whether that attachment means forgiveness is baptism\'s goal, its accompanying sign, or something else baptism merely marks. That is a question the wider witness of the New Testament — not one prepositional phrase — has to help answer.',
+      'εἰς (eis, "into, unto, for") + accusative is genuinely flexible — purpose, result, reference, and (more rarely argued) cause are all attested uses of the construction. The lowfat parse attaches the phrase to βαπτισθήτω (baptisthētō, "be baptized") because it is the nearest verb, which narrows the search but does not by itself decide whether that attachment means forgiveness is baptism\'s goal, its accompanying sign, or something else baptism merely marks. That is a question the wider witness of the New Testament — not one prepositional phrase — has to help answer.',
   },
   steps: [
     {
@@ -76,7 +76,7 @@ export const acts2: GrammarHighlightGuide = {
       id: 'step-number-shift',
       title: '"Repent" (all of you) ... "be baptized" (each one)',
       body:
-        'Look closely at the two commands, and a small grammatical detail becomes striking: [[metanoesate]] is second-person PLURAL — "repent, all of you," spoken to the whole crowd together. But [[baptistheto]] shifts to third-person SINGULAR, with its own subject [[hekastos]] ("each one") — "let each one of you be baptized." The diagram draws this shift as two separate clauses, each with its own baseline: the plural command stands alone, and the singular command has ἕκαστος standing on the subject side of its own line.',
+        'Look closely at the two commands, and a small grammatical detail becomes striking: [[metanoesate]] is second-person PLURAL — "repent, all of you," spoken to the whole crowd together. But [[baptistheto]] shifts to third-person SINGULAR, with its own subject [[hekastos]] ("each one") — "let each one of you be baptized." The diagram draws this shift as two separate clauses, each with its own baseline: the plural command stands alone, and the singular command has [[hekastos]] standing on the subject side of its own line.',
       focus: {
         nodeIds: ['w_n44002038005', 'w_n44002038007', 'w_n44002038008'],
         relationIds: ['r_s46_8', 'r_s46_11', 'r_s46_13'],
@@ -95,7 +95,7 @@ export const acts2: GrammarHighlightGuide = {
       id: 'step-eis-aphesin',
       title: '"For the forgiveness of sins" — where does it attach?',
       body:
-        'The phrase [[eis]] [[aphesin]] τῶν ἁμαρτιῶν ("for/unto the forgiveness of sins") comes right after the baptism command, and the diagram draws it as a prepositional phrase hanging beneath βαπτισθήτω itself — the nearest verb it can attach to. This is exactly the phrase Christians have long debated: does the grammar mean baptism causes forgiveness, describes its accompanying sign, or names the goal of the whole response Peter has just called for?',
+        'The phrase [[eis]] [[aphesin]] τῶν ἁμαρτιῶν (tōn hamartiōn) ("for/unto the forgiveness of sins") comes right after the baptism command, and the diagram draws it as a prepositional phrase hanging beneath [[baptistheto]] itself — the nearest verb it can attach to. This is exactly the phrase Christians have long debated: does the grammar mean baptism causes forgiveness, describes its accompanying sign, or names the goal of the whole response Peter has just called for?',
       focus: {
         nodeIds: ['w_n44002038007', 'w_n44002038015', 'w_n44002038016', 'w_n44002038018'],
         relationIds: ['r_s46_23', 'r_s46_22', 'r_s46_21'],
@@ -112,7 +112,7 @@ export const acts2: GrammarHighlightGuide = {
       id: 'step-in-the-name',
       title: '"In the name of Jesus Christ" — the same construction, different work',
       body:
-        'Just before εἰς ἄφεσιν, another prepositional phrase attaches to that very same verb βαπτισθήτω: ἐπὶ τῷ [[onomati]] Ἰησοῦ Χριστοῦ, "in the name of Jesus Christ." Seeing both phrases in the diagram, stemmed beneath the same verb, is a reminder that Peter names two things about this baptism in the same breath: whose name it invokes, and what it looks toward. Neither phrase competes with the other — the diagram simply shows both hanging from the one act.',
+        'Just before εἰς ἄφεσιν (eis aphesin, "for/unto forgiveness"), another prepositional phrase attaches to that very same verb [[baptistheto]]: ἐπὶ τῷ [[onomati]] Ἰησοῦ Χριστοῦ (epi tō onomati Iēsou Christou), "in the name of Jesus Christ." Seeing both phrases in the diagram, stemmed beneath the same verb, is a reminder that Peter names two things about this baptism in the same breath: whose name it invokes, and what it looks toward. Neither phrase competes with the other — the diagram simply shows both hanging from the one act.',
       focus: {
         nodeIds: ['w_n44002038007', 'w_n44002038010', 'w_n44002038012', 'w_n44002038013', 'w_n44002038014'],
         relationIds: ['r_s46_18', 'r_s46_17', 'r_s46_15', 'r_s46_14'],
@@ -127,7 +127,7 @@ export const acts2: GrammarHighlightGuide = {
       id: 'step-promised-gift',
       title: 'And you will receive',
       body:
-        'The verse does not end with a command — it ends with a promise: καὶ [[lempsesthe]] τὴν δωρεὰν τοῦ ἁγίου πνεύματος, "and you will receive the gift of the Holy Spirit." The diagram shows this as a third clause coordinated with the first two, but its verb is future indicative, not imperative — a statement of what God will do, not another thing the crowd must do. Repent, be baptized... and here is what follows.',
+        'The verse does not end with a command — it ends with a promise: καὶ (kai, "and") [[lempsesthe]] τὴν δωρεὰν τοῦ ἁγίου πνεύματος (tēn dōrean tou hagiou pneumatos), "and you will receive the gift of the Holy Spirit." The diagram shows this as a third clause coordinated with the first two, but its verb is future indicative, not imperative — a statement of what God will do, not another thing the crowd must do. Repent, be baptized... and here is what follows.',
       focus: {
         nodeIds: ['w_n44002038021', 'w_n44002038023', 'w_n44002038026'],
         relationIds: ['r_s46_27', 'r_s46_32', 'r_s46_30', 'r_s46_33'],
@@ -174,7 +174,7 @@ export const acts2: GrammarHighlightGuide = {
       gloss: 'each one / every one',
       parsing: 'adjective used substantivally, nominative masculine singular (subject of βαπτισθήτω)',
       explanation:
-        '"Each one" stands as the singular subject of βαπτισθήτω, in deliberate contrast to the plural crowd addressed by μετανοήσατε. It personalizes a general command into an individual one.',
+        '"Each one" stands as the singular subject of βαπτισθήτω (baptisthētō, "be baptized"), in deliberate contrast to the plural crowd addressed by μετανοήσατε (metanoēsate, "repent"). It personalizes a general command into an individual one.',
     },
     {
       id: 'eis',
@@ -185,7 +185,7 @@ export const acts2: GrammarHighlightGuide = {
       gloss: 'into, unto, for',
       parsing: 'preposition governing the accusative',
       explanation:
-        '"Into," "unto," or "for" — a preposition that can mark purpose or result, reference, or (more rarely and more controversially) a backward-looking cause, depending on context. Here it governs the accusative noun ἄφεσιν.',
+        '"Into," "unto," or "for" — a preposition that can mark purpose or result, reference, or (more rarely and more controversially) a backward-looking cause, depending on context. Here it governs the accusative noun ἄφεσιν (aphesin, "forgiveness").',
     },
     {
       id: 'aphesin',
@@ -196,7 +196,7 @@ export const acts2: GrammarHighlightGuide = {
       gloss: 'forgiveness, release',
       parsing: 'noun, accusative feminine singular',
       explanation:
-        '"Forgiveness" — literally a "release" or "letting go." The same phrase, εἰς ἄφεσιν ἁμαρτιῶν, describes what Christ\'s blood is poured out for in Matthew 26:28, a parallel worth holding alongside this verse.',
+        '"Forgiveness" — literally a "release" or "letting go." The same phrase, εἰς ἄφεσιν ἁμαρτιῶν (eis aphesin hamartiōn, "for the forgiveness of sins"), describes what Christ\'s blood is poured out for in Matthew 26:28, a parallel worth holding alongside this verse.',
     },
     {
       id: 'onomati',
@@ -207,7 +207,7 @@ export const acts2: GrammarHighlightGuide = {
       gloss: 'name',
       parsing: 'noun, dative neuter singular',
       explanation:
-        '"Name" — the dative object of ἐπί, "in/on the name." Invoking Jesus\' name over the baptism ties the act to him specifically, distinguishing it from John\'s baptism mentioned earlier in Acts.',
+        '"Name" — the dative object of ἐπί (epi), "in/on the name." Invoking Jesus\' name over the baptism ties the act to him specifically, distinguishing it from John\'s baptism mentioned earlier in Acts.',
     },
     {
       id: 'lempsesthe',

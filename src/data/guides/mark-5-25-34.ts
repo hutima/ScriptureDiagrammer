@@ -168,7 +168,7 @@ export const mark5: GrammarHighlightGuide = {
       gloss: 'I shall touch / if I touch',
       parsing: 'aorist middle subjunctive, 1st singular',
       explanation:
-        'The same verb “to touch,” but here subjunctive after “if” (ἐὰν) — her own hoped-for plan, quoted directly, rather than a report of what already happened.',
+        'The same verb “to touch,” but here subjunctive after “if” (ἐὰν, ean) — her own hoped-for plan, quoted directly, rather than a report of what already happened.',
       caution:
         'The subjunctive mood marks this as contingent and hoped-for; it does not by itself measure how strong or weak her faith was.',
     },

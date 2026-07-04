@@ -62,7 +62,7 @@ export const ephesians1: GrammarHighlightGuide = {
       title: 'Chosen and predestined — inside the blessing, not instead of it',
       passageId: 'sblgnt_ephesians_2',
       body:
-        'The two verbs most readers associate with "predestination" both appear here: [[exelexato]], "he chose us" (v. 4), and [[proorisas]], "having predestined us" (v. 5). Notice where the diagram puts them — not standing on their own as a separate topic, but nested two layers beneath the main participle "having blessed," introduced by "just as" (καθὼς). Follow the line further and both verbs lead, a few words later, into the sentence\'s first refrain: [[epainon]], "praise" — "to the praise of his glorious grace." Grammatically, the goal of God\'s choosing is stated outright: praise.',
+        'The two verbs most readers associate with "predestination" both appear here: [[exelexato]], "he chose us" (v. 4), and [[proorisas]], "having predestined us" (v. 5). Paul is specific about both the timing and the ground of that choice: it happened "before the foundation of the world" (v. 4) — before any of us existed to do anything — and its stated ground, a verse later, is simply "the good pleasure of his will" (v. 5), not anything foreseen in the people chosen. Notice where the diagram puts these two verbs — not standing on their own as a separate topic, but nested two layers beneath the main participle "having blessed," introduced by "just as" (καθὼς, kathōs). Follow the line further and both verbs lead, a few words later, into the sentence\'s first refrain: [[epainon]], "praise" — "to the praise of his glorious grace." Grammatically, the goal of God\'s choosing is stated outright: praise.',
       focus: {
         nodeIds: [
           'w_n49001004002',
@@ -88,9 +88,9 @@ export const ephesians1: GrammarHighlightGuide = {
         emphasizedNodeIds: ['w_n49001004002', 'w_n49001005001', 'w_n49001006002'],
       },
       implication:
-        'The sentence never lets "chosen" and "predestined" stand alone as a cold decree. Both verbs are grammatically subordinate to the opening praise, and both are aimed — by the sentence\'s own structure — at more praise. Whatever else these words mean, their stated function here is doxology and assurance, not anxiety.',
+        'The sentence never lets "chosen" and "predestined" stand alone as a cold decree, and it never roots either verb in anything God foresaw in us — the ground it names is his own "good pleasure" (v. 5), full stop. Both verbs are grammatically subordinate to the opening praise, and both are aimed — by the sentence\'s own structure — at more praise. Whatever else these words mean, their stated function here is doxology and assurance, not anxiety.',
       caution:
-        'The aorist tense of both verbs simply views God\'s choosing and predestining as complete, whole acts — it does not by itself decide the timing, scope, or mechanism that later doctrinal debates raise (see this guide\'s debate summary). The grammar\'s clearest claim is about WHERE this happens ("in him," v. 4) and WHAT FOR ("to the praise of his glory") — not a full answer to how divine choice and human choice relate.',
+        'The aorist tense of both verbs simply views God\'s choosing and predestining as complete, whole acts — by itself it does not settle every fine point of timing or mechanism that later doctrinal debates raise among those who hold this reading (see this guide\'s debate summary for how other traditions read these verses differently). What the sentence does state plainly is WHERE this happens ("in him," v. 4), WHAT GROUNDS it ("the good pleasure of his will," v. 5 — not anything foreseen in us), and WHAT FOR ("to the praise of his glory").',
       greekTermIds: ['exelexato', 'proorisas', 'epainon'],
     },
     {
@@ -98,7 +98,7 @@ export const ephesians1: GrammarHighlightGuide = {
       title: 'In him we have redemption — and all things united in Christ',
       passageId: 'sblgnt_ephesians_3',
       body:
-        'A new sentence begins in most English Bibles, but the Greek keeps circling back: [[enHo]], "in whom," picks up exactly where "in Christ" left off. "In him we have redemption through his blood" — the same anchor, a new gift. A few lines later the scope widens dramatically: God\'s plan, once hidden and now disclosed (a μυστήριον — a truth revealed, not a riddle left unsolved), is "to unite all things in Christ, things in heaven and things on earth." The personal blessing of verses 3–6 turns out to be one thread inside a plan for the whole creation — and the anchor point does not change.',
+        'A new sentence begins in most English Bibles, but the Greek keeps circling back: [[enHo]], "in whom," picks up exactly where "in Christ" left off. "In him we have redemption through his blood" — the same anchor, a new gift. A few lines later the scope widens dramatically: God\'s plan, once hidden and now disclosed (a μυστήριον, mystērion — a truth revealed, not a riddle left unsolved), is "to unite all things in Christ, things in heaven and things on earth." The personal blessing of verses 3–6 turns out to be one thread inside a plan for the whole creation — and the anchor point does not change.',
       focus: {
         nodeIds: [
           'cl_s3_0',
@@ -129,7 +129,7 @@ export const ephesians1: GrammarHighlightGuide = {
       implication:
         'Redemption for "us" (vv. 3–6) and the summing-up of "all things" (vv. 9–10) are not two different topics — grammatically they are both located "in Christ" and "in him." The sentence keeps insisting that nothing it describes happens anywhere else.',
       caution:
-        '"Mystery" (μυστήριον) in Paul does not mean an unsolved puzzle or a secret code — it names something God kept hidden and has now made known. The word points to disclosure, not to esoteric knowledge for a select few.',
+        '"Mystery" (μυστήριον, mystērion) in Paul does not mean an unsolved puzzle or a secret code — it names something God kept hidden and has now made known. The word points to disclosure, not to esoteric knowledge for a select few.',
       greekTermIds: ['enHo'],
     },
     {
@@ -137,7 +137,7 @@ export const ephesians1: GrammarHighlightGuide = {
       title: "Marked as God's own — the second refrain",
       passageId: 'sblgnt_ephesians_4',
       body:
-        'The sentence loops back to its anchor a third time: "in him" ([[enHo]]) "we too were made [God\'s] own" — the diagram shows this main verb, then a participle beneath it, προορισθέντες, "having been predestined." It is the same verb family as [[proorisas]] two steps ago, now describing what happened TO us rather than what God did. What follows is worth lingering over: "according to the purpose (πρόθεσιν) of the one who works all things according to the counsel (βουλὴν) of his will" — words of settled, personal intention, not blind fate. And the whole clause resolves, again, into [[epainon]] — the second time this sentence says "to the praise of his glory."',
+        'The sentence loops back to its anchor a third time: "in him" ([[enHo]]) "we too were made [God\'s] own" — the diagram shows this main verb, then a participle beneath it, προορισθέντες (prooristhentes), "having been predestined." It is the same verb family as [[proorisas]] two steps ago, now describing what happened TO us rather than what God did. What follows is worth lingering over: "according to the purpose (πρόθεσιν, prothesin) of the one who works all things according to the counsel (βουλὴν, boulēn) of his will" — words of settled, personal intention, not blind fate. And the whole clause resolves, again, into [[epainon]] — the second time this sentence says "to the praise of his glory."',
       focus: {
         nodeIds: [
           'cl_s4_0',
@@ -178,7 +178,7 @@ export const ephesians1: GrammarHighlightGuide = {
       title: 'Sealed with the Spirit — the third refrain, and the guarantee',
       passageId: 'sblgnt_ephesians_5',
       body:
-        'The sentence turns, for the first time, from "we" to "you also" — the letter\'s Gentile readers are drawn into the same blessing. "In him" ([[enHo]]) "you also, having heard… having believed, were sealed with the promised Holy Spirit, who is the guarantee (ἀρραβὼν) of our inheritance." A down payment, a pledge of what is still to come. And then, a third and final time, the sentence lands on [[epainon]]: "to the praise of his glory." Twelve verses, one sentence, three refrains — the whole cascade of blessing, election, redemption, and sealing was always moving toward this one note.',
+        'The sentence turns, for the first time, from "we" to "you also" — the letter\'s Gentile readers are drawn into the same blessing. "In him" ([[enHo]]) "you also, having heard… having believed, were sealed with the promised Holy Spirit, who is the guarantee (ἀρραβὼν, arrabōn) of our inheritance." A down payment, a pledge of what is still to come. And then, a third and final time, the sentence lands on [[epainon]]: "to the praise of his glory." Twelve verses, one sentence, three refrains — the whole cascade of blessing, election, redemption, and sealing was always moving toward this one note.',
       focus: {
         nodeIds: [
           'cl_s5_0',
@@ -231,10 +231,10 @@ export const ephesians1: GrammarHighlightGuide = {
   ],
   debateSummary: {
     issue:
-      'What do "he chose us" (ἐξελέξατο, v. 4) and "having predestined us" (προορίσας, v. 5; προορισθέντες, v. 11) mean for how God\'s choice relates to human faith?',
+      'What do "he chose us" (ἐξελέξατο, exelexato, v. 4) and "having predestined us" (προορίσας, proorisas, v. 5; προορισθέντες, prooristhentes, v. 11) mean for how God\'s choice relates to human faith?',
     views: [
       {
-        label: 'Unconditional election (classical Reformed reading)',
+        label: "Unconditional election (this guide's standard reading; classical Reformed)",
         summary:
           'God\'s choice of particular people for salvation "before the foundation of the world" (v. 4) rests entirely in his own gracious will, not on anything foreseen in the people chosen — the passage\'s own phrase is "according to the good pleasure of his will" (v. 5), not "according to foreseen faith."',
         cautions: [
@@ -242,7 +242,7 @@ export const ephesians1: GrammarHighlightGuide = {
         ],
       },
       {
-        label: 'Corporate / Christ-centered election',
+        label: 'Corporate / Christ-centered election (an alternate reading)',
         summary:
           'The repeated anchor "in Christ" / "in him" (vv. 4, 11) is the key: God\'s primary choice is of Christ himself, and believers are "chosen" by being joined to him through faith — the emphasis falls on the church\'s identity in Christ more than on a pre-temporal list of individual names.',
         cautions: [
@@ -250,7 +250,7 @@ export const ephesians1: GrammarHighlightGuide = {
         ],
       },
       {
-        label: 'Conditional election (foreknowledge-based reading)',
+        label: 'Conditional election (foreknowledge-based reading; an alternate reading)',
         summary:
           'God\'s choice, while real and gracious, is grounded in his foreknowledge of who would respond in faith — election described here as an outworking of God\'s foreknowledge rather than a choice made without reference to it.',
         cautions: [
@@ -299,7 +299,7 @@ export const ephesians1: GrammarHighlightGuide = {
       gloss: 'Christ',
       parsing: 'proper noun, dative masculine singular',
       explanation:
-        'The dative noun after ἐν ("in") forms the phrase "in Christ." This exact phrase — or its equivalent "in him" / "in whom" — recurs roughly a dozen times across these twelve verses, more densely than in any comparable stretch elsewhere in the New Testament.',
+        'The dative noun after ἐν (en, "in") forms the phrase "in Christ." This exact phrase — or its equivalent "in him" / "in whom" — recurs roughly a dozen times across these twelve verses, more densely than in any comparable stretch elsewhere in the New Testament.',
       implication:
         'Grammatically, every spiritual blessing this sentence names is located "in Christ." Nothing described here stands outside of him.',
     },
@@ -312,11 +312,11 @@ export const ephesians1: GrammarHighlightGuide = {
       gloss: 'he chose',
       parsing: 'aorist middle indicative, 3rd singular',
       explanation:
-        'God is the understood subject (carried over from "having blessed"), and "us" is the object. The clause is introduced by καθὼς ("just as"), which grammatically subordinates the choosing to the blessing already announced in verse 3.',
+        'God is the understood subject (carried over from "having blessed"), and "us" is the object. The clause is introduced by καθὼς (kathōs, "just as"), which grammatically subordinates the choosing to the blessing already announced in verse 3.',
       implication:
         'God\'s choosing us doesn\'t stand on its own as a separate topic — the syntax presents it as an INSTANCE of the blessing already being praised. Adoration comes first; explanation comes second.',
       caution:
-        'The aorist here views the choosing as one completed whole; it says nothing by itself about timing, mechanism, or scope. See this guide\'s debate summary for how different traditions read this verb.',
+        'The aorist here views the choosing as one completed whole; by itself it does not settle finer questions of timing or mechanism (see this guide\'s debate summary for how different traditions engage those questions). But the very next clause names the choice\'s ground plainly: "according to the good pleasure of his will" (v. 5), not anything foreseen in us.',
     },
     {
       id: 'proorisas',

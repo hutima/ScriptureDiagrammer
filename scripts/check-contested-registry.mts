@@ -33,8 +33,20 @@ const { contestedRegistrySblgnt } = await import('../src/data/contestedSyntaxSbl
 const { applyAlternateReadingPreview } = await import('../src/domain/contested/apply.ts');
 const { layoutForMode } = await import('../src/domain/layout/index.ts');
 const { combinePassage } = await import('../src/io/passage.ts');
+const { guidedDocuments } = await import('../src/fixtures/guided/index.ts');
 
 type Doc = (typeof sampleDocuments)[number];
+
+// The guided bundle can carry a BAKED document whose ids differ from a fresh
+// re-parse of the source — notably `sblgnt_romans_228`, which the guided build
+// merges (9:3–5a + 9:5b) and overlays so the doxology hangs off Χριστός in
+// apposition (see `iss_rom_9_5_doxology_sblgnt`). An issue authored against that
+// baked document must be validated against what actually ships, so prefer the
+// bundle. For every other id the bundle doc is byte-identical to a re-parse (same
+// Lowfat pipeline), so this never changes an ordinary passage's validation.
+const guidedById = new Map<string, Doc>(
+  guidedDocuments.map((d) => [d.id, d as unknown as Doc] as const),
+);
 
 const GNT_SRC =
   'https://raw.githubusercontent.com/biblicalhumanities/greek-new-testament/master/syntax-trees/nestle1904-lowfat/xml/';
@@ -64,6 +76,11 @@ async function loadXml(localRel: string, remote: string): Promise<string> {
 }
 
 async function loadPassage(passageId: string): Promise<Doc | undefined> {
+  // Prefer a baked guided-bundle document when one exists for this id (see note
+  // on `guidedById`), so merged/overlaid guided bases validate against the ids
+  // that actually ship rather than a fresh re-parse of the source.
+  const bundled = guidedById.get(passageId);
+  if (bundled) return bundled;
   if (passageId.startsWith('doc_sample')) {
     return sampleDocuments.find((d) => d.id === passageId);
   }

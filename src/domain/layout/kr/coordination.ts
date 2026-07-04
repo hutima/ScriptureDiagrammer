@@ -22,6 +22,7 @@ import { drawDiagonalCoordination, drawDiagonalModifier } from './diagonal';
 import { drawInfinitive } from './infinitives';
 import { drawPp, drawPpCoordination } from './prepositions';
 import { blockAscent, pedestalRoom } from './geometry';
+import { elementRects } from './packing';
 import { eid, line, translate, wordText } from './primitives';
 import type { Block, Ctx } from './types';
 import { layoutHead } from './word';
@@ -126,7 +127,57 @@ export function layoutCoordination(
     }
   });
   const lastBaseline = baselines[baselines.length - 1]!;
-  const centerY = lastBaseline / 2; // junction sits at the vertical middle
+  // The junction wants the vertical middle of the fork — but the junction
+  // level is also where the PARENT's baseline keeps running across the fork's
+  // span, so it must fall in CLEAR space between members, never inside a
+  // member's own vertical band. A conjunct whose modifiers hang below its
+  // baseline (e.g. בָּיִת / "of [the] household" beneath יְלִיד / "one born"
+  // in Genesis 17:12) can reach past the naive midpoint, putting the parent
+  // baseline straight through the hanging text; slide the junction to the
+  // nearest clear edge instead.
+  const JUNCTION_CLEAR = 6;
+  let centerY = lastBaseline / 2; // junction starts at the vertical middle
+  // Bands are keyed on MEASURED text extents (not the whole block box): lines
+  // crossing lines is normal Kellogg-Reed, only baseline-through-WORD is the
+  // defect (same principle as `clearStemX`). Rotated bar marks are exempt —
+  // they ride their bar by design.
+  const bands = members
+    .map((m, i) => {
+      let top = Infinity;
+      let bottom = -Infinity;
+      for (const el of m.elements) {
+        if (el.kind !== 'text' || el.rotate) continue;
+        const [r] = elementRects([el]);
+        if (!r) continue;
+        top = Math.min(top, r.y0);
+        bottom = Math.max(bottom, r.y1);
+      }
+      if (top === Infinity) return undefined;
+      return {
+        top: baselines[i]! + top - JUNCTION_CLEAR,
+        bottom: baselines[i]! + bottom + JUNCTION_CLEAR,
+      };
+    })
+    .filter((b): b is { top: number; bottom: number } => !!b)
+    .sort((a, b) => a.top - b.top);
+  // Merge overlapping bands so one slide always lands in genuinely clear space.
+  const occupied: { top: number; bottom: number }[] = [];
+  for (const b of bands) {
+    const prev = occupied[occupied.length - 1];
+    if (prev && b.top <= prev.bottom) prev.bottom = Math.max(prev.bottom, b.bottom);
+    else occupied.push({ ...b });
+  }
+  for (const b of occupied) {
+    if (centerY > b.top && centerY < b.bottom) {
+      // Keep the junction strictly between the outer baselines so the arms
+      // still slant; if a band spans the whole fork, accept the midpoint.
+      const canUp = b.top > 0;
+      const canDown = b.bottom < lastBaseline;
+      if (canDown && (b.bottom - centerY <= centerY - b.top || !canUp)) centerY = b.bottom;
+      else if (canUp) centerY = b.top;
+      break; // bands are merged and disjoint — the slide landed clear
+    }
+  }
   const prong = LAYOUT.coordProngRun;
   const elements: DiagramElement[] = [];
 

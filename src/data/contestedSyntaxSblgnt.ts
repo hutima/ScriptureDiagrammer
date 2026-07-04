@@ -45,6 +45,32 @@ import { ContestedRegistrySchema, type ContestedRegistry } from '@/domain/schema
  * (SBLGNT-aware).
  */
 
+/**
+ * The app's STANDARD reading of the contested Romans 9:5 doxology, as a syntax
+ * overlay on the MERGED SBLGNT 9:3–5a + 9:5b passage (`combinePassage` output):
+ * re-point `disc_r1` so the doxology clause (sentence 229's root) hangs off
+ * Χριστός (`s0_w_n45009005008`) in APPOSITION instead of standing as its own
+ * sibling sentence under the discourse root — "the Christ … who is God over
+ * all, blessed forever."
+ *
+ * `scripts/build-guided-highlights.mts` BAKES this into the guided base document
+ * for `sblgnt_romans_228`, so every diagram lens shows the christological
+ * reading by default (see `iss_rom_9_5_doxology_sblgnt` below). The demoted
+ * `alt_rom_9_5_independent_doxology_sblgnt` alternate is exactly its inverse.
+ */
+export const ROM_9_5_APPOSITION_TO_CHRIST_PATCH = {
+  relations: {
+    update: {
+      disc_r1: {
+        headId: 's0_w_n45009005008',
+        type: 'apposition',
+        label: 'in apposition to Χριστός',
+        provenance: { source: 'manual', confidence: 'low' },
+      },
+    },
+  },
+} as const;
+
 const RAW: { issues: unknown[]; readings: unknown[] } = {
   issues: [
     {
@@ -775,16 +801,15 @@ const RAW: { issues: unknown[]; readings: unknown[] } = {
     {
       "id": "iss_rom_9_5_doxology_sblgnt",
       "passageId": "sblgnt_romans_228",
-      "mergePassageIds": ["sblgnt_romans_228", "sblgnt_romans_229"],
       "sourceId": "macula-greek-sblgnt-lowfat",
       "verseRef": "Romans 9:5",
       "kind": "clauseBoundary",
       "sourceType": "syntax-only",
       "severity": "major",
-      "label": "ὁ ὢν ἐπὶ πάντων θεός — doxology or description of Christ",
+      "label": "ὁ ὢν ἐπὶ πάντων θεός — Christ called God, or a separate doxology",
       "shortLabel": "Doxology",
-      "summary": "The base data sets ὁ ὢν ἐπὶ πάντων θεὸς εὐλογητός as its OWN sentence — an independent doxology to God. An alternate punctuation reads it in apposition to ὁ Χριστός at the end of the previous clause (“Christ, who is over all, God blessed forever”). Because the two readings differ at the SENTENCE boundary, the two sentences are shown merged so the alternate can attach the doxology to Christ structurally rather than as a footnote.",
-      "pastoralNote": "The punctuation choice carries real Christological weight: whether Paul here calls the Messiah “God over all, blessed forever,” or breaks into a separate doxology to the Father.",
+      "summary": "The guided base reads ὁ ὢν ἐπὶ πάντων θεὸς εὐλογητός in APPOSITION to ὁ Χριστός at the end of the previous clause — “the Christ … who is God over all, blessed forever,” one of the New Testament’s plainest ascriptions of deity to Christ. (The 9:3–5 sentence and the 9:5b doxology are merged into one base document, ids prefixed s0_ / s1_, with the doxology clause hung on Χριστός.) An older punctuation instead sets the doxology apart as its OWN independent sentence — a separate blessing of God the Father. The two readings differ only at the sentence boundary; the demoted alternate detaches the doxology back into its own sentence structurally rather than as a footnote.",
+      "pastoralNote": "The punctuation choice carries real Christological weight: whether Paul here calls the Messiah “God over all, blessed forever,” or breaks into a separate doxology to the Father. This guide takes the former as its standard reading.",
       "affectedTokenIds": [
         "s0_t_n45009005008",
         "s1_t_n45009005013",
@@ -798,11 +823,11 @@ const RAW: { issues: unknown[]; readings: unknown[] } = {
       ],
       "affectedRelationIds": ["disc_r1"],
       "defaultReading": {
-        "label": "Independent doxology (to God)",
-        "description": "The doxology stands as its own sentence — a blessing of God “who is over all”, set apart from the description of Christ.",
-        "parseSummary": "separate sentence · Θεός = subject of the blessing"
+        "label": "Refers to Christ (God over all)",
+        "description": "The doxology attaches in apposition to Χριστός — “the Christ … who is over all, God blessed forever.” Paul calls the Messiah “God”.",
+        "parseSummary": "Χριστός ←(apposition) ὁ ὢν … θεὸς εὐλογητός"
       },
-      "alternateReadingIds": ["alt_rom_9_5_to_christ_sblgnt"],
+      "alternateReadingIds": ["alt_rom_9_5_independent_doxology_sblgnt"],
       "bibliography": ["Metzger, Textual Commentary, Romans 9:5."]
     },
     // Unblocked after the SBLGNT head-inference fixes (Stages 5–6 of the
@@ -1744,24 +1769,24 @@ const RAW: { issues: unknown[]; readings: unknown[] } = {
       "sourceId": "macula-greek-sblgnt-lowfat",
     },
     {
-      "id": "alt_rom_9_5_to_christ_sblgnt",
+      "id": "alt_rom_9_5_independent_doxology_sblgnt",
       "issueId": "iss_rom_9_5_doxology_sblgnt",
       "passageId": "sblgnt_romans_228",
       "sourceId": "macula-greek-sblgnt-lowfat",
-      "label": "Refers to Christ",
-      "shortLabel": "of Christ",
-      "interpretation": "The clause describes Christ as “over all, God blessed forever”.",
-      "description": "Read with the previous clause: ὁ Χριστὸς … ὁ ὢν ἐπὶ πάντων θεός — Christ is the one who is over all, God blessed forever. The doxology attaches in apposition to Χριστός instead of standing as its own sentence.",
+      "label": "Independent doxology (to God the Father)",
+      "shortLabel": "to God",
+      "interpretation": "The clause is a separate blessing of God the Father, not a description of Christ.",
+      "description": "Places a full stop after “Christ according to the flesh” and reads ὁ ὢν ἐπὶ πάντων θεὸς εὐλογητὸς εἰς τοὺς αἰῶνας as its OWN independent sentence — a spontaneous blessing of God: “God who is over all be blessed forever.” The doxology detaches from Χριστός and stands on its own beneath the discourse root, exactly as an older punctuation of the passage read it. A serious, historically significant reading — the RSV translators and text-critics such as Metzger weighed it carefully — though this guide no longer treats it as its standard reading.",
       "sourceType": "syntax-only",
-      "confidence": "medium",
+      "confidence": "low",
       "syntaxPatch": {
         "relations": {
           "update": {
             "disc_r1": {
-              "headId": "s0_w_n45009005008",
-              "type": "apposition",
-              "label": "in apposition to Χριστός",
-              "provenance": { "source": "manual", "confidence": "low" }
+              "headId": "disc_root",
+              "type": "adjunct",
+              "label": "independent sentence",
+              "provenance": { "source": "given", "confidence": "high" }
             }
           }
         }

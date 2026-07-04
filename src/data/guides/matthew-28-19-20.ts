@@ -45,7 +45,7 @@ export const matthew28: GrammarHighlightGuide = {
       title: '“Going” still carries real weight',
       passageId: 'sblgnt_matthew_1132',
       body:
-        'The sentence opens with [[poreuthentes]], “going” — grammatically a participle attached to μαθητεύσατε rather than a command of its own. The diagram shows it hanging beneath the main verb, not standing beside it on the baseline. But do not read that as Jesus quietly demoting “go.” Participles of this kind regularly borrow the force of the command they serve — which is exactly why your English Bible renders it “Go therefore” rather than a weaker “While going.”',
+        'The sentence opens with [[poreuthentes]], “going” — grammatically a participle attached to [[matheteusate]] rather than a command of its own. The diagram shows it hanging beneath the main verb, not standing beside it on the baseline. But do not read that as Jesus quietly demoting “go.” Participles of this kind regularly borrow the force of the command they serve — which is exactly why your English Bible renders it “Go therefore” rather than a weaker “While going.”',
       focus: {
         nodeIds: ['w_n40028019001', 'cl_s1132_2', 'w_n40028019003'],
         relationIds: ['r_s1132_3', 'r_s1132_4'],
@@ -156,7 +156,7 @@ export const matthew28: GrammarHighlightGuide = {
       gloss: 'nations, peoples',
       parsing: 'noun, accusative neuter plural',
       explanation:
-        'The direct object of “make disciples.” Paired with πάντα (“all”), the full phrase πάντα τὰ ἔθνη marks the command’s scope as every people group, not one nation alone.',
+        'The direct object of “make disciples.” Paired with πάντα (panta, “all”), the full phrase πάντα τὰ ἔθνη (panta ta ethnē, “all the nations”) marks the command’s scope as every people group, not one nation alone.',
     },
     {
       id: 'baptizontes',

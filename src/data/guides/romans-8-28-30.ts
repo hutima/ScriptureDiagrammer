@@ -24,27 +24,27 @@ export const romans8chain: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
   summary:
-    'Five verbs, one sentence: foreknew, predestined, called, justified, glorified. Paul writes the famous "golden chain" as a single Greek sentence whose diagram shows five verbs sharing one subject — God — and handing one group of people from link to link. Walk the chain and see why even "glorified" is written as if already done.',
+    'Five verbs, one sentence: foreknew, predestined, called, justified, glorified. Paul writes the famous "golden chain" as a single Greek sentence whose diagram shows five verbs sharing one subject — God — and handing one group of people from link to link. "Foreknew" here is God\'s setting his covenant love on these people beforehand (the same sense as "you only have I known," Amos 3:2), not merely his foresight of their future choices. Walk the chain and see why even "glorified" is written as if already done.',
   devotionalFrame:
     'Romans 8:28 is one of the most-quoted promises in the Bible — and verses 29–30 are the reason Paul dares to make it. "All things work together for good" is not optimism; it rests on a chain of divine acts that runs from before creation to beyond the end. Watch the diagram: one subject does every verb, and the same people are carried through every link. The promise is as strong as the hands that hold the chain.',
   confessionalFrame:
-    'A confessional note (confessional Reformed): this tradition reads Romans 8:29–30 as the unbreakable chain of salvation — one purpose of God running from foreknowledge to glory, in which everyone he fore-loved is finally glorified, none lost along the way. That is why these verses anchor the doctrines of election and the perseverance of the saints: the chain\'s links are all God\'s acts, and the same "whom… these also" thread runs through every one. This is offered as a labelled confessional conviction; the fair summary of other readings of προέγνω ("foreknew") is below, and readers who construe that word differently still stand under the same promise of verse 28.',
+    'A confessional note (confessional Reformed): this tradition reads Romans 8:29–30 as the unbreakable chain of salvation — one purpose of God running from foreknowledge to glory, in which everyone he fore-loved is finally glorified, none lost along the way. Here "foreknew" is read relationally, in the Hebrew sense of "know" as covenant commitment (Amos 3:2; Genesis 18:19): God set his love on these particular persons before the chain\'s first link, rather than foreseeing a choice of theirs. That is why these verses anchor the doctrines of election and the perseverance of the saints: the chain\'s links are all God\'s acts, and the same "whom… these also" thread runs through every one. This is offered as a labelled confessional conviction; the fair summary of other readings of προέγνω (proegnō, "foreknew") is below, and readers who construe that word differently still stand under the same promise of verse 28.',
   debateSummary: {
     issue:
-      'What does προέγνω ("he foreknew") mean, and whom does the chain carry? The grammar fixes a great deal: the same relative-pronoun thread ("those whom… these also") runs through all five verbs, and God is the subject of every one. What the syntax does not settle is what "foreknew" is — fore-love of persons, foresight of faith, or the choice of a people in the Messiah. Careful readers take each view.',
+      'What does προέγνω (proegnō, "he foreknew") mean, and whom does the chain carry? The grammar fixes a great deal: the same relative-pronoun thread ("those whom… these also") runs through all five verbs, and God is the subject of every one. What the syntax does not settle is what "foreknew" is — fore-love of persons, foresight of faith, or the choice of a people in the Messiah. Careful readers take each view.',
     views: [
       {
-        label: 'Relational fore-love (classic Reformed reading)',
+        label: 'Relational fore-love — the standard reading in this guide',
         summary:
-          'In Scripture "to know" often means to love and commit to someone, not merely to have information about them ("you only have I known," Amos 3:2). On this reading προέγνω means God fore-loved particular persons — set his covenant affection on them beforehand — and the chain then carries those same persons all the way to glory. The verb\'s object is people ("those whom"), not facts about people, which this view takes as decisive.',
+          'In Scripture "to know" often means to love and commit to someone, not merely to have information about them ("you only have I known," Amos 3:2). On this reading προέγνω (proegnō) means God fore-loved particular persons — set his covenant affection on them beforehand — and the chain then carries those same persons all the way to glory. The verb\'s object is people ("those whom"), not facts about people, which this view takes as decisive.',
         cautions: [
           'That "know" can mean "love" does not prove it must here; the claim rests on the Hebrew idiom and the shape of the chain, and it should be argued from those, not asserted from the lexicon alone.',
         ],
       },
       {
-        label: 'Foresight of faith (a classic Arminian reading)',
+        label: 'Foresight of faith — an alternate reading (classic Arminian)',
         summary:
-          'On this reading God foreknew who would believe — his eternal knowledge of each person\'s free response — and predestined those believers to be conformed to his Son. This keeps a real human response inside the chain\'s first link and is how many careful interpreters, ancient and modern, have read the verb. It takes προγινώσκω in its ordinary Greek sense of knowing in advance.',
+          'On this reading God foreknew who would believe — his eternal knowledge of each person\'s free response — and predestined those believers to be conformed to his Son. This keeps a real human response inside the chain\'s first link and is how many careful interpreters, ancient and modern, have read the verb. It takes προγινώσκω (proginōskō) in its ordinary Greek sense of knowing in advance.',
         cautions: [
           'The text says God foreknew persons ("those whom"), not that he foreknew their faith — the object "their faith" has to be supplied. Advocates answer that knowing persons includes knowing their response; the syntax itself does not adjudicate.',
         ],
@@ -59,14 +59,14 @@ export const romans8chain: GrammarHighlightGuide = {
       },
     ],
     grammarOpensQuestionHow:
-      'The syntax settles the chain\'s shape and refuses to settle its first word. It makes God the one subject of all five verbs, and the relative-pronoun relay (οὓς… τούτους καί, "those whom… these also") explicitly carries the same object group from link to link — that much is drawn in the diagram, not inferred. But προέγνω\'s meaning is a question of lexical sense and biblical idiom, which no diagram can decide. English translations rightly render it "foreknew" and leave the theological question open — exactly what the Greek does.',
+      'The syntax settles the chain\'s shape and refuses to settle its first word. It makes God the one subject of all five verbs, and the relative-pronoun relay (οὓς… τούτους καί — hous… toutous kai, "those whom… these also") explicitly carries the same object group from link to link — that much is drawn in the diagram, not inferred. But the meaning of προέγνω (proegnō, "he foreknew") is a question of lexical sense and biblical idiom, which no diagram can decide. English translations rightly render it "foreknew" and leave the theological question open — exactly what the Greek does.',
   },
   steps: [
     {
       id: 'step-all-things-for-good',
       title: 'All things work together for good — for whom?',
       body:
-        'Paul opens with what "we know": πάντα [[sunergei]] εἰς ἀγαθόν — "all things work together for good." The diagram draws πάντα ("all things") as the subject of the verb συνεργεῖ, with εἰς ἀγαθόν ("for good") hanging beneath it, and the whole clause standing as the object of "we know." Notice the promise is not addressed to everyone: the dative phrase "to those who love God" hangs from the verb, marking whose good all things serve. (A famous textual variant adds ὁ θεός as an explicit subject — "God works all things together for good"; see the alternate reading below. Either way, the next two verses name God as the one at work.)',
+        'Paul opens with what "we know": πάντα (panta) [[sunergei]] εἰς ἀγαθόν (eis agathon) — "all things work together for good." The diagram draws πάντα (panta, "all things") as the subject of the verb [[sunergei]], with εἰς ἀγαθόν (eis agathon, "for good") hanging beneath it, and the whole clause standing as the object of "we know." Notice the promise is not addressed to everyone: the dative phrase "to those who love God" hangs from the verb, marking whose good all things serve. (A famous textual variant adds ὁ θεός (ho theos) as an explicit subject — "God works all things together for good"; see the alternate reading below. Either way, the next two verses name God as the one at work.)',
       focus: {
         nodeIds: ['w_n45008028001', 'w_n45008028009', 'w_n45008028008', 'w_n45008028011'],
         relationIds: ['r_s216_21', 'r_s216_3', 'r_s216_9', 'r_s216_11', 'r_s216_10', 'r_s216_8'],
@@ -81,14 +81,14 @@ export const romans8chain: GrammarHighlightGuide = {
       contested: {
         issueId: 'iss_rom_8_28_variant_sblgnt',
         note:
-          'Some weighty early manuscripts (𝔓46 A B) read "God works all things together for good," adding ὁ θεός as the explicit subject. Open the alternate reading to see the variant fairly presented — the base text and the variant both end in the same promise.',
+          'Some weighty early manuscripts (𝔓46 A B) read "God works all things together for good," adding ὁ θεός (ho theos) as the explicit subject. Open the alternate reading to see the variant fairly presented — the base text and the variant both end in the same promise.',
       },
     },
     {
       id: 'step-called-according-to-purpose',
       title: 'Called according to his purpose',
       body:
-        'Paul immediately re-describes the same people: "those who are [[kletois]] — called — according to his [[prothesin]], his purpose." The diagram hangs κατὰ πρόθεσιν ("according to purpose") beneath the participle, qualifying the calling: it did not begin with them. This one small phrase is the doorway into verses 29–30. Paul now explains what that purpose is — and he does it with a chain of five verbs.',
+        'Paul immediately re-describes the same people: "those who are [[kletois]] — called — according to his [[prothesin]], his purpose." The diagram hangs κατὰ πρόθεσιν (kata prothesin, "according to purpose") beneath the participle, qualifying the calling: it did not begin with them. This one small phrase is the doorway into verses 29–30. Paul now explains what that purpose is — and he does it with a chain of five verbs.',
       focus: {
         nodeIds: ['w_n45008028015', 'w_n45008028014', 'w_n45008028013', 'w_n45008028016'],
         relationIds: ['r_s216_18', 'r_s216_17', 'r_s216_16', 'r_s216_19'],
@@ -103,7 +103,7 @@ export const romans8chain: GrammarHighlightGuide = {
       id: 'step-foreknew-predestined',
       title: 'Whom he foreknew, he also predestined',
       body:
-        'The chain begins: οὓς [[proegno]] καὶ [[proorisen]] — "those whom he foreknew, he also predestined." Look at the diagram\'s structure: the relative clause "whom he foreknew" is itself the OBJECT of "he predestined." The people known are handed, as a whole clause, into the next verb. And notice what is missing: neither verb has a written subject. Greek can drop the pronoun, and Paul does — the diagram shows two verbs standing with no subject word, because the subject is carried silently from verse 28: God. What "foreknew" means — fore-loved, foresaw faith, or chose a people — is the passage\'s great debated word; see the debate summary.',
+        'The chain begins: οὓς (hous, "whom") [[proegno]] καὶ (kai, "also") [[proorisen]] — "those whom he foreknew, he also predestined." Look at the diagram\'s structure: the relative clause "whom he foreknew" is itself the OBJECT of "he predestined." The people known are handed, as a whole clause, into the next verb. And notice what is missing: neither verb has a written subject. Greek can drop the pronoun, and Paul does — the diagram shows two verbs standing with no subject word, because the subject is carried silently from verse 28: God. Here "foreknew" carries the relational, covenantal sense of biblical "know" (as in "you only have I known," Amos 3:2): God set his love on these particular persons before the chain\'s first link, not merely foresaw their future faith — see the debate summary for the readings some interpreters take instead.',
       focus: {
         nodeIds: ['w_n45008029002', 'w_n45008029003', 'w_n45008029005'],
         relationIds: ['r_s216_26', 'r_s216_27', 'r_s216_28', 'r_s216_29'],
@@ -113,14 +113,14 @@ export const romans8chain: GrammarHighlightGuide = {
       implication:
         'The first link sets the pattern for every link after it: a group of people ("whom"), a divine verb, and a hand-off to the next verb. The chain is built out of relative clauses — that is what makes it a chain.',
       caution:
-        'προέγνω\'s object is people, not facts — "those whom he foreknew." What kind of knowing that is, the syntax genuinely leaves open; three careful readings are summarized in this guide\'s debate note.',
+        '[[proegno]]\'s object is people, not facts — "those whom he foreknew." The syntax alone does not settle what kind of knowing that is; this guide reads it relationally (see the debate note for the alternate readings some interpreters prefer).',
       greekTermIds: ['proegno', 'proorisen'],
     },
     {
       id: 'step-conformed-to-image',
       title: 'Predestined — to what? Conformed to the image of his Son',
       body:
-        'Predestination in this sentence has a stated destination: [[summorphous]] τῆς εἰκόνος τοῦ υἱοῦ αὐτοῦ — "conformed to the image of his Son." The diagram draws συμμόρφους as a complement of "predestined," with a cascade of genitives beneath it: conformed — to the image — of the Son — of him. And the purpose clause beneath that gives the goal behind the goal: "that he might be the [[prototokon]] — firstborn — among many brothers and sisters." God\'s eternal purpose is not an abstraction; it is a family portrait, with the Son at its head.',
+        'Predestination in this sentence has a stated destination: [[summorphous]] τῆς εἰκόνος τοῦ υἱοῦ αὐτοῦ (tēs eikonos tou huiou autou, "of the image of his Son") — "conformed to the image of his Son." The diagram draws [[summorphous]] as a complement of "predestined," with a cascade of genitives beneath it: conformed — to the image — of the Son — of him. And the purpose clause beneath that gives the goal behind the goal: "that he might be the [[prototokon]] — firstborn — among many brothers and sisters." God\'s eternal purpose is not an abstraction; it is a family portrait, with the Son at its head.',
       focus: {
         nodeIds: [
           'w_n45008029006',
@@ -141,7 +141,7 @@ export const romans8chain: GrammarHighlightGuide = {
       id: 'step-called-justified',
       title: 'The relay: predestined → called → justified',
       body:
-        'Now watch the sentence run. "Those whom he predestined, these he also [[ekalesen]] — called; and whom he called, these he also [[edikaiosen]] — justified." The diagram shows the relay mechanism plainly: each new clause opens with a relative clause that REPEATS the previous link\'s verb ("whom he predestined…", "whom he called…"), hands its people to the pronoun τούτους ("these"), and passes them to the next verb with καί ("also"). No one is added between links, and no one is dropped: the ones predestined are the ones called, and the ones called are the ones justified. The grammar itself is the argument.',
+        'Now watch the sentence run. "Those whom he predestined, these he also [[ekalesen]] — called; and whom he called, these he also [[edikaiosen]] — justified." The diagram shows the relay mechanism plainly: each new clause opens with a relative clause that REPEATS the previous link\'s verb ("whom he predestined…", "whom he called…"), hands its people to the pronoun τούτους (toutous, "these"), and passes them to the next verb with καί (kai, "also"). No one is added between links, and no one is dropped: the ones predestined are the ones called, and the ones called are the ones justified. The grammar itself is the argument.',
       focus: {
         nodeIds: [
           'w_n45008030003',
@@ -228,7 +228,7 @@ export const romans8chain: GrammarHighlightGuide = {
       gloss: 'works together',
       parsing: 'present active indicative, 3rd person singular',
       explanation:
-        '"Works together" — the source of the English word "synergy." In the base text its subject is πάντα, "all things"; some early manuscripts add ὁ θεός, making God the explicit subject ("God works all things together").',
+        '"Works together" — the source of the English word "synergy." In the base text its subject is πάντα (panta), "all things"; some early manuscripts add ὁ θεός (ho theos), making God the explicit subject ("God works all things together").',
       caution:
         'Either text yields the same theology once verses 29–30 are read: the working is not luck. The variant makes explicit the subject the chain implies.',
     },
@@ -239,9 +239,9 @@ export const romans8chain: GrammarHighlightGuide = {
       transliteration: 'prothesin',
       lemma: 'πρόθεσις',
       gloss: 'purpose, plan',
-      parsing: 'noun, accusative feminine singular (object of κατά)',
+      parsing: 'noun, accusative feminine singular (object of κατά, kata, "according to")',
       explanation:
-        '"Purpose" — literally a "setting forth" of intention. With κατά, "according to purpose": the calling of verse 28 happens on a plan, and verses 29–30 spell that plan out link by link.',
+        '"Purpose" — literally a "setting forth" of intention. With κατά (kata, "according to"), forming "according to purpose": the calling of verse 28 happens on a plan, and verses 29–30 spell that plan out link by link.',
     },
     {
       id: 'kletois',
@@ -252,7 +252,7 @@ export const romans8chain: GrammarHighlightGuide = {
       gloss: 'called',
       parsing: 'verbal adjective, dative masculine plural',
       explanation:
-        '"Called ones" — a verbal adjective marking the people as summoned by God. In Paul, "called" is effective language: the same word family reappears as a verb (ἐκάλεσεν) inside the chain at verse 30.',
+        '"Called ones" — a verbal adjective marking the people as summoned by God. In Paul, "called" is effective language: the same word family reappears as a verb — ἐκάλεσεν (ekalesen, "he called") — inside the chain at verse 30.',
     },
     {
       id: 'proegno',
@@ -276,7 +276,7 @@ export const romans8chain: GrammarHighlightGuide = {
       gloss: 'he predestined',
       parsing: 'aorist active indicative, 3rd person singular',
       explanation:
-        '"He marked out beforehand" — from ὁρίζω, to set a boundary (the root of "horizon"). In this sentence its destination is stated: conformity to the image of the Son. It appears twice, closing verse 29 and opening verse 30\'s relay.',
+        '"He marked out beforehand" — from ὁρίζω (horizō), to set a boundary (the root of "horizon"). In this sentence its destination is stated: conformity to the image of the Son. It appears twice, closing verse 29 and opening verse 30\'s relay.',
     },
     {
       id: 'summorphous',
@@ -285,7 +285,7 @@ export const romans8chain: GrammarHighlightGuide = {
       transliteration: 'symmorphous',
       lemma: 'σύμμορφος',
       gloss: 'conformed to, sharing the form of',
-      parsing: 'adjective, accusative masculine plural (complement of προώρισεν)',
+      parsing: 'adjective, accusative masculine plural (complement of προώρισεν, proōrisen, "he predestined")',
       explanation:
         '"Sharing the form of" — the stated goal of predestination: people shaped to the image of the Son. Paul uses the same word family for the resurrection body (Philippians 3:21); the destiny is full family likeness.',
     },
@@ -309,7 +309,7 @@ export const romans8chain: GrammarHighlightGuide = {
       gloss: 'he called',
       parsing: 'aorist active indicative, 3rd person singular',
       explanation:
-        '"He called" — the link where God\'s eternal purpose reaches into a person\'s history, through the gospel (2 Thessalonians 2:14). It picks up κλητοῖς from verse 28: the "called ones" are called by this verb.',
+        '"He called" — the link where God\'s eternal purpose reaches into a person\'s history, through the gospel (2 Thessalonians 2:14). It picks up κλητοῖς (klētois, "called ones") from verse 28: the "called ones" are called by this verb.',
     },
     {
       id: 'edikaiosen',

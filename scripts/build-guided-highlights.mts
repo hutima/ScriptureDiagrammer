@@ -32,8 +32,12 @@ const { lowfatToDocuments, sblgntDialect } = await import('../src/io/lowfat.ts')
 const { maculaHebrewToDocuments } = await import('../src/io/macula-hebrew.ts');
 const { GNT_BOOKS } = await import('../src/io/gnt.ts');
 const { OT_BOOKS, chapterFile } = await import('../src/io/ot.ts');
-const { KrDocumentSchema } = await import('../src/domain/schema/index.ts');
+const { KrDocumentSchema, SyntaxPatchSchema } = await import('../src/domain/schema/index.ts');
 const { GUIDED_PASSAGES, GUIDED_HEBREW_PASSAGES } = await import('../src/data/guidedPassages.ts');
+const { combinePassage } = await import('../src/io/passage.ts');
+const { applyPatch } = await import('../src/domain/patch/index.ts');
+const { overlayToPatch } = await import('../src/domain/contested/apply.ts');
+const { ROM_9_5_APPOSITION_TO_CHRIST_PATCH } = await import('../src/data/contestedSyntaxSblgnt.ts');
 
 const SBLGNT_SRC = 'https://raw.githubusercontent.com/Clear-Bible/macula-greek/main/SBLGNT/lowfat/';
 const OT_SRC = 'https://raw.githubusercontent.com/Clear-Bible/macula-hebrew/main/WLC/lowfat/';
@@ -107,6 +111,54 @@ for (const p of GUIDED_PASSAGES) {
   }
   manifest.push({ ref: `${p.book} ${p.chapter}:${p.verseFrom}–${p.verseTo}`, book: p.book, passageIds: ids });
   console.log(`✓ ${p.book} ${p.chapter}:${p.verseFrom}–${p.verseTo} → ${ids.join(', ') || '(none referenced)'}`);
+}
+
+// --- Romans 9:5 SPECIAL CASE — bake the app's STANDARD reading into the base.
+// The contested doxology (ὁ ὢν ἐπὶ πάντων θεὸς εὐλογητός) is read here in
+// apposition to ὁ Χριστός: "the Christ ... who is God over all, blessed forever"
+// (see `iss_rom_9_5_doxology_sblgnt` in contestedSyntaxSblgnt.ts). Rather than
+// leave that as an on-demand cross-sentence preview, we merge the two source
+// sentences (9:3–5a `sblgnt_romans_228` + 9:5b `sblgnt_romans_229`) with
+// `combinePassage` and apply the apposition-to-Christ overlay, so ALL FOUR
+// diagram lenses show the christological structure by default. The single
+// merged document REPLACES both standalone sentences under the stable id
+// `sblgnt_romans_228`; the guide (`src/data/guides/romans-9-5.ts`) references
+// its `s0_`/`s1_`-prefixed ids. The demoted independent-doxology reading is the
+// registry alternate `alt_rom_9_5_independent_doxology_sblgnt` (the inverse).
+{
+  const romans = GNT_BOOKS.find((b) => b.name === 'Romans')!;
+  const romansXml = await loadXml(`public/sblgnt/${romans.file}`, SBLGNT_SRC + romans.file);
+  const romansDocs = lowfatToDocuments(romansXml, {
+    book: romans.name,
+    dialect: sblgntDialect,
+    docIdPrefix: 'sblgnt',
+  });
+  const d228 = romansDocs.find((d) => d.id === 'sblgnt_romans_228');
+  const d229 = romansDocs.find((d) => d.id === 'sblgnt_romans_229');
+  if (!d228 || !d229) {
+    throw new Error('Romans 9:5 merge: could not find sblgnt_romans_228 / sblgnt_romans_229.');
+  }
+  const merged = combinePassage([d228, d229]);
+  const overlay = SyntaxPatchSchema.parse(ROM_9_5_APPOSITION_TO_CHRIST_PATCH);
+  // Force the stable id so downstream consumers keep referencing sblgnt_romans_228.
+  const patched = { ...applyPatch(merged, overlayToPatch(merged, overlay)), id: 'sblgnt_romans_228' };
+  const mergedDoc = KrDocumentSchema.parse(patched);
+  // Drop either standalone sentence (whichever survived filtering) and insert the
+  // one merged document in its place.
+  for (let i = documents.length - 1; i >= 0; i--) {
+    const id = (documents[i] as { id: string }).id;
+    if (id === 'sblgnt_romans_228' || id === 'sblgnt_romans_229') documents.splice(i, 1);
+  }
+  documents.push(mergedDoc);
+  // Keep the manifest honest: the Romans 9:5 range now bundles just the merged id.
+  for (const m of manifest) {
+    if (m.passageIds.includes('sblgnt_romans_229') || m.passageIds.includes('sblgnt_romans_228')) {
+      m.passageIds = m.passageIds
+        .filter((x) => x !== 'sblgnt_romans_229' && x !== 'sblgnt_romans_228')
+        .concat('sblgnt_romans_228');
+    }
+  }
+  console.log('✓ Romans 9:5 → merged sblgnt_romans_228 (doxology in apposition to Χριστός)');
 }
 
 // --- Hebrew (WLC Lowfat) — a SEPARATE bundle for OT parallels stacked beneath a
