@@ -5,7 +5,7 @@ import { getIssueById } from '@/domain/contested';
 import type { GrammarHighlightGuide, GuidedGreekTerm, GuidedStep } from '@/domain/schema';
 import { GUIDED_HIGHLIGHT_COLORS, usedHighlightKinds } from './focus';
 import { GuidedGreekTermPanel } from './GuidedGreekTermPanel';
-import { highlightGrammarTerms } from './GrammarTermHelp';
+import { highlightGrammarTerms } from './highlightGrammarTerms';
 
 const KIND_LABELS: Record<keyof typeof GUIDED_HIGHLIGHT_COLORS, string> = {
   emphasized: 'in focus',
