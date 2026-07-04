@@ -21,7 +21,7 @@
 | D2 | Guided Next button sticky near lower-right | in progress |
 | E  | Discourse-backed guided examples (Acts 2:39, Eph 2:12–19, Psalm 46 chiasm; suppress self-directed modal from guided) | todo |
 | F  | Guided grammar term help (dashed underline + glossary popover) | todo |
-| G  | (user, 2026-07-04) Matt 6:9 vocative cascade follow-up to #241: "the" slant under "heavens" still clashes with the dashed connector; extend the sub-baseline minimally so the connector joins clear of the modifier | in progress |
+| G  | (user, 2026-07-04) Matt 6:9 vocative cascade follow-up to #241: "the" slant under "heavens" still clashes with the dashed connector; extend the sub-baseline minimally so the connector joins clear of the modifier | done (see log) |
 
 ## Checks
 
