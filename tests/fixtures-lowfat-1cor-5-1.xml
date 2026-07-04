@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book name="1 Corinthians" id="1 Corinthians">
+<sentence>
+      <p>
+         <milestone unit="verse" id="1Cor.5.1">1Cor.5.1</milestone> Ὅλως ἀκούεται ἐν ὑμῖν πορνεία, καὶ τοιαύτη πορνεία ἥτις οὐδὲ ἐν τοῖς ἔθνεσιν, ὥστε γυναῖκά τινα τοῦ πατρὸς ἔχειν.</p>
+      <wg role="cl">
+         <wg class="cl" n="460050010010190" rule="ADV-V-ADV-S">
+            <w role="adv"
+               class="adv"
+               osisId="1Cor.5.1!1"
+               n="460050010010010"
+               lemma="ὅλως"
+               normalized="Ὅλως"
+               strong="3654"
+               gloss="Actually">Ὅλως</w>
+            <w role="v"
+               class="verb"
+               osisId="1Cor.5.1!2"
+               n="460050010020010"
+               lemma="ἀκούω"
+               normalized="ἀκούεται"
+               strong="191"
+               number="singular"
+               person="third"
+               tense="present"
+               voice="passive"
+               mood="indicative"
+               head="true"
+               gloss="is reported">ἀκούεται</w>
+            <wg role="adv" class="pp" n="460050010030020" rule="PrepNp">
+               <w class="prep"
+                  osisId="1Cor.5.1!3"
+                  n="460050010030010"
+                  lemma="ἐν"
+                  normalized="ἐν"
+                  strong="1722"
+                  gloss="among">ἐν</w>
+               <w class="pron"
+                  type="personal"
+                  osisId="1Cor.5.1!4"
+                  n="460050010040010"
+                  lemma="σύ"
+                  normalized="ὑμῖν"
+                  strong="4771"
+                  number="plural"
+                  case="dative"
+                  head="true"
+                  gloss="you">ὑμῖν</w>
+            </wg>
+            <wg role="s" class="np" n="460050010050150" rule="NpaNp">
+               <w class="noun"
+                  type="common"
+                  osisId="1Cor.5.1!5"
+                  n="460050010050010"
+                  lemma="πορνεία"
+                  normalized="πορνεία"
+                  strong="4202"
+                  number="singular"
+                  gender="feminine"
+                  case="nominative"
+                  head="true"
+                  gloss="sexual immorality">πορνεία</w>
+               <pc>,</pc>
+               <w class="conj"
+                  osisId="1Cor.5.1!6"
+                  n="460050010060010"
+                  lemma="καί"
+                  normalized="καί"
+                  strong="2532"
+                  gloss="and">καὶ</w>
+               <wg class="np" n="460050010070130" rule="NP-CL">
+                  <wg class="np" n="460050010070070" head="true" rule="NP-CL">
+                     <wg class="np" n="460050010070020" head="true" rule="AdjpNp">
+                        <w class="pron"
+                           type="demonstrative"
+                           osisId="1Cor.5.1!7"
+                           n="460050010070010"
+                           lemma="τοιοῦτος"
+                           normalized="τοιαύτη"
+                           strong="5108"
+                           number="singular"
+                           gender="feminine"
+                           case="nominative"
+                           gloss="such">τοιαύτη</w>
+                        <w class="noun"
+                           type="common"
+                           osisId="1Cor.5.1!8"
+                           n="460050010080010"
+                           lemma="πορνεία"
+                           normalized="πορνεία"
+                           strong="4202"
+                           number="singular"
+                           gender="feminine"
+                           case="nominative"
+                           head="true"
+                           gloss="sexual immorality">πορνεία</w>
+                     </wg>
+                     <wg class="cl" n="460050010090050" articular="true" rule="S-ADV-P">
+                        <w role="s"
+                           class="pron"
+                           type="relative"
+                           osisId="1Cor.5.1!9"
+                           n="460050010090010"
+                           lemma="ὅστις"
+                           normalized="ἥτις"
+                           strong="3748"
+                           number="singular"
+                           gender="feminine"
+                           case="nominative"
+                           gloss="as">ἥτις</w>
+                        <w role="adv"
+                           class="adv"
+                           osisId="1Cor.5.1!10"
+                           n="460050010100010"
+                           lemma="οὐδέ"
+                           normalized="οὐδέ"
+                           strong="3761"
+                           gloss="not even">οὐδὲ</w>
+                        <wg role="p"
+                            class="pp"
+                            n="460050010110030"
+                            articular="true"
+                            head="true"
+                            rule="PrepNp">
+                           <w class="prep"
+                              osisId="1Cor.5.1!11"
+                              n="460050010110010"
+                              lemma="ἐν"
+                              normalized="ἐν"
+                              strong="1722"
+                              gloss="among">ἐν</w>
+                           <wg class="np"
+                               n="460050010120020"
+                               articular="true"
+                               head="true"
+                               rule="DetNP">
+                              <w class="det"
+                                 osisId="1Cor.5.1!12"
+                                 n="460050010120010"
+                                 lemma="ὁ"
+                                 normalized="τοῖς"
+                                 strong="3588"
+                                 number="plural"
+                                 gender="neuter"
+                                 case="dative"
+                                 gloss="the">τοῖς</w>
+                              <w class="noun"
+                                 type="common"
+                                 osisId="1Cor.5.1!13"
+                                 n="460050010130010"
+                                 lemma="ἔθνος"
+                                 normalized="ἔθνεσιν"
+                                 strong="1484"
+                                 number="plural"
+                                 gender="neuter"
+                                 case="dative"
+                                 head="true"
+                                 gloss="pagans">ἔθνεσιν</w>
+                              <pc>,</pc>
+                           </wg>
+                        </wg>
+                     </wg>
+                  </wg>
+                  <wg class="cl" n="460050010140060" rule="sub-CL">
+                     <w class="conj"
+                        osisId="1Cor.5.1!14"
+                        n="460050010140010"
+                        lemma="ὥστε"
+                        normalized="ὥστε"
+                        strong="5620"
+                        gloss="so as for">ὥστε</w>
+                     <wg class="cl" n="460050010160050" rule="S-O-V">
+                        <w role="s"
+                           class="pron"
+                           type="indefinite"
+                           osisId="1Cor.5.1!16"
+                           n="460050010160010"
+                           lemma="τὶς"
+                           normalized="τινα"
+                           strong="5100"
+                           number="singular"
+                           gender="masculine"
+                           case="accusative"
+                           discontinuous="true"
+                           gloss="one">τινα</w>
+                        <wg role="o" class="np" n="460050010150030" rule="NPofNP">
+                           <w class="noun"
+                              type="common"
+                              osisId="1Cor.5.1!15"
+                              n="460050010150010"
+                              lemma="γυνή"
+                              normalized="γυναῖκα"
+                              strong="1135"
+                              number="singular"
+                              gender="feminine"
+                              case="accusative"
+                              head="true"
+                              gloss="[the] wife">γυναῖκά</w>
+                           <wg class="np" n="460050010170020" articular="true" rule="DetNP">
+                              <w class="det"
+                                 osisId="1Cor.5.1!17"
+                                 n="460050010170010"
+                                 lemma="ὁ"
+                                 normalized="τοῦ"
+                                 strong="3588"
+                                 number="singular"
+                                 gender="masculine"
+                                 case="genitive"
+                                 gloss="of the">τοῦ</w>
+                              <w class="noun"
+                                 type="common"
+                                 osisId="1Cor.5.1!18"
+                                 n="460050010180010"
+                                 lemma="πατήρ"
+                                 normalized="πατρός"
+                                 strong="3962"
+                                 number="singular"
+                                 gender="masculine"
+                                 case="genitive"
+                                 head="true"
+                                 gloss="father">πατρὸς</w>
+                           </wg>
+                        </wg>
+                        <w role="v"
+                           class="verb"
+                           osisId="1Cor.5.1!19"
+                           n="460050010190010"
+                           lemma="ἔχω"
+                           normalized="ἔχειν"
+                           strong="2192"
+                           tense="present"
+                           voice="active"
+                           mood="infinitive"
+                           type="?"
+                           head="true"
+                           gloss="to have">ἔχειν</w>
+                        <pc>.</pc>
+                     </wg>
+                  </wg>
+               </wg>
+            </wg>
+         </wg>
+      </wg>
+   </sentence>
+</book>
