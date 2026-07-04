@@ -895,6 +895,48 @@ const RAW = {
       alternateReadingIds: ['alt_1john_5_7_comma'],
       bibliography: ['Metzger, Textual Commentary, 1 John 5:7–8; NET note on the Comma Johanneum.'],
     },
+
+    // ─────────────── Colossians 2:12 (attachment — ἐν ᾧ antecedent) ───────────────
+    // The Nestle1904 base reads the raised-with-him clause (cl_510020120060160)
+    // ADJECTIVALLY under βαπτίσματι (r_s13_87), so the antecedent of ᾧ (v12b) is
+    // baptism. The alternate re-points that one relation onto συνταφέντες so the
+    // antecedent is Christ. Dumped from gnt_colossians_13; verified with a real
+    // applyAlternateReadingPreview run (raised clause not orphaned). Mirrors the
+    // SBLGNT issue iss_col_2_12_raised_antecedent_sblgnt with edition-specific ids.
+    {
+      id: 'iss_col_2_12_raised_antecedent',
+      passageId: 'gnt_colossians_13',
+      verseRef: 'Colossians 2:12',
+      kind: 'attachment',
+      sourceType: 'syntax-only',
+      severity: 'review',
+      label: 'ἐν ᾧ καὶ συνηγέρθητε — raised “in baptism” or “in Christ”',
+      shortLabel: 'raised — in what?',
+      summary:
+        'The base tree ties the raised-with-him clause (ἐν ᾧ καὶ συνηγέρθητε, “in whom/which you were also raised”) to βαπτίσματι, so the antecedent of ᾧ is the baptism just named — “in which you were also raised”. An alternate takes the antecedent as Christ: the ᾧ reaches back to the person you were buried with (v.11–12a) — “in whom [Christ] you were also raised”. Same tokens, a different attachment.',
+      pastoralNote:
+        'Whether v.12 locates the raising “in baptism” or “in Christ” shapes how directly baptism and resurrection-with-Christ are joined here.',
+      affectedTokenIds: [
+        't_510020120010010', // συνταφέντες
+        't_510020120050010', // βαπτίσματι
+        't_510020120070010', // ᾧ (v12b)
+        't_510020120090010', // συνηγέρθητε
+      ],
+      affectedNodeIds: [
+        'w_510020120010010', // συνταφέντες
+        'w_510020120050010', // βαπτίσματι
+        'cl_510020120060160', // the raised-with-him clause
+      ],
+      affectedRelationIds: ['r_s13_87'],
+      defaultReading: {
+        label: 'Antecedent = baptism',
+        description:
+          'The raised-with-him clause attaches adjectivally to βαπτίσματι; ᾧ refers to the baptism just named — “in which you were also raised”.',
+        parseSummary: 'βαπτίσματι ←(adjectival) ἐν ᾧ καὶ συνηγέρθητε',
+      },
+      alternateReadingIds: ['alt_col_2_12_raised_in_christ'],
+      bibliography: ['Moo, The Letters to the Colossians and to Philemon, on 2:12.'],
+    },
   ],
 
   readings: [
@@ -1852,6 +1894,32 @@ const RAW = {
         differsFromBase: true,
         affectedBaseTokenIds: ['t_620050070050010'],
         note: 'Added in the Textus Receptus; absent from every Greek manuscript before the 14th century.',
+      },
+    },
+
+    // Colossians 2:12 — the ᾧ (v12b) antecedent (baptism vs Christ)
+    {
+      id: 'alt_col_2_12_raised_in_christ',
+      issueId: 'iss_col_2_12_raised_antecedent',
+      passageId: 'gnt_colossians_13',
+      label: 'Antecedent = Christ',
+      shortLabel: 'in Christ',
+      interpretation: 'The relative ᾧ reaches back to Christ, not baptism — “in whom you were also raised”.',
+      description:
+        'Re-points the raised-with-him clause from βαπτίσματι onto συνταφέντες (buried WITH HIM): the ᾧ of v.12b takes Christ as its antecedent — “buried with him in baptism, in whom [Christ] you were also raised”. βαπτίσματι keeps its own place as the object of ἐν (“in baptism”).',
+      sourceType: 'syntax-only',
+      confidence: 'medium',
+      syntaxPatch: {
+        relations: {
+          update: {
+            r_s13_87: {
+              type: 'adverbial',
+              headId: 'w_510020120010010',
+              label: 'in whom (Christ)',
+              provenance: MANUAL_LOW,
+            },
+          },
+        },
       },
     },
   ],

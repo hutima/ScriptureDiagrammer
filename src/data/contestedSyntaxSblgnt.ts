@@ -872,6 +872,45 @@ const RAW: { issues: unknown[]; readings: unknown[] } = {
       "bibliography": ["Wallace, Greek Grammar Beyond the Basics, “Genitive of Subordination”."],
       "sourceId": "macula-greek-sblgnt-lowfat",
     },
+    // Hand-authored (verified against sblgnt_colossians_13 via dump-syntax and a
+    // real applyAlternateReadingPreview run): the SBLGNT base makes the
+    // raised-with-him clause (cl_s13_67, "ἐν ᾧ καὶ συνηγέρθητε") the object of
+    // ἐν with βαπτισμῷ in apposition (r_s13_86 / r_s13_87) — i.e. the antecedent
+    // of ᾧ is baptism. The alternate re-homes that clause on συνταφέντες so the
+    // antecedent is Christ. The preview is NOT orphaned: βαπτισμῷ becomes the
+    // plain object of ἐν, and the raised clause hangs off "buried with him".
+    {
+      "id": "iss_col_2_12_raised_antecedent_sblgnt",
+      "passageId": "sblgnt_colossians_13",
+      "verseRef": "Colossians 2:12",
+      "kind": "attachment",
+      "sourceType": "syntax-only",
+      "severity": "review",
+      "label": "ἐν ᾧ καὶ συνηγέρθητε — raised “in baptism” or “in Christ”",
+      "shortLabel": "raised — in what?",
+      "summary": "The base tree ties the raised-with-him clause (ἐν ᾧ καὶ συνηγέρθητε, “in whom/which you were also raised”) to βαπτισμῷ, so the antecedent of ᾧ is the baptism just named — “in which you were also raised”. An alternate takes the antecedent as Christ: the ᾧ reaches back to the person you were buried with (v.11–12a) — “in whom [Christ] you were also raised”. Same tokens, a different attachment.",
+      "pastoralNote": "Whether v.12 locates the raising “in baptism” or “in Christ” shapes how directly baptism and resurrection-with-Christ are joined here.",
+      "affectedTokenIds": [
+        "t_n51002012001",
+        "t_n51002012005",
+        "t_n51002012007",
+        "t_n51002012009"
+      ],
+      "affectedNodeIds": [
+        "w_n51002012001",
+        "w_n51002012005",
+        "cl_s13_67"
+      ],
+      "affectedRelationIds": ["r_s13_86", "r_s13_87"],
+      "defaultReading": {
+        "label": "Antecedent = baptism",
+        "description": "The raised-with-him clause attaches to βαπτισμῷ; ᾧ refers to the baptism just named — “in which you were also raised”.",
+        "parseSummary": "βαπτισμῷ ←(apposition) ἐν ᾧ καὶ συνηγέρθητε"
+      },
+      "alternateReadingIds": ["alt_col_2_12_raised_in_christ_sblgnt"],
+      "bibliography": ["Moo, The Letters to the Colossians and to Philemon, on 2:12."],
+      "sourceId": "macula-greek-sblgnt-lowfat"
+    },
   ],
   readings: [
     {
@@ -1779,6 +1818,36 @@ const RAW: { issues: unknown[]; readings: unknown[] } = {
         "relationId": "r_s3_115",
         "semanticLabel": "partitive genitive",
         "explanation": "Takes πρωτότοκος as one of the κτίσις — the reading the surrounding context is usually read against.",
+      },
+      "sourceId": "macula-greek-sblgnt-lowfat",
+    },
+    {
+      "id": "alt_col_2_12_raised_in_christ_sblgnt",
+      "issueId": "iss_col_2_12_raised_antecedent_sblgnt",
+      "passageId": "sblgnt_colossians_13",
+      "label": "Antecedent = Christ",
+      "shortLabel": "in Christ",
+      "interpretation": "The relative ᾧ reaches back to Christ, not baptism — “in whom you were also raised”.",
+      "description": "Detaches the raised-with-him clause from βαπτισμῷ and hangs it on συνταφέντες (buried WITH HIM): the ᾧ of v.12b takes Christ as its antecedent — “buried with him in baptism, in whom [Christ] you were also raised”. βαπτισμῷ becomes the plain object of ἐν (“in baptism”).",
+      "sourceType": "syntax-only",
+      "confidence": "medium",
+      "syntaxPatch": {
+        "relations": {
+          "update": {
+            "r_s13_87": { "dependentId": "w_n51002012005" },
+          },
+          "remove": ["r_s13_86"],
+          "upsert": [
+            {
+              "id": "alt_col_2_12_r1",
+              "type": "adverbial",
+              "headId": "w_n51002012001",
+              "dependentId": "cl_s13_67",
+              "label": "in whom (Christ)",
+              "provenance": { "source": "manual", "confidence": "low" },
+            },
+          ],
+        },
       },
       "sourceId": "macula-greek-sblgnt-lowfat",
     },
