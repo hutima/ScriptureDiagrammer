@@ -14,9 +14,10 @@ const KIND_LABELS: Record<keyof typeof GUIDED_HIGHLIGHT_COLORS, string> = {
 };
 
 /**
- * Render a step body, turning `[[termId]]` markers into tappable Greek-term
- * links (the term's surface form). Unknown ids render as plain text so a typo
- * degrades readably (and `guided:check` catches it at build time anyway).
+ * Render a step's prose (body, implication, caution, devotional frame),
+ * turning `[[termId]]` markers into tappable Greek-term links (the term's
+ * surface form). Unknown ids render as plain text so a typo degrades readably
+ * (and `guided:check` catches it at build time anyway).
  */
 function renderBody(
   body: string,
@@ -95,18 +96,18 @@ export function GuidedStepCard() {
         </span>
       </div>
       {stepIndex === 0 && guide.devotionalFrame && (
-        <p className="guided-frame">{guide.devotionalFrame}</p>
+        <p className="guided-frame">{renderBody(guide.devotionalFrame, guide, selectGreekTerm)}</p>
       )}
       <h3 className="guided-step-title">{step.title}</h3>
       <p className="guided-step-body">{renderBody(step.body, guide, selectGreekTerm)}</p>
       {step.implication && (
         <p className="guided-implication">
-          <strong>Why it matters:</strong> {step.implication}
+          <strong>Why it matters:</strong> {renderBody(step.implication, guide, selectGreekTerm)}
         </p>
       )}
       {step.caution && (
         <p className="guided-caution">
-          <strong>A caution:</strong> {step.caution}
+          <strong>A caution:</strong> {renderBody(step.caution, guide, selectGreekTerm)}
         </p>
       )}
       {chipTerms.length > 0 && (

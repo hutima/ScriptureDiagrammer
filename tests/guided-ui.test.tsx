@@ -111,6 +111,20 @@ describe('guided mode UI', () => {
     expect(useGuidedStore.getState().stepIndex).toBe(0);
   });
 
+  it('converts [[term]] markers in implication/caution prose, not just the body (Romans 9:6-13 step 1)', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-romans-9-6-13'));
+    const { container } = render(createElement(GuidedStepCard));
+    // The caution paragraph must show the tappable Greek surface, never the raw marker.
+    expect(container.textContent).not.toContain('[[');
+    const caution = container.querySelector('.guided-caution');
+    expect(caution).toBeTruthy();
+    const link = caution!.querySelector<HTMLButtonElement>('.guided-term-link');
+    expect(link?.textContent).toBe('ἐκπέπτωκεν');
+    fireEvent.click(link!);
+    expect(useGuidedStore.getState().selectedGreekTermId).toBe('ekpeptoken');
+  });
+
   it('a step with a contested reference offers "See the alternate reading" and opens the panel', () => {
     useGuidedStore.getState().enter('greek');
     act(() => useGuidedStore.getState().openGuide('guide-romans-9-5'));

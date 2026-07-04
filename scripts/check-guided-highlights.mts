@@ -63,6 +63,12 @@ for (const guide of grammarHighlightGuides) {
     }
   }
 
+  // The devotional frame renders through the same `[[termId]]`-aware path as
+  // the step prose, so its markers must resolve too.
+  for (const m of (guide.devotionalFrame ?? '').matchAll(/\[\[([a-zA-Z0-9_-]+)\]\]/g)) {
+    if (!termIds.has(m[1]!)) fail(`${guide.id}: devotionalFrame references unknown term [[${m[1]}]]`);
+  }
+
   const firstPassage = guide.steps[0]?.passageId ?? guide.bundledPassageIds[0];
 
   for (const step of guide.steps) {
@@ -135,8 +141,18 @@ for (const guide of grammarHighlightGuides) {
     for (const id of step.greekTermIds ?? []) {
       if (!termIds.has(id)) fail(`${where}: greekTermIds entry "${id}" has no matching term`);
     }
-    for (const m of step.body.matchAll(/\[\[([a-zA-Z0-9_-]+)\]\]/g)) {
-      if (!termIds.has(m[1]!)) fail(`${where}: body references unknown term [[${m[1]}]]`);
+    // Every prose field the step card renders through `renderBody` may carry
+    // `[[termId]]` markers — validate them all, not just the body (a marker in
+    // `caution`/`implication` used to slip through and render literally).
+    const proseFields: Array<[string, string | undefined]> = [
+      ['body', step.body],
+      ['implication', step.implication],
+      ['caution', step.caution],
+    ];
+    for (const [field, prose] of proseFields) {
+      for (const m of (prose ?? '').matchAll(/\[\[([a-zA-Z0-9_-]+)\]\]/g)) {
+        if (!termIds.has(m[1]!)) fail(`${where}: ${field} references unknown term [[${m[1]}]]`);
+      }
     }
     if (step.contested) {
       const issue = getIssueById(step.contested.issueId);
