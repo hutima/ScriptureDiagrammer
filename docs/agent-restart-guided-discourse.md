@@ -8,20 +8,20 @@
 
 | # | Task | Status |
 |---|------|--------|
-| A1 | Rename top "Grammar" mode button to guided-exploration wording | todo |
-| A2 | Three-dot menu: `Guide` → `How to Use` | todo |
-| A3 | Remove ellipses from three-dot menu items | todo |
-| A4 | Condense guided card summaries (~60–110 chars; John 1:1 example) | todo |
-| A5 | Greek word + gloss pair line-breaking in guided prose | todo |
+| A1 | Rename top "Grammar" mode button to guided-exploration wording | in progress |
+| A2 | Three-dot menu: `Guide` → `How to Use` | in progress |
+| A3 | Remove ellipses from three-dot menu items | in progress |
+| A4 | Condense guided card summaries (~60–110 chars; John 1:1 example) | in progress |
+| A5 | Greek word + gloss pair line-breaking in guided prose | in progress |
 | B1 | Colossians 2:11–12 copy vs diagram (συνταφέντες apposition?) | todo |
 | B2 | Romans 9:6–13 intro: shorten drastically | todo |
 | B3 | Difficulty ordering + `topics?: string[]` tags on guides | todo |
-| C  | Lowfat 1 Cor 5:1 `ὥστε` missing (1904 + SBLGNT) + regression tests | todo |
+| C  | Lowfat 1 Cor 5:1 `ὥστε` missing (1904 + SBLGNT) + regression tests | in progress |
 | D1 | Stacked diagram zoom (Matt 6:11 / Luke 11:3 step 3, secondary diagram) | todo |
 | D2 | Guided Next button sticky near lower-right | todo |
 | E  | Discourse-backed guided examples (Acts 2:39, Eph 2:12–19, Psalm 46 chiasm; suppress self-directed modal from guided) | todo |
 | F  | Guided grammar term help (dashed underline + glossary popover) | todo |
-| G  | (user, 2026-07-04) Matt 6:9 vocative cascade follow-up to #241: "the" slant under "heavens" still clashes with the dashed connector; extend the sub-baseline minimally so the connector joins clear of the modifier | todo |
+| G  | (user, 2026-07-04) Matt 6:9 vocative cascade follow-up to #241: "the" slant under "heavens" still clashes with the dashed connector; extend the sub-baseline minimally so the connector joins clear of the modifier | in progress |
 
 ## Checks
 
