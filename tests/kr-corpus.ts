@@ -42,6 +42,7 @@ export function loadCorpus(): Named[] {
     ...sblgnt('fixtures-sblgnt-lowfat-col-1-16.xml', 'Colossians'),
     ...sblgnt('fixtures-sblgnt-lowfat-col-1-9-20.xml', 'Colossians'),
     ...sblgnt('fixtures-sblgnt-lowfat-eph-5-3-33.xml', 'Ephesians'),
+    ...sblgnt('fixtures-sblgnt-lowfat-heb-1-1-4.xml', 'Hebrews'),
     ...sblgnt('fixtures-sblgnt-lowfat-mark-1-19-20.xml', 'Mark'),
     ...sblgnt('fixtures-sblgnt-lowfat-mark-5-21-43.xml', 'Mark'),
     ...sblgnt('fixtures-sblgnt-lowfat-mark-5-25-34.xml', 'Mark'),

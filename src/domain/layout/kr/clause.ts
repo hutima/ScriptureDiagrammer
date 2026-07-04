@@ -888,7 +888,8 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     const wasFork = lastPlacedWasFork;
     lastPlacedWasFork = isWordCoordination(ctx, getNode(model, rel.dependentId)!);
     const lenBefore = elements.length;
-    if (rel.type === 'predicateNominative' || rel.type === 'predicateAdjective') {
+    const backSlant = rel.type === 'predicateNominative' || rel.type === 'predicateAdjective';
+    if (backSlant) {
       // line leaning back toward the verb
       elements.push(
         line(eid(), sepX + 10, 0, sepX, -LAYOUT.separatorUp, 'solid', 'separator', undefined, rel.id),
@@ -899,7 +900,13 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
         line(eid(), sepX, 0, sepX, -LAYOUT.separatorUp, 'solid', 'separator', undefined, rel.id),
       );
     }
-    x += 6;
+    // The back-slant's FOOT rests at sepX + 10 on the baseline. A word complement
+    // carries its own baseline under that foot, but an open coordination fork has
+    // NO line at y = 0 beyond its junction — placed at the classic sepX + 6 its
+    // vertex stops short and the slash foot hangs in empty space (Heb 1:3 "ὢν \
+    // ἀπαύγασμα … καὶ χαρακτὴρ …"). Advance the fork so its vertex lands exactly
+    // on the slash foot; the bridge below runs the baseline out under the slash.
+    x += backSlant && lastPlacedWasFork ? 10 : 6;
     // Keep the main line CONTINUOUS across the separator: bridge the verb's baseline
     // end to the complement's own baseline. Without it the predicate-nominative
     // back-slant — whose foot rests only on the complement side — leaves the verb

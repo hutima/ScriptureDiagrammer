@@ -10,6 +10,7 @@ import {
   isDiagonalCoordination,
   isDiagonalModifier,
   isInfinitival,
+  isWordCoordination,
   ppConjunctRels,
   prepObjectId,
   subtreeMinIndex,
@@ -352,12 +353,16 @@ export function layoutPredicateArm(ctx: Ctx, verbNode: SyntaxNode, seen: Set<str
   let baseHeight = 0;
   baselineRels.forEach((rel) => {
     const sepX = x;
-    if (rel.type === 'predicateNominative' || rel.type === 'predicateAdjective') {
+    const backSlant = rel.type === 'predicateNominative' || rel.type === 'predicateAdjective';
+    if (backSlant) {
       elements.push(line(eid(), sepX + 10, 0, sepX, -LAYOUT.separatorUp, 'solid', 'separator', undefined, rel.id));
     } else {
       elements.push(line(eid(), sepX, 0, sepX, -LAYOUT.separatorUp, 'solid', 'separator', undefined, rel.id));
     }
-    x += 6;
+    // A coordination-fork complement after a back-slant must have its junction ON
+    // the slash foot (sepX + 10) — a fork has no baseline of its own under the
+    // foot (see the matching note in clause.ts's complement loop).
+    x += backSlant && isWordCoordination(ctx, getNode(ctx.doc.syntax, rel.dependentId)!) ? 10 : 6;
     const block = ctx.layoutNode(ctx, rel.dependentId, seen);
     elements.push(...translate(block, x, 0));
     baseHeight = Math.max(baseHeight, block.height);
