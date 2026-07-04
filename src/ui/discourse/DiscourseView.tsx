@@ -24,9 +24,19 @@ const UNIT_MAX_WIDTH = 760;
 
 /**
  * Two `RelationEndpointInput[]` are "the same" for re-render purposes when
- * every relation's (rounded) geometry matches — used to break the
- * measure → resize → re-measure loop a naive `setState` would create every
- * time the ResizeObserver fires (see the effect below).
+ * every relation's (rounded) geometry matches AND every entry still points at
+ * the SAME `relation` object — used to break the measure → resize →
+ * re-measure loop a naive `setState` would create every time the
+ * ResizeObserver fires (see the effect below).
+ *
+ * The reference-equality check matters for LIVE metadata edits: changing a
+ * relation's color/type/label/dash/width never moves any unit, so geometry
+ * alone would call the two arrays "the same" and `measure()` would keep the
+ * STALE previous array — whose `relation` objects still carry the old
+ * metadata — forever (until an unrelated resize happened to re-measure).
+ * Zustand updates are immutable, so any edit produces a new relation object;
+ * an unchanged document keeps identical references, so this still short-
+ * circuits the loop exactly as before for pure resize/scroll events.
  */
 function sameEndpoints(a: RelationEndpointInput[], b: RelationEndpointInput[]): boolean {
   if (a.length !== b.length) return false;
@@ -34,6 +44,7 @@ function sameEndpoints(a: RelationEndpointInput[], b: RelationEndpointInput[]): 
     const x = a[i]!;
     const y = b[i]!;
     if (
+      x.relation !== y.relation ||
       x.relation.id !== y.relation.id ||
       x.y1 !== y.y1 ||
       x.y2 !== y.y2 ||
@@ -75,8 +86,12 @@ export function DiscourseView({
   const select = useDiscourseStore((s) => s.select);
   const setUnitCollapsed = useDiscourseStore((s) => s.setUnitCollapsed);
   const multiSelected = useDiscourseStore((s) => s.multiSelectedUnitIds);
+  const multiSelectMode = useDiscourseStore((s) => s.multiSelectMode);
+  const setMultiSelectMode = useDiscourseStore((s) => s.setMultiSelectMode);
   const extendMultiSelect = useDiscourseStore((s) => s.extendMultiSelect);
   const pendingRelationSource = useDiscourseStore((s) => s.pendingRelationSource);
+  const pendingRelationAwaitingSource = useDiscourseStore((s) => s.pendingRelationAwaitingSource);
+  const startRelation = useDiscourseStore((s) => s.startRelation);
   const pickRelationTarget = useDiscourseStore((s) => s.pickRelationTarget);
   const typeEditRelationId = useDiscourseStore((s) => s.typeEditRelationId);
   const closeRelationTypeEditor = useDiscourseStore((s) => s.closeRelationTypeEditor);
@@ -205,14 +220,36 @@ export function DiscourseView({
     setContentHeight(content.scrollHeight);
   }, [doc, rows, side, view.showRelations]);
 
+  // Coalesce ResizeObserver callbacks into an animation frame: a callback
+  // that synchronously triggers a state update (which can itself resize the
+  // observed box — e.g. a gutter-width change nudging wrapped text) is
+  // exactly the pattern that trips Chrome's "ResizeObserver loop completed
+  // with undelivered notifications" warning. Scheduling `measure()` on the
+  // next frame instead lets the current observation cycle finish before any
+  // layout-affecting state change happens, without changing what gets
+  // measured. The INITIAL `measure()` on mount stays synchronous so the first
+  // paint already has arcs.
+  const rafIdRef = useRef<number | null>(null);
+  const scheduleMeasure = useCallback(() => {
+    if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = null;
+      measure();
+    });
+  }, [measure]);
+
   useEffect(() => {
     measure();
     const list = unitListRef.current;
     if (!list || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => measure());
+    const ro = new ResizeObserver(() => scheduleMeasure());
     ro.observe(list);
-    return () => ro.disconnect();
-  }, [measure]);
+    return () => {
+      if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+      ro.disconnect();
+    };
+  }, [measure, scheduleMeasure]);
 
   // The ONE pure layout call — shared with the SVG/PDF export — turning
   // measured endpoints into lane-packed, endpoint-nudged geometry plus the
@@ -238,10 +275,37 @@ export function DiscourseView({
       ? { paddingLeft: BASE_PAD, paddingRight: gutterSidePad, maxWidth: contentMaxWidth }
       : { paddingLeft: gutterSidePad, paddingRight: BASE_PAD, maxWidth: contentMaxWidth };
 
+  // A relation draft must be cancellable with Escape from ANYWHERE: the draft
+  // starts from the side panel's Relate button, so focus usually still sits
+  // OUTSIDE this component when the user reaches for Escape — the local
+  // onKeyDown below would never see it. Window-level, active only while a
+  // draft exists, and deferring to typing surfaces (their own Escape wins).
+  useEffect(() => {
+    if (!editing || (!pendingRelationSource && !pendingRelationAwaitingSource)) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      const t = e.target as HTMLElement;
+      if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable) return;
+      cancelRelation();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [editing, pendingRelationSource, pendingRelationAwaitingSource, cancelRelation]);
+
   // --- selection / edit interactions ---------------------------------------------
   const onUnitSelect = useCallback(
     (unitId: string, opts: { shift: boolean }) => {
-      if (editing && pendingRelationSource && pendingRelationSource !== unitId) {
+      // Two-phase Relate draft: awaiting the SOURCE unit first (the toolbar's
+      // "Relate" with nothing selected) — the next click picks it and moves
+      // the flow into the normal awaiting-target phase.
+      if (editing && pendingRelationAwaitingSource) {
+        startRelation(unitId);
+        return;
+      }
+      if (editing && pendingRelationSource) {
+        // Clicking the SAME unit again keeps the mode (no-op) rather than
+        // creating a self-link or falling through to selection.
+        if (pendingRelationSource === unitId) return;
         // Target picked → create the connector immediately (untyped); the type
         // modal opens next for optional metadata.
         pickRelationTarget(unitId);
@@ -251,9 +315,23 @@ export function DiscourseView({
         extendMultiSelect(unitId);
         return;
       }
+      if (editing && multiSelectMode) {
+        extendMultiSelect(unitId);
+        return;
+      }
       select(selection.unitId === unitId ? {} : { unitId });
     },
-    [editing, pendingRelationSource, selection.unitId, select, pickRelationTarget, extendMultiSelect],
+    [
+      editing,
+      pendingRelationAwaitingSource,
+      pendingRelationSource,
+      startRelation,
+      multiSelectMode,
+      selection.unitId,
+      select,
+      pickRelationTarget,
+      extendMultiSelect,
+    ],
   );
 
   const onKeyDown = useCallback(
@@ -268,10 +346,15 @@ export function DiscourseView({
         if (editing && highlightPickUnitId) beginHighlight(null);
         else if (editing && relationHighlightPickRelationId) endRelationHighlight();
         else if (editing && splitPickUnitId) beginSplit(null);
+        // Awaiting the SOURCE unit (Relate started with nothing selected) →
+        // cancel the draft, same as the awaiting-target case below.
+        else if (editing && pendingRelationAwaitingSource) cancelRelation();
         // Before a target is picked → cancel, no link is created.
         else if (editing && pendingRelationSource) cancelRelation();
         // After the link exists (modal open) → close the modal, KEEP the link.
         else if (editing && typeEditRelationId) closeRelationTypeEditor();
+        // Multi-select mode: Escape exits the mode (clearing the selection).
+        else if (editing && multiSelectMode) setMultiSelectMode(false);
         // Study mode: a pending token selection clears first (before deselect).
         else if (studyMode && studySelection) clearStudySelection();
         else select({});
@@ -328,13 +411,44 @@ export function DiscourseView({
         }
       }
     },
-    [editing, studyMode, studySelection, clearStudySelection, doc, selection.unitId, splitPickUnitId, highlightPickUnitId, relationHighlightPickRelationId, endRelationHighlight, pendingRelationSource, typeEditRelationId, beginSplit, beginHighlight, cancelRelation, closeRelationTypeEditor, select, undo, redo, nudgeUnitIndent, mergeWithPrevious, deleteUnit],
+    [
+      editing,
+      studyMode,
+      studySelection,
+      clearStudySelection,
+      doc,
+      selection.unitId,
+      splitPickUnitId,
+      highlightPickUnitId,
+      relationHighlightPickRelationId,
+      endRelationHighlight,
+      pendingRelationSource,
+      pendingRelationAwaitingSource,
+      typeEditRelationId,
+      multiSelectMode,
+      setMultiSelectMode,
+      beginSplit,
+      beginHighlight,
+      cancelRelation,
+      closeRelationTypeEditor,
+      select,
+      undo,
+      redo,
+      nudgeUnitIndent,
+      mergeWithPrevious,
+      deleteUnit,
+    ],
   );
 
   const multiSet = useMemo(() => new Set(multiSelected), [multiSelected]);
 
   return (
     <div className="discourse-view" onKeyDown={onKeyDown}>
+      {editing && pendingRelationAwaitingSource && (
+        <div className="discourse-relate-banner" role="status">
+          Relating — click the SOURCE unit to start. <kbd>Esc</kbd> to cancel.
+        </div>
+      )}
       {editing && pendingRelationSource && (
         <div className="discourse-relate-banner" role="status">
           Relating — click another unit to connect to it. <kbd>Esc</kbd> to cancel.
@@ -352,7 +466,7 @@ export function DiscourseView({
           // A stray background click while picking relation words keeps the
           // relation selected + pick mode active (exit via Esc / Done).
           if (relationPicking) return;
-          if (pendingRelationSource) cancelRelation();
+          if (pendingRelationAwaitingSource || pendingRelationSource) cancelRelation();
           else if (studyMode && studySelection) clearStudySelection();
           else select({});
         }}

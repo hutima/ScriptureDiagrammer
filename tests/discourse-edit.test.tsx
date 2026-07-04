@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createElement } from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, cleanup, fireEvent, act } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { lowfatToDocuments, sblgntDialect } from '@/io/lowfat';
 import { useDiscourseStore } from '@/state';
@@ -40,9 +40,11 @@ async function loadEphesians() {
     future: [],
     selection: {},
     pendingRelationSource: null,
+    pendingRelationAwaitingSource: false,
     typeEditRelationId: null,
     splitPickUnitId: null,
     multiSelectedUnitIds: [],
+    multiSelectMode: false,
   });
   await store.getState().loadRange({ bookDocs: ephesiansBookDocs() });
 }
@@ -164,7 +166,13 @@ describe('discourse edit mode (UI)', () => {
   it('toolbar buttons cover every keyboard shortcut and reflect the selection', () => {
     const s = store.getState();
     const first = leafUnits(s.doc!)[0]!;
-    store.setState({ selection: { unitId: first.id }, multiSelectedUnitIds: [first.id] });
+    // Group/Ungroup only render in multi-select mode (the toolbar restructure
+    // — see the multi-select describe block below for the gating itself).
+    store.setState({
+      selection: { unitId: first.id },
+      multiSelectedUnitIds: [first.id],
+      multiSelectMode: true,
+    });
     const { getByTitle, getByText } = render(createElement(DiscourseToolbar));
     expect(getByText('Split')).toBeTruthy();
     expect(getByText('Merge ←')).toBeTruthy();
@@ -250,5 +258,67 @@ describe('discourse edit mode (UI)', () => {
     expect(store.getState().doc!.relations).toHaveLength(1);
     expect(store.getState().doc!.relations[0]!.type).toBe('ground');
     expect(store.getState().typeEditRelationId).toBeNull();
+  });
+});
+
+describe('discourse multi-select mode', () => {
+  afterEach(cleanup);
+  beforeEach(async () => {
+    localStorage.clear();
+    await loadEphesians();
+  });
+
+  it('Group/Ungroup only render while multi-select mode is on', () => {
+    const s = store.getState();
+    const first = leafUnits(s.doc!)[0]!;
+    store.setState({ selection: { unitId: first.id }, multiSelectedUnitIds: [first.id], multiSelectMode: false });
+    const { queryByText, rerender } = render(createElement(DiscourseToolbar));
+    expect(queryByText('Group')).toBeNull();
+    expect(queryByText('Ungroup')).toBeNull();
+
+    act(() => store.setState({ multiSelectMode: true }));
+    rerender(createElement(DiscourseToolbar));
+    expect(queryByText('Group')).toBeTruthy();
+    expect(queryByText('Ungroup')).toBeTruthy();
+  });
+
+  it('setMultiSelectMode(false) clears the multi-selection', () => {
+    const s = () => store.getState();
+    const leaves = leafUnits(s().doc!);
+    s().select({ unitId: leaves[0]!.id });
+    s().extendMultiSelect(leaves[2]!.id);
+    expect(s().multiSelectedUnitIds.length).toBe(3);
+    s().setMultiSelectMode(true);
+    expect(s().multiSelectedUnitIds.length).toBe(3); // turning ON keeps it
+    s().setMultiSelectMode(false);
+    expect(s().multiSelectedUnitIds).toEqual([]);
+  });
+
+  it('setUnitsColor applies a color to every selected unit in ONE undoable step', () => {
+    const s = () => store.getState();
+    const leaves = leafUnits(s().doc!);
+    const ids = [leaves[0]!.id, leaves[1]!.id, leaves[2]!.id];
+    const pastBefore = s().past.length;
+    s().setUnitsColor(ids, 'green');
+    for (const id of ids) {
+      expect(s().doc!.units.find((u) => u.id === id)!.color).toBe('green');
+    }
+    // One history entry, not one per unit.
+    expect(s().past.length).toBe(pastBefore + 1);
+    s().undo();
+    for (const id of ids) {
+      expect(s().doc!.units.find((u) => u.id === id)!.color).toBeUndefined();
+    }
+  });
+
+  it('setUnitsColor(undefined) clears the color on every selected unit', () => {
+    const s = () => store.getState();
+    const leaves = leafUnits(s().doc!);
+    const ids = [leaves[0]!.id, leaves[1]!.id];
+    s().setUnitsColor(ids, 'blue');
+    s().setUnitsColor(ids, undefined);
+    for (const id of ids) {
+      expect(s().doc!.units.find((u) => u.id === id)!.color).toBeUndefined();
+    }
   });
 });

@@ -9,10 +9,12 @@ import {
   buildDiscourseDocumentFromKrDocuments,
   buildDiscourseDocumentFromRange,
   collapseDiscourseUnit,
+  DISCOURSE_RELATION_PALETTE,
   discourseRows,
   labelDiscourseUnit,
   leafUnits,
   nestDiscourseUnits,
+  updateDiscourseRelation,
   visibleRelationEndpoints,
 } from '@/domain/discourse';
 import { DIAGRAM_MODES } from '@/domain/layout';
@@ -320,6 +322,31 @@ describe('DiscourseRelationLayer — selectability + dynamic gutter (live DOM)',
     const { container } = render(createElement(DiscourseView, { doc }));
     expect(container.querySelector('.discourse-arcs')).toBeTruthy();
     expect(container.querySelectorAll('.discourse-arc-label').length).toBe(0);
+  });
+
+  it("a relation's color edit re-renders its arc's stroke on a normal rerender (no remount, no resize)", () => {
+    // Regression test for the "live redraw" bug: `sameEndpoints` used to
+    // compare geometry ONLY, so a metadata-only edit (color/type/label/dash/
+    // width) — which never moves any unit — looked identical and the STALE
+    // endpoints array (holding the OLD relation object) was kept forever.
+    const doc0 = docWithTwoRelations();
+    const { container, rerender } = render(createElement(DiscourseView, { doc: doc0 }));
+    const arcBefore = container.querySelector('[data-relation-id="dr_a"] path')!;
+    const before = arcBefore.getAttribute('stroke');
+    expect(before).toBeTruthy();
+
+    // A pure metadata edit: same units, same geometry, only the color changes.
+    const doc1 = updateDiscourseRelation(doc0, 'dr_a', { color: 'blue' });
+    rerender(createElement(DiscourseView, { doc: doc1 }));
+
+    const arcAfter = container.querySelector('[data-relation-id="dr_a"] path')!;
+    expect(arcAfter.getAttribute('stroke')).toBe(DISCOURSE_RELATION_PALETTE.blue);
+    expect(arcAfter.getAttribute('stroke')).not.toBe(before);
+
+    // The untouched relation's arc is unaffected (this isn't a full remount
+    // resetting everything, just the one relation's metadata flowing through).
+    const otherAfter = container.querySelector('[data-relation-id="dr_b"] path')!;
+    expect(otherAfter.getAttribute('stroke')).not.toBe(DISCOURSE_RELATION_PALETTE.blue);
   });
 
   it("relationSide 'left' ⇒ the gutter div sits on the left, and the content's LEFT padding (not the right) carries the gutter width", () => {

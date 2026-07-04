@@ -118,30 +118,91 @@ export function relationTypeLabel(type: DiscourseRelation['type']): string {
 /**
  * Hex values for the named relation-colour palette (`DiscourseRelationColor`).
  * A relation with an explicit `color` uses this map; otherwise the arc falls
- * back to the type-derived `relationColor` below. Saturated but fitting.
+ * back to the type-derived `relationColor` below. Saturated pastels — vivid
+ * enough to read as distinct hues, soft enough not to fight the text.
  */
 export const DISCOURSE_RELATION_PALETTE: Record<string, string> = {
-  red: '#c0392b',
-  orange: '#d97706',
-  olive: '#8a7a12',
-  green: '#15803d',
-  teal: '#0f766e',
-  blue: '#2563eb',
-  purple: '#7c3aed',
-  slate: '#475569',
-  gray: '#6b7280',
+  red: '#e06a5f',
+  orange: '#e59f4a',
+  olive: '#b9a84a',
+  green: '#5fbf7a',
+  teal: '#4fb7ad',
+  blue: '#6b91e8',
+  purple: '#9b7ae6',
+  slate: '#71829b',
+  gray: '#8b96a3',
 };
 
+/** `#rgb` or `#rrggbb` — the only hex forms `resolvedRelationColor` trusts for
+ *  a free-form `customColor` (an invalid value is ignored, never crashes the
+ *  renderer). */
+export function isSafeHexColor(s: string | undefined): s is string {
+  return !!s && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(s);
+}
+
 /**
- * The colour an arc/label actually draws with: an explicit `relation.color`
- * override (named palette) wins, else the type-derived default. One place so
- * the canvas layer and the SVG/PDF export stay in step.
+ * The colour an arc/label actually draws with: a valid free-form
+ * `relation.customColor` wins, then an explicit `relation.color` override
+ * (named palette), else the type-derived default. One place so the canvas
+ * layer, the export, and the editor's swatch stay in step.
  */
 export function resolvedRelationColor(relation: DiscourseRelation): string {
+  if (isSafeHexColor(relation.customColor)) return relation.customColor;
   if (relation.color && DISCOURSE_RELATION_PALETTE[relation.color]) {
     return DISCOURSE_RELATION_PALETTE[relation.color]!;
   }
   return relationColor(relation.type);
+}
+
+/** Structural/paired relation TYPES that default to a dashed run when no
+ *  explicit `strokeDash` override is set (mirrors both on-screen + export
+ *  consumers — the ONE place this list lives). */
+function isDashedType(type: DiscourseRelation['type']): boolean {
+  return type === 'chiasm' || type === 'parallel' || type === 'inclusio';
+}
+
+/**
+ * The SVG `stroke-dasharray` an arc actually draws with: an explicit
+ * `strokeDash` override wins (`'solid'` clears any dash; `'dashed'` /
+ * `'dotted'` / `'dash-dot'` force a specific pattern); `'default'` (or
+ * absent) falls back to the type-derived behaviour (`isDashedType`). One
+ * place so the canvas layer and the SVG/PDF export stay in step.
+ */
+export function resolvedRelationDashArray(relation: DiscourseRelation): string | undefined {
+  switch (relation.strokeDash) {
+    case 'solid':
+      return undefined;
+    case 'dashed':
+      return '5 3';
+    case 'dotted':
+      return '1.5 3';
+    case 'dash-dot':
+      return '7 3 1.5 3';
+    case 'default':
+    case undefined:
+      return isDashedType(relation.type) ? '5 3' : undefined;
+    default:
+      return isDashedType(relation.type) ? '5 3' : undefined;
+  }
+}
+
+/** Stroke-width (px) per named `strokeWidth` option. `'default'`/absent keeps
+ *  the current weight (1.6px — thicker when selected is applied by callers). */
+export function resolvedRelationStrokeWidth(relation: DiscourseRelation): number {
+  switch (relation.strokeWidth) {
+    case 'thin':
+      return 1;
+    case 'normal':
+      return 1.6;
+    case 'medium':
+      return 2.4;
+    case 'thick':
+      return 3.4;
+    case 'default':
+    case undefined:
+    default:
+      return 1.6;
+  }
 }
 
 /** Arc colour per relation family. */

@@ -211,6 +211,35 @@ export const DISCOURSE_RELATION_COLORS = [
 export const DiscourseRelationColorSchema = z.enum(DISCOURSE_RELATION_COLORS);
 export type DiscourseRelationColor = z.infer<typeof DiscourseRelationColorSchema>;
 
+/**
+ * Line-style OVERRIDE for the arc. `'default'` (or absent) keeps the current
+ * type-derived dash behaviour (paired/structural types — chiasm, parallel,
+ * inclusio — render dashed, everything else solid); the other values force
+ * a specific pattern regardless of type. See `resolvedRelationDashArray`.
+ */
+export const DiscourseRelationStrokeDashSchema = z.enum([
+  'default',
+  'solid',
+  'dashed',
+  'dotted',
+  'dash-dot',
+]);
+export type DiscourseRelationStrokeDash = z.infer<typeof DiscourseRelationStrokeDashSchema>;
+
+/**
+ * Stroke-width OVERRIDE for the arc. `'default'` (or absent) keeps the
+ * current weight (1.6px, thicker when selected). See
+ * `resolvedRelationStrokeWidth`.
+ */
+export const DiscourseRelationStrokeWidthSchema = z.enum([
+  'default',
+  'thin',
+  'normal',
+  'medium',
+  'thick',
+]);
+export type DiscourseRelationStrokeWidth = z.infer<typeof DiscourseRelationStrokeWidthSchema>;
+
 export const DiscourseRelationSchema = z.object({
   id: z.string(),
   sourceUnitId: z.string(),
@@ -231,6 +260,19 @@ export const DiscourseRelationSchema = z.object({
    * keys); clearing it (undefined) reverts to the default via the diff.
    */
   color: DiscourseRelationColorSchema.optional(),
+  /**
+   * Free-form hex colour OVERRIDE for the arc/label (`#rgb` or `#rrggbb`) —
+   * wins over the named `color` when it parses as a safe hex string; an
+   * invalid value is ignored by `resolvedRelationColor`, falling through to
+   * `color`/the type-derived default. Declaring it here (rather than
+   * validating strictly) is what lets the generic patch pipeline persist it;
+   * `resolvedRelationColor` is the one place that decides validity.
+   */
+  customColor: z.string().optional(),
+  /** Line-style OVERRIDE — see `DiscourseRelationStrokeDashSchema`. */
+  strokeDash: DiscourseRelationStrokeDashSchema.optional(),
+  /** Stroke-width OVERRIDE — see `DiscourseRelationStrokeWidthSchema`. */
+  strokeWidth: DiscourseRelationStrokeWidthSchema.optional(),
   /** Marker chips cited as evidence for this relation. */
   markerIds: z.array(z.string()).optional(),
   confidence: ConfidenceSchema.optional(),

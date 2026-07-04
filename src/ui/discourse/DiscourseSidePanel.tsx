@@ -1,50 +1,18 @@
 import { useEditorStore, useDiscourseStore } from '@/state';
 import {
   DISCOURSE_RELATION_COLORS,
-  DISCOURSE_UNIT_COLORS,
   DiscourseRelationTypeSchema,
 } from '@/domain/schema';
-import type { DiscourseRelationColor, DiscourseUnitColor } from '@/domain/schema';
-import { DISCOURSE_RELATION_PALETTE, formatRange, relationTypeLabel } from '@/domain/discourse';
+import type { DiscourseRelationColor } from '@/domain/schema';
+import {
+  DISCOURSE_RELATION_PALETTE,
+  formatRange,
+  isSafeHexColor,
+  relationTypeLabel,
+  resolvedRelationColor,
+} from '@/domain/discourse';
 import { DiscourseToolbar } from './DiscourseToolbar';
-
-/**
- * A row of the seven color swatches (+ a "none" clear button). Shared by the
- * unit's color-tag control and the highlight-color picker — `active` marks the
- * currently selected color (clicking it again clears, via `onClear`).
- */
-function SwatchRow({
-  active,
-  onPick,
-  onClear,
-  ariaPrefix,
-}: {
-  active: DiscourseUnitColor | undefined;
-  onPick: (color: DiscourseUnitColor) => void;
-  onClear?: () => void;
-  ariaPrefix: string;
-}) {
-  return (
-    <div className="discourse-swatch-row">
-      {DISCOURSE_UNIT_COLORS.map((c) => (
-        <button
-          key={c}
-          type="button"
-          className={`discourse-swatch swatch-${c}${active === c ? ' active' : ''}`}
-          aria-label={`${ariaPrefix} ${c}`}
-          aria-pressed={active === c}
-          title={c}
-          onClick={() => (active === c ? onClear?.() : onPick(c))}
-        />
-      ))}
-      {onClear && (
-        <button type="button" className="mini" onClick={onClear} aria-label={`Clear ${ariaPrefix.toLowerCase()}`}>
-          ✕ none
-        </button>
-      )}
-    </div>
-  );
-}
+import { SwatchRow } from './DiscourseSwatchRow';
 
 /**
  * A row of relation-colour swatches plus an "Auto" reset. Distinct from the
@@ -215,12 +183,11 @@ export function DiscourseSidePanel() {
                 }}
               />
             </label>
-            <label className="field">
+            <label className="field discourse-notes-field">
               <span>Notes</span>
               <textarea
                 key={`n_${selectedUnit.id}`}
                 defaultValue={selectedUnit.notes ?? ''}
-                rows={2}
                 placeholder="Observations about this unit…"
                 onBlur={(e) => {
                   if (e.target.value !== (selectedUnit.notes ?? ''))
@@ -367,20 +334,74 @@ export function DiscourseSidePanel() {
               <option value="low">low</option>
             </select>
           </label>
-          <div className="field">
+          <div className="field discourse-relation-color-field">
             <span>Color</span>
             <RelationColorRow
               active={selectedRelation.color}
-              onPick={(c) => updateRelation(selectedRelation.id, { color: c })}
-              onClear={() => updateRelation(selectedRelation.id, { color: undefined })}
+              // Picking a NAMED swatch also clears any custom hex override, so
+              // the two controls never disagree about which one is "active".
+              onPick={(c) => updateRelation(selectedRelation.id, { color: c, customColor: undefined })}
+              onClear={() => updateRelation(selectedRelation.id, { color: undefined, customColor: undefined })}
             />
+            <input
+              type="color"
+              aria-label="Custom relation colour"
+              title="Custom colour"
+              className="discourse-color-input"
+              value={
+                isSafeHexColor(selectedRelation.customColor)
+                  ? selectedRelation.customColor
+                  : resolvedRelationColor(selectedRelation)
+              }
+              onChange={(e) => updateRelation(selectedRelation.id, { customColor: e.target.value })}
+            />
+            <span className="discourse-color-input-label">Custom</span>
           </div>
           <label className="field">
+            <span>Dash</span>
+            <select
+              value={selectedRelation.strokeDash ?? 'default'}
+              onChange={(e) =>
+                updateRelation(selectedRelation.id, {
+                  strokeDash:
+                    e.target.value === 'default'
+                      ? undefined
+                      : (e.target.value as NonNullable<typeof selectedRelation.strokeDash>),
+                })
+              }
+            >
+              <option value="default">Default</option>
+              <option value="solid">Solid</option>
+              <option value="dashed">Dashed</option>
+              <option value="dotted">Dotted</option>
+              <option value="dash-dot">Dash-dot</option>
+            </select>
+          </label>
+          <label className="field">
+            <span>Width</span>
+            <select
+              value={selectedRelation.strokeWidth ?? 'default'}
+              onChange={(e) =>
+                updateRelation(selectedRelation.id, {
+                  strokeWidth:
+                    e.target.value === 'default'
+                      ? undefined
+                      : (e.target.value as NonNullable<typeof selectedRelation.strokeWidth>),
+                })
+              }
+            >
+              <option value="default">Default</option>
+              <option value="thin">Thin</option>
+              <option value="normal">Normal</option>
+              <option value="medium">Medium</option>
+              <option value="thick">Thick</option>
+            </select>
+          </label>
+          <label className="field discourse-notes-field">
             <span>Notes</span>
             <textarea
               key={`rn_${selectedRelation.id}`}
               defaultValue={selectedRelation.notes ?? ''}
-              rows={3}
               placeholder="Why these two units correspond…"
               onBlur={(e) =>
                 updateRelation(selectedRelation.id, { notes: e.target.value.trim() || undefined })

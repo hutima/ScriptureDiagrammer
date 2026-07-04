@@ -9,6 +9,7 @@ import {
   labelDiscourseUnit,
   leafUnits,
   setDiscourseUnitNotes,
+  updateDiscourseRelation,
   type DiscourseDocument,
 } from '@/domain/discourse';
 
@@ -157,6 +158,31 @@ describe('discourse SVG (vector) export', () => {
     const dashedCount = (svg.match(/stroke-dasharray="5 3"/g) ?? []).length;
     expect(dashedCount).toBe(1); // only the bracket, not the arrowhead
     expect(brackets.length + arrows.length).toBeGreaterThan(dashedCount);
+  });
+
+  it('exports a custom color / explicit dash / explicit width for a styled relation', () => {
+    let doc = ephesians();
+    const leaves = leafUnits(doc);
+    doc = addDiscourseRelation(
+      doc,
+      {
+        id: 'dr_styled',
+        sourceUnitId: leaves[3]!.id,
+        targetUnitId: leaves[0]!.id,
+        type: 'ground', // non-paired type, so dashed would NOT be the default
+      },
+      NOW,
+    );
+    doc = updateDiscourseRelation(
+      doc,
+      'dr_styled',
+      { customColor: '#123abc', strokeDash: 'dotted', strokeWidth: 'thick' },
+      NOW,
+    );
+    const svg = discourseOutlineSvg(doc);
+    expect(svg).toContain('stroke="#123abc"');
+    expect(svg).toContain('stroke-dasharray="1.5 3"');
+    expect(svg).toContain('stroke-width="3.4"');
   });
 
   it('reserves gutter width only when the document has relations', () => {

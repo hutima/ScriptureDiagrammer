@@ -1,5 +1,10 @@
 import type { DiscourseRelation } from '@/domain/schema';
-import { relationTypeLabel, resolvedRelationColor } from './layout';
+import {
+  relationTypeLabel,
+  resolvedRelationColor,
+  resolvedRelationDashArray,
+  resolvedRelationStrokeWidth,
+} from './layout';
 
 /**
  * DISCOURSE RELATION LAYOUT — the ONE pure, deterministic geometry helper that
@@ -89,8 +94,13 @@ export interface LaidOutRelation {
   label: string;
   /** `resolvedRelationColor(relation)`. */
   color: string;
-  /** Paired/structural relations render a dashed run (chiasm · parallel · inclusio). */
-  dashed: boolean;
+  /** `resolvedRelationDashArray(relation)` — an explicit `strokeDash` override,
+   *  else the type-derived default (paired/structural relations — chiasm ·
+   *  parallel · inclusio — dashed, everything else solid). */
+  dashArray: string | undefined;
+  /** `resolvedRelationStrokeWidth(relation)` — an explicit `strokeWidth`
+   *  override, else the current default weight (1.6px). */
+  strokeWidth: number;
 }
 
 export interface RelationLayoutResult {
@@ -112,11 +122,6 @@ const LANE_STEP_LABELLED = 16;
 const LANE_STEP_BARE = 11;
 /** Default outward width reserved for rotated labels when shown. */
 const LABEL_ALLOWANCE = 12;
-
-/** Structural/paired relations drawn with a dashed run (mirrors both consumers). */
-function isDashed(type: DiscourseRelation['type']): boolean {
-  return type === 'chiasm' || type === 'parallel' || type === 'inclusio';
-}
 
 /**
  * A single endpoint occurrence — one tip of one relation. We group ALL tips
@@ -257,7 +262,8 @@ export function layoutDiscourseRelations(
       bottom: p.bottom,
       label,
       color: resolvedRelationColor(relation),
-      dashed: isDashed(relation.type),
+      dashArray: resolvedRelationDashArray(relation),
+      strokeWidth: resolvedRelationStrokeWidth(relation),
     };
   });
 
