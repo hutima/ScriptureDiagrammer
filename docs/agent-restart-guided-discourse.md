@@ -1,0 +1,53 @@
+# Agent restart doc — guided/discourse/copy/Lowfat fixes
+
+**Branch:** `claude/guided-discourse-syntax-fixes-g8hsod` (push target; never push elsewhere)
+**Base commit (main):** `ef08809a4e652b0e40602079f2de33921a1db670`
+**Latest commit:** `ef08809` (no work commits yet)
+
+## Task list
+
+| # | Task | Status |
+|---|------|--------|
+| A1 | Rename top "Grammar" mode button to guided-exploration wording | todo |
+| A2 | Three-dot menu: `Guide` → `How to Use` | todo |
+| A3 | Remove ellipses from three-dot menu items | todo |
+| A4 | Condense guided card summaries (~60–110 chars; John 1:1 example) | todo |
+| A5 | Greek word + gloss pair line-breaking in guided prose | todo |
+| B1 | Colossians 2:11–12 copy vs diagram (συνταφέντες apposition?) | todo |
+| B2 | Romans 9:6–13 intro: shorten drastically | todo |
+| B3 | Difficulty ordering + `topics?: string[]` tags on guides | todo |
+| C  | Lowfat 1 Cor 5:1 `ὥστε` missing (1904 + SBLGNT) + regression tests | todo |
+| D1 | Stacked diagram zoom (Matt 6:11 / Luke 11:3 step 3, secondary diagram) | todo |
+| D2 | Guided Next button sticky near lower-right | todo |
+| E  | Discourse-backed guided examples (Acts 2:39, Eph 2:12–19, Psalm 46 chiasm; suppress self-directed modal from guided) | todo |
+| F  | Guided grammar term help (dashed underline + glossary popover) | todo |
+| G  | (user, 2026-07-04) Matt 6:9 vocative cascade follow-up to #241: "the" slant under "heavens" still clashes with the dashed connector; extend the sub-baseline minimally so the connector joins clear of the modifier | todo |
+
+## Checks
+
+Scripts (verified in package.json): `npm run typecheck`, `npm test`, `npm run build`, `npm run lint`,
+`npm run guided:build`, `npm run guided:check`, `npm run guided:dump -- <id>`, `npm run dump-syntax -- …`.
+
+Run per-section: typecheck + test. Before final PR: typecheck, test, build, lint.
+
+## Files touched
+
+(none yet)
+
+## Known risks
+
+- Commit `ef08809` (#241) hid Acts 2:39 from the guided library — Section E restores it as discourse-backed.
+- Guides live in `src/data/guides/*.ts`; schema `src/domain/schema/guided.ts`; picker `src/ui/guided/GuidedPassagePicker.tsx`; state `src/state/guided.ts`.
+- Do not fix Lowfat issues in the renderer; converter is `src/io/lowfat.ts`.
+
+## Next command for the next agent
+
+```
+git checkout claude/guided-discourse-syntax-fixes-g8hsod && git log --oneline -5
+```
+
+Then continue with the first `todo` section above.
+
+## Notes / decisions
+
+- Working directly on the designated branch (equals current main). Commit per section; every commit must keep the app mergeable.
