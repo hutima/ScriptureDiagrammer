@@ -13,7 +13,7 @@ import { nodeHighlightColors } from '@/ui/sermon/highlights';
 import { dispatchEditIntent } from '../dispatch';
 import { nodeName } from '../common';
 import { ROLE_LABEL } from '../roles';
-import { canDemote, canPromote, moveTargets } from '../hierarchy';
+import { canDemote, canPromote, moveTargets, previewMoveNodeUnder } from '../hierarchy';
 
 /**
  * The grammatical FUNCTIONS a word can take, grouped for the Basic-edit dropdown.
@@ -84,11 +84,32 @@ interface RowDnd {
   enabled: boolean;
   dragId: string | null;
   dropTarget: string | null;
+  /** Row the pointer is over but may NOT receive the drop (self/descendant). */
+  conflictId: string | null;
+  /** The dragged node + its whole subtree — rendered faded ("moving away"). */
+  movingIds: Set<string> | null;
+  /** The dragged subtree, rendered as an "arriving" insertion preview under
+   *  the candidate head (kept out of hit-testing entirely). */
+  previewSubtree: OutlineNode | null;
+  /** Whether the current candidate drop would commit (false = red conflict). */
+  previewOk: boolean;
+  /** The dragged node's CURRENT parent — distinguished from the new head. */
+  oldHeadId: string | null;
   canDrop: (id: string) => boolean;
   onPointerDown: (id: string, e: React.PointerEvent) => void;
   onPointerMove: (e: React.PointerEvent) => void;
   onPointerUp: (e: React.PointerEvent) => void;
   wasDrag: () => boolean;
+}
+
+/** Find a node's outline subtree (for the drag insertion preview). */
+function findOutlineNode(root: OutlineNode, id: string): OutlineNode | null {
+  if (root.id === id) return root;
+  for (const c of root.children) {
+    const hit = findOutlineNode(c, id);
+    if (hit) return hit;
+  }
+  return null;
 }
 
 /** Nodes a drag may NOT land on: the dragged node itself and its descendants. */
@@ -155,12 +176,17 @@ export function PhraseBlockEditor({
   // the block under the cursor highlights, and releasing drops it there.
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
-  const [ghost, setGhost] = useState<{ x: number; y: number; label: string } | null>(null);
+  // Row under the pointer that CANNOT take the drop (the block itself / one of
+  // its own parts) — shown red so an invalid drop reads as a conflict, not as
+  // dead air.
+  const [conflictId, setConflictId] = useState<string | null>(null);
+  const [ghost, setGhost] = useState<{ x: number; y: number; label: string; words: number } | null>(null);
   // Live refs so the pointer handlers (bound once at drag start) read current state.
-  const dragRef = useRef<{ id: string; invalid: Set<string>; drop: string | null }>({
+  const dragRef = useRef<{ id: string; invalid: Set<string>; drop: string | null; conflict: string | null }>({
     id: '',
     invalid: new Set(),
     drop: null,
+    conflict: null,
   });
   // Set true on a real drag so the click that follows pointer-up doesn't also
   // fire a selection on the handle's row.
@@ -190,20 +216,51 @@ export function PhraseBlockEditor({
   const endDrag = () => {
     setDragId(null);
     setDropTarget(null);
+    setConflictId(null);
     setGhost(null);
-    dragRef.current = { id: '', invalid: new Set(), drop: null };
+    dragRef.current = { id: '', invalid: new Set(), drop: null, conflict: null };
   };
+
+  // LIVE reparent preview: apply the candidate move to a clone (pure — the
+  // document is NEVER touched during hover) and sanity-check it. Recomputed
+  // only when the candidate target changes, not per pointer-move.
+  const movePreview = useMemo(
+    () => (dragId && dropTarget ? previewMoveNodeUnder(doc, dragId, dropTarget) : null),
+    [doc, dragId, dropTarget],
+  );
+  // The dragged node + subtree fades in place ("moving away") while a copy
+  // shows under the candidate head ("arriving"). The original outline keeps
+  // rendering — rows never reflow away from the pointer mid-drag.
+  const movingIds = useMemo(
+    () => (dragId ? new Set([dragId, ...descendantIds(doc.syntax, dragId)]) : null),
+    [dragId, doc],
+  );
+  const previewSubtree = useMemo(
+    () => (dragId && dropTarget && movePreview?.ok && !movePreview.noop && outline
+      ? findOutlineNode(outline, dragId)
+      : null),
+    [dragId, dropTarget, movePreview, outline],
+  );
+  const dragOldHeadId = useMemo(
+    () => (dragId ? parentRelations(doc.syntax, dragId)[0]?.headId ?? null : null),
+    [dragId, doc],
+  );
 
   const dnd: RowDnd = {
     enabled: dndEnabled,
     dragId,
     dropTarget,
+    conflictId,
+    movingIds,
+    previewSubtree,
+    previewOk: !movePreview || movePreview.ok,
+    oldHeadId: dragOldHeadId,
     canDrop: (id) => Boolean(dragId) && id !== dragId && !dragInvalid?.has(id),
     onPointerDown: (id, e) => {
       // Left button / touch / pen only.
       if (e.button !== 0 && e.pointerType === 'mouse') return;
       draggedRef.current = false;
-      dragRef.current = { id, invalid: dragInvalidFor(id, doc), drop: null };
+      dragRef.current = { id, invalid: dragInvalidFor(id, doc), drop: null, conflict: null };
       try {
         (e.currentTarget as Element).setPointerCapture(e.pointerId);
       } catch {
@@ -211,7 +268,14 @@ export function PhraseBlockEditor({
       }
       setDragId(id);
       setDropTarget(null);
-      setGhost({ x: e.clientX, y: e.clientY, label: nodeName(doc, id) });
+      setConflictId(null);
+      // The ghost carries the block's word count, so dragging a HEAD visibly
+      // means dragging its whole subtree.
+      const words = [id, ...descendantIds(doc.syntax, id)].reduce(
+        (sum, k) => sum + (getNode(doc.syntax, k)?.tokenIds.length ?? 0),
+        0,
+      );
+      setGhost({ x: e.clientX, y: e.clientY, label: nodeName(doc, id), words });
     },
     onPointerMove: (e) => {
       if (!dragRef.current.id) return;
@@ -225,11 +289,24 @@ export function PhraseBlockEditor({
         dragRef.current.drop = next;
         setDropTarget(next);
       }
+      // Hovering the dragged block itself / one of its own parts is a CONFLICT
+      // (a cycle): show it red rather than silently ignoring the hover.
+      const conflict = id && !canDrop(id) ? id : null;
+      if (conflict !== dragRef.current.conflict) {
+        dragRef.current.conflict = conflict;
+        setConflictId(conflict);
+      }
     },
     onPointerUp: () => {
       const { id, drop } = dragRef.current;
       if (id && drop && canDrop(drop)) {
-        dispatchEditIntent({ kind: 'moveNodeUnder', nodeId: id, headId: drop });
+        // Validate the exact move that would commit (fresh, not the memo — a
+        // pointer-up can land before the hover preview re-renders): cycles,
+        // no-ops, and un-renderable candidates never commit.
+        const preview = previewMoveNodeUnder(doc, id, drop);
+        if (preview.ok && !preview.noop) {
+          dispatchEditIntent({ kind: 'moveNodeUnder', nodeId: id, headId: drop });
+        }
       }
       endDrag();
     },
@@ -280,6 +357,7 @@ export function PhraseBlockEditor({
       {ghost && (
         <div className="pbw-drag-ghost" style={{ left: ghost.x + 14, top: ghost.y + 8 }} aria-hidden="true">
           {ghost.label}
+          {ghost.words > 1 && <span className="pbw-ghost-count">{ghost.words} words</span>}
         </div>
       )}
       {moving && (
@@ -313,10 +391,34 @@ export function PhraseBlockEditor({
           hidden), so neither starting a drag nor opening/closing a menu ever
           shifts the rows by collapsing this slot — only its text swaps. */}
       {!moving && !grouping && (
-        <div className={`pbw-banner pbw-banner-dnd${dragId ? ' dragging' : ''}`}>
+        <div
+          className={`pbw-banner pbw-banner-dnd${dragId ? ' dragging' : ''}${
+            dragId && (conflictId || (movePreview && !movePreview.ok)) ? ' conflict' : ''
+          }`}
+        >
           {dragId ? (
             <>
-              Drop <strong>{nodeName(doc, dragId)}</strong> on a block to nest it under it.
+              {conflictId ? (
+                <>
+                  A block can’t be nested inside{' '}
+                  {conflictId === dragId ? 'itself' : 'one of its own parts'}.
+                </>
+              ) : dropTarget && movePreview?.noop ? (
+                <>
+                  <strong>{nodeName(doc, dragId)}</strong> is already under this block.
+                </>
+              ) : dropTarget && movePreview && !movePreview.ok ? (
+                <>{movePreview.reason}</>
+              ) : dropTarget ? (
+                <>
+                  Release to nest <strong>{nodeName(doc, dragId)}</strong> under{' '}
+                  <strong>{nodeName(doc, dropTarget)}</strong>.
+                </>
+              ) : (
+                <>
+                  Drop <strong>{nodeName(doc, dragId)}</strong> on a block to nest it under it.
+                </>
+              )}
               <button className="mini" onClick={endDrag}>
                 Cancel
               </button>
@@ -394,6 +496,13 @@ function Row({
   const isDropTarget = dnd.dropTarget === node.id && dnd.canDrop(node.id);
   const isDropCandidate = Boolean(dnd.dragId) && dnd.canDrop(node.id);
   const isDragging = dnd.dragId === node.id;
+  // Live-preview styling: the whole dragged subtree fades ("moving away"), the
+  // current parent is marked as the block it is LEAVING, an un-droppable row
+  // under the pointer shows a red conflict, and the drop target hosts the
+  // "arriving" insertion preview below.
+  const isMovingAway = Boolean(dnd.dragId) && (dnd.movingIds?.has(node.id) ?? false);
+  const isOldHead = Boolean(dnd.dragId) && dnd.oldHeadId === node.id && dnd.dropTarget !== node.id;
+  const isConflict = dnd.conflictId === node.id || (isDropTarget && !dnd.previewOk);
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!selected) return;
@@ -425,7 +534,9 @@ function Row({
           node.tentative ? ' tentative' : ''
         }${isTarget ? ' targetable' : ''}${inRange ? ' in-range' : ''}${
           isDropCandidate ? ' drop-candidate' : ''
-        }${isDropTarget ? ' drop-target' : ''}${isDragging ? ' dragging' : ''}`}
+        }${isDropTarget && !isConflict ? ' drop-target' : ''}${isDragging ? ' dragging' : ''}${
+          isMovingAway ? ' preview-out' : ''
+        }${isOldHead ? ' move-from' : ''}${isConflict ? ' drop-conflict' : ''}`}
         style={{ paddingLeft: 8 + depth * 18 }}
         tabIndex={selected ? 0 : -1}
         onClick={() => onRowClick(node.id)}
@@ -472,6 +583,14 @@ function Row({
           node.implied && <span className="pbw-text implied">(implied)</span>
         )}
       </div>
+      {/* The ARRIVING preview: while this row is the drop target, its incoming
+          subtree renders right below it, nested one level deeper — the branch
+          visibly "moves under" the candidate head before anything commits. It
+          is aria-hidden and pointer-transparent, so hit-testing (and the rows'
+          positions) never shift away from the pointer mid-drag. */}
+      {isDropTarget && !isConflict && dnd.previewSubtree && (
+        <PreviewSubtree node={dnd.previewSubtree} depth={depth + 1} />
+      )}
       {selected && !moving && !grouping && !dnd.dragId && (
         <RowControls nodeId={node.id} editTier={editTier} />
       )}
@@ -498,6 +617,32 @@ function Row({
         </ul>
       )}
     </li>
+  );
+}
+
+/**
+ * The drag preview's "arriving" subtree — a read-only rendering of the dragged
+ * block nested under the candidate head. Pointer-transparent and aria-hidden:
+ * it must never take hits from `elementFromPoint` (the drop target stays the
+ * real row above it) and never announce itself to a screen reader mid-drag.
+ */
+function PreviewSubtree({ node, depth }: { node: OutlineNode; depth: number }) {
+  return (
+    <ul className="pbw-preview-in-tree" aria-hidden="true">
+      <li>
+        <div className="pbw-row pbw-preview-in" style={{ paddingLeft: 8 + depth * 18 }}>
+          <span className="pbw-rail" aria-hidden="true" />
+          {node.label && <span className="pbw-label">{node.label}</span>}
+          {node.text ? (
+            <span className={`pbw-text${node.implied ? ' implied' : ''}`}>{node.text}</span>
+          ) : (
+            node.implied && <span className="pbw-text implied">(implied)</span>
+          )}
+        </div>
+        {node.children.length > 0 &&
+          node.children.map((c) => <PreviewSubtree key={c.id} node={c} depth={depth + 1} />)}
+      </li>
+    </ul>
   );
 }
 

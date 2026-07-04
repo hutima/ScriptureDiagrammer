@@ -17,7 +17,8 @@ message prefixes (`fix(kr): …`, `feat(guided): …`, `feat(editor): …`).
 
 ## Current phase
 
-Phase 3 — Guided content proposal (Phases 1 + 2 COMPLETE).
+Phase 5 — Edit-mode right-panel Preview tab (Phases 1, 2, 4 COMPLETE;
+Phase 3 proposal recorded below, WAITING on Tim's approval for full content).
 
 ## Goal
 
@@ -125,19 +126,47 @@ All acceptance criteria met (see "Phase 2 detail" below):
   `src/data/grammarHighlights.ts` — marked as the v1 SAMPLE; full list awaits
   Tim's approval.
 
-## Remaining
+### Phase 3 — Content proposal ✅ (awaiting approval)
 
-- Phase 3: guided content proposal for Tim (candidate list is in the task
-  brief: Mark 5:25–34, Heb 1:1–4, 1 Pet 3:18–22, Matt 28:19–20, Matt 6:11 vs
-  Luke 11:3, 1 John 2:1 vs 3:6–9 + optional contested list). Record the
-  proposal (with grammar hook / payoff / caution / difficulty / v1-or-later
-  per candidate) in this file + stop for approval before authoring.
-- Phase 4: Phrase/Block dynamic drag preview (`previewMoveNodeUnder` pure
-  helper, ghost subtree, live reparent preview, cycle/conflict red feedback;
-  commit via existing `dispatchEditIntent` moveNodeUnder only on drop).
+The full candidate list (with hooks/payoffs/cautions/difficulty/v1-or-later)
+is recorded at the END of this document. Full authoring is BLOCKED on Tim's
+approval; only the Hebrews sample guide ships.
+
+### Phase 4 — Phrase/Block dynamic drag preview ✅
+
+- **Shared pure transformation:** `reattachNode` + `replaceFiller` extracted
+  from the store into `domain/model/mutations.ts`; `attachNodeTo` now commits
+  `reattachNode(...)`, and the preview applies THE SAME function — what the
+  preview shows is by construction what the drop commits.
+- **`previewMoveNodeUnder(doc, nodeId, headId)`** (`ui/editor/hierarchy.ts`):
+  pure; rejects self/descendant (cycle), root, missing nodes with readable
+  reasons; flags current-parent drops as `noop`; probes the candidate with
+  `buildOutline` + a full KR `layoutForMode` in try/catch (an un-renderable
+  graph shows red and never commits); reports changed node/relation ids and
+  old/new head ids. Never dispatches or persists.
+- **PhraseBlockEditor** drag now: fades the dragged subtree in place
+  (`preview-out`), renders the subtree as an "arriving" dashed copy nested
+  UNDER the candidate head (`PreviewSubtree`, pointer-transparent +
+  aria-hidden so hit-testing and row positions never shift away from the
+  pointer mid-drag — deliberate anti-flicker design: the original outline
+  keeps rendering, no live reflow), marks the OLD parent amber (`move-from`)
+  and the target with the existing `drop-target` outline, shows RED conflict
+  styling + banner reason on self/descendant hovers and unrenderable targets,
+  and the ghost now carries the subtree word count. Drop re-validates with a
+  fresh `previewMoveNodeUnder` and commits via the existing
+  `dispatchEditIntent({kind:'moveNodeUnder'})` ONLY when ok && !noop.
+- Click-to-select, keyboard promote/demote, the Move-under tool, and touch
+  behavior untouched (same pointer pipeline; editing tests all pass).
+- Also fixed while here: the syntax canvas's own mode `<select>` (DiagramCanvas
+  ~line 1015) now drops Discourse while guided mode is active (the
+  VisualizationSwitcher component patched in Phase 2 is only used by the
+  Discourse canvas).
+
+## Remaining
 - Phase 5: Edit-mode right-panel "Preview" tab (default tab in Edit mode, KR
   default, baseDoc vs doc diff, blue added / yellow changed / red removed,
   friendly empty state when no baseDoc).
+- Phase 3 content authoring once Tim approves the proposal below.
 - Final validation + report.
 
 ## Important architectural decisions
@@ -206,7 +235,7 @@ Phase 2:
 ## Test commands run and results
 
 - `npm run typecheck` — clean.
-- `npm test` — 115 files / 2203 tests, ALL PASS (after Phase 2).
+- `npm test` — 116 files / 2211 tests, ALL PASS (after Phase 4).
 - `npm run build` — succeeds (precache 1130 KiB; +64K = the guided bundle).
 - `npm run guided:check` — 1 guide validates.
 - Stress cases (Mark 5:26, Mark 1:19–20, Col 1:9–20, Gen 1:11, Hebrew RTL)

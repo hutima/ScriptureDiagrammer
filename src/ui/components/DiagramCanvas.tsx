@@ -1018,8 +1018,9 @@ export function DiagramCanvas() {
               {/* Every view is selectable in Edit mode too — but only the block
                   diagram is editable; the rest render read-only (with a note).
                   Discourse is a separate multi-verse analysis layer that is
-                  desktop-only, so it is dropped from the list on mobile. */}
-              {DIAGRAM_MODES.filter((m) => m.id !== 'discourse' || !viewport.isMobile).map((m) => (
+                  desktop-only, so it is dropped from the list on mobile — and
+                  during Grammar Highlights, which is a syntax-only walkthrough. */}
+              {DIAGRAM_MODES.filter((m) => m.id !== 'discourse' || (!viewport.isMobile && !guidedActive)).map((m) => (
                 <option key={m.id} value={m.id} title={m.description}>
                   {m.label}
                   {appMode === 'edit' && !isEditableMode(m.id) && m.id !== 'discourse' ? ' (view only)' : ''}
