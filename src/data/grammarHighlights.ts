@@ -75,6 +75,10 @@ export const grammarHighlightsRegistry: GrammarHighlightsRegistry =
 
 export const grammarHighlightGuides: GrammarHighlightGuide[] = grammarHighlightsRegistry.guides;
 
+/** The guides shown in the guided library picker (hidden guides excluded). */
+export const visibleGrammarHighlightGuides: GrammarHighlightGuide[] =
+  grammarHighlightGuides.filter((g) => !g.hidden);
+
 export function getGuide(id: string): GrammarHighlightGuide | undefined {
   return grammarHighlightGuides.find((g) => g.id === id);
 }

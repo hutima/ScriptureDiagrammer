@@ -7,7 +7,11 @@ import { GuidedStepCard } from '@/ui/guided/GuidedStepCard';
 import { DiagramCanvas } from '@/ui/components/DiagramCanvas';
 import { ResponsiveShell } from '@/ui/shell/ResponsiveShell';
 import { useEditorStore, useGuidedStore } from '@/state';
-import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
+import {
+  grammarHighlightGuides,
+  visibleGrammarHighlightGuides,
+  getGuide,
+} from '@/data/grammarHighlights';
 import { GUIDED_HIGHLIGHT_COLORS } from '@/ui/guided/focus';
 import { sampleDocuments } from '@/fixtures';
 
@@ -82,10 +86,16 @@ describe('guided mode UI', () => {
     expect(screen.queryByRole('button', { name: 'GNT' })).toBeNull();
     // …the source presents itself as a curated library, not unrestricted SBLGNT…
     expect(screen.getByText(/curated guided passages/i)).toBeTruthy();
-    // …and every entry is an approved guide.
-    for (const g of grammarHighlightGuides) {
+    // …every visible entry is an approved guide…
+    for (const g of visibleGrammarHighlightGuides) {
       expect(screen.getByText(g.title)).toBeTruthy();
     }
+    // …and hidden guides (Acts 2:39, pending its Discourse-mode rework) stay
+    // registered but never appear in the picker.
+    for (const g of grammarHighlightGuides.filter((x) => x.hidden)) {
+      expect(screen.queryByText(g.title)).toBeNull();
+    }
+    expect(getGuide('guide-acts-2-39')?.hidden).toBe(true);
   });
 
   it('step card renders term links, opens the detail panel, and navigates', () => {

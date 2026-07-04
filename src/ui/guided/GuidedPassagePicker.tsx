@@ -1,5 +1,5 @@
 import { useGuidedStore } from '@/state';
-import { grammarHighlightGuides } from '@/data/grammarHighlights';
+import { visibleGrammarHighlightGuides } from '@/data/grammarHighlights';
 
 /**
  * The curated guided library — replaces the normal source/passage pickers in
@@ -16,7 +16,7 @@ export function GuidedPassagePicker() {
         Source: <strong>Grammar Highlights</strong> — curated guided passages (SBLGNT text)
       </div>
       <ul className="guided-picker-list">
-        {grammarHighlightGuides.map((g) => (
+        {visibleGrammarHighlightGuides.map((g) => (
           <li key={g.id}>
             <button
               className={`guided-picker-item${g.id === selectedGuideId ? ' active' : ''}`}

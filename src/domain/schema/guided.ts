@@ -195,6 +195,11 @@ export const GrammarHighlightGuideSchema = z.object({
   debateSummary: GuidedDebateSummarySchema.optional(),
   steps: z.array(GuidedStepSchema).min(1),
   greekTerms: z.array(GuidedGreekTermSchema).default([]),
+  /**
+   * Hidden guides stay registered (openGuide by id still works, and internal
+   * references stay valid) but never appear in the guided library picker.
+   */
+  hidden: z.boolean().optional(),
 });
 export type GrammarHighlightGuide = z.infer<typeof GrammarHighlightGuideSchema>;
 

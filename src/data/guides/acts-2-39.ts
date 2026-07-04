@@ -21,6 +21,9 @@ import type { GrammarHighlightGuide } from '@/domain/schema';
  */
 export const acts239: GrammarHighlightGuide = {
   id: 'guide-acts-2-39',
+  // Hidden from the guided library pending a Discourse-mode rework of this
+  // walkthrough; the guide stays registered so ids and tests remain valid.
+  hidden: true,
   title: 'Acts 2:39 — the promise is for you and for your children',
   reference: 'Acts 2:39',
   sourceId: 'macula-greek-sblgnt-lowfat',
