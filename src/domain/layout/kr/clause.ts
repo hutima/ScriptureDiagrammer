@@ -25,7 +25,14 @@ import {
   layoutCoordination,
 } from './coordination';
 import { drawDiagonalCoordination, drawDiagonalModifier } from './diagonal';
-import { blockAscent, clearStemX, pedestalRoom, rightWithinBand, spineBarBottom } from './geometry';
+import {
+  blockAscent,
+  clearStemX,
+  pedestalRoom,
+  rightWithinBand,
+  spineBarBottom,
+  stemSlantClearShift,
+} from './geometry';
 import { drawInfinitive, layoutInfinitiveFork } from './infinitives';
 import { BandPacker } from './packing';
 import { layoutDiscourse } from './discourse';
@@ -346,13 +353,29 @@ function layoutClauseSpine(
     const ascent0 = laid[0] ? blockAscent(laid[0].block) : 0;
     const leadDrop = Math.max(0, ...blocks.map((b) => b.height));
     const leadY = Math.min(top - ascent0, firstStubTop) - LAYOUT.fontSize - 14 - leadDrop;
+    // Lay the lead row into its own buffer first, so it can be nudged clear of
+    // the dashed stem before being committed.
+    const leadEls: DiagramElement[] = [];
     let x = Math.max(0, verbAlignX - GAPW - totalW);
-    const leadStart = x;
     for (const b of blocks) {
-      elements.push(...translate(b, x, leadY));
-      right = Math.max(right, x + b.width);
+      leadEls.push(...translate(b, x, leadY));
       x += b.width + GAPW;
     }
+    // The dashed stem (below) drops at verbAlignX from the lead baseline down to
+    // the spine. A lead block carrying a modifier cascade — the Matt 6:9
+    // vocative Πάτερ … ὁ ἐν τοῖς οὐρανοῖς — can hang a solid slant (the article
+    // τοῖς / "the" beneath οὐρανοῖς / "heavens") right at that x, so the two
+    // lines clash. Slide the whole lead row just enough that verbAlignX misses
+    // every such slant; 0 for an ordinary lead word (byte-identical).
+    const clearShift = stemSlantClearShift(leadEls, verbAlignX, leadY, top);
+    const leadStart = Math.max(0, verbAlignX - GAPW - totalW) + clearShift;
+    x += clearShift;
+    elements.push(
+      ...(clearShift !== 0
+        ? translate({ width: 0, height: 0, elements: leadEls, wordLeft: 0, wordRight: 0 }, clearShift, 0)
+        : leadEls),
+    );
+    right = Math.max(right, x - GAPW);
     // A lead block that carries a cascade draws its OWN baseline at leadY; the
     // stub must ride AT that level to join it (4px below, it reads as a double
     // line and leaves the lead geometrically detached from the stem), and it

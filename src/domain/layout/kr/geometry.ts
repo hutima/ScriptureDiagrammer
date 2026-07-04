@@ -224,6 +224,50 @@ export function spineBarBottom(block: Block): number | null {
   return Number.isFinite(bottom) ? bottom : null;
 }
 
+/** Clearance kept between a dashed connector stem and a modifier slant it runs
+ *  alongside, so the two lines never visually merge. */
+const STEM_SLANT_CLEAR = 6;
+
+/**
+ * A lead / connector row drops a dashed vertical stem at `stemX` (from the lead
+ * baseline down to the spine). A lead block that carries a modifier cascade can
+ * hang a solid slant right at that x — the Matt 6:9 vocative's articular PP
+ * (τοῖς "the" under οὐρανοῖς) lands within a hair of the stem, so the two lines
+ * clash. Return the minimal horizontal shift to apply to the WHOLE lead block so
+ * `stemX` clears every solid slant it would otherwise touch within the stem's
+ * vertical band `[yTop, yBottom]`; 0 when nothing is near (so ordinary lead
+ * words stay byte-identical). Prefers whichever of a left / right nudge is
+ * smaller, and the returned shift clears every crossed slant at once.
+ */
+export function stemSlantClearShift(
+  els: readonly DiagramElement[],
+  stemX: number,
+  yTop: number,
+  yBottom: number,
+): number {
+  // Left solution: slide the whole row LEFT until every crossed slant's right
+  // edge sits STEM_SLANT_CLEAR left of the stem (leftShift ≤ 0). Right solution:
+  // slide RIGHT until every crossed slant's left edge sits that far to the right.
+  let leftShift = 0;
+  let rightShift = 0;
+  let crossed = false;
+  for (const el of els) {
+    if (el.kind !== 'line' || el.role !== 'slant') continue;
+    const lo = Math.min(el.y1, el.y2);
+    const hi = Math.max(el.y1, el.y2);
+    if (hi <= yTop + 0.5 || lo >= yBottom - 0.5) continue; // no vertical overlap
+    const minX = Math.min(el.x1, el.x2);
+    const maxX = Math.max(el.x1, el.x2);
+    // Already clear (beyond the clearance margin on either side)?
+    if (maxX + STEM_SLANT_CLEAR <= stemX || minX - STEM_SLANT_CLEAR >= stemX) continue;
+    crossed = true;
+    leftShift = Math.min(leftShift, stemX - STEM_SLANT_CLEAR - maxX); // ≤ 0
+    rightShift = Math.max(rightShift, stemX + STEM_SLANT_CLEAR - minX); // ≥ 0
+  }
+  if (!crossed) return 0;
+  return Math.abs(leftShift) <= rightShift ? leftShift : rightShift;
+}
+
 /** Vertical clearance a gapped line keeps above/below the glyphs it skips. */
 const GAP_MARGIN = 2;
 /** A line's first/last few px are its junctions — never gapped away, so the
