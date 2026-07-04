@@ -4,8 +4,10 @@ import { render, cleanup, fireEvent, screen, act } from '@testing-library/react'
 import { TopBar } from '@/ui/components/TopBar';
 import { LeftPanel } from '@/ui/panels/LeftPanel';
 import { GuidedStepCard } from '@/ui/guided/GuidedStepCard';
+import { DiagramCanvas } from '@/ui/components/DiagramCanvas';
 import { useEditorStore, useGuidedStore } from '@/state';
 import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
+import { GUIDED_HIGHLIGHT_COLORS } from '@/ui/guided/focus';
 
 /**
  * Grammar Highlights UI smoke — the entry flow (⋯ menu → intro modal → mode
@@ -116,6 +118,37 @@ describe('guided mode UI', () => {
     expect(e.contested.selectedContestedIssueId).toBe('iss_rom_9_5_doxology_sblgnt');
     // The merged (9:3–5a + 9:5b) contested base was buildable inside guided mode.
     expect(e.contestedBaseDoc).not.toBeNull();
+  });
+
+  it('a stacked step renders the secondary Hebrew frame with highlights on both diagrams', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-acts-2-39'));
+    const guide = getGuide('guide-acts-2-39')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    expect(stackedIndex).toBeGreaterThan(0);
+    act(() => useGuidedStore.getState().setStep(stackedIndex));
+    const { container } = render(createElement(DiagramCanvas));
+
+    // The stacked secondary diagram is a Hebrew (RTL) frame.
+    const hebrewSvg = container.querySelector('svg.diagram-paper.hebrew');
+    expect(hebrewSvg).toBeTruthy();
+    // The primary (Greek) diagram is the non-Hebrew paper.
+    const greekSvg = container.querySelector('svg.diagram-paper:not(.hebrew)');
+    expect(greekSvg).toBeTruthy();
+
+    // A guided emphasis swash lands on BOTH an Acts word (primary) and a Genesis
+    // word (secondary) — one highlight colour, two stacked diagrams.
+    const emphasis = GUIDED_HIGHLIGHT_COLORS.emphasized;
+    expect(greekSvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
+    expect(hebrewSvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
+  });
+
+  it('a non-stacked guide renders no secondary frame', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-john-1-1'));
+    const { container } = render(createElement(DiagramCanvas));
+    expect(container.querySelector('svg.diagram-paper')).toBeTruthy();
+    expect(container.querySelector('svg.diagram-paper.hebrew')).toBeNull();
   });
 
   it('a contested reference that cannot be resolved renders nothing', () => {

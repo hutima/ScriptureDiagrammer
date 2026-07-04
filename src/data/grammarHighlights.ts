@@ -11,6 +11,7 @@ import { lordsPrayerBread } from './guides/lords-prayer-bread';
 import { johnSin } from './guides/1-john-sin';
 import { firstPeter3 } from './guides/1-peter-3-18-22';
 import { acts2 } from './guides/acts-2-38';
+import { acts239 } from './guides/acts-2-39';
 import { romans6 } from './guides/romans-6-3-4';
 import { ephesians1 } from './guides/ephesians-1-3-14';
 import { romans9doxology } from './guides/romans-9-5';
@@ -53,6 +54,7 @@ const guides: GrammarHighlightGuide[] = [
   // Contested / deeper — grammar opens the question.
   firstPeter3,
   acts2,
+  acts239,
   romans6,
   ephesians1,
   romans9doxology,

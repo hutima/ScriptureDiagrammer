@@ -78,6 +78,24 @@ describe('guided registry and bundle', () => {
     );
   });
 
+  it('registers the Acts 2:39 stacked guide with both bundled passages', () => {
+    const guide = getGuide('guide-acts-2-39');
+    expect(guide).toBeTruthy();
+    expect(guide!.bundledPassageIds).toEqual(['sblgnt_acts_47', 'wlc_genesis_1_11']);
+    // Its stacked steps name a secondary passage that is one of the bundled ids.
+    const stacked = guide!.steps.filter((s) => s.secondaryPassageId);
+    expect(stacked.length).toBeGreaterThan(0);
+    for (const s of stacked) {
+      expect(guide!.bundledPassageIds).toContain(s.secondaryPassageId);
+    }
+  });
+
+  it('bundles the WLC Hebrew parallel document (language hbo)', () => {
+    const heb = guidedDocuments.find((d) => d.id === 'wlc_genesis_1_11');
+    expect(heb, 'wlc_genesis_1_11 must be in the guided bundle').toBeTruthy();
+    expect(heb!.language).toBe('hbo');
+  });
+
   it('clones bundled documents on load (never hands out the bundle itself)', () => {
     const id = grammarHighlightGuides[0]!.bundledPassageIds[0]!;
     const a = getGuidedDocument(id)!;
@@ -133,6 +151,26 @@ describe('guided focus helpers', () => {
     }
     expect(usedHighlightKinds(step)).toContain('emphasized');
   });
+
+  it('builds highlight maps over a stacked SECONDARY passage (its own ids)', () => {
+    const stackedGuide = getGuide('guide-acts-2-39')!;
+    const stacked = stackedGuide.steps.find((s) => s.secondaryPassageId)!;
+    const secDoc = getGuidedDocument(stacked.secondaryPassageId!)!;
+    expect(secDoc.language).toBe('hbo');
+    const { nodeFills } = guidedHighlightMaps(secDoc, {
+      ...stacked,
+      focus: stacked.secondaryFocus ?? {},
+      highlights: stacked.secondaryHighlights,
+    });
+    expect(nodeFills.size).toBeGreaterThan(0);
+    // Every highlighted node resolves in the SECONDARY passage, not the primary.
+    for (const id of nodeFills.keys()) {
+      expect(secDoc.syntax.nodes.some((n) => n.id === id), id).toBe(true);
+    }
+    for (const c of nodeFills.values()) {
+      expect(Object.values(GUIDED_HIGHLIGHT_COLORS)).toContain(c);
+    }
+  });
 });
 
 describe('guided store', () => {
@@ -174,6 +212,19 @@ describe('guided store', () => {
     expect(useEditorStore.getState().doc.id).toBe('sblgnt_luke_511');
     useGuidedStore.getState().setStep(0);
     expect(useEditorStore.getState().doc.id).toBe('sblgnt_matthew_143');
+  });
+
+  it('stepping onto a stacked step keeps the primary (Acts) document loaded', () => {
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide('guide-acts-2-39');
+    expect(useEditorStore.getState().doc.id).toBe('sblgnt_acts_47');
+    const guide = getGuide('guide-acts-2-39')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    expect(stackedIndex).toBeGreaterThan(0);
+    useGuidedStore.getState().setStep(stackedIndex);
+    // The secondary (Hebrew) passage is drawn read-only, never loaded into the
+    // editor store — the primary Greek sentence stays the one loaded document.
+    expect(useEditorStore.getState().doc.id).toBe('sblgnt_acts_47');
   });
 
   it('every guide in the library opens and lays out in its default mode', () => {
