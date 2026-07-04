@@ -21,6 +21,7 @@
 | D2 | Guided Next button sticky near lower-right | done (a214806) |
 | E  | Discourse-backed guided examples (Acts 2:39, Eph 2:12–19, Psalm 46 chiasm; suppress self-directed modal from guided) | in progress |
 | F  | Guided grammar term help (dashed underline + glossary popover) | todo |
+| H  | (user, 2026-07-04) Update README.md — ABSOLUTE LAST task in the PR, after F and final checks | todo |
 | G  | (user, 2026-07-04) Matt 6:9 vocative cascade follow-up to #241: "the" slant under "heavens" still clashes with the dashed connector; extend the sub-baseline minimally so the connector joins clear of the modifier | done (see log) |
 
 ## Checks
@@ -55,3 +56,36 @@ Then continue with the first `todo` section above.
 ## Notes / decisions
 
 - Working directly on the designated branch (equals current main). Commit per section; every commit must keep the app mergeable.
+
+### Section E — discourse-backed guides (minimal design)
+
+- **Schema (`guided.ts`)**: add `kind: 'syntax' | 'discourse'` (default `'syntax'`).
+  Make `sourceId` optional and `bundledPassageIds` `.default([])` so a discourse
+  guide can omit both (existing syntax guides pass them exactly as before →
+  byte-compatible). Add optional `discourse` spec: `ranges: [{sourceId, bookNum,
+  startRef, endRef, granularity='verse'}]` (sourceId kept `z.string()` to avoid
+  io↔schema coupling) plus optional sample-labelled `seededArcs`
+  `[{id, sourceRef, targetRef, type, label, notes?}]`. A `superRefine` requires
+  `discourse` when kind==='discourse' and non-empty `bundledPassageIds` when syntax.
+- **Two-source load = merge, no alignment**: new pure `mergeDiscourseDocuments()`
+  in `domain/discourse/build.ts` concatenates units/tokens/markers of independently
+  built `DiscourseDocument`s (re-sequences root order; ids already unique across
+  books/sources). NO syntax equivalence, NO fabricated Greek↔Hebrew alignment.
+- **Guided hosting**: `useGuidedStore.openGuide` branches on kind. Discourse kind →
+  set editor `diagramMode='discourse'` (so `ResponsiveShell` mounts `DiscourseCanvas`)
+  and call new `useDiscourseStore.enterGuidedDiscourse(spec)` which loads each range
+  via the NORMAL `loadDiscourseRange`, merges, seeds arcs into the doc directly
+  (not a persisted patch), read-only. It does NOT saveLastRange, NOT apply stored
+  patches, NOT touch demo/hide prefs. `leave`/opening a syntax guide call
+  `exitGuidedDiscourse()` (clears the guided doc so a later DIRECT discourse entry
+  restores the user's real range).
+- **Modal suppression (explicit flag)**: discourse store gains `guidedContext:boolean`.
+  `enterDiscourseMode` early-returns when set, so the "self-directed" first-load modal
+  never opens from a guided visit and the `dismissed`/`hideDemo` prefs are never written.
+  ResponsiveShell's "guided ⇒ force KR" effect is gated so discourse guides keep
+  `diagramMode='discourse'`.
+- **Guides**: E2 Acts 2:39 un-hidden, reworked discourse (SBLGNT Acts 2:39 + WLC
+  Genesis 17:12, one seeded `parallel` sample arc). E5 Ephesians 2:12–19 (BSB NT book
+  10) reconciliation. E4 Psalm 46 (BSB OT book 19) proposed A–E/E′–A′ chiasm with
+  sample-labelled arcs. Discourse-guide steps carry prose only (empty focus);
+  `guided:check` + `guided.test.ts` skip syntax id/sourceId checks for `kind==='discourse'`.
