@@ -23,6 +23,7 @@ export const ephesians1: GrammarHighlightGuide = {
   ],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
+  topics: ['election', 'blessing', 'trinity'],
   summary:
     'Paul praises God in one long sentence tracing his plan of salvation.',
   devotionalFrame:

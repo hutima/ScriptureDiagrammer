@@ -17,6 +17,7 @@ export const mark5: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_mark_172', 'sblgnt_mark_173', 'sblgnt_mark_178'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'beginner',
+  topics: ['participles', 'faith', 'healing'],
   summary:
     "Mark traces a suffering woman's long journey to one healing touch.",
   devotionalFrame:

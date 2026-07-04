@@ -17,6 +17,7 @@ export const firstPeter3: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_1-peter_44', 'sblgnt_1-peter_45', 'sblgnt_1-peter_46'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
+  topics: ['baptism', 'christology', 'contested passage'],
   summary:
     "Peter connects Christ's proclamation to imprisoned spirits with baptism's saving pledge.",
   devotionalFrame:

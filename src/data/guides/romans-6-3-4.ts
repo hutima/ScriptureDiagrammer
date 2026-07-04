@@ -16,6 +16,7 @@ export const romans6: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_romans_126', 'sblgnt_romans_127'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['baptism', 'union with Christ'],
   summary:
     "Paul pictures baptism as union with Christ's death and new life.",
   devotionalFrame:

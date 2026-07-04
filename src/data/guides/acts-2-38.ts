@@ -16,6 +16,7 @@ export const acts2: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_acts_46'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
+  topics: ['baptism', 'repentance', 'forgiveness'],
   summary:
     'Peter calls the crowd to repent, be baptized, and receive forgiveness.',
   devotionalFrame:

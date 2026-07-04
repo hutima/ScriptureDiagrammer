@@ -20,6 +20,7 @@ export const firstTimothy2: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_1-timothy_16', 'sblgnt_1-timothy_17', 'sblgnt_1-timothy_18'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
+  topics: ['women in ministry', 'contested passage'],
   summary:
     'Paul instructs Timothy on women, learning, and authority in the church.',
   devotionalFrame:

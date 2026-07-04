@@ -19,6 +19,7 @@ export const matthew28: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_matthew_1132', 'sblgnt_matthew_1133'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'beginner',
+  topics: ['great commission', 'participles', 'baptism'],
   summary:
     'Jesus commands his disciples to make disciples of all nations.',
   devotionalFrame:

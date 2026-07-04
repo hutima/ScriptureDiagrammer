@@ -28,6 +28,7 @@ export const romans9doxology: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_romans_228'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['christology', 'punctuation', 'contested passage'],
   summary:
     'Paul asks whether this praise calls Christ, or only God, blessed.',
   devotionalFrame:

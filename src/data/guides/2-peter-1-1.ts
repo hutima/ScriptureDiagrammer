@@ -15,6 +15,7 @@ export const secondPeter1: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_2-peter_0'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['christology', 'granville sharp'],
   summary:
     'Peter calls Jesus Christ both our God and our Savior in one phrase.',
   devotionalFrame:

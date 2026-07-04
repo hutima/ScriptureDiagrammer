@@ -43,8 +43,11 @@ import { secondPeter1 } from './guides/2-peter-1-1';
  * - Greek terms in step bodies are written as `[[termId]]` and resolved
  *   against `greekTerms`; details live in the term panel, not the step card.
  *
- * Order below is the reading order in the guided library: a gentle difficulty
- * ramp, core grammar first, then the contested / deeper passages.
+ * Order below is the STABLE manual order within a difficulty tier — core
+ * grammar first, then the contested / deeper passages. The picker's actual
+ * listing order (`visibleGrammarHighlightGuides`) additionally sorts by
+ * `difficulty` (beginner → intermediate → advanced); this array's order is
+ * only the tie-break within each tier.
  */
 const guides: GrammarHighlightGuide[] = [
   // Core set — grammar first, gentle ramp.
@@ -75,9 +78,22 @@ export const grammarHighlightsRegistry: GrammarHighlightsRegistry =
 
 export const grammarHighlightGuides: GrammarHighlightGuide[] = grammarHighlightsRegistry.guides;
 
-/** The guides shown in the guided library picker (hidden guides excluded). */
-export const visibleGrammarHighlightGuides: GrammarHighlightGuide[] =
-  grammarHighlightGuides.filter((g) => !g.hidden);
+/** Listing order: beginner → intermediate → advanced, gentlest ramp first. */
+const DIFFICULTY_ORDER: Record<GrammarHighlightGuide['difficulty'], number> = {
+  beginner: 0,
+  intermediate: 1,
+  advanced: 2,
+};
+
+/**
+ * The guides shown in the guided library picker (hidden guides excluded),
+ * ordered by difficulty (beginner → intermediate → advanced). `Array#sort` is
+ * spec-stable, so guides sharing a difficulty keep their existing relative
+ * (manually curated) order from the `guides` list above.
+ */
+export const visibleGrammarHighlightGuides: GrammarHighlightGuide[] = grammarHighlightGuides
+  .filter((g) => !g.hidden)
+  .sort((a, b) => DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty]);
 
 export function getGuide(id: string): GrammarHighlightGuide | undefined {
   return grammarHighlightGuides.find((g) => g.id === id);

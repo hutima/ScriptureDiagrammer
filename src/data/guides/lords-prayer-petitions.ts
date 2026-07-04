@@ -26,6 +26,7 @@ export const lordsPrayerPetitions: GrammarHighlightGuide = {
   ],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'beginner',
+  topics: ['prayer', 'comparison'],
   summary:
     "Jesus teaches his disciples to pray the Lord's Prayer as bold commands.",
   devotionalFrame:

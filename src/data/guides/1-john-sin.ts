@@ -14,6 +14,7 @@ export const johnSin: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_1-john_12', 'sblgnt_1-john_60', 'sblgnt_1-john_66'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['sin', 'aspect', 'assurance'],
   summary:
     'John contrasts a single act of sin with a settled, sinning way of life.',
   devotionalFrame:

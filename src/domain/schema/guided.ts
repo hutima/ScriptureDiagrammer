@@ -186,6 +186,12 @@ export const GrammarHighlightGuideSchema = z.object({
     .enum(['kellogg-reed', 'phrase-block', 'dependency', 'dependency-tree', 'constituency', 'morphology'])
     .default('kellogg-reed'),
   difficulty: GuidedDifficultySchema,
+  /**
+   * Optional short topic/tag labels (lowercase-style, e.g. "christology",
+   * "baptism", "union with Christ"), for future browsing use. Additive: no
+   * current UI filters by it, so it is safe to leave empty/absent.
+   */
+  topics: z.array(z.string()).optional(),
   /** One-or-two-sentence picker blurb. */
   summary: z.string(),
   /** Optional devotional frame shown before step 1. */

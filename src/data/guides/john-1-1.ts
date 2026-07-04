@@ -17,6 +17,7 @@ export const john1: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_john_0'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'beginner',
+  topics: ['christology', 'predicate nominative'],
   summary: 'John shows that the Word is God.',
   devotionalFrame:
     'John begins his Gospel by taking you back before the beginning — and before you ever meet Jesus by name, you meet him as “the Word.” This first verse is short, but every word in it is doing real work. Take it slowly: the Greek grammar itself is quietly making one of the boldest claims in Scripture.',

@@ -23,6 +23,7 @@ export const romans8chain: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_romans_216'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['predestination', 'election', 'golden chain'],
   summary:
     "Paul traces God's golden chain of five verbs from foreknowledge to glory.",
   devotionalFrame:

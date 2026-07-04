@@ -30,6 +30,7 @@ export const colossians2: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_colossians_13'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
+  topics: ['baptism', 'union with Christ', 'participles'],
   summary:
     "Paul links believers' circumcision, burial, and baptism to Christ.",
   devotionalFrame:
@@ -137,7 +138,7 @@ export const colossians2: GrammarHighlightGuide = {
       id: 'step-raised-in-whom',
       title: 'Raised — in that same baptism',
       body:
-        'Then: ἐν ᾧ (en hō) καὶ [[synegerthete]] — "in which you were also raised." The relative pronoun ᾧ (hō) points back to the nearest noun in the sentence, βαπτισμῷ (baptismō, "baptism"), and that is how the diagram — and most English versions — read it: "in baptism, in which you were also raised." Burial and resurrection are both pictured as happening in that one baptism, with the raising immediately grounded in faith in God\'s working. (Some readers instead take ᾧ (hō) to reach past baptism to Christ himself — "in whom you were also raised," on the pattern of v.11a\'s own ἐν ᾧ (en hō) = Christ; open "Where readers differ" below to see that alternate reading drawn structurally.) Nothing about the Greek words changes between the two readings — only where the pronoun is understood to point.',
+        'Then: ἐν ᾧ (en hō) καὶ [[synegerthete]] — "in which you were also raised." Most English versions — and this guide — take the relative pronoun ᾧ (hō) back to the nearest noun, βαπτισμῷ (baptismō, "baptism"): "in baptism, in which you were also raised." The diagram does not draw that link as an ordinary modifier hanging FROM baptism, the way it draws "in baptism" itself hanging from the participle above: the tree instead attaches βαπτισμῷ onto the "you were also raised" clause, so it is drawn trailing at the END of that clause\'s own cascade — after "in which," "also," and "through faith in the working of God" — rather than appearing as the noun the clause modifies. The wording and the sense stay the same either way; only the diagram\'s drawn order is unusual at this one point. Burial and resurrection are both pictured as happening in that one baptism, with the raising immediately grounded in faith in God\'s working. (Some readers instead take ᾧ (hō) to reach past baptism to Christ himself — "in whom you were also raised," on the pattern of v.11a\'s own ἐν ᾧ (en hō) = Christ; open "Where readers differ" below to see that alternate reading drawn structurally.) Nothing about the Greek words changes between the two readings — only where the pronoun is understood to point.',
       focus: {
         nodeIds: ['w_n51002012005', 'w_n51002012007', 'w_n51002012009'],
         relationIds: ['r_s13_86', 'r_s13_87', 'r_s13_70'],

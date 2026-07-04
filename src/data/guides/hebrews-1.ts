@@ -14,6 +14,7 @@ export const hebrews1: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_hebrews_0'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['christology', 'sonship'],
   summary:
     'Hebrews shows that God has spoken finally and fully through his Son.',
   devotionalFrame:

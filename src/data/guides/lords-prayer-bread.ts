@@ -24,6 +24,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_matthew_143', 'sblgnt_luke_511'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['prayer', 'comparison'],
   summary:
     'Matthew and Luke picture the same prayer for daily bread two ways.',
   devotionalFrame:

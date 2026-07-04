@@ -30,6 +30,7 @@ export const acts239: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_acts_47', 'wlc_genesis_1_11'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['covenant', 'promise', 'discourse'],
   summary:
     "Peter extends God's covenant promise to believers and their children.",
   devotionalFrame:

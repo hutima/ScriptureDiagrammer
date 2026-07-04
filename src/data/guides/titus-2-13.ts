@@ -17,6 +17,7 @@ export const titus2: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_titus_17'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['christology', 'granville sharp'],
   summary:
     'Titus calls Jesus Christ our great God and Savior in one breath.',
   devotionalFrame:
