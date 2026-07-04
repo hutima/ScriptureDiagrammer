@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { useEditorStore } from '@/state';
+import { useEditorStore, useGuidedStore } from '@/state';
 import {
   getGntTutorialBridge,
+  isTutorialResetPending,
   isTutorialSeen,
   useTutorialStore,
   type TutorialStepId,
@@ -37,12 +38,15 @@ export function FirstRunTutorial() {
   const active = useTutorialStore((s) => s.active);
   const firstRun = useEditorStore((s) => s.firstRun);
 
-  // Offer the tour once, on a device's first-ever launch, after the shell has
-  // settled (session restore opens the sources panel and the picker starts
-  // loading John). Never when it has been completed/dismissed before, and never
-  // when localStorage is unavailable (isTutorialSeen fails open).
+  // Offer the tour once, after the shell has settled (session restore opens the
+  // sources panel and the picker starts loading John). Two reasons to offer it:
+  // a device's first-ever launch (`firstRun`), or a one-time version reset for a
+  // returning user who saw an OLDER tutorial (`isTutorialResetPending`, see
+  // tutorialState). Never when the CURRENT version has been completed/dismissed,
+  // and never when localStorage is unavailable (both checks fail open).
   useEffect(() => {
-    if (!firstRun || isTutorialSeen()) return;
+    if (isTutorialSeen()) return;
+    if (!firstRun && !isTutorialResetPending()) return;
     const t = setTimeout(() => {
       if (!isTutorialSeen()) useTutorialStore.getState().start();
     }, 700);
@@ -57,6 +61,7 @@ function TutorialOverlay() {
   const stepId = useTutorialStore((s) => s.stepId);
   const advance = useTutorialStore((s) => s.advance);
   const exit = useTutorialStore((s) => s.exit);
+  const openGuidedIntro = useGuidedStore((s) => s.openIntro);
   const step = stepById(stepId);
   const progress = stepProgress(stepId);
 
@@ -189,9 +194,24 @@ function TutorialOverlay() {
             </button>
           )}
           {stepId === 'done' ? (
-            <button className="mini accept" onClick={() => exit({ completed: true })}>
-              Finish
-            </button>
+            <>
+              <button className="mini" onClick={() => exit({ completed: true })}>
+                Finish
+              </button>
+              <button
+                className="mini accept"
+                title="Leave the walkthrough and start Guided Exploration"
+                onClick={() => {
+                  // Close the tour first so it doesn't sit behind the guided
+                  // intro modal, then open the Guided Exploration launcher
+                  // (Greek/English choice) which enters guided mode.
+                  exit({ completed: true });
+                  openGuidedIntro();
+                }}
+              >
+                Start Guided Exploration
+              </button>
+            </>
           ) : (
             <>
               <button

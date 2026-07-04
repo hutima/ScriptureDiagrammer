@@ -111,7 +111,7 @@ export const TUTORIAL_STEPS: TutorialStepDef[] = [
   {
     id: 'done',
     title: 'That’s the tour!',
-    body: 'You’re reading John 1:1 in English over the Greek structure. Replay this walkthrough any time from the ⋯ menu → Guide.',
+    body: 'You’re reading John 1:1 in English over the Greek structure. Finish here, or start Guided Exploration for a curated, step-by-step walk through key Greek grammar. Replay this walkthrough any time from the ⋯ menu → Guide.',
   },
 ];
 

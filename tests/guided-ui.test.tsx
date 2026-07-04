@@ -34,10 +34,10 @@ describe('guided mode UI', () => {
   });
   afterEach(cleanup);
 
-  it('offers Grammar highlights… in the ⋯ menu and opens the intro modal', () => {
+  it('offers Guided Exploration… in the ⋯ menu and opens the intro modal', () => {
     render(createElement(TopBar));
     fireEvent.click(screen.getByRole('button', { name: '⋯' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: /grammar highlights/i }));
+    fireEvent.click(screen.getByRole('menuitem', { name: /guided exploration/i }));
     expect(useGuidedStore.getState().introOpen).toBe(true);
     // The modal renders the Greek/English choice.
     expect(screen.getByRole('dialog', { name: /grammar highlights/i })).toBeTruthy();
@@ -241,7 +241,7 @@ describe('guided mode UI', () => {
     expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
     // …and the ⋯-menu item are both still reachable on a phone.
     fireEvent.click(screen.getByRole('button', { name: '⋯' }));
-    expect(screen.getByRole('menuitem', { name: /grammar highlights/i })).toBeTruthy();
+    expect(screen.getByRole('menuitem', { name: /guided exploration/i })).toBeTruthy();
   });
 
   it('the intro modal offers the Greek/English enter choice on mobile too', () => {
@@ -275,7 +275,7 @@ describe('guided mode UI', () => {
     render(createElement(TopBar));
     expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '⋯' }));
-    expect(screen.getByRole('menuitem', { name: /grammar highlights/i })).toBeTruthy();
+    expect(screen.getByRole('menuitem', { name: /guided exploration/i })).toBeTruthy();
   });
 
   it('a contested reference that cannot be resolved renders nothing', () => {

@@ -218,7 +218,7 @@ export function TopBar() {
                 {/* Guided mode is available on every viewport — see the
                     launcher button below and `state/guided.ts`. */}
                 <button role="menuitem" onClick={() => { openGuidedIntro(); close(); }}>
-                  Grammar highlights…
+                  Guided Exploration…
                 </button>
               </div>
             </>

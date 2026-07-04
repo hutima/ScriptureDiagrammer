@@ -6,6 +6,7 @@ import { FirstRunTutorial } from '@/ui/tutorial/FirstRunTutorial';
 import {
   TUTORIAL_KEY,
   isTutorialSeen,
+  isTutorialResetPending,
   resetTutorialForDev,
   registerGntTutorialBridge,
   useTutorialStore,
@@ -16,7 +17,7 @@ import {
   BSB_TOGGLE_TIP,
   stepById,
 } from '@/ui/tutorial/tutorialSteps';
-import { useEditorStore } from '@/state';
+import { useEditorStore, useGuidedStore } from '@/state';
 
 /**
  * First-launch walkthrough: shows once on a first run, never after it has been
@@ -26,6 +27,7 @@ import { useEditorStore } from '@/state';
 
 function resetStores() {
   resetTutorialForDev();
+  localStorage.removeItem('kr:tutorial:v1'); // clear any legacy flag between tests
   useTutorialStore.setState({ active: false, stepId: 'pick' });
   useEditorStore.setState({
     firstRun: false,
@@ -34,6 +36,7 @@ function resetStores() {
     diagramMode: 'phrase-block',
     leftCollapsed: true,
   });
+  useGuidedStore.setState({ introOpen: false });
 }
 
 beforeEach(() => {
@@ -72,6 +75,35 @@ describe('first-run auto-show', () => {
     advanceStart();
     expect(screen.queryByRole('dialog')).toBeNull();
   });
+
+  it('re-shows ONCE for a returning user who saw an older tutorial version', () => {
+    // A returning user (not first run) who completed the v1 tour: the version
+    // bump should re-offer the tour exactly once.
+    localStorage.setItem('kr:tutorial:v1', 'completed');
+    expect(isTutorialResetPending()).toBe(true);
+    render(createElement(FirstRunTutorial));
+    advanceStart();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    // Finishing marks the CURRENT version seen and retires the legacy flag, so
+    // the reset can never fire again (until the version is bumped anew).
+    act(() => useTutorialStore.getState().exit({ completed: true }));
+    expect(localStorage.getItem(TUTORIAL_KEY)).toBe('completed');
+    expect(localStorage.getItem('kr:tutorial:v1')).toBeNull();
+    expect(isTutorialResetPending()).toBe(false);
+    cleanup();
+    render(createElement(FirstRunTutorial));
+    advanceStart();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('does NOT re-show for a returning user who never saw ANY tutorial', () => {
+    // No legacy flag present → no reset pending → returning users are not nagged.
+    expect(isTutorialResetPending()).toBe(false);
+    render(createElement(FirstRunTutorial));
+    advanceStart();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
 });
 
 describe('exit', () => {
@@ -92,6 +124,28 @@ describe('exit', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(localStorage.getItem(TUTORIAL_KEY)).toBe('dismissed');
+  });
+});
+
+describe('closing card offers Finish and a guided-mode hand-off', () => {
+  it('Finish completes the tour without entering guided mode', () => {
+    act(() => useTutorialStore.getState().start());
+    useTutorialStore.setState({ stepId: 'done' });
+    render(createElement(FirstRunTutorial));
+    fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(localStorage.getItem(TUTORIAL_KEY)).toBe('completed');
+    expect(useGuidedStore.getState().introOpen).toBe(false);
+  });
+
+  it('"Start Guided Exploration" completes the tour and opens the guided intro', () => {
+    act(() => useTutorialStore.getState().start());
+    useTutorialStore.setState({ stepId: 'done' });
+    render(createElement(FirstRunTutorial));
+    fireEvent.click(screen.getByRole('button', { name: 'Start Guided Exploration' }));
+    expect(useTutorialStore.getState().active).toBe(false);
+    expect(localStorage.getItem(TUTORIAL_KEY)).toBe('completed');
+    expect(useGuidedStore.getState().introOpen).toBe(true);
   });
 });
 
