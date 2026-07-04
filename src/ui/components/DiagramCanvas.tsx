@@ -134,8 +134,10 @@ export function DiagramCanvas() {
   const version = useEditorStore((s) => s.sourceTextVersion);
   const setVersion = useEditorStore((s) => s.setSourceTextVersion);
   // The source/reference strip collapses out of the way to give the diagram room,
-  // and its height is draggable to rebalance text vs. diagram.
-  const [srcCollapsed, setSrcCollapsed] = useState(false);
+  // and its height is draggable to rebalance text vs. diagram. Guided mode wants
+  // that room immediately, so start collapsed if guided mode already happens to
+  // be active when this mounts (see the enter/leave sync effect below).
+  const [srcCollapsed, setSrcCollapsed] = useState(() => useGuidedStore.getState().active);
   const [srcHeight, setSrcHeight] = useState(132);
 
   const onSrcResize = useCallback(
@@ -212,6 +214,19 @@ export function DiagramCanvas() {
     () => (guidedStep ? guidedHighlightMaps(doc, guidedStep) : null),
     [guidedStep, doc],
   );
+
+  // Collapse the source strip the moment guided mode is ENTERED (more room for
+  // the walkthrough), and restore it on LEAVE — but only react to the
+  // inactive→active / active→inactive transition, so a manual toggle by the
+  // reader in between is never fought on the next render.
+  const wasGuidedActiveRef = useRef(guidedActive);
+  useEffect(() => {
+    const enteredGuided = guidedActive && !wasGuidedActiveRef.current;
+    const leftGuided = !guidedActive && wasGuidedActiveRef.current;
+    wasGuidedActiveRef.current = guidedActive;
+    if (enteredGuided) setSrcCollapsed(true);
+    else if (leftGuided) setSrcCollapsed(false);
+  }, [guidedActive]);
 
   // Sermon-prep highlights, as a nodeId → colour lookup, so a tagged word shows
   // its category colour in the diagram AND the running text (not just the panel).
@@ -993,9 +1008,19 @@ export function DiagramCanvas() {
     );
   };
 
+  // Grammar Highlights on a REAL mobile width locks the view to whatever
+  // guided mode already set (Kellogg-Reed, the language chosen at entry, the
+  // current colour setting) — the "DIAGRAM" bar (mode select, language/colour
+  // toggles, spacing/zoom, the help button, the collapse caret) would only let
+  // the reader break out of that locked view, so it is dropped entirely here.
+  // Keyed off `viewport.isMobile` (not `guidedNarrow`'s `vp.device`), so
+  // forced-desktop guided readers keep the full bar, matching ResponsiveShell.
+  const hidePanelHeadForGuidedMobile = guidedActive && viewport.isMobile;
+
   return (
     <div className={`canvas${collapsed ? ' collapsed' : ''}${appMode === 'edit' ? ' editing' : ''}`}>
       <DiagramGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
+      {!hidePanelHeadForGuidedMobile && (
       <div className="panel-head">
         <button
           type="button"
@@ -1137,7 +1162,13 @@ export function DiagramCanvas() {
               </button>
             </div>
           )}
-          {!htmlMode && (
+          {/* On a touch device pinch-to-zoom already covers zooming (see the
+              pointer handlers below), and there is no way to "not have" a
+              pinch gesture — so these buttons are redundant chrome there,
+              even when the reader has forced desktop mode on the phone
+              (force-desktop changes the layout, never the physical input
+              device — see `isTouchDevice` in `ui/responsive/viewport.ts`). */}
+          {!htmlMode && !viewport.isTouchDevice && (
             <>
               <div className="canvas-zoom" title="Row spacing">
                 <button title="Tighter rows" onClick={() => setVerticalScale(Math.round((verticalScale - 0.15) * 100) / 100)}>↕−</button>
@@ -1163,6 +1194,7 @@ export function DiagramCanvas() {
           {collapsed ? '▸' : '▾'}
         </button>
       </div>
+      )}
       {viewport.isMobile && <MobileContestedBar />}
       {viewport.isMobile && <MultiSentenceContestedNotice mobile />}
       {editing && <EditModeToolbar />}

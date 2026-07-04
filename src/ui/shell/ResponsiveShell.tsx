@@ -47,20 +47,26 @@ export function ResponsiveShell() {
   // selector (restoreLastSession opens it) so it's obvious where to pick a text.
   const initedMobile = useRef(false);
   useEffect(() => {
-    if (vp.isMobile && !initedMobile.current) {
+    // Skip while guided mode is active: guided already locked the diagram to
+    // Kellogg-Reed, and this one-time mobile default (e.g. firing because the
+    // reader just toggled force-desktop off mid-guide) must not clobber that —
+    // the effect just stays pending and runs once guided mode is left.
+    if (vp.isMobile && !initedMobile.current && !guidedActive) {
       initedMobile.current = true;
       setDiagramMode('phrase-block');
       if (!firstRun) setLeftCollapsed(true);
     }
-  }, [vp.isMobile, firstRun, setDiagramMode, setLeftCollapsed]);
+  }, [vp.isMobile, firstRun, setDiagramMode, setLeftCollapsed, guidedActive]);
 
   // Discourse is a desktop-only analysis layer: it is removed from the mode
   // selectors on mobile, and here we guarantee it can never be the ACTIVE mode
   // on a phone (e.g. after toggling force-desktop off, or a persisted mode from
-  // a desktop session) — fall back to the finger-friendly block lens.
+  // a desktop session) — fall back to the finger-friendly block lens. Guarded
+  // by `!guidedActive` so it never races the guided KR-lock effect below (that
+  // one must win whenever both are true in the same render).
   useEffect(() => {
-    if (vp.isMobile && discourseMode) setDiagramMode('phrase-block');
-  }, [vp.isMobile, discourseMode, setDiagramMode]);
+    if (vp.isMobile && discourseMode && !guidedActive) setDiagramMode('phrase-block');
+  }, [vp.isMobile, discourseMode, guidedActive, setDiagramMode]);
 
   // Discourse is manual-first: entering it makes **Edit** the default app mode
   // in place of Explore (Study is kept if already active). Discourse is

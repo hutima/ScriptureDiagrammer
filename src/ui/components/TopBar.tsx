@@ -130,24 +130,21 @@ export function TopBar() {
 
       {/* Grammar Highlights is NOT a main app mode — it is a guided reading
           overlay — so it gets its own smaller launcher button beside the mode
-          switcher rather than a segment inside it. Like Edit mode, guided mode
-          is DESKTOP-ONLY (`vp.isDesktop` covers force-desktop too), so the
-          launcher is hidden on small screens — except while guided is somehow
-          active, when the Leave button must stay reachable. */}
-      {(canEdit || guidedActive) && (
-        <button
-          className={`guided-launch${guidedActive ? ' active' : ''}`}
-          onClick={() => (guidedActive ? leaveGuided() : openGuidedIntro())}
-          title={
-            guidedActive
-              ? 'Leave Grammar highlights'
-              : 'Grammar highlights — guided Greek grammar walkthroughs'
-          }
-          aria-pressed={guidedActive}
-        >
-          {guidedActive ? '✦ Leave guided' : '✦ Grammar'}
-        </button>
-      )}
+          switcher rather than a segment inside it. Unlike Edit mode, guided
+          mode is available on EVERY viewport (the mobile experience uses the
+          bottom-sheet step card), so the launcher always renders. */}
+      <button
+        className={`guided-launch${guidedActive ? ' active' : ''}`}
+        onClick={() => (guidedActive ? leaveGuided() : openGuidedIntro())}
+        title={
+          guidedActive
+            ? 'Leave Grammar highlights'
+            : 'Grammar highlights — guided Greek grammar walkthroughs'
+        }
+        aria-pressed={guidedActive}
+      >
+        {guidedActive ? '✦ Leave guided' : '✦ Grammar'}
+      </button>
 
       <div className="spacer" />
 
@@ -218,12 +215,11 @@ export function TopBar() {
                 <button role="menuitem" onClick={() => { setGuideOpen(true); close(); }}>
                   Guide
                 </button>
-                {/* Guided mode is desktop-only (same gate as the launcher). */}
-                {canEdit && (
-                  <button role="menuitem" onClick={() => { openGuidedIntro(); close(); }}>
-                    Grammar highlights…
-                  </button>
-                )}
+                {/* Guided mode is available on every viewport — see the
+                    launcher button below and `state/guided.ts`. */}
+                <button role="menuitem" onClick={() => { openGuidedIntro(); close(); }}>
+                  Grammar highlights…
+                </button>
               </div>
             </>
           )}

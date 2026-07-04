@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useEditorStore } from '@/state';
-import { classifyWidth, type ViewportKind } from './viewport';
+import { classifyWidth, isTouchDevice, type ViewportKind } from './viewport';
 
 export interface Viewport {
   /** Physical device class from the window width. */
@@ -17,6 +17,12 @@ export interface Viewport {
   /** The user's "force desktop on this device" preference (persisted). */
   forceDesktop: boolean;
   setForceDesktop: (value: boolean) => void;
+  /**
+   * True when the PHYSICAL device is touch-first, independent of
+   * force-desktop (see `isTouchDevice` in `./viewport` for why). A static
+   * field is enough — the device class never changes mid-session.
+   */
+  isTouchDevice: boolean;
 }
 
 function currentWidth(): number {
@@ -58,5 +64,6 @@ export function useViewport(): Viewport {
     isDesktop: effective === 'desktop',
     forceDesktop,
     setForceDesktop,
+    isTouchDevice: isTouchDevice(),
   };
 }
