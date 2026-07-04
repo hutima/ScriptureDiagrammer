@@ -792,13 +792,28 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
   const introductoryRels = clauseWordRels.filter(
     (r) => (r.type === 'particle' || r.type === 'conjunction') && !isClauseChild(ctx, r.dependentId),
   );
+  // A word/noun in APPOSITION to the WHOLE clause renames it — the base tree's
+  // "ἐν τῷ βαπτισμῷ ἐν ᾧ …" shape (Col 2:12), where the first ἐν governs the whole
+  // "ἐν ᾧ … συνηγέρθητε" clause and τῷ βαπτισμῷ apposes THAT clause. It continues
+  // on the clause's own main line, joined by the Reed-Kellogg apposition "="
+  // (drawn below), NOT trailed off as a stray right-hand modifier the way a
+  // generic word adjunct would be. Only a BARE-WORD / phrasal (non-clause)
+  // appositive is taken here; a clause-valued appositive — including an
+  // INFINITIVAL result clause ("ὥστε … ἔχειν", 1 Cor 5:1) — still flows through
+  // the ordinary adjunct paths (clause stem / infinitive diagonal) below.
+  const isClauseAppos = (r: Relation) =>
+    r.type === 'apposition' && !isClauseChild(ctx, r.dependentId);
+  const clauseApposRels = clauseWordRels.filter(isClauseAppos);
   const wordAdjuncts = clauseWordRels.filter(
     (r) =>
       (!isClauseChild(ctx, r.dependentId) || isInfinitival(ctx, r.dependentId)) &&
       r.type !== 'vocative' &&
       r.type !== 'interjection' &&
       r.type !== 'particle' &&
-      r.type !== 'conjunction',
+      r.type !== 'conjunction' &&
+      // Only the bare-word appositions handled above are pulled out; a clausal /
+      // infinitival appositive stays here so it draws as before.
+      !isClauseAppos(r),
   );
   // A word-coordination complement at the END of the baseline is an OPEN fork:
   // its members fan out above and below the line, so the drawn baseline STOPS
@@ -1055,6 +1070,65 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
       }
     }
   });
+
+  // Appositives renaming the whole clause continue on the main line, past the
+  // verb's own modifier cascade, each joined by the Reed-Kellogg apposition "="
+  // (two short strokes across the line). A bare-word appositive sits inline; a
+  // phrasal one (carrying its own modifiers, e.g. an article — τῷ βαπτισμῷ)
+  // rides a PEDESTAL above the line, reached through the "=", exactly as a WORD
+  // head's appositive does (see word.ts). Starting past the verb cascade keeps
+  // the "=" and the appositive clear of any modifier hanging below the verb.
+  if (clauseApposRels.length) {
+    const APPOS_EQ_HALF = 6;
+    const APPOS_EQ_GAP = 4;
+    let ax = Math.max(x, vModRight) + LAYOUT.dependentGap;
+    // `lineCursor` is where the CONTINUOUS main line has been drawn to so far —
+    // the appositive's own baseline segment runs from here THROUGH the "=" to its
+    // connection point, so the "=" straddles an unbroken line (as a WORD head's
+    // appositive does) and the appositive never detaches from the clause.
+    let lineCursor = drawnZeroEnd();
+    for (const rel of clauseApposRels) {
+      const block = ctx.layoutNode(ctx, rel.dependentId, seen);
+      if (!block.elements.length) continue;
+      const phrasal =
+        childRelations(model, rel.dependentId).length > 0 &&
+        block.height + blockAscent(block) <= LAYOUT.pedestalMaxHeight;
+      const eqX = ax;
+      // The "=" mark, two short strokes straddling the baseline.
+      elements.push(line(eid(), eqX, -APPOS_EQ_GAP, eqX + APPOS_EQ_HALF * 2, -APPOS_EQ_GAP, 'solid', 'separator', undefined, rel.id));
+      elements.push(line(eid(), eqX, APPOS_EQ_GAP, eqX + APPOS_EQ_HALF * 2, APPOS_EQ_GAP, 'solid', 'separator', undefined, rel.id));
+      const afterEq = eqX + APPOS_EQ_HALF * 2 + LAYOUT.wordPadX;
+      if (phrasal) {
+        const baseY = -(
+          LAYOUT.pedestalFootRise +
+          Math.max(block.height + LAYOUT.pedestalGap, LAYOUT.pedestalMinRiser)
+        );
+        const apexY = -LAYOUT.pedestalFootRise;
+        elements.push(...translate(block, afterEq, baseY));
+        const connectX =
+          afterEq +
+          (block.wordLeft === block.wordRight
+            ? block.wordLeft
+            : (block.wordLeft + (block.wordRight || block.width)) / 2);
+        // Continuous main line from where it last reached, through the "=", to
+        // the pedestal's forked foot; then the little foot and the riser.
+        elements.push(line(eid(), lineCursor, 0, connectX, 0, 'solid', 'baseline', undefined, rel.id));
+        elements.push(line(eid(), connectX - LAYOUT.pedestalFootHalf, 0, connectX, apexY, 'solid', 'stem'));
+        elements.push(line(eid(), connectX + LAYOUT.pedestalFootHalf, 0, connectX, apexY, 'solid', 'stem'));
+        elements.push(line(eid(), connectX, apexY, connectX, baseY, 'solid', 'stem', undefined, rel.id));
+        lineCursor = connectX + LAYOUT.pedestalFootHalf;
+        ax = afterEq + block.width;
+      } else {
+        // Inline: the appositive rides the shared main line right of the "=".
+        elements.push(line(eid(), lineCursor, 0, afterEq + block.wordLeft, 0, 'solid', 'baseline', undefined, rel.id));
+        elements.push(...translate(block, afterEq, 0));
+        baselineHeight = Math.max(baselineHeight, block.height);
+        lineCursor = afterEq + (block.wordRight || block.width);
+        ax = afterEq + block.width;
+      }
+    }
+    x = Math.max(x, ax);
+  }
 
   const baselineWidth = x;
   maxRight = Math.max(maxRight, baselineWidth, vModRight);

@@ -1,0 +1,1184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book name="Colossians">
+<sentence>
+      <p>
+         <milestone unit="verse" id="Col.2.8">Col.2.8</milestone> 
+         <milestone unit="verse" id="Col.2.9">Col.2.9</milestone> 
+         <milestone unit="verse" id="Col.2.10">Col.2.10</milestone> 
+         <milestone unit="verse" id="Col.2.11">Col.2.11</milestone> 
+         <milestone unit="verse" id="Col.2.12">Col.2.12</milestone> Βλέπετε μή τις ὑμᾶς ἔσται ὁ συλαγωγῶν διὰ τῆς φιλοσοφίας καὶ κενῆς ἀπάτης κατὰ τὴν παράδοσιν τῶν ἀνθρώπων, κατὰ τὰ στοιχεῖα τοῦ κόσμου καὶ οὐ κατὰ Χριστόν· ὅτι ἐν αὐτῷ κατοικεῖ πᾶν τὸ πλήρωμα τῆς Θεότητος σωματικῶς, καὶ ἐστὲ ἐν αὐτῷ πεπληρωμένοι, ὅς ἐστιν ἡ κεφαλὴ πάσης ἀρχῆς καὶ ἐξουσίας, ἐν ᾧ καὶ περιετμήθητε περιτομῇ ἀχειροποιήτῳ ἐν τῇ ἀπεκδύσει τοῦ σώματος τῆς σαρκός, ἐν τῇ περιτομῇ τοῦ Χριστοῦ, συνταφέντες αὐτῷ ἐν τῷ βαπτίσματι, ἐν ᾧ καὶ συνηγέρθητε διὰ τῆς πίστεως τῆς ἐνεργείας τοῦ Θεοῦ τοῦ ἐγείραντος αὐτὸν ἐκ νεκρῶν·</p>
+      <wg role="cl">
+         <wg class="cl" n="510020080010890" rule="ClCl">
+            <wg class="cl" n="510020080010013" head="true" rule="V2CL">
+               <w role="v"
+                  class="verb"
+                  osisId="Col.2.8!1"
+                  n="510020080010010"
+                  lemma="βλέπω"
+                  normalized="Βλέπετε"
+                  strong="991"
+                  number="plural"
+                  person="second"
+                  tense="present"
+                  voice="active"
+                  mood="imperative"
+                  head="true"
+                  gloss="Take heed">Βλέπετε</w>
+            </wg>
+            <wg class="cl" n="510020080020260" articular="true" rule="PtclCL">
+               <w class="conj"
+                  osisId="Col.2.8!2"
+                  n="510020080020010"
+                  lemma="μή"
+                  normalized="μή"
+                  strong="3361"
+                  gloss="lest">μή</w>
+               <wg class="cl"
+                   n="510020080030250"
+                   articular="true"
+                   head="true"
+                   rule="S-VC-P">
+                  <w role="s"
+                     class="pron"
+                     type="indefinite"
+                     osisId="Col.2.8!3"
+                     n="510020080030010"
+                     lemma="τὶς"
+                     normalized="τις"
+                     strong="5100"
+                     number="singular"
+                     gender="masculine"
+                     case="nominative"
+                     gloss="anyone">τις</w>
+                  <w role="vc"
+                     class="verb"
+                     osisId="Col.2.8!5"
+                     n="510020080050010"
+                     lemma="εἰμί"
+                     normalized="ἔσται"
+                     strong="1510"
+                     number="singular"
+                     person="third"
+                     tense="future"
+                     voice="middle"
+                     mood="indicative"
+                     gloss="there will be">ἔσται</w>
+                  <wg role="p"
+                      class="np"
+                      n="510020080060230"
+                      articular="true"
+                      head="true"
+                      rule="DetCL">
+                     <w class="det"
+                        osisId="Col.2.8!6"
+                        n="510020080060010"
+                        lemma="ὁ"
+                        normalized="ὁ"
+                        strong="3588"
+                        number="singular"
+                        gender="masculine"
+                        case="nominative"
+                        gloss="-">ὁ</w>
+                     <wg class="cl" n="510020080070220" head="true" rule="V-O-ADV-ADV">
+                        <w role="v"
+                           class="verb"
+                           osisId="Col.2.8!7"
+                           n="510020080070010"
+                           lemma="συλαγωγέω"
+                           normalized="συλαγωγῶν"
+                           strong="4812"
+                           number="singular"
+                           gender="masculine"
+                           case="nominative"
+                           tense="present"
+                           voice="active"
+                           mood="participle"
+                           type="?"
+                           head="true"
+                           discontinuous="true"
+                           gloss="taking captive">συλαγωγῶν</w>
+                        <w role="o"
+                           class="pron"
+                           type="personal"
+                           osisId="Col.2.8!4"
+                           n="510020080040010"
+                           lemma="σύ"
+                           normalized="ὑμᾶς"
+                           strong="4771"
+                           number="plural"
+                           case="accusative"
+                           gloss="you">ὑμᾶς</w>
+                        <wg role="adv"
+                            class="pp"
+                            n="510020080080060"
+                            articular="true"
+                            rule="PrepNp">
+                           <w class="prep"
+                              osisId="Col.2.8!8"
+                              n="510020080080010"
+                              lemma="διά"
+                              normalized="διά"
+                              strong="1223"
+                              gloss="through">διὰ</w>
+                           <wg class="np"
+                               n="510020080090050"
+                               articular="true"
+                               head="true"
+                               rule="DetNP">
+                              <w class="det"
+                                 osisId="Col.2.8!9"
+                                 n="510020080090010"
+                                 lemma="ὁ"
+                                 normalized="τῆς"
+                                 strong="3588"
+                                 number="singular"
+                                 gender="feminine"
+                                 case="genitive"
+                                 gloss="-">τῆς</w>
+                              <wg class="np" n="510020080100040" head="true" rule="NpaNp">
+                                 <w class="noun"
+                                    type="common"
+                                    osisId="Col.2.8!10"
+                                    n="510020080100010"
+                                    lemma="φιλοσοφία"
+                                    normalized="φιλοσοφίας"
+                                    strong="5385"
+                                    number="singular"
+                                    gender="feminine"
+                                    case="genitive"
+                                    head="true"
+                                    gloss="philosophy">φιλοσοφίας</w>
+                                 <w class="conj"
+                                    osisId="Col.2.8!11"
+                                    n="510020080110010"
+                                    lemma="καί"
+                                    normalized="καί"
+                                    strong="2532"
+                                    gloss="and">καὶ</w>
+                                 <wg class="np" n="510020080120020" rule="AdjpNp">
+                                    <w class="adj"
+                                       osisId="Col.2.8!12"
+                                       n="510020080120010"
+                                       lemma="κενός"
+                                       normalized="κενῆς"
+                                       strong="2756"
+                                       number="singular"
+                                       gender="feminine"
+                                       case="genitive"
+                                       gloss="empty">κενῆς</w>
+                                    <w class="noun"
+                                       type="common"
+                                       osisId="Col.2.8!13"
+                                       n="510020080130010"
+                                       lemma="ἀπάτη"
+                                       normalized="ἀπάτης"
+                                       strong="539"
+                                       number="singular"
+                                       gender="feminine"
+                                       case="genitive"
+                                       head="true"
+                                       gloss="deceit">ἀπάτης</w>
+                                 </wg>
+                              </wg>
+                           </wg>
+                        </wg>
+                        <wg role="adv"
+                            class="pp"
+                            n="510020080140140"
+                            articular="true"
+                            rule="2PpaPp">
+                           <wg class="pp"
+                               n="510020080140050"
+                               articular="true"
+                               head="true"
+                               rule="PrepNp">
+                              <w class="prep"
+                                 osisId="Col.2.8!14"
+                                 n="510020080140010"
+                                 lemma="κατά"
+                                 normalized="κατά"
+                                 strong="2596"
+                                 gloss="according to">κατὰ</w>
+                              <wg class="np"
+                                  n="510020080150040"
+                                  articular="true"
+                                  head="true"
+                                  rule="DetNP">
+                                 <w class="det"
+                                    osisId="Col.2.8!15"
+                                    n="510020080150010"
+                                    lemma="ὁ"
+                                    normalized="τήν"
+                                    strong="3588"
+                                    number="singular"
+                                    gender="feminine"
+                                    case="accusative"
+                                    gloss="the">τὴν</w>
+                                 <wg class="np" n="510020080160030" head="true" rule="NPofNP">
+                                    <w class="noun"
+                                       type="common"
+                                       osisId="Col.2.8!16"
+                                       n="510020080160010"
+                                       lemma="παράδοσις"
+                                       normalized="παράδοσιν"
+                                       strong="3862"
+                                       number="singular"
+                                       gender="feminine"
+                                       case="accusative"
+                                       head="true"
+                                       gloss="tradition">παράδοσιν</w>
+                                    <wg class="np" n="510020080170020" articular="true" rule="DetNP">
+                                       <w class="det"
+                                          osisId="Col.2.8!17"
+                                          n="510020080170010"
+                                          lemma="ὁ"
+                                          normalized="τῶν"
+                                          strong="3588"
+                                          number="plural"
+                                          gender="masculine"
+                                          case="genitive"
+                                          gloss="-">τῶν</w>
+                                       <w class="noun"
+                                          type="common"
+                                          osisId="Col.2.8!18"
+                                          n="510020080180010"
+                                          lemma="ἄνθρωπος"
+                                          normalized="ἀνθρώπων"
+                                          strong="444"
+                                          number="plural"
+                                          gender="masculine"
+                                          case="genitive"
+                                          head="true"
+                                          gloss="of men">ἀνθρώπων</w>
+                                       <pc>,</pc>
+                                    </wg>
+                                 </wg>
+                              </wg>
+                           </wg>
+                           <wg class="pp" n="510020080190050" articular="true" rule="PrepNp">
+                              <w class="prep"
+                                 osisId="Col.2.8!19"
+                                 n="510020080190010"
+                                 lemma="κατά"
+                                 normalized="κατά"
+                                 strong="2596"
+                                 gloss="according to">κατὰ</w>
+                              <wg class="np"
+                                  n="510020080200040"
+                                  articular="true"
+                                  head="true"
+                                  rule="DetNP">
+                                 <w class="det"
+                                    osisId="Col.2.8!20"
+                                    n="510020080200010"
+                                    lemma="ὁ"
+                                    normalized="τά"
+                                    strong="3588"
+                                    number="plural"
+                                    gender="neuter"
+                                    case="accusative"
+                                    gloss="the">τὰ</w>
+                                 <wg class="np" n="510020080210030" head="true" rule="NPofNP">
+                                    <w class="noun"
+                                       type="common"
+                                       osisId="Col.2.8!21"
+                                       n="510020080210010"
+                                       lemma="στοιχεῖον"
+                                       normalized="στοιχεῖα"
+                                       strong="4747"
+                                       number="plural"
+                                       gender="neuter"
+                                       case="accusative"
+                                       head="true"
+                                       gloss="principles">στοιχεῖα</w>
+                                    <wg class="np" n="510020080220020" articular="true" rule="DetNP">
+                                       <w class="det"
+                                          osisId="Col.2.8!22"
+                                          n="510020080220010"
+                                          lemma="ὁ"
+                                          normalized="τοῦ"
+                                          strong="3588"
+                                          number="singular"
+                                          gender="masculine"
+                                          case="genitive"
+                                          gloss="of the">τοῦ</w>
+                                       <w class="noun"
+                                          type="common"
+                                          osisId="Col.2.8!23"
+                                          n="510020080230010"
+                                          lemma="κόσμος"
+                                          normalized="κόσμου"
+                                          strong="2889"
+                                          number="singular"
+                                          gender="masculine"
+                                          case="genitive"
+                                          head="true"
+                                          gloss="world">κόσμου</w>
+                                    </wg>
+                                 </wg>
+                              </wg>
+                           </wg>
+                           <w class="conj"
+                              osisId="Col.2.8!24"
+                              n="510020080240010"
+                              lemma="καί"
+                              normalized="καί"
+                              strong="2532"
+                              gloss="and">καὶ</w>
+                           <wg class="pp" n="510020080250030" rule="AdvPp">
+                              <w class="adv"
+                                 osisId="Col.2.8!25"
+                                 n="510020080250010"
+                                 lemma="οὐ"
+                                 normalized="οὐ"
+                                 strong="3756"
+                                 gloss="not">οὐ</w>
+                              <wg class="pp" n="510020080260020" head="true" rule="PrepNp">
+                                 <w class="prep"
+                                    osisId="Col.2.8!26"
+                                    n="510020080260010"
+                                    lemma="κατά"
+                                    normalized="κατά"
+                                    strong="2596"
+                                    gloss="according to">κατὰ</w>
+                                 <w class="noun"
+                                    type="proper"
+                                    osisId="Col.2.8!27"
+                                    n="510020080270010"
+                                    lemma="Χριστός"
+                                    normalized="Χριστόν"
+                                    strong="5547"
+                                    number="singular"
+                                    gender="masculine"
+                                    case="accusative"
+                                    head="true"
+                                    gloss="Christ">Χριστόν</w>
+                                 <pc>·</pc>
+                              </wg>
+                           </wg>
+                        </wg>
+                     </wg>
+                  </wg>
+               </wg>
+            </wg>
+            <wg class="cl" n="510020090010620" rule="sub-CL">
+               <w class="conj"
+                  osisId="Col.2.9!1"
+                  n="510020090010010"
+                  lemma="ὅτι"
+                  normalized="ὅτι"
+                  strong="3754"
+                  gloss="For">ὅτι</w>
+               <wg class="cl" n="510020090020610" rule="CLaCL">
+                  <wg class="cl" n="510020090020090" head="true" rule="ADV-V-S-ADV">
+                     <wg role="adv" class="pp" n="510020090020020" rule="PrepNp">
+                        <w class="prep"
+                           osisId="Col.2.9!2"
+                           n="510020090020010"
+                           lemma="ἐν"
+                           normalized="ἐν"
+                           strong="1722"
+                           gloss="in">ἐν</w>
+                        <w class="pron"
+                           type="personal"
+                           osisId="Col.2.9!3"
+                           n="510020090030010"
+                           lemma="αὐτός"
+                           normalized="αὐτῷ"
+                           strong="846"
+                           number="singular"
+                           gender="masculine"
+                           case="dative"
+                           head="true"
+                           gloss="Him">αὐτῷ</w>
+                     </wg>
+                     <w role="v"
+                        class="verb"
+                        osisId="Col.2.9!4"
+                        n="510020090040010"
+                        lemma="κατοικέω"
+                        normalized="κατοικεῖ"
+                        strong="2730"
+                        number="singular"
+                        person="third"
+                        tense="present"
+                        voice="active"
+                        mood="indicative"
+                        head="true"
+                        gloss="dwells">κατοικεῖ</w>
+                     <wg role="s"
+                         class="np"
+                         n="510020090050050"
+                         articular="true"
+                         rule="All-NP">
+                        <w class="adj"
+                           osisId="Col.2.9!5"
+                           n="510020090050010"
+                           lemma="πᾶς"
+                           normalized="πᾶν"
+                           strong="3956"
+                           number="singular"
+                           gender="neuter"
+                           case="nominative"
+                           gloss="all">πᾶν</w>
+                        <wg class="np"
+                            n="510020090060040"
+                            articular="true"
+                            head="true"
+                            rule="DetNP">
+                           <w class="det"
+                              osisId="Col.2.9!6"
+                              n="510020090060010"
+                              lemma="ὁ"
+                              normalized="τό"
+                              strong="3588"
+                              number="singular"
+                              gender="neuter"
+                              case="nominative"
+                              gloss="the">τὸ</w>
+                           <wg class="np" n="510020090070030" head="true" rule="NPofNP">
+                              <w class="noun"
+                                 type="common"
+                                 osisId="Col.2.9!7"
+                                 n="510020090070010"
+                                 lemma="πλήρωμα"
+                                 normalized="πλήρωμα"
+                                 strong="4138"
+                                 number="singular"
+                                 gender="neuter"
+                                 case="nominative"
+                                 head="true"
+                                 gloss="fullness">πλήρωμα</w>
+                              <wg class="np" n="510020090080020" articular="true" rule="DetNP">
+                                 <w class="det"
+                                    osisId="Col.2.9!8"
+                                    n="510020090080010"
+                                    lemma="ὁ"
+                                    normalized="τῆς"
+                                    strong="3588"
+                                    number="singular"
+                                    gender="feminine"
+                                    case="genitive"
+                                    gloss="of the">τῆς</w>
+                                 <w class="noun"
+                                    type="common"
+                                    osisId="Col.2.9!9"
+                                    n="510020090090010"
+                                    lemma="θεότης"
+                                    normalized="Θεότητος"
+                                    strong="2320"
+                                    number="singular"
+                                    gender="feminine"
+                                    case="genitive"
+                                    head="true"
+                                    gloss="Deity">Θεότητος</w>
+                              </wg>
+                           </wg>
+                        </wg>
+                     </wg>
+                     <w role="adv"
+                        class="adv"
+                        osisId="Col.2.9!10"
+                        n="510020090100010"
+                        lemma="σωματικῶς"
+                        normalized="σωματικῶς"
+                        strong="4985"
+                        gloss="bodily">σωματικῶς</w>
+                     <pc>,</pc>
+                  </wg>
+                  <w class="conj"
+                     osisId="Col.2.10!1"
+                     n="510020100010010"
+                     lemma="καί"
+                     normalized="καί"
+                     strong="2532"
+                     gloss="and">καὶ</w>
+                  <wg class="cl" n="510020100020510" rule="V-ADV">
+                     <wg role="v"
+                         class="vp"
+                         n="510020100020020"
+                         head="true"
+                         rule="BeVerb">
+                        <w class="verb"
+                           osisId="Col.2.10!2"
+                           n="510020100020010"
+                           lemma="εἰμί"
+                           normalized="ἐστέ"
+                           strong="1510"
+                           number="plural"
+                           person="second"
+                           tense="present"
+                           voice="active"
+                           mood="indicative"
+                           gloss="you are">ἐστὲ</w>
+                        <w class="verb"
+                           osisId="Col.2.10!5"
+                           n="510020100050010"
+                           lemma="πληρόω"
+                           normalized="πεπληρωμένοι"
+                           strong="4137"
+                           number="plural"
+                           gender="masculine"
+                           case="nominative"
+                           tense="perfect"
+                           voice="passive"
+                           mood="participle"
+                           type="?"
+                           head="true"
+                           discontinuous="true"
+                           gloss="complete">πεπληρωμένοι</w>
+                        <pc>,</pc>
+                     </wg>
+                     <wg role="adv" class="pp" n="510020100030490" rule="PrepNp">
+                        <w class="prep"
+                           osisId="Col.2.10!3"
+                           n="510020100030010"
+                           lemma="ἐν"
+                           normalized="ἐν"
+                           strong="1722"
+                           gloss="in">ἐν</w>
+                        <wg class="np" n="510020100040480" head="true" rule="NP-CL">
+                           <wg class="np" n="510020100040090" head="true" rule="NP-CL">
+                              <w class="pron"
+                                 type="personal"
+                                 osisId="Col.2.10!4"
+                                 n="510020100040010"
+                                 lemma="αὐτός"
+                                 normalized="αὐτῷ"
+                                 strong="846"
+                                 number="singular"
+                                 gender="masculine"
+                                 case="dative"
+                                 head="true"
+                                 gloss="Him">αὐτῷ</w>
+                              <wg class="cl" n="510020100060080" articular="true" rule="S-VC-P">
+                                 <w role="s"
+                                    class="pron"
+                                    type="relative"
+                                    osisId="Col.2.10!6"
+                                    n="510020100060010"
+                                    lemma="ὅς"
+                                    normalized="ὅς"
+                                    strong="3739"
+                                    number="singular"
+                                    gender="masculine"
+                                    case="nominative"
+                                    gloss="who">ὅς</w>
+                                 <w role="vc"
+                                    class="verb"
+                                    osisId="Col.2.10!7"
+                                    n="510020100070010"
+                                    lemma="εἰμί"
+                                    normalized="ἐστιν"
+                                    strong="1510"
+                                    number="singular"
+                                    person="third"
+                                    tense="present"
+                                    voice="active"
+                                    mood="indicative"
+                                    gloss="is">ἐστιν</w>
+                                 <wg role="p"
+                                     class="np"
+                                     n="510020100080060"
+                                     articular="true"
+                                     head="true"
+                                     rule="DetNP">
+                                    <w class="det"
+                                       osisId="Col.2.10!8"
+                                       n="510020100080010"
+                                       lemma="ὁ"
+                                       normalized="ἡ"
+                                       strong="3588"
+                                       number="singular"
+                                       gender="feminine"
+                                       case="nominative"
+                                       gloss="the">ἡ</w>
+                                    <wg class="np" n="510020100090050" head="true" rule="NPofNP">
+                                       <w class="noun"
+                                          type="common"
+                                          osisId="Col.2.10!9"
+                                          n="510020100090010"
+                                          lemma="κεφαλή"
+                                          normalized="κεφαλή"
+                                          strong="2776"
+                                          number="singular"
+                                          gender="feminine"
+                                          case="nominative"
+                                          head="true"
+                                          gloss="head">κεφαλὴ</w>
+                                       <wg class="np" n="510020100100040" rule="All-NP">
+                                          <w class="adj"
+                                             osisId="Col.2.10!10"
+                                             n="510020100100010"
+                                             lemma="πᾶς"
+                                             normalized="πάσης"
+                                             strong="3956"
+                                             number="singular"
+                                             gender="feminine"
+                                             case="genitive"
+                                             gloss="of all">πάσης</w>
+                                          <wg class="np" n="510020100110030" head="true" rule="NpaNp">
+                                             <w class="noun"
+                                                type="common"
+                                                osisId="Col.2.10!11"
+                                                n="510020100110010"
+                                                lemma="ἀρχή"
+                                                normalized="ἀρχῆς"
+                                                strong="746"
+                                                number="singular"
+                                                gender="feminine"
+                                                case="genitive"
+                                                head="true"
+                                                gloss="rule">ἀρχῆς</w>
+                                             <w class="conj"
+                                                osisId="Col.2.10!12"
+                                                n="510020100120010"
+                                                lemma="καί"
+                                                normalized="καί"
+                                                strong="2532"
+                                                gloss="and">καὶ</w>
+                                             <w class="noun"
+                                                type="common"
+                                                osisId="Col.2.10!13"
+                                                n="510020100130010"
+                                                lemma="ἐξουσία"
+                                                normalized="ἐξουσίας"
+                                                strong="1849"
+                                                number="singular"
+                                                gender="feminine"
+                                                case="genitive"
+                                                gloss="authority">ἐξουσίας</w>
+                                             <pc>,</pc>
+                                          </wg>
+                                       </wg>
+                                    </wg>
+                                 </wg>
+                              </wg>
+                           </wg>
+                           <wg class="cl" n="510020110010390" rule="ADV-ADV-V-ADV-ADV-ADV">
+                              <wg role="adv" class="pp" n="510020110010020" rule="PrepNp">
+                                 <w class="prep"
+                                    osisId="Col.2.11!1"
+                                    n="510020110010010"
+                                    lemma="ἐν"
+                                    normalized="ἐν"
+                                    strong="1722"
+                                    gloss="in">ἐν</w>
+                                 <w class="pron"
+                                    type="relative"
+                                    osisId="Col.2.11!2"
+                                    n="510020110020010"
+                                    lemma="ὅς"
+                                    normalized="ᾧ"
+                                    strong="3739"
+                                    number="singular"
+                                    gender="masculine"
+                                    case="dative"
+                                    head="true"
+                                    gloss="whom">ᾧ</w>
+                              </wg>
+                              <w role="adv"
+                                 class="adv"
+                                 osisId="Col.2.11!3"
+                                 n="510020110030010"
+                                 lemma="καί"
+                                 normalized="καί"
+                                 strong="2532"
+                                 gloss="also">καὶ</w>
+                              <w role="v"
+                                 class="verb"
+                                 osisId="Col.2.11!4"
+                                 n="510020110040010"
+                                 lemma="περιτέμνω"
+                                 normalized="περιετμήθητε"
+                                 strong="4059"
+                                 number="plural"
+                                 person="second"
+                                 tense="aorist"
+                                 voice="passive"
+                                 mood="indicative"
+                                 head="true"
+                                 gloss="you were circumcised">περιετμήθητε</w>
+                              <wg role="adv" class="np" n="510020110050020" rule="NpAdjp">
+                                 <w class="noun"
+                                    type="common"
+                                    osisId="Col.2.11!5"
+                                    n="510020110050010"
+                                    lemma="περιτομή"
+                                    normalized="περιτομῇ"
+                                    strong="4061"
+                                    number="singular"
+                                    gender="feminine"
+                                    case="dative"
+                                    head="true"
+                                    gloss="with [the] circumcision">περιτομῇ</w>
+                                 <w class="adj"
+                                    osisId="Col.2.11!6"
+                                    n="510020110060010"
+                                    lemma="ἀχειροποίητος"
+                                    normalized="ἀχειροποιήτῳ"
+                                    strong="886"
+                                    number="singular"
+                                    gender="feminine"
+                                    case="dative"
+                                    gloss="made without hands">ἀχειροποιήτῳ</w>
+                              </wg>
+                              <wg role="adv"
+                                  class="pp"
+                                  n="510020110070120"
+                                  articular="true"
+                                  rule="2Pp">
+                                 <wg class="pp"
+                                     n="510020110070070"
+                                     articular="true"
+                                     head="true"
+                                     rule="PrepNp">
+                                    <w class="prep"
+                                       osisId="Col.2.11!7"
+                                       n="510020110070010"
+                                       lemma="ἐν"
+                                       normalized="ἐν"
+                                       strong="1722"
+                                       gloss="in">ἐν</w>
+                                    <wg class="np"
+                                        n="510020110080060"
+                                        articular="true"
+                                        head="true"
+                                        rule="DetNP">
+                                       <w class="det"
+                                          osisId="Col.2.11!8"
+                                          n="510020110080010"
+                                          lemma="ὁ"
+                                          normalized="τῇ"
+                                          strong="3588"
+                                          number="singular"
+                                          gender="feminine"
+                                          case="dative"
+                                          gloss="the">τῇ</w>
+                                       <wg class="np" n="510020110090050" head="true" rule="NPofNP">
+                                          <w class="noun"
+                                             type="common"
+                                             osisId="Col.2.11!9"
+                                             n="510020110090010"
+                                             lemma="ἀπέκδυσις"
+                                             normalized="ἀπεκδύσει"
+                                             strong="555"
+                                             number="singular"
+                                             gender="feminine"
+                                             case="dative"
+                                             head="true"
+                                             gloss="removal">ἀπεκδύσει</w>
+                                          <wg class="np" n="510020110100040" articular="true" rule="DetNP">
+                                             <w class="det"
+                                                osisId="Col.2.11!10"
+                                                n="510020110100010"
+                                                lemma="ὁ"
+                                                normalized="τοῦ"
+                                                strong="3588"
+                                                number="singular"
+                                                gender="neuter"
+                                                case="genitive"
+                                                gloss="of the">τοῦ</w>
+                                             <wg class="np" n="510020110110030" head="true" rule="NPofNP">
+                                                <w class="noun"
+                                                   type="common"
+                                                   osisId="Col.2.11!11"
+                                                   n="510020110110010"
+                                                   lemma="σῶμα"
+                                                   normalized="σώματος"
+                                                   strong="4983"
+                                                   number="singular"
+                                                   gender="neuter"
+                                                   case="genitive"
+                                                   head="true"
+                                                   gloss="body">σώματος</w>
+                                                <wg class="np" n="510020110120020" articular="true" rule="DetNP">
+                                                   <w class="det"
+                                                      osisId="Col.2.11!12"
+                                                      n="510020110120010"
+                                                      lemma="ὁ"
+                                                      normalized="τῆς"
+                                                      strong="3588"
+                                                      number="singular"
+                                                      gender="feminine"
+                                                      case="genitive"
+                                                      gloss="of the">τῆς</w>
+                                                   <w class="noun"
+                                                      type="common"
+                                                      osisId="Col.2.11!13"
+                                                      n="510020110130010"
+                                                      lemma="σάρξ"
+                                                      normalized="σαρκός"
+                                                      strong="4561"
+                                                      number="singular"
+                                                      gender="feminine"
+                                                      case="genitive"
+                                                      head="true"
+                                                      gloss="flesh">σαρκός</w>
+                                                   <pc>,</pc>
+                                                </wg>
+                                             </wg>
+                                          </wg>
+                                       </wg>
+                                    </wg>
+                                 </wg>
+                                 <wg class="pp" n="510020110140050" articular="true" rule="PrepNp">
+                                    <w class="prep"
+                                       osisId="Col.2.11!14"
+                                       n="510020110140010"
+                                       lemma="ἐν"
+                                       normalized="ἐν"
+                                       strong="1722"
+                                       gloss="in">ἐν</w>
+                                    <wg class="np"
+                                        n="510020110150040"
+                                        articular="true"
+                                        head="true"
+                                        rule="DetNP">
+                                       <w class="det"
+                                          osisId="Col.2.11!15"
+                                          n="510020110150010"
+                                          lemma="ὁ"
+                                          normalized="τῇ"
+                                          strong="3588"
+                                          number="singular"
+                                          gender="feminine"
+                                          case="dative"
+                                          gloss="the">τῇ</w>
+                                       <wg class="np" n="510020110160030" head="true" rule="NPofNP">
+                                          <w class="noun"
+                                             type="common"
+                                             osisId="Col.2.11!16"
+                                             n="510020110160010"
+                                             lemma="περιτομή"
+                                             normalized="περιτομῇ"
+                                             strong="4061"
+                                             number="singular"
+                                             gender="feminine"
+                                             case="dative"
+                                             head="true"
+                                             gloss="circumcision">περιτομῇ</w>
+                                          <wg class="np" n="510020110170020" articular="true" rule="DetNP">
+                                             <w class="det"
+                                                osisId="Col.2.11!17"
+                                                n="510020110170010"
+                                                lemma="ὁ"
+                                                normalized="τοῦ"
+                                                strong="3588"
+                                                number="singular"
+                                                gender="masculine"
+                                                case="genitive"
+                                                gloss="-">τοῦ</w>
+                                             <w class="noun"
+                                                type="proper"
+                                                osisId="Col.2.11!18"
+                                                n="510020110180010"
+                                                lemma="Χριστός"
+                                                normalized="Χριστοῦ"
+                                                strong="5547"
+                                                number="singular"
+                                                gender="masculine"
+                                                case="genitive"
+                                                head="true"
+                                                gloss="of Christ">Χριστοῦ</w>
+                                             <pc>,</pc>
+                                          </wg>
+                                       </wg>
+                                    </wg>
+                                 </wg>
+                              </wg>
+                              <wg role="adv" class="cl" n="510020120010210" rule="V-ADV-ADV">
+                                 <w role="v"
+                                    class="verb"
+                                    osisId="Col.2.12!1"
+                                    n="510020120010010"
+                                    lemma="συνθάπτω"
+                                    normalized="συνταφέντες"
+                                    strong="4916"
+                                    number="plural"
+                                    gender="masculine"
+                                    case="nominative"
+                                    tense="aorist"
+                                    voice="passive"
+                                    mood="participle"
+                                    type="?"
+                                    head="true"
+                                    gloss="having been buried with">συνταφέντες</w>
+                                 <w role="adv"
+                                    class="pron"
+                                    type="personal"
+                                    osisId="Col.2.12!2"
+                                    n="510020120020010"
+                                    lemma="αὐτός"
+                                    normalized="αὐτῷ"
+                                    strong="846"
+                                    number="singular"
+                                    gender="masculine"
+                                    case="dative"
+                                    gloss="Him">αὐτῷ</w>
+                                 <wg role="adv"
+                                     class="pp"
+                                     n="510020120030190"
+                                     articular="true"
+                                     rule="PrepNp">
+                                    <w class="prep"
+                                       osisId="Col.2.12!3"
+                                       n="510020120030010"
+                                       lemma="ἐν"
+                                       normalized="ἐν"
+                                       strong="1722"
+                                       gloss="in">ἐν</w>
+                                    <wg class="np"
+                                        n="510020120040180"
+                                        articular="true"
+                                        head="true"
+                                        rule="NP-CL">
+                                       <wg class="np"
+                                           n="510020120040020"
+                                           articular="true"
+                                           head="true"
+                                           rule="DetNP">
+                                          <w class="det"
+                                             osisId="Col.2.12!4"
+                                             n="510020120040010"
+                                             lemma="ὁ"
+                                             normalized="τῷ"
+                                             strong="3588"
+                                             number="singular"
+                                             gender="neuter"
+                                             case="dative"
+                                             gloss="-">τῷ</w>
+                                          <w class="noun"
+                                             type="common"
+                                             osisId="Col.2.12!5"
+                                             n="510020120050010"
+                                             lemma="βάπτισμα"
+                                             normalized="βαπτίσματι"
+                                             strong="908"
+                                             number="singular"
+                                             gender="neuter"
+                                             case="dative"
+                                             head="true"
+                                             gloss="baptism">βαπτίσματι</w>
+                                          <pc>,</pc>
+                                       </wg>
+                                       <wg class="cl" n="510020120060160" rule="ADV-ADV-V-ADV">
+                                          <wg role="adv" class="pp" n="510020120060020" rule="PrepNp">
+                                             <w class="prep"
+                                                osisId="Col.2.12!6"
+                                                n="510020120060010"
+                                                lemma="ἐν"
+                                                normalized="ἐν"
+                                                strong="1722"
+                                                gloss="in">ἐν</w>
+                                             <w class="pron"
+                                                type="relative"
+                                                osisId="Col.2.12!7"
+                                                n="510020120070010"
+                                                lemma="ὅς"
+                                                normalized="ᾧ"
+                                                strong="3739"
+                                                number="singular"
+                                                gender="neuter"
+                                                case="dative"
+                                                head="true"
+                                                gloss="which">ᾧ</w>
+                                          </wg>
+                                          <w role="adv"
+                                             class="adv"
+                                             osisId="Col.2.12!8"
+                                             n="510020120080010"
+                                             lemma="καί"
+                                             normalized="καί"
+                                             strong="2532"
+                                             gloss="also">καὶ</w>
+                                          <w role="v"
+                                             class="verb"
+                                             osisId="Col.2.12!9"
+                                             n="510020120090010"
+                                             lemma="συνεγείρω"
+                                             normalized="συνηγέρθητε"
+                                             strong="4891"
+                                             number="plural"
+                                             person="second"
+                                             tense="aorist"
+                                             voice="passive"
+                                             mood="indicative"
+                                             head="true"
+                                             gloss="you were raised with [Him]">συνηγέρθητε</w>
+                                          <wg role="adv"
+                                              class="pp"
+                                              n="510020120100120"
+                                              articular="true"
+                                              rule="PrepNp">
+                                             <w class="prep"
+                                                osisId="Col.2.12!10"
+                                                n="510020120100010"
+                                                lemma="διά"
+                                                normalized="διά"
+                                                strong="1223"
+                                                gloss="through">διὰ</w>
+                                             <wg class="np"
+                                                 n="510020120110110"
+                                                 articular="true"
+                                                 head="true"
+                                                 rule="DetNP">
+                                                <w class="det"
+                                                   osisId="Col.2.12!11"
+                                                   n="510020120110010"
+                                                   lemma="ὁ"
+                                                   normalized="τῆς"
+                                                   strong="3588"
+                                                   number="singular"
+                                                   gender="feminine"
+                                                   case="genitive"
+                                                   gloss="the">τῆς</w>
+                                                <wg class="np" n="510020120120100" head="true" rule="NPofNP">
+                                                   <w class="noun"
+                                                      type="common"
+                                                      osisId="Col.2.12!12"
+                                                      n="510020120120010"
+                                                      lemma="πίστις"
+                                                      normalized="πίστεως"
+                                                      strong="4102"
+                                                      number="singular"
+                                                      gender="feminine"
+                                                      case="genitive"
+                                                      head="true"
+                                                      gloss="faith">πίστεως</w>
+                                                   <wg class="np" n="510020120130090" articular="true" rule="DetNP">
+                                                      <w class="det"
+                                                         osisId="Col.2.12!13"
+                                                         n="510020120130010"
+                                                         lemma="ὁ"
+                                                         normalized="τῆς"
+                                                         strong="3588"
+                                                         number="singular"
+                                                         gender="feminine"
+                                                         case="genitive"
+                                                         gloss="of the">τῆς</w>
+                                                      <wg class="np" n="510020120140080" head="true" rule="NPofNP">
+                                                         <w class="noun"
+                                                            type="common"
+                                                            osisId="Col.2.12!14"
+                                                            n="510020120140010"
+                                                            lemma="ἐνέργεια"
+                                                            normalized="ἐνεργείας"
+                                                            strong="1753"
+                                                            number="singular"
+                                                            gender="feminine"
+                                                            case="genitive"
+                                                            head="true"
+                                                            gloss="working">ἐνεργείας</w>
+                                                         <wg class="np" n="510020120150070" articular="true" rule="Np-Appos">
+                                                            <wg class="np"
+                                                                n="510020120150020"
+                                                                articular="true"
+                                                                head="true"
+                                                                rule="DetNP">
+                                                               <w class="det"
+                                                                  osisId="Col.2.12!15"
+                                                                  n="510020120150010"
+                                                                  lemma="ὁ"
+                                                                  normalized="τοῦ"
+                                                                  strong="3588"
+                                                                  number="singular"
+                                                                  gender="masculine"
+                                                                  case="genitive"
+                                                                  gloss="-">τοῦ</w>
+                                                               <w class="noun"
+                                                                  type="common"
+                                                                  osisId="Col.2.12!16"
+                                                                  n="510020120160010"
+                                                                  lemma="θεός"
+                                                                  normalized="Θεοῦ"
+                                                                  strong="2316"
+                                                                  number="singular"
+                                                                  gender="masculine"
+                                                                  case="genitive"
+                                                                  head="true"
+                                                                  gloss="of God">Θεοῦ</w>
+                                                            </wg>
+                                                            <wg class="np" n="510020120170050" articular="true" rule="DetCL">
+                                                               <w class="det"
+                                                                  osisId="Col.2.12!17"
+                                                                  n="510020120170010"
+                                                                  lemma="ὁ"
+                                                                  normalized="τοῦ"
+                                                                  strong="3588"
+                                                                  number="singular"
+                                                                  gender="masculine"
+                                                                  case="genitive"
+                                                                  gloss="the [One]">τοῦ</w>
+                                                               <wg class="cl" n="510020120180040" head="true" rule="V-O-ADV">
+                                                                  <w role="v"
+                                                                     class="verb"
+                                                                     osisId="Col.2.12!18"
+                                                                     n="510020120180010"
+                                                                     lemma="ἐγείρω"
+                                                                     normalized="ἐγείραντος"
+                                                                     strong="1453"
+                                                                     number="singular"
+                                                                     gender="masculine"
+                                                                     case="genitive"
+                                                                     tense="aorist"
+                                                                     voice="active"
+                                                                     mood="participle"
+                                                                     type="?"
+                                                                     head="true"
+                                                                     gloss="having raised">ἐγείραντος</w>
+                                                                  <w role="o"
+                                                                     class="pron"
+                                                                     type="personal"
+                                                                     osisId="Col.2.12!19"
+                                                                     n="510020120190010"
+                                                                     lemma="αὐτός"
+                                                                     normalized="αὐτόν"
+                                                                     strong="846"
+                                                                     number="singular"
+                                                                     gender="masculine"
+                                                                     case="accusative"
+                                                                     gloss="Him">αὐτὸν</w>
+                                                                  <wg role="adv" class="pp" n="510020120200020" rule="PrepNp">
+                                                                     <w class="prep"
+                                                                        osisId="Col.2.12!20"
+                                                                        n="510020120200010"
+                                                                        lemma="ἐκ"
+                                                                        normalized="ἐκ"
+                                                                        strong="1537"
+                                                                        gloss="out from">ἐκ</w>
+                                                                     <w class="adj"
+                                                                        osisId="Col.2.12!21"
+                                                                        n="510020120210010"
+                                                                        lemma="νεκρός"
+                                                                        normalized="νεκρῶν"
+                                                                        strong="3498"
+                                                                        number="plural"
+                                                                        gender="masculine"
+                                                                        case="genitive"
+                                                                        head="true"
+                                                                        gloss="the dead">νεκρῶν</w>
+                                                                     <pc>·</pc>
+                                                                  </wg>
+                                                               </wg>
+                                                            </wg>
+                                                         </wg>
+                                                      </wg>
+                                                   </wg>
+                                                </wg>
+                                             </wg>
+                                          </wg>
+                                       </wg>
+                                    </wg>
+                                 </wg>
+                              </wg>
+                           </wg>
+                        </wg>
+                     </wg>
+                  </wg>
+               </wg>
+            </wg>
+         </wg>
+      </wg>
+   </sentence>
+</book>

@@ -3373,17 +3373,17 @@ exports[`KR characterization — structural snapshots > sblgnt 2 Corinthians 5:4
 
 exports[`KR characterization — structural snapshots > sblgnt Colossians 1:9–16 1`] = `
 {
-  "bounds": "2300x3620",
-  "compactness": "w=2300 areaK=8325",
+  "bounds": "2300x3510",
+  "compactness": "w=2300 areaK=8062",
   "lines": {
     "baseline/solid": 96,
     "coordination/dashed": 13,
     "coordination/solid": 14,
     "divider/solid": 8,
-    "separator/solid": 15,
+    "separator/solid": 17,
     "slant/solid": 64,
     "stem/dashed": 21,
-    "stem/solid": 22,
+    "stem/solid": 24,
   },
   "nodeIds": [
     "cl_s0_41",
@@ -3785,17 +3785,17 @@ exports[`KR characterization — structural snapshots > sblgnt Colossians 1:9–
 
 exports[`KR characterization — structural snapshots > sblgnt Colossians 1:9–16 2`] = `
 {
-  "bounds": "2300x3620",
-  "compactness": "w=2300 areaK=8325",
+  "bounds": "2300x3510",
+  "compactness": "w=2300 areaK=8062",
   "lines": {
     "baseline/solid": 96,
     "coordination/dashed": 13,
     "coordination/solid": 14,
     "divider/solid": 8,
-    "separator/solid": 15,
+    "separator/solid": 17,
     "slant/solid": 64,
     "stem/dashed": 21,
-    "stem/solid": 22,
+    "stem/solid": 24,
   },
   "nodeIds": [
     "cl_s0_41",
@@ -4536,16 +4536,17 @@ exports[`KR characterization — structural snapshots > sblgnt Colossians 1:18�
 
 exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:3–4 1`] = `
 {
-  "bounds": "780x1020",
-  "compactness": "w=780 areaK=800",
+  "bounds": "800x1090",
+  "compactness": "w=800 areaK=868",
   "lines": {
     "baseline/solid": 26,
     "coordination/dashed": 7,
     "coordination/solid": 6,
     "divider/solid": 5,
+    "separator/solid": 2,
     "slant/solid": 6,
     "stem/dashed": 5,
-    "stem/solid": 4,
+    "stem/solid": 6,
   },
   "nodeIds": [
     "cl_s0_0",
@@ -4631,18 +4632,18 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:3–4
 
 exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:5 1`] = `
 {
-  "bounds": "1250x830",
-  "compactness": "w=1250 areaK=1041",
+  "bounds": "1250x780",
+  "compactness": "w=1250 areaK=967",
   "lines": {
     "baseline/solid": 22,
     "coordination/dashed": 2,
     "coordination/solid": 5,
     "divider/solid": 3,
-    "separator/solid": 3,
+    "separator/solid": 5,
     "slant/solid": 5,
     "stem/dashed": 6,
     "stem/dotted": 1,
-    "stem/solid": 5,
+    "stem/solid": 4,
   },
   "nodeIds": [
     "w_n49005005001",
@@ -5318,10 +5319,10 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:18–
     "coordination/dashed": 10,
     "coordination/solid": 9,
     "divider/solid": 3,
-    "separator/solid": 5,
+    "separator/solid": 7,
     "slant/solid": 16,
     "stem/dashed": 8,
-    "stem/solid": 9,
+    "stem/solid": 8,
   },
   "nodeIds": [
     "cl_s11_0",
@@ -6195,16 +6196,16 @@ exports[`KR characterization — structural snapshots > sblgnt Ephesians 5:33 1`
 exports[`KR characterization — structural snapshots > sblgnt Hebrews 1:1–4 1`] = `
 {
   "bounds": "2370x1500",
-  "compactness": "w=2370 areaK=3574",
+  "compactness": "w=2370 areaK=3571",
   "lines": {
     "baseline/solid": 56,
     "coordination/dashed": 4,
     "coordination/solid": 5,
     "divider/solid": 4,
-    "separator/solid": 10,
+    "separator/solid": 12,
     "slant/solid": 31,
     "stem/dashed": 4,
-    "stem/solid": 16,
+    "stem/solid": 15,
   },
   "nodeIds": [
     "cl_s0_37",
@@ -8863,17 +8864,17 @@ exports[`KR characterization — structural snapshots > sblgnt Philemon 1:3 1`] 
 
 exports[`KR characterization — structural snapshots > sblgnt Philemon 1:4–6 1`] = `
 {
-  "bounds": "1130x960",
-  "compactness": "w=1130 areaK=1085",
+  "bounds": "1150x940",
+  "compactness": "w=1150 areaK=1083",
   "lines": {
     "baseline/solid": 31,
     "coordination/dashed": 1,
     "coordination/solid": 2,
     "divider/solid": 3,
-    "separator/solid": 6,
+    "separator/solid": 8,
     "slant/solid": 20,
     "stem/dashed": 8,
-    "stem/solid": 2,
+    "stem/solid": 1,
   },
   "nodeIds": [
     "w_n57001004001",
@@ -9175,17 +9176,17 @@ exports[`KR characterization — structural snapshots > sblgnt Philemon 1:8–9 
 
 exports[`KR characterization — structural snapshots > sblgnt Philemon 1:10–13 1`] = `
 {
-  "bounds": "2060x1030",
-  "compactness": "w=2060 areaK=2126",
+  "bounds": "2150x1060",
+  "compactness": "w=2150 areaK=2285",
   "lines": {
-    "baseline/solid": 44,
+    "baseline/solid": 45,
     "coordination/dashed": 2,
     "coordination/solid": 4,
     "divider/solid": 6,
-    "separator/solid": 10,
-    "slant/solid": 20,
+    "separator/solid": 16,
+    "slant/solid": 19,
     "stem/dashed": 10,
-    "stem/solid": 3,
+    "stem/solid": 4,
   },
   "nodeIds": [
     "w_n57001010001",
@@ -10249,14 +10250,14 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:3–5 1`
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 9:5 1`] = `
 {
-  "bounds": "720x300",
-  "compactness": "w=720 areaK=214",
+  "bounds": "740x300",
+  "compactness": "w=740 areaK=219",
   "lines": {
     "baseline/solid": 12,
     "divider/solid": 1,
-    "separator/solid": 1,
+    "separator/solid": 3,
     "slant/solid": 5,
-    "stem/solid": 4,
+    "stem/solid": 3,
   },
   "nodeIds": [
     "impl_cl_s2_0",
@@ -11390,18 +11391,18 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 9:21 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 9:22–24 1`] = `
 {
-  "bounds": "1440x1250",
-  "compactness": "w=1440 areaK=1803",
+  "bounds": "1460x1300",
+  "compactness": "w=1460 areaK=1894",
   "lines": {
-    "baseline/solid": 50,
+    "baseline/solid": 51,
     "coordination/dashed": 4,
     "coordination/solid": 5,
     "divider/solid": 4,
-    "separator/solid": 10,
-    "slant/solid": 16,
+    "separator/solid": 16,
+    "slant/solid": 15,
     "stem/dashed": 11,
     "stem/dotted": 1,
-    "stem/solid": 9,
+    "stem/solid": 13,
   },
   "nodeIds": [
     "cl_s21_0",
@@ -12406,15 +12407,16 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:4 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 10:5 1`] = `
 {
-  "bounds": "990x520",
-  "compactness": "w=990 areaK=511",
+  "bounds": "1000x510",
+  "compactness": "w=1000 areaK=510",
   "lines": {
     "baseline/solid": 14,
     "divider/solid": 2,
+    "separator/solid": 2,
     "slant/solid": 5,
     "stem/dashed": 3,
     "stem/dotted": 1,
-    "stem/solid": 5,
+    "stem/solid": 4,
   },
   "nodeIds": [
     "w_n45010005001",
@@ -12604,18 +12606,18 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 10:7 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 10:8–9 1`] = `
 {
-  "bounds": "990x1660",
-  "compactness": "w=990 areaK=1655",
+  "bounds": "990x1680",
+  "compactness": "w=990 areaK=1671",
   "lines": {
     "baseline/solid": 48,
     "coordination/dashed": 9,
     "coordination/solid": 2,
     "divider/solid": 9,
-    "separator/solid": 8,
+    "separator/solid": 10,
     "slant/solid": 16,
     "stem/dashed": 9,
     "stem/dotted": 1,
-    "stem/solid": 7,
+    "stem/solid": 9,
   },
   "nodeIds": [
     "cl_s39_3",
@@ -13792,14 +13794,14 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:1 3`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 11:2 1`] = `
 {
-  "bounds": "720x320",
-  "compactness": "w=720 areaK=233",
+  "bounds": "720x330",
+  "compactness": "w=720 areaK=237",
   "lines": {
     "baseline/solid": 11,
     "divider/solid": 2,
-    "separator/solid": 2,
+    "separator/solid": 4,
     "slant/solid": 4,
-    "stem/solid": 4,
+    "stem/solid": 6,
   },
   "nodeIds": [
     "w_n45011002001",
@@ -13994,15 +13996,15 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:4 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 11:4 2`] = `
 {
-  "bounds": "790x480",
-  "compactness": "w=790 areaK=377",
+  "bounds": "790x420",
+  "compactness": "w=790 areaK=333",
   "lines": {
     "baseline/solid": 11,
     "divider/solid": 2,
-    "separator/solid": 1,
+    "separator/solid": 3,
     "slant/solid": 4,
     "stem/dashed": 3,
-    "stem/solid": 2,
+    "stem/solid": 1,
   },
   "nodeIds": [
     "w_n45011004007",
@@ -16277,18 +16279,18 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:36 2`] 
 
 exports[`KR characterization — structural snapshots > sblgnt Titus 2:11–14 1`] = `
 {
-  "bounds": "1630x2420",
-  "compactness": "w=1630 areaK=3936",
+  "bounds": "1630x2360",
+  "compactness": "w=1630 areaK=3841",
   "lines": {
     "baseline/solid": 52,
     "coordination/dashed": 6,
     "coordination/solid": 9,
     "divider/solid": 5,
-    "separator/solid": 14,
+    "separator/solid": 16,
     "slant/solid": 21,
     "stem/dashed": 16,
     "stem/dotted": 1,
-    "stem/solid": 11,
+    "stem/solid": 10,
   },
   "nodeIds": [
     "cl_s0_41",
@@ -16739,15 +16741,15 @@ exports[`KR characterization — structural snapshots > wlc Genesis 1:3 1`] = `
 
 exports[`KR characterization — structural snapshots > wlc Genesis 1:11 1`] = `
 {
-  "bounds": "650x960",
-  "compactness": "w=650 areaK=619",
+  "bounds": "710x960",
+  "compactness": "w=710 areaK=675",
   "lines": {
-    "baseline/solid": 31,
+    "baseline/solid": 32,
     "coordination/dashed": 4,
     "coordination/solid": 3,
     "divider/solid": 4,
-    "separator/solid": 3,
-    "slant/solid": 9,
+    "separator/solid": 5,
+    "slant/solid": 8,
     "stem/dashed": 9,
     "stem/solid": 1,
   },
