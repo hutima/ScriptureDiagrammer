@@ -113,3 +113,67 @@ describe('relations — store create-first workflow', () => {
     expect(rel!.type).toBeUndefined();
   });
 });
+
+describe('relations — two-phase Relate draft (source-first entry point)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    useDiscourseStore.setState({
+      baseDoc: null, doc: null, status: 'idle', error: null, past: [], future: [],
+      selection: {}, pendingRelationSource: null, pendingRelationAwaitingSource: false,
+      typeEditRelationId: null, multiSelectMode: false, multiSelectedUnitIds: [],
+      isDefaultDemo: false, firstLoadModalOpen: false, newTextRequest: 0,
+    });
+    useDiscourseStore.getState().loadPlainText(TEXT, 'T');
+  });
+
+  const s = () => useDiscourseStore.getState();
+
+  it('startRelationDraft enters the awaiting-source phase', () => {
+    s().startRelationDraft();
+    expect(s().pendingRelationAwaitingSource).toBe(true);
+    expect(s().pendingRelationSource).toBeNull();
+  });
+
+  it('startRelation with one unit jumps straight to awaiting-target (skips the draft phase)', () => {
+    const [a] = leafUnits(s().doc!);
+    s().startRelation(a!.id);
+    expect(s().pendingRelationAwaitingSource).toBe(false);
+    expect(s().pendingRelationSource).toBe(a!.id);
+  });
+
+  it('picking a source while awaiting-source moves to awaiting-target, then picking a target creates the relation', () => {
+    const [a, b] = leafUnits(s().doc!);
+    s().startRelationDraft();
+    // The view calls `startRelation(unitId)` for the click that picks the
+    // source while `pendingRelationAwaitingSource` is true (DiscourseView's
+    // onUnitSelect) — exercise that same store transition directly here.
+    s().startRelation(a!.id);
+    expect(s().pendingRelationAwaitingSource).toBe(false);
+    expect(s().pendingRelationSource).toBe(a!.id);
+    s().pickRelationTarget(b!.id);
+    expect(s().doc!.relations).toHaveLength(1);
+    expect(s().doc!.relations[0]!.sourceUnitId).toBe(a!.id);
+    expect(s().doc!.relations[0]!.targetUnitId).toBe(b!.id);
+    expect(s().pendingRelationSource).toBeNull();
+  });
+
+  it('cancelRelation clears the draft in EITHER phase', () => {
+    s().startRelationDraft();
+    s().cancelRelation();
+    expect(s().pendingRelationAwaitingSource).toBe(false);
+    expect(s().pendingRelationSource).toBeNull();
+
+    const [a] = leafUnits(s().doc!);
+    s().startRelation(a!.id);
+    s().cancelRelation();
+    expect(s().pendingRelationAwaitingSource).toBe(false);
+    expect(s().pendingRelationSource).toBeNull();
+  });
+
+  it('entering multi-select mode cancels an in-progress draft', () => {
+    s().startRelationDraft();
+    s().setMultiSelectMode(true);
+    expect(s().pendingRelationAwaitingSource).toBe(false);
+    expect(s().multiSelectMode).toBe(true);
+  });
+});

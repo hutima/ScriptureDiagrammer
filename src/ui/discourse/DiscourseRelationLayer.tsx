@@ -113,6 +113,7 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
         return (
           <g
             key={relation.id}
+            data-relation-id={relation.id}
             className={`discourse-arc${selected ? ' selected' : ''}`}
             style={{ pointerEvents: 'none' }}
           >
@@ -122,16 +123,17 @@ export const DiscourseRelationLayer = memo(function DiscourseRelationLayer({
               d={`M ${sx(r.a1)} ${r.y1} H ${laneX} V ${r.y2} H ${tipX}`}
               fill="none"
               stroke={r.color}
-              strokeWidth={selected ? 2.4 : 1.6}
-              strokeDasharray={r.dashed ? '5 3' : undefined}
+              strokeWidth={selected ? r.strokeWidth + 0.8 : r.strokeWidth}
+              strokeDasharray={r.dashArray}
               opacity={selected ? 1 : 0.8}
             />
-            {/* Arrowhead at the target tip, pointing back toward the text. */}
+            {/* Arrowhead at the target tip, pointing back toward the text. Never
+                dashed regardless of the run's own dash style. */}
             <path
               d={`M ${wingX} ${r.y2 - 4} L ${tipX} ${r.y2} L ${wingX} ${r.y2 + 4}`}
               fill="none"
               stroke={r.color}
-              strokeWidth={selected ? 2.2 : 1.6}
+              strokeWidth={Math.max(1.6, r.strokeWidth * (selected ? 1.2 : 1))}
             />
             {r.label && (
               <text

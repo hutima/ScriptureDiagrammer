@@ -173,6 +173,29 @@ export function setDiscourseUnitColor(
   return touchDoc(doc, units, now);
 }
 
+/**
+ * Set (or clear, with `undefined`) MULTIPLE units' color tag in ONE step —
+ * the multi-select batch action. No-op (returns the same doc) if none of the
+ * ids exist or every matching unit already has the target color, so the
+ * store's `next === doc` no-op check works exactly like the single-unit form.
+ */
+export function setDiscourseUnitsColor(
+  doc: DiscourseDocument,
+  unitIds: string[],
+  color: DiscourseUnitColor | undefined,
+  now?: string,
+): DiscourseDocument {
+  const ids = new Set(unitIds);
+  let changed = false;
+  const units = doc.units.map((u) => {
+    if (!ids.has(u.id) || u.color === color) return u;
+    changed = true;
+    return { ...u, color };
+  });
+  if (!changed) return doc;
+  return touchDoc(doc, units, now);
+}
+
 function setCollapsed(doc: DiscourseDocument, unitId: string, collapsed: boolean, now?: string) {
   if (!unitById(doc, unitId)) return doc;
   const units = doc.units.map((u) => (u.id === unitId ? { ...u, collapsed } : u));

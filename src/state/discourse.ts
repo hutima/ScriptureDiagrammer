@@ -36,6 +36,7 @@ import {
   removeDiscourseTextHighlight,
   setDiscourseTextHighlightNote,
   setDiscourseUnitColor,
+  setDiscourseUnitsColor,
   setDiscourseUnitIndent,
   rejectDiscourseSuggestion,
   removeDiscourseBreak,
@@ -127,6 +128,14 @@ export interface DiscourseState {
   /** An in-progress "pick the target unit" relation interaction, if any. */
   pendingRelationSource: string | null;
   /**
+   * True while the Relate flow is waiting for the SOURCE unit to be picked
+   * (the two-click "no unit pre-selected" entry point — `startRelationDraft`).
+   * Once a unit is clicked it becomes `pendingRelationSource` and this flag
+   * clears. Mutually exclusive with nothing in particular — it simply
+   * precedes `pendingRelationSource` in the same flow.
+   */
+  pendingRelationAwaitingSource: boolean;
+  /**
    * The id of a relation whose (optional) TYPE is being chosen in the modal.
    * The link is ALREADY created (untyped) by the time this is set — dismissing
    * the modal simply leaves it untyped; it never deletes the link.
@@ -159,6 +168,15 @@ export interface DiscourseState {
    * several units in a new parent group.
    */
   multiSelectedUnitIds: string[];
+  /**
+   * Multi-select MODE: while on, a plain click on a unit extends/toggles the
+   * multi-selection (`extendMultiSelect`) instead of replacing the single
+   * selection — shift-click keeps working the same in both modes. Turning
+   * the mode off clears the multi-selection. Distinct from
+   * `multiSelectedUnitIds` itself (which can be non-empty briefly outside the
+   * mode too — e.g. right after a plain `select`).
+   */
+  multiSelectMode: boolean;
   /**
    * STUDY MODE token selection (transient — never persisted, never in undo
    * history). A drag/tap across a unit's words in Study mode fills this; the
@@ -258,6 +276,8 @@ export interface DiscourseActions {
   setUnitNotes: (unitId: string, notes: string) => void;
   /** Set (or clear, with `undefined`) a unit's color tag. */
   setUnitColor: (unitId: string, color: DiscourseUnitColor | undefined) => void;
+  /** Set (or clear) MULTIPLE units' color tag in one undoable step (multi-select batch). */
+  setUnitsColor: (unitIds: string[], color: DiscourseUnitColor | undefined) => void;
   /** Enter/leave "drag to highlight" mode for a unit. */
   beginHighlight: (unitId: string | null) => void;
   /** Set the color new highlights are created with. */
@@ -314,6 +334,14 @@ export interface DiscourseActions {
   acceptSuggestion: (suggestionId: string) => void;
   rejectSuggestion: (suggestionId: string) => void;
   startRelation: (sourceUnitId: string) => void;
+  /**
+   * Enter the Relate flow with NO source pre-selected (the toolbar's Relate
+   * button when nothing is selected): the next unit clicked becomes the
+   * source (`pendingRelationSource`), and the one after that the target,
+   * exactly as if `startRelation` had been called on it.
+   */
+  startRelationDraft: () => void;
+  /** Cancel the Relate flow in EITHER phase (awaiting-source or awaiting-target). */
   cancelRelation: () => void;
   /**
    * Both ends picked: IMMEDIATELY create an untyped connector from the pending
@@ -334,6 +362,9 @@ export interface DiscourseActions {
   /** Shift-click: extend a contiguous sibling multi-selection to `unitId`. */
   extendMultiSelect: (unitId: string) => void;
   clearMultiSelect: () => void;
+  /** Turn multi-select MODE on/off. Turning it off clears the multi-selection;
+   *  turning it on cancels any in-progress Relate draft. */
+  setMultiSelectMode: (on: boolean) => void;
   undo: () => void;
   redo: () => void;
   /** Discard all discourse edits for the loaded range (syntax edits untouched). */
@@ -510,12 +541,14 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     view: { ...DEFAULT_VIEW },
     suggestionsOpen: false,
     pendingRelationSource: null,
+    pendingRelationAwaitingSource: false,
     typeEditRelationId: null,
     splitPickUnitId: null,
     highlightPickUnitId: null,
     relationHighlightPickRelationId: null,
     highlightColor: 'yellow',
     multiSelectedUnitIds: [],
+    multiSelectMode: false,
     studySelection: null,
     sermon: null,
     isDefaultDemo: false,
@@ -574,11 +607,13 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
           error: null,
           selection: {},
           pendingRelationSource: null,
+          pendingRelationAwaitingSource: false,
           typeEditRelationId: null,
           splitPickUnitId: null,
           highlightPickUnitId: null,
           relationHighlightPickRelationId: null,
           multiSelectedUnitIds: [],
+          multiSelectMode: false,
           studySelection: null,
           sermon: loadSermonFor(base.id),
           // A range load clears the demo stamp; `loadDefaultDemo` re-sets it after.
@@ -609,11 +644,13 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         error: null,
         selection: {},
         pendingRelationSource: null,
+        pendingRelationAwaitingSource: false,
         typeEditRelationId: null,
         splitPickUnitId: null,
         highlightPickUnitId: null,
         relationHighlightPickRelationId: null,
         multiSelectedUnitIds: [],
+        multiSelectMode: false,
         studySelection: null,
         sermon: loadSermonFor(built.id),
         isDefaultDemo: false,
@@ -704,11 +741,13 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         isDefaultDemo: false,
         selection: {},
         pendingRelationSource: null,
+        pendingRelationAwaitingSource: false,
         typeEditRelationId: null,
         splitPickUnitId: null,
         highlightPickUnitId: null,
         relationHighlightPickRelationId: null,
         multiSelectedUnitIds: [],
+        multiSelectMode: false,
         studySelection: null,
         sermon: null,
         past: [],
@@ -789,11 +828,13 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     labelUnit: (unitId, label) => commit((d) => labelDiscourseUnit(d, unitId, label)),
     setUnitNotes: (unitId, notes) => commit((d) => setDiscourseUnitNotes(d, unitId, notes)),
     setUnitColor: (unitId, color) => commit((d) => setDiscourseUnitColor(d, unitId, color)),
+    setUnitsColor: (unitIds, color) => commit((d) => setDiscourseUnitsColor(d, unitIds, color)),
     beginHighlight: (highlightPickUnitId) =>
       set({
         highlightPickUnitId,
         splitPickUnitId: null,
         pendingRelationSource: null,
+        pendingRelationAwaitingSource: false,
         typeEditRelationId: null,
         relationHighlightPickRelationId: null,
       }),
@@ -812,6 +853,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         splitPickUnitId: null,
         highlightPickUnitId: null,
         pendingRelationSource: null,
+        pendingRelationAwaitingSource: false,
         typeEditRelationId: null,
         studySelection: null,
       }),
@@ -895,12 +937,26 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     startRelation: (sourceUnitId) =>
       set({
         pendingRelationSource: sourceUnitId,
+        pendingRelationAwaitingSource: false,
         typeEditRelationId: null,
         splitPickUnitId: null,
         highlightPickUnitId: null,
         relationHighlightPickRelationId: null,
       }),
-    cancelRelation: () => set({ pendingRelationSource: null }),
+    startRelationDraft: () =>
+      set({
+        pendingRelationAwaitingSource: true,
+        pendingRelationSource: null,
+        typeEditRelationId: null,
+        splitPickUnitId: null,
+        highlightPickUnitId: null,
+        relationHighlightPickRelationId: null,
+        // A source-first Relate draft and a multi-selection are different
+        // tools; starting one leaves the other's affordances behind.
+        multiSelectMode: false,
+        multiSelectedUnitIds: [],
+      }),
+    cancelRelation: () => set({ pendingRelationSource: null, pendingRelationAwaitingSource: false }),
     pickRelationTarget: (targetUnitId) => {
       const source = get().pendingRelationSource;
       if (!source || source === targetUnitId) {
@@ -920,6 +976,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
       set({
         splitPickUnitId,
         pendingRelationSource: null,
+        pendingRelationAwaitingSource: false,
         typeEditRelationId: null,
         highlightPickUnitId: null,
         relationHighlightPickRelationId: null,
@@ -947,6 +1004,15 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
       set({ multiSelectedUnitIds: siblings.slice(lo, hi + 1).map((u) => u.id) });
     },
     clearMultiSelect: () => set({ multiSelectedUnitIds: [] }),
+    setMultiSelectMode: (on) =>
+      set({
+        multiSelectMode: on,
+        multiSelectedUnitIds: on ? get().multiSelectedUnitIds : [],
+        // Entering multi-select is a different tool than Relate — cancel any
+        // in-progress draft so the two affordances never overlap.
+        pendingRelationSource: on ? null : get().pendingRelationSource,
+        pendingRelationAwaitingSource: on ? false : get().pendingRelationAwaitingSource,
+      }),
 
     undo: () => {
       const { doc, past, future } = get();
@@ -973,11 +1039,13 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         future: [],
         selection: {},
         pendingRelationSource: null,
+        pendingRelationAwaitingSource: false,
         typeEditRelationId: null,
         splitPickUnitId: null,
         highlightPickUnitId: null,
         relationHighlightPickRelationId: null,
         multiSelectedUnitIds: [],
+        multiSelectMode: false,
         studySelection: null,
       });
     },

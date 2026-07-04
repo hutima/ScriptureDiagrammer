@@ -412,9 +412,9 @@ function renderOutlineArcs(
       const a2 = leftX + r.a2;
       const laneX = leftX + r.laneU;
       const midY = (r.y1 + r.y2) / 2;
-      const dash = r.dashed ? ' stroke-dasharray="5 3"' : '';
-      const bracket = `<path d="M ${a1} ${r.y1} H ${laneX} V ${r.y2} H ${a2}" fill="none" stroke="${r.color}" stroke-width="1.5"${dash} opacity="0.85"/>`;
-      const arrow = `<path d="M ${a2 + 5} ${r.y2 - 4} L ${a2} ${r.y2} L ${a2 + 5} ${r.y2 + 4}" fill="none" stroke="${r.color}" stroke-width="1.5"/>`;
+      const dash = r.dashArray ? ` stroke-dasharray="${r.dashArray}"` : '';
+      const bracket = `<path d="M ${a1} ${r.y1} H ${laneX} V ${r.y2} H ${a2}" fill="none" stroke="${r.color}" stroke-width="${r.strokeWidth}"${dash} opacity="0.85"/>`;
+      const arrow = `<path d="M ${a2 + 5} ${r.y2 - 4} L ${a2} ${r.y2} L ${a2 + 5} ${r.y2 + 4}" fill="none" stroke="${r.color}" stroke-width="${Math.max(1.6, r.strokeWidth)}"/>`;
       const text = r.label
         ? `<text x="${laneX + 3}" y="${midY}" fill="${r.color}" font-size="11" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${laneX + 3} ${midY})">${escapeXml(r.label)}</text>`
         : '';

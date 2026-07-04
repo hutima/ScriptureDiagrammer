@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDiscourseStore } from '@/state';
 import { childUnits, MAX_USER_INDENT, MIN_USER_INDENT } from '@/domain/discourse';
+import { SwatchRow } from './DiscourseSwatchRow';
 
 /**
  * DISCOURSE EDIT TOOLBAR — mounted in the discourse canvas while the app is in
@@ -15,6 +16,10 @@ export function DiscourseToolbar() {
   const multi = useDiscourseStore((s) => s.multiSelectedUnitIds);
   const splitPickUnitId = useDiscourseStore((s) => s.splitPickUnitId);
   const pendingRelationSource = useDiscourseStore((s) => s.pendingRelationSource);
+  const pendingRelationAwaitingSource = useDiscourseStore((s) => s.pendingRelationAwaitingSource);
+  const multiSelectMode = useDiscourseStore((s) => s.multiSelectMode);
+  const setMultiSelectMode = useDiscourseStore((s) => s.setMultiSelectMode);
+  const setUnitsColor = useDiscourseStore((s) => s.setUnitsColor);
   const past = useDiscourseStore((s) => s.past);
   const future = useDiscourseStore((s) => s.future);
   const beginSplit = useDiscourseStore((s) => s.beginSplit);
@@ -24,6 +29,7 @@ export function DiscourseToolbar() {
   const wrapUnits = useDiscourseStore((s) => s.wrapUnits);
   const unwrapUnit = useDiscourseStore((s) => s.unwrapUnit);
   const startRelation = useDiscourseStore((s) => s.startRelation);
+  const startRelationDraft = useDiscourseStore((s) => s.startRelationDraft);
   const cancelRelation = useDiscourseStore((s) => s.cancelRelation);
   const undo = useDiscourseStore((s) => s.undo);
   const redo = useDiscourseStore((s) => s.redo);
@@ -43,9 +49,22 @@ export function DiscourseToolbar() {
   const prevSibling = siblingIndex > 0 ? siblings[siblingIndex - 1] : undefined;
   const canMergePrev = !!unit && !!prevSibling && isLeaf && prevSibling.tokenIds.length > 0;
   const splitting = splitPickUnitId != null;
-  const relating = pendingRelationSource != null;
+  // Relating in EITHER phase — awaiting the source unit (a draft started with
+  // nothing selected) or awaiting the target (the normal, unit-first flow).
+  const relating = pendingRelationSource != null || pendingRelationAwaitingSource;
+  const relateMultiConflict = !relating && multi.length > 1;
   // Indent applies to the multi-selection when one exists, else the active unit.
   const indentTargets = multi.length > 1 ? multi : unit ? [unit.id] : [];
+
+  const onRelateClick = () => {
+    if (relating) {
+      cancelRelation();
+      return;
+    }
+    if (relateMultiConflict) return; // no-op — the hint below explains why
+    if (unit) startRelation(unit.id);
+    else startRelationDraft();
+  };
 
   const promptLabel = () => {
     if (!unit) return;
@@ -57,19 +76,32 @@ export function DiscourseToolbar() {
 
   return (
     <div className="discourse-toolbar" role="toolbar" aria-label="Discourse editing">
-      {/* PRIMARY — the marquee action, accent-filled and first. */}
+      {/* PRIMARY — the marquee action, accent-filled, bigger than every other
+          button, and first. Two-phase: with nothing selected it starts a
+          source-first draft (`startRelationDraft`); with one unit selected it
+          jumps straight to awaiting-target (`startRelation`), as before. */}
       <div className="discourse-toolbar-group primary">
         <button
-          className={`mini primary${relating ? ' active' : ''}`}
-          disabled={!unit && !relating}
-          title="Relate this unit to another — click the target unit, then pick the relation type"
-          onClick={() => (relating ? cancelRelation() : unit && startRelation(unit.id))}
+          className={`mini primary discourse-relate-btn${relating ? ' active' : ''}`}
+          disabled={relateMultiConflict}
+          title={
+            relating
+              ? 'Cancel relating'
+              : relateMultiConflict
+                ? 'Leave multi-select or select a single source unit first'
+                : unit
+                  ? 'Relate this unit to another — click the target unit, then pick the relation type'
+                  : 'Start relating — click the source unit, then the target unit'
+          }
+          onClick={onRelateClick}
         >
           {relating ? 'Cancel relate' : 'Relate →'}
         </button>
       </div>
 
-      {/* STRUCTURE — reshape the unit boundaries and grouping. */}
+      {/* STRUCTURE — reshape the unit boundaries and grouping. Group/Ungroup
+          only appear in multi-select mode — grouping is a multi-select
+          action, kept visually apart from the single-unit Relate flow above. */}
       <div className="discourse-toolbar-group">
         <span className="discourse-toolbar-group-label">Structure</span>
         <button
@@ -89,25 +121,52 @@ export function DiscourseToolbar() {
           Merge ←
         </button>
         <button
-          className="mini"
-          disabled={multi.length < 1}
-          title="Wrap the selected unit(s) in a new parent group (shift-click to select several)"
-          onClick={() => {
-            const label = window.prompt('Group label (“Household code”, “A”…)', '');
-            if (label !== null) wrapUnits(multi, { label });
-          }}
+          className={`mini discourse-multiselect-btn${multiSelectMode ? ' active' : ''}`}
+          aria-pressed={multiSelectMode}
+          title="Toggle multi-select mode — click units to add them to a group selection"
+          onClick={() => setMultiSelectMode(!multiSelectMode)}
         >
-          Group
+          Multi-select
         </button>
-        <button
-          className="mini"
-          disabled={!isContainer}
-          title="Unwrap this group — its members take its place"
-          onClick={() => unit && unwrapUnit(unit.id)}
-        >
-          Ungroup
-        </button>
+        {multiSelectMode && (
+          <>
+            <span className="discourse-multiselect-count">{multi.length} selected</span>
+            <button
+              className="mini"
+              disabled={multi.length < 1}
+              title="Wrap the selected unit(s) in a new parent group"
+              onClick={() => {
+                const label = window.prompt('Group label (“Household code”, “A”…)', '');
+                if (label !== null) wrapUnits(multi, { label });
+              }}
+            >
+              Group
+            </button>
+            <button
+              className="mini"
+              disabled={!isContainer}
+              title="Unwrap this group — its members take its place"
+              onClick={() => unit && unwrapUnit(unit.id)}
+            >
+              Ungroup
+            </button>
+          </>
+        )}
       </div>
+
+      {/* Batch unit color — multi-select mode only, once at least one unit is
+          selected. Applies to every selected unit in ONE undoable step. */}
+      {multiSelectMode && multi.length >= 1 && (
+        <div className="discourse-toolbar-group">
+          <span className="discourse-toolbar-group-label">Color selected</span>
+          <SwatchRow
+            active={undefined}
+            onPick={(c) => setUnitsColor(multi, c)}
+            onClear={() => setUnitsColor(multi, undefined)}
+            ariaPrefix="Tag selected"
+          />
+        </div>
+      )}
 
       {/* INDENT / ORDER — reposition without changing structure. */}
       <div className="discourse-toolbar-group">
@@ -237,10 +296,23 @@ export function DiscourseToolbar() {
       {splitting && (
         <span className="discourse-toolbar-hint">Click the word that should start the new unit.</span>
       )}
-      {relating && (
-        <span className="discourse-toolbar-hint">Click the target unit for the relation.</span>
+      {pendingRelationAwaitingSource && (
+        <span className="discourse-toolbar-hint">Select source unit.</span>
       )}
-      {!unit && !splitting && !relating && (
+      {pendingRelationSource != null && (
+        <span className="discourse-toolbar-hint">Select target unit.</span>
+      )}
+      {relateMultiConflict && (
+        <span className="discourse-toolbar-hint">
+          Leave multi-select or select a single source unit first.
+        </span>
+      )}
+      {multiSelectMode && !relating && (
+        <span className="discourse-toolbar-hint">
+          Click units to add/remove them from the selection. Shift-click still works too.
+        </span>
+      )}
+      {!unit && !splitting && !relating && !multiSelectMode && (
         <span className="discourse-toolbar-hint">Select a unit to edit. Shift-click extends the selection.</span>
       )}
     </div>

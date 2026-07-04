@@ -48,7 +48,8 @@ function normalize(rs: LaidOutRelation[]) {
       y2: r.y2,
       label: r.label,
       color: r.color,
-      dashed: r.dashed,
+      dashArray: r.dashArray,
+      strokeWidth: r.strokeWidth,
     }));
 }
 
@@ -196,14 +197,35 @@ describe('layoutDiscourseRelations — labels & gutter width', () => {
     expect(res.gutterWidth).toBeLessThanOrEqual(44);
   });
 
-  it('marks paired/structural relations dashed', () => {
+  it('marks paired/structural relations dashed (dashArray set); others solid', () => {
     const res = layoutDiscourseRelations(
       [ep('a', 0, 100, 'chiasm'), ep('b', 200, 260, 'ground')],
       RIGHT,
     );
     const byId = new Map(res.relations.map((r) => [r.relation.id, r]));
-    expect(byId.get('a')!.dashed).toBe(true);
-    expect(byId.get('b')!.dashed).toBe(false);
+    expect(byId.get('a')!.dashArray).toBe('5 3');
+    expect(byId.get('b')!.dashArray).toBeUndefined();
+  });
+
+  it('defaults strokeWidth to 1.6 when no override is set', () => {
+    const res = layoutDiscourseRelations([ep('a', 0, 100)], RIGHT);
+    expect(res.relations[0]!.strokeWidth).toBe(1.6);
+  });
+
+  it('an explicit strokeDash override wins over the type default', () => {
+    const res = layoutDiscourseRelations(
+      [{ relation: rel('a', 'chiasm', { strokeDash: 'solid' }), y1: 0, y2: 100 }],
+      RIGHT,
+    );
+    expect(res.relations[0]!.dashArray).toBeUndefined();
+  });
+
+  it('an explicit strokeWidth override resolves to the expected px value', () => {
+    const res = layoutDiscourseRelations(
+      [{ relation: rel('a', undefined, { strokeWidth: 'thick' }), y1: 0, y2: 100 }],
+      RIGHT,
+    );
+    expect(res.relations[0]!.strokeWidth).toBe(3.4);
   });
 });
 

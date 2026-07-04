@@ -20,6 +20,17 @@ describe('glossary', () => {
     expect(lookupGloss('root')?.term).toBe('Root');
   });
 
+  it('explains raw source-tree roles keyed srcrole:* (constituency chips)', () => {
+    expect(lookupGloss('srcrole:s')?.term).toMatch(/subject/i);
+    expect(lookupGloss('srcrole:o')?.term).toMatch(/direct object/i);
+    expect(lookupGloss('srcrole:adv')?.term).toMatch(/adverbial/i);
+    expect(lookupGloss('srcrole:vc')?.term).toMatch(/linking verb/i);
+    expect(lookupGloss('srcrole:head')?.term).toMatch(/head/i);
+    // OpenText word-group roles
+    expect(lookupGloss('srcrole:definer')?.term).toMatch(/definer/i);
+    expect(hasGloss('srcrole:qualifier')).toBe(true);
+  });
+
   it('explains morphology codes', () => {
     expect(lookupGloss('nom')?.term).toBe('Nominative');
     expect(lookupGloss('aor')?.term).toBe('Aorist');

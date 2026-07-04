@@ -6,6 +6,7 @@ import {
   addDiscourseTextHighlight,
   applyDiscoursePatch,
   buildDiscourseDocumentFromPlainText,
+  DISCOURSE_RELATION_PALETTE,
   diffDiscourseDocuments,
   discourseRows,
   leafUnits,
@@ -111,7 +112,7 @@ describe('relation color — resolution + patch round-trip', () => {
     // No override → type-derived colour (ground = warm brown).
     expect(resolvedRelationColor(rel)).toBe('#b45309');
     // Override wins.
-    expect(resolvedRelationColor({ ...rel, color: 'teal' })).toBe('#0f766e');
+    expect(resolvedRelationColor({ ...rel, color: 'teal' })).toBe(DISCOURSE_RELATION_PALETTE.teal);
   });
 
   it('persists a relation colour and clears it (Auto) through diff → JSON → apply', () => {

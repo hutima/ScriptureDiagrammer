@@ -351,6 +351,29 @@ const GLOSSARY: Record<string, GlossEntry> = {
   'rule:CL2NP': { term: 'clause functioning as a noun phrase', abbr: 'CL2NP', detail: 'A clause embedded within, or functioning as, a noun phrase (e.g. a relative or nominalized clause).' },
   'rule:NP-CL': { term: 'noun phrase / clause construction', abbr: 'NP-CL', detail: 'A clause functioning as, or attached to, a noun phrase.' },
 
+  // ── Constituency tree: source clause-component / word-group roles ────────
+  // The raw `role` a source treebank stamps on a word group (Lowfat's
+  // s/v/vc/o/io/o2/p/adv, OpenText's definer/specifier/…) — shown verbatim on
+  // the tree's role chips. Keyed `srcrole:*` so the one-letter roles can't
+  // collide with the morphology codes or the `rule:*` word-order entries; the
+  // gloss explains the source's own marking without translating it into an
+  // app-role claim.
+  'srcrole:s': { term: 'Subject (source role “s”)', abbr: 's', detail: 'The source analysis marks this word group as the clause’s subject.' },
+  'srcrole:v': { term: 'Verb / predicate (source role “v”)', abbr: 'v', detail: 'The source analysis marks this word group as the clause’s main (finite) verb.' },
+  'srcrole:vc': { term: 'Linking verb (source role “vc”)', abbr: 'vc', detail: 'The source analysis marks this word group as a copula — a “to be” verb linking the subject to a predicate complement.' },
+  'srcrole:o': { term: 'Direct object (source role “o”)', abbr: 'o', detail: 'The source analysis marks this word group as the clause’s direct object.' },
+  'srcrole:o2': { term: 'Second object (source role “o2”)', abbr: 'o2', detail: 'The source analysis marks this word group as a second object or object complement (e.g. “they made him king”).' },
+  'srcrole:io': { term: 'Indirect object (source role “io”)', abbr: 'io', detail: 'The source analysis marks this word group as the clause’s indirect object (“to/for whom”).' },
+  'srcrole:p': { term: 'Predicate complement (source role “p”)', abbr: 'p', detail: 'The source analysis marks this word group as a predicate nominative or adjective, completing a linking verb.' },
+  'srcrole:adv': { term: 'Adverbial (source role “adv”)', abbr: 'adv', detail: 'The source analysis marks this word group as an adverbial modifier (how, when, where, why).' },
+  'srcrole:head': { term: 'Head word', abbr: 'head', detail: 'The source analysis marks this element as the head of its word group — the word the rest of the group is built around.' },
+  // OpenText word-group roles (theory-specific; shown raw, glossed plainly).
+  'srcrole:definer': { term: 'Definer (OpenText)', abbr: 'definer', detail: 'OpenText marks this element as defining its head — typically an article or attributive modifier.' },
+  'srcrole:specifier': { term: 'Specifier (OpenText)', abbr: 'specifier', detail: 'OpenText marks this element as specifying its head — narrowing which one is meant.' },
+  'srcrole:qualifier': { term: 'Qualifier (OpenText)', abbr: 'qualifier', detail: 'OpenText marks this element as qualifying its head — adding descriptive or restricting information.' },
+  'srcrole:relator': { term: 'Relator (OpenText)', abbr: 'relator', detail: 'OpenText marks this element as relating its group to another — typically a preposition.' },
+  'srcrole:connector': { term: 'Connector (OpenText)', abbr: 'connector', detail: 'OpenText marks this element as connecting its group to the surrounding text — typically a conjunction or particle.' },
+
   // ── Greek/Hebrew morphology codes ───────────────────────────────────────
   // Case
   nom: { term: 'Nominative', detail: 'The case of the subject (and predicate nominative).' },

@@ -2902,10 +2902,16 @@ label.field.inline > span { margin-bottom: 0; }
 .discourse-inspector {
   border-top: 1px solid var(--line, #d8dce2);
   padding: 8px 16px 10px;
-  max-height: 180px;
-  overflow: auto;
+  overflow-y: auto;
   font-size: 12.5px;
   background: var(--bg-soft, #fafbfc);
+  /* Flex so it can stretch into whatever vertical space `.discourse-side-panel`
+     has left over (see the panel rules below) — the Notes field then grows
+     into that space instead of staying pinned to a couple of text rows. */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 .discourse-inspector-head { display: flex; align-items: center; gap: 10px; }
 .discourse-inspector-head .mini { margin-left: auto; }
@@ -2959,6 +2965,23 @@ label.field.inline > span { margin-bottom: 0; }
   background: var(--bg, #fff);
   color: var(--accent, #b90e31);
 }
+/* The Relate button is the toolbar's marquee action — visually bigger than
+   every other `.mini` button, filling the primary group's width. */
+.discourse-toolbar .discourse-relate-btn {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  border-radius: 8px;
+}
+/* Multi-select toggle sits beside Relate in the primary group; visually
+   secondary to it (outline, not filled) but still easy to find. */
+.discourse-toolbar .discourse-multiselect-btn { flex: none; }
+.discourse-toolbar .discourse-multiselect-btn.active {
+  border-color: var(--accent, #b90e31);
+  color: var(--accent, #b90e31);
+  background: var(--accent-soft, #f3e2e6);
+}
+.discourse-multiselect-count { color: var(--muted, #667); font-size: 11px; }
 /* History cluster reads secondary. */
 .discourse-toolbar-group.subtle .mini { opacity: 0.85; }
 /* Destructive cluster is set apart by a divider above it. */
@@ -3040,9 +3063,24 @@ label.field.inline > span { margin-bottom: 0; }
   border-radius: 4px;
   background: var(--paper, #fff);
 }
-/* Stacked so Notes gets the panel's FULL width below Label. */
-.discourse-inspector-edit { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 6px; }
+/* Stacked so Notes gets the panel's FULL width below Label; a flex column (not
+   a grid) so the Notes field (the one with `flex:1`) can grow into whatever
+   space `.discourse-inspector` has left over instead of staying pinned to a
+   fixed row count. */
+.discourse-inspector-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  flex: 1;
+  min-height: 0;
+}
 .discourse-inspector-edit textarea, .discourse-relation-editor textarea { resize: vertical; font: inherit; }
+/* A Notes field grows to fill unused vertical space instead of sitting at a
+   fixed rows=2/3 height; the textarea itself stretches to match. A sensible
+   floor keeps it usable even when the panel is short. */
+.discourse-notes-field { display: flex; flex-direction: column; flex: 1; min-height: 72px; }
+.discourse-notes-field textarea { flex: 1; min-height: 72px; }
 /* Vertical stack — every control full-width, non-overlapping, in reading order
    (Type · Label · Confidence · Color · Notes · Relation highlights · actions). */
 .discourse-relation-editor {
@@ -3054,6 +3092,12 @@ label.field.inline > span { margin-bottom: 0; }
   flex-direction: column;
   gap: 8px;
   background: var(--bg, #fff);
+  /* Stretch into unused vertical space (see `.discourse-side-panel` below);
+     its own Notes field (`.discourse-notes-field`) is the one child with
+     `flex:1`, so it absorbs the leftover height. */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 .discourse-relation-editor .field,
 .discourse-relation-editor label.field { width: 100%; margin-bottom: 0; }
@@ -3078,17 +3122,30 @@ label.field.inline > span { margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   gap: 10px;
+  /* Fill the height `.discourse-right .panel-body` (a flex column below)
+     hands it, so the selected-unit inspector / relation editor's own
+     `flex: 1` can extend into whatever vertical space is left unused. */
+  flex: 1;
+  min-height: 0;
 }
-/* The always-visible (not Edit-mode-gated) relation-side preference row. */
+/* The always-visible (not Edit-mode-gated) relation-side preference row —
+   left-aligned with the rest of the tools column (NOT pushed to the right;
+   the label sits above/left of the Left/Right toggle, both flush left). */
 .discourse-relation-side-row {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 8px;
   padding: 8px 12px 0;
   font-size: 12px;
 }
 .discourse-relation-side-row .discourse-toolbar-group-label { width: auto; margin-bottom: 0; }
-.discourse-right .panel-body { overflow-y: auto; }
+/* A flex column so its sole child (`.discourse-side-panel`) can stretch to
+   fill the available height (`flex:1` above) instead of sizing to content —
+   the prerequisite for the inspector/relation-editor's own `flex:1` to have
+   any unused space to grow into. `overflow-y:auto` still catches genuinely
+   small screens where the content doesn't fit even after that. */
+.discourse-right .panel-body { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; }
 .discourse-right-title {
   font-size: 12px;
   font-weight: 600;
@@ -3254,6 +3311,20 @@ label.field.inline > span { margin-bottom: 0; }
 .discourse-color-field { display: block; margin: 0 0 10px; }
 .discourse-color-field > span { display: block; font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
 .discourse-color-field .mini.active { border-color: var(--accent, #b90e31); background: var(--accent-soft, #f3e2e6); }
+/* Relation editor's Color field: the named-swatch row plus a native
+   `<input type="color">` for a free-form custom colour, inline after it. */
+.discourse-relation-color-field { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.discourse-relation-color-field > span:first-child { display: block; width: 100%; font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
+.discourse-color-input {
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--line-strong, #c9cdd4);
+  border-radius: 5px;
+  background: none;
+  cursor: pointer;
+}
+.discourse-color-input-label { font-size: 11px; color: var(--muted, #667); }
 
 /* --- Discourse mode: partial-text highlights -------------------------------- */
 .discourse-hl { border-radius: 3px; padding: 0 1px; }

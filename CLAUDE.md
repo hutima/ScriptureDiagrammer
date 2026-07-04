@@ -452,13 +452,18 @@ its own document model, store, persistence, and renderer. See
 - **Edits** — pure mutations (`domain/discourse/mutations.ts`: split, merge,
   indent/outdent, wrap/unwrap, label, delete-unit, relations, suggestion accept)
   persisted as `DiscoursePatch` diffs under `kr:discourse:*` (own namespace;
-  edition + baseHash guarded). Relations follow a **relate-first workflow**: click
-  **Relate**, then the source unit, then the target unit to create an untyped link
-  immediately (store action `pickRelationTarget`); an optional "Relation type" modal
-  opens afterwards where you can assign a type, add a label, choose "Leave untyped",
-  or delete the link. Dismissing the modal (or pressing Escape *after* the link
-  exists) keeps the untyped link; Escape *before* picking a target cancels with no
-  link created. Relation `type` is now optional metadata — untyped links render as a
+  edition + baseHash guarded). Relations follow a **relate-first workflow** that
+  needs no prior selection: clicking **Relate** with nothing selected enters a
+  two-click draft (`startRelationDraft` → `pendingRelationAwaitingSource`; the
+  first unit clicked becomes the source), with exactly one unit selected it goes
+  straight to awaiting-target (`startRelation`), and with a multi-selection it
+  asks for a single source instead of guessing. Picking the target creates an
+  untyped link immediately (store action `pickRelationTarget`); an optional
+  "Relation type" modal opens afterwards where you can assign a type, add a
+  label, choose "Leave untyped", or delete the link. Dismissing the modal (or
+  pressing Escape *after* the link exists) keeps the untyped link; Escape
+  *before* picking a target — handled window-wide while a draft is active, and
+  clicking Relate again — cancels with no link created. Relation `type` is now optional metadata — untyped links render as a
   plain connector with no type caption. Store actions: `setRelationType` (updates
   type on an existing relation id; passing undefined clears the type but keeps the
   link), `closeRelationTypeEditor`. `deleteDiscourseUnit(s)` removes a unit (and its
@@ -520,6 +525,23 @@ its own document model, store, persistence, and renderer. See
   labels). The view store's `relationSide` ('right' default, 'left' optional —
   a Tools-panel control) picks the side; on the left, endpoints track each
   unit's measured indent. Every arc renders a wide transparent hit path
-  separate from its visible stroke, so overlapping/selected/colored arcs stay
-  individually selectable. The "Save as PDF" export consolidates unit +
-  relation notes into a bottom Notes section (opt-out checkbox).
+  separate from its visible stroke (width-independent), so overlapping/
+  selected/colored arcs stay individually selectable. The "Save as PDF" export
+  consolidates unit + relation notes into a bottom Notes section (opt-out
+  checkbox).
+- **Relation styling** — a relation optionally carries `color` (named
+  saturated-pastel palette, `DISCOURSE_RELATION_PALETTE`), `customColor` (free
+  hex from the editor's native color input; validated, wins over the named
+  color, invalid values ignored), `strokeDash`
+  (solid/dashed/dotted/dash-dot; absent = type-derived default — chiasm/
+  parallel/inclusio dash) and `strokeWidth` (thin/normal/medium/thick; absent
+  = normal). Three pure helpers in `domain/discourse/layout.ts`
+  (`resolvedRelationColor` / `resolvedRelationDashArray` /
+  `resolvedRelationStrokeWidth`) are the ONE precedence authority; the laid-out
+  arcs bake their results in, so the canvas layer and the SVG/PDF exports can
+  never disagree. Metadata-only edits redraw LIVE: the view's measured-endpoint
+  cache compares relation object identity as well as geometry, and its
+  ResizeObserver defers measurement to an animation frame (no observe-mutate
+  loop). A **Multi-select** Tools mode gates Group/Ungroup and adds batch unit
+  coloring (`setUnitsColor`, one undo step); plain clicks extend the selection
+  while it is active.
