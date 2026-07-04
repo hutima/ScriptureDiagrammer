@@ -138,10 +138,40 @@ resolution + store navigation) and `tests/guided-ui.test.tsx` (both Gospel
 diagrams render with highlights on each). 2252 tests green (+4); guided:check:
 18 guides validate.
 
-### Phase D — final one fix
-Gloss-mode regression, Matthew 28:19–20: in English gloss mode the diagram
-shows "(I) | I commanded | whatever" with "you" (ὑμῖν) as a rotated slant
-under the verb (user screenshot). Diagnose by comparing source vs glossDoc
-rendering (glossDoc must never change structure — ids/relations/layout
-unchanged; check connector-label suppression and dative complement
-placement in gloss mode), fix minimally, add a test.
+### Phase D — final one fix — DONE
+Gloss-mode issue, Matthew 28:19–20 (`sblgnt_matthew_1132`, sub-clause
+`cl_s1132_30` "ὅσα ἐνετειλάμην ὑμῖν"). Landed as `06b4b6c` (see
+`git log` for `fix(gloss): ...`).
+
+**Root cause (a latent bug this passage exposed, NOT a recent regression).**
+Two independent, correct behaviours collide in English-gloss mode:
+- The sub-clause has NO written subject, so the KR layout imputes a pro-drop
+  subject pronoun from the verb's morphology (`subjectFillerLabel` →
+  `impliedSubjectPronoun`). In gloss mode `glossDoc` reports the doc as
+  `language:'en'` (long-standing, PR #183), so the filler reads "(I)" for the
+  first-singular ἐνετειλάμην.
+- The verb TOKEN's own English data gloss is "I commanded" — a Greek finite
+  verb's gloss fuses in its subject pronoun.
+
+So the baseline printed "(I) | I commanded" — the subject twice. In SOURCE
+mode there is no duplication (the imputed "(ἐγώ)" never textually appears in
+"ἐνετειλάμην"), which is why this only ever surfaced glossed. Confirmed by
+laying out the real fixture doc in both modes (scratch repro).
+
+**ὑμῖν ("you") on a slant is CORRECT, not a bug.** `BASELINE_COMPLEMENTS`
+(`kr/classify.ts`) deliberately EXCLUDES `indirectObject`: in Reed-Kellogg the
+indirect object hangs below the verb on a slanted stem, distinct from the
+direct object's upright tick. The code comment says so explicitly. Identical in
+source and gloss modes, so it is not the regression. Left untouched.
+
+**Fix (layout layer, display-only).** In `kr/clause.ts`, when a pro-drop clause
+imputes its subject AND the verb's displayed text already leads with that same
+pronoun, keep the pronoun in the subject slot only and strip its redundant copy
+from the verb (new pure helper `stripLeadingImputedPronoun`; `layoutHead` gained
+an optional `textOverride`). The diagram now reads "(I) | commanded", matching
+the Greek "(ἐγώ) | ἐνετειλάμην" — same structure in both modes. The token gloss
+is never mutated (three-concern separation intact); the strip cannot fire in
+source mode (Greek surface never equals the pronoun) nor for a gloss that
+doesn't lead with the pronoun ("(you) | disciple" is preserved). Regression
+tests in `tests/gloss.test.ts` ("pro-drop subject fused into the verb gloss").
+2255 tests green (+3); guided:check: 18 guides validate.
