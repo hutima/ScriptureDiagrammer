@@ -76,6 +76,27 @@ export function ResponsiveShell() {
     if (guidedActive && discourseMode) setDiagramMode('kellogg-reed');
   }, [guidedActive, discourseMode, setDiagramMode]);
 
+  // Grammar Highlights wants the diagram + step card to own the FULL viewport
+  // width on any narrow screen — including forced-desktop at phone/tablet
+  // widths, which is exactly why this keys off `vp.device` (the real,
+  // un-overridden width class) rather than `vp.effective`/`vp.isMobile`
+  // (forcing desktop is a rendering choice, not an actual width change).
+  // `guidedNarrow` drives the `.guided-full-width` class (removes the
+  // desktop right-column width cap in CSS — see `.guided-aside` in
+  // global.css) — a real desktop width never carries it, so the normal
+  // three-column look is untouched there.
+  const guidedNarrow = guidedActive && vp.device !== 'desktop';
+  // Auto-collapse the left sources panel once, right when guided mode is
+  // entered on a narrow real screen, so the reader isn't left to discover the
+  // caret — they can still reopen it manually afterwards (e.g. to pick
+  // another guide).
+  const wasGuidedActive = useRef(guidedActive);
+  useEffect(() => {
+    const justEntered = guidedActive && !wasGuidedActive.current;
+    wasGuidedActive.current = guidedActive;
+    if (justEntered && vp.device !== 'desktop') setLeftCollapsed(true);
+  }, [guidedActive, vp.device, setLeftCollapsed]);
+
   if (vp.isMobile) {
     return (
       // `sermon-open` adds scroll room at the bottom of the diagram so the
@@ -117,7 +138,9 @@ export function ResponsiveShell() {
         {guidedActive && !discourseMode ? (
           // Grammar Highlights: the walkthrough card owns the right slot (the
           // reader info panel returns when the user leaves guided mode).
-          <aside className="panel right guided-aside">
+          <aside
+            className={`panel right guided-aside${guidedNarrow ? ' guided-full-width' : ''}`}
+          >
             <div className="panel-head">
               <span className="panel-head-title">Grammar highlights</span>
             </div>

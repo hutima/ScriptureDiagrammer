@@ -3641,6 +3641,16 @@ label.field.inline > span { margin-bottom: 0; }
 .guided-picker-summary { font-size: 12px; color: var(--ink-soft, #475569); line-height: 1.4; }
 .guided-picker-note { font-size: 12px; color: var(--muted, #64748b); line-height: 1.4; }
 .guided-aside { width: var(--right-w, 360px); }
+/* `.guided-full-width` is set from ResponsiveShell whenever guided mode is
+   active on any narrow REAL device width (`vp.device !== 'desktop'` —
+   including forced-desktop at phone/tablet widths, since forcing desktop is a
+   rendering choice, not an actual width change). Dropping the fixed aside
+   width lets the step card fill the full row instead of stopping at the
+   desktop right-column width and leaving dead space beside it. A grid item
+   without an explicit width already fills its column (tablet, still
+   `display:grid`); a flex item without one already stretches to the full row
+   (phone, stacked via the `max-width: 820px` rule below). */
+.guided-aside.guided-full-width { width: auto; }
 .guided-step-card {
   display: flex;
   flex-direction: column;
