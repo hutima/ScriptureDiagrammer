@@ -5,6 +5,7 @@ import { getIssueById } from '@/domain/contested';
 import type { GrammarHighlightGuide, GuidedGreekTerm, GuidedStep } from '@/domain/schema';
 import { GUIDED_HIGHLIGHT_COLORS, usedHighlightKinds } from './focus';
 import { GuidedGreekTermPanel } from './GuidedGreekTermPanel';
+import { highlightGrammarTerms } from './GrammarTermHelp';
 
 const KIND_LABELS: Record<keyof typeof GUIDED_HIGHLIGHT_COLORS, string> = {
   emphasized: 'in focus',
@@ -52,8 +53,14 @@ function renderBody(
   // The "gloss already on the line" check reads the block's plain prose with
   // marker syntax removed (markers render as Greek, not English).
   const plainText = body.replace(/\[\[[a-zA-Z0-9_-]+\]\]/g, ' ');
+  // Shared across every plain-text fragment of THIS prose block, so a
+  // grammar term found in it gets highlighted only on its first occurrence
+  // in the whole block (repeats would just be noise) — see
+  // `highlightGrammarTerms`.
+  const usedGlossaryTerms = new Set<string>();
   return parts.map((part, i) => {
-    if (i % 2 === 0) return <Fragment key={i}>{part}</Fragment>;
+    if (i % 2 === 0)
+      return <Fragment key={i}>{highlightGrammarTerms(part, usedGlossaryTerms, `p${i}`)}</Fragment>;
     const term = guide.greekTerms.find((t) => t.id === part);
     if (!term) return <Fragment key={i}>{part}</Fragment>;
     return (

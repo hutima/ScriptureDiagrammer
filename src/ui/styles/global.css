@@ -3796,6 +3796,52 @@ label.field.inline > span { margin-bottom: 0; }
   color: var(--ink-soft, #64748b);
   text-decoration: none;
 }
+/* Grammar-term help — dashed-underline, `cursor: help` buttons wrapping known
+   glossary terms ("genitive", "aorist"…) in guided teaching prose. Kept
+   visually distinct from `.guided-term-link` above (the Greek word/gloss
+   buttons): no accent color or bold weight, a DASHED underline (not the term
+   link's dotted one), and `cursor: help` (not `pointer`) — so the two
+   affordances never look alike. */
+.grammar-term-help-wrap {
+  position: relative;
+  display: inline;
+}
+.grammar-term-help {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dashed;
+  text-underline-offset: 2px;
+  cursor: help;
+}
+.grammar-term-help:hover,
+.grammar-term-help:focus-visible {
+  color: var(--accent, #b90e31);
+}
+.grammar-term-popover {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 60;
+  width: max(220px, min(300px, 80vw));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--paper, #fff);
+  color: var(--ink, #1f2937);
+  border: 1px solid var(--line, #d5dbe3);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(31, 41, 51, 0.22);
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: normal;
+}
+.grammar-term-popover-def { display: block; margin: 0; }
+.grammar-term-popover-close { align-self: flex-end; font-size: 12px; }
 .guided-term-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .guided-term-chip {
   padding: 3px 10px;
