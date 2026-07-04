@@ -56,45 +56,39 @@ chain verbs; all guardrails honored (aorist chain viewed as a whole,
 Arminian/corporate προέγνω views). Registry tests extended in
 `tests/guided.test.ts`; 2237 green; 17 guides validate.
 
-## Queue (in order; specs are complete — no re-planning needed)
+### 3. Colossians 2:11–12 package (advanced) — guide + contested reading + gloss fix — DONE
+Landed as three commits: `42c9c20` (contested — both registries), `5c059b9`
+(gloss content-gloss fallback), and this doc commit (the guide + doc).
+- **Contested — BOTH registries.** SBLGNT (`contestedSyntaxSblgnt.ts`): issue
+  `iss_col_2_12_raised_antecedent_sblgnt` + reading
+  `alt_col_2_12_raised_in_christ_sblgnt` on `sblgnt_colossians_13`, ops exactly
+  as sketched — update `r_s13_87` dependentId → `w_n51002012005`, remove
+  `r_s13_86`, upsert adverbial `alt_col_2_12_r1` (`w_n51002012001` → `cl_s13_67`,
+  "in whom (Christ)", manual/low). Nestle1904 mirror LANDED
+  (`contestedSyntax.ts`): `iss_col_2_12_raised_antecedent` +
+  `alt_col_2_12_raised_in_christ` on `gnt_colossians_13`, freshly dumped ids.
+  The Nestle base draws the raised clause ADJECTIVALLY under βαπτίσματι
+  (`r_s13_87`), so the mirror is a single update op re-pointing that relation to
+  συνταφέντες (`w_510020120010010`) as adverbial "in whom (Christ)". Preview
+  hand-verified non-orphaned; diff touches only the sketched relations.
+  contested:check: Nestle 33 + SBLGNT 28 passages, 0 errors.
+- **Gloss fix.** `GRC_CONTENT_GLOSS = { βαπτισμός: 'baptism' }` in
+  `queries.ts`, wired into `glossDoc` + `glossRelationLabel` after
+  `tidyGloss(t.gloss)`/`GRC_FUNCTION_GLOSS[t.surface]`. Tests in
+  `tests/gloss.test.ts`.
+- **Guide.** `guide-colossians-2-11-12` (advanced, 6 steps), registered in
+  `grammarHighlights.ts`, range in `guidedPassages.ts`, bundle rebuilt. Term
+  chip `baptismo` = surface "βαπτισμῷ" + authored gloss "baptism".
+  confessionalFrame labelled "confessional Reformed"; debateSummary fair
+  (baptism/Christ antecedent, circumcision-of-Christ = his death vs conversion,
+  credobaptist note). Tests extended in `tests/guided.test.ts`. guided:check:
+  18 guides validate. Full suite 2248 green.
 
-### 3. Colossians 2:11–12 package (advanced) — guide + contested reading + gloss fix
-User confirmed the contested reading must land in the SYNTAX-MODE registries
-(both GNT sources), not just the guide.
-- **Passage:** `sblgnt_colossians_13` (ONE sentence, Col 2:8–12; no merge).
-  Key ids (verify with dump-syntax): περιετμήθητε `w_n51002011004`,
-  συνταφέντες `w_n51002012001` (its clause `cl_s13_64` attaches to
-  περιετμήθητε via `r_s13_89` — the base parse ALREADY draws the
-  circumcision→baptism hinge; the confessional-Reformed-relevant attachment IS
-  the base), βαπτισμῷ `w_n51002012005` (token `t_n51002012005`, EMPTY gloss),
-  ᾧ(v12b) `w_n51002012007`, συνηγέρθητε `w_n51002012009`, raised-clause
-  `cl_s13_67`, apposition `r_s13_86` (βαπτισμῷ↔clause), prepObject `r_s13_87`.
-- **Contested entry (SBLGNT):** issue `iss_col_2_12_raised_antecedent_sblgnt`
-  (kind attachment, sourceType syntax-only, severity review, verseRef
-  Colossians 2:12; default reading "antecedent = baptism") + reading
-  `alt_col_2_12_raised_in_christ_sblgnt` (syntaxPatch sketch: update
-  `r_s13_87` dependentId → `w_n51002012005`; remove `r_s13_86`; upsert new
-  adverbial rel `alt_col_2_12_r1` headId `w_n51002012001` → `cl_s13_67`,
-  label "in whom (Christ)", provenance manual/low). Finalize ops against
-  `npm run contested:check`; hand-verify the preview isn't orphaned.
-- **Nestle1904 mirror:** add the same issue/reading to `contestedSyntax.ts`
-  with FRESHLY DUMPED Nestle ids (`npm run dump-syntax -- 'Colossians 2:12'` —
-  read the script for the non-sblgnt invocation). Never reuse SBLGNT ids.
-- **Gloss fix:** `GRC_CONTENT_GLOSS = { βαπτισμός: 'baptism' }` in
-  `src/domain/model/queries.ts` beside `GRC_FUNCTION_GLOSS`; fallback chain in
-  `glossDoc` (~line 304) and `glossRelationLabel` (~line 273) becomes
-  `tidyGloss(t.gloss) || GRC_FUNCTION_GLOSS[t.surface] ||
-  GRC_CONTENT_GLOSS[t.lemma ?? ''] || t.surface`. Tests in
-  `tests/gloss.test.ts` (empty-gloss βαπτισμῷ → "baptism"; real gloss wins).
-- **Guide:** `guide-colossians-2-11-12`, 6 steps (circumcised-without-hands →
-  circumcision of Christ → συνταφέντες hinge (highlight `r_s13_89`) → in
-  baptism (gloss showcase) → CONTESTED step with
-  `contested: { issueId: 'iss_col_2_12_raised_antecedent_sblgnt', … }` →
-  through faith in the working of God). confessionalFrame labeled
-  "confessional Reformed"; debateSummary fair (baptism vs Christ antecedent;
-  circumcision-of-Christ = his death vs conversion-circumcision; credobaptist
-  note). Term chip `baptismo` must use surface "βαπτισμῷ" with authored gloss
-  "baptism". Range `{ Colossians, 2, 11, 12 }` in guidedPassages; build; check.
+## Queue — COMPLETE
+
+All handoff-queue items (1 picker fix, 2 Romans 8:28–30, 3 Colossians
+2:11–12) have landed. **PR #233 is ready to merge.** See the merge choreography
+below for the follow-up phases after the merge.
 
 ## Verification gate (every push)
 `npm run typecheck` · `npm test` (2235 green as of `762dd0f`; grows with each

@@ -43,6 +43,9 @@ export const GUIDED_PASSAGES: GuidedPassageRange[] = [
   { book: 'Acts', chapter: 2, verseFrom: 39, verseTo: 39 },
   // Romans 6:3–4 — baptism and union with Christ.
   { book: 'Romans', chapter: 6, verseFrom: 3, verseTo: 4 },
+  // Colossians 2:11–12 — circumcision without hands, buried and raised with
+  // Christ (the ἐν ᾧ antecedent: baptism vs Christ).
+  { book: 'Colossians', chapter: 2, verseFrom: 11, verseTo: 12 },
   // Ephesians 1:3–14 — the one long sentence; election + repeated PPs.
   { book: 'Ephesians', chapter: 1, verseFrom: 3, verseTo: 14 },
   // Romans 8:28–30 — the ordo salutis "golden chain" of aorists.
