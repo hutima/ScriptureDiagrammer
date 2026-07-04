@@ -60,7 +60,14 @@ function renderBody(
       <button key={i} className="guided-term-link" onClick={() => onTerm(term.id)}>
         {term.surface}
         {english && (
-          <span className="guided-term-inline-gloss"> {inlineGlossFor(term, plainText)}</span>
+          // The space sits OUTSIDE the inline-block span on purpose: leading
+          // whitespace inside an inline-block is collapsed by CSS, which ate the
+          // gap and rendered "θεὸς(theos)". As a text node in the button's inline
+          // flow it survives, giving "θεὸς (theos)".
+          <>
+            {' '}
+            <span className="guided-term-inline-gloss">{inlineGlossFor(term, plainText)}</span>
+          </>
         )}
       </button>
     );
