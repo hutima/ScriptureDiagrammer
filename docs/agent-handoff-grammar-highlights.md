@@ -17,8 +17,8 @@ message prefixes (`fix(kr): …`, `feat(guided): …`, `feat(editor): …`).
 
 ## Current phase
 
-Phase 5 — Edit-mode right-panel Preview tab (Phases 1, 2, 4 COMPLETE;
-Phase 3 proposal recorded below, WAITING on Tim's approval for full content).
+ALL implementation phases COMPLETE (1, 2, 4, 5). Phase 3 content authoring is
+the only open work, WAITING on Tim's approval of the proposal below.
 
 ## Goal
 
@@ -162,12 +162,35 @@ approval; only the Hebrews sample guide ships.
   VisualizationSwitcher component patched in Phase 2 is only used by the
   Discourse canvas).
 
+### Phase 5 — Edit-mode right-panel Preview tab ✅
+
+- `src/ui/editor/EditPreviewTab.tsx`: a READ-ONLY, always-current window into
+  the same shared graph — compares `baseDoc` vs `doc` from the one store, no
+  document/source state of its own, persists nothing, never touches selection.
+- RightPanel: new `preview` tab, present ONLY in Edit mode and auto-selected
+  on entering Edit mode (leaving Edit drops it; activeTab falls back).
+- Defaults to Kellogg-Reed; a local lens selector offers every syntax mode
+  (Discourse excluded); Phrase/Block uses the BlockOutlineFrame pair, all
+  other modes the StaticDiagramFrame pair — STACKED vertically (base above,
+  edits below) with the existing linked scrolling.
+- Diff via the existing `diffDocsForCompare` (domain/contested) — no second
+  diff model. Colors per spec (added BLUE #3b82f6, changed YELLOW #eab308,
+  removed RED #ef4444), scoped under `.edit-preview-tab` so the contested
+  comparison keeps the app-wide green/amber/red convention (deliberate,
+  documented divergence — flag to Tim if he'd rather unify).
+- Only COMMITTED edits show: the Phase-4 drag preview works on a clone that
+  never touches `doc`, so hover previews can't reach this tab (verified in
+  browser: 0 diff highlights mid-drag, 4 after the drop).
+- Friendly empty state when a custom passage has no base.
+- Tests: `tests/edit-preview-tab.test.tsx` (6 tests — default-tab behavior,
+  KR default + legend, committed-edit diff, read-only-ness, lens switch,
+  empty state).
+
 ## Remaining
-- Phase 5: Edit-mode right-panel "Preview" tab (default tab in Edit mode, KR
-  default, baseDoc vs doc diff, blue added / yellow changed / red removed,
-  friendly empty state when no baseDoc).
-- Phase 3 content authoring once Tim approves the proposal below.
-- Final validation + report.
+
+- Phase 3 content authoring once Tim approves the proposal below (add ranges
+  to guidedPassages.ts → guided:build → dump-syntax → author → guided:check).
+- Optional follow-ups (see "Known limitations" below).
 
 ## Important architectural decisions
 
@@ -235,7 +258,8 @@ Phase 2:
 ## Test commands run and results
 
 - `npm run typecheck` — clean.
-- `npm test` — 116 files / 2211 tests, ALL PASS (after Phase 4).
+- `npm test` — 117 files / 2217 tests, ALL PASS (after Phase 5).
+- Final validation (2026-07-04): typecheck OK, test OK, build OK, guided:check OK.
 - `npm run build` — succeeds (precache 1130 KiB; +64K = the guided bundle).
 - `npm run guided:check` — 1 guide validates.
 - Stress cases (Mark 5:26, Mark 1:19–20, Col 1:9–20, Gen 1:11, Hebrew RTL)
@@ -279,17 +303,30 @@ Phase 2:
   tutorial overlay could sit on top of guided mode → `enter()` now exits an
   active tour.
 
+## Known limitations / follow-up recommendations
+
+- Guided mode: a guide with MULTIPLE bundled passages opens only the first;
+  a step-level `passageId` switch is needed for the two-gospel comparisons
+  (Matt 6:11 / Luke 11:3, 1 John 2:1 / 3:6-9) — small store addition, flagged
+  in the proposal.
+- Guided highlights render on-canvas only; they are NOT passed to SVG/PNG
+  export (sermon highlights are). Harmless (guided is a reading mode), but
+  `layoutToSvg({highlights})` accepts the same maps if export parity is wanted.
+- The Preview tab's blue/yellow/red diverges from the contested comparison's
+  green/amber/red (spec'd). Consider unifying app-wide with Tim.
+- The Phrase/Block drag "arriving" preview intentionally does NOT reflow the
+  real rows (anti-flicker); the branch appears under the head as an inserted
+  dashed copy while the original fades. If Tim prefers a full live reflow,
+  revisit with hit-testing against a frozen row map.
+- Guided-mode app-mode lock: the switcher is disabled during guided mode
+  (Explore-only reading flow); leaving restores the prior mode.
+
 ## Next recommended action
 
-1. Phase 3: write the guided-example PROPOSAL into this document (candidates +
-   grammar hook / payoff / caution / difficulty / v1-or-later), commit, and
-   STOP for Tim's approval — do not author the full registry first.
-2. Then Phase 4 (Phrase/Block dynamic drag preview): inspect
-   `src/ui/editor/block/PhraseBlockEditor.tsx`, `src/ui/editor/hierarchy.ts`,
-   `src/ui/editor/dispatch.ts`; add a pure `previewMoveNodeUnder` helper.
-3. Then Phase 5 (Edit right-panel Preview tab): inspect
-   `src/ui/panels/RightPanel.tsx`, `src/ui/editor/EditCompareView.tsx`,
-   `src/domain/patch/` diff utilities.
+1. Get Tim's checkmarks on the proposal below; then author approved guides
+   (per-guide: range -> guided:build -> dump-syntax -> copy -> guided:check).
+2. Optionally implement the step-level `passageId` switch first if the
+   two-passage guides are approved.
 
 ## Decisions still needing Tim's approval
 

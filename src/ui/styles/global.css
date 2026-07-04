@@ -3717,3 +3717,51 @@ label.field.inline > span { margin-bottom: 0; }
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
   z-index: 40;
 }
+
+/* ---- Edit-mode right-panel Preview tab ---------------------------------- */
+.edit-preview-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+}
+.edit-preview-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.edit-preview-title { font-weight: 700; font-size: 13px; }
+.edit-preview-empty { color: var(--muted, #64748b); font-size: 13px; line-height: 1.5; }
+/* The two frames stack vertically in the narrow panel (base above, edits below)
+   with linked scrolling. */
+.edit-preview-frames {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+.edit-preview-frames .vc-frame {
+  flex: 1;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+.edit-preview-frames .vc-frame-scroll { flex: 1; min-height: 0; }
+/* Preview-tab diff convention (per spec): additions BLUE · changes YELLOW ·
+   removals RED — scoped here; the contested comparison keeps the app-wide
+   green/amber/red convention. */
+.edit-preview-tab .diff-swatch.added,
+.edit-preview-legend .diff-swatch.added { background: #3b82f6; }
+.edit-preview-tab .diff-swatch.changed,
+.edit-preview-legend .diff-swatch.changed { background: #eab308; }
+.edit-preview-tab .diff-swatch.removed,
+.edit-preview-legend .diff-swatch.removed { background: #ef4444; }
+.edit-preview-tab .vc-hi.vc-hi-added { stroke: #3b82f6 !important; }
+.edit-preview-tab .vc-hi.vc-hi-changed { stroke: #eab308 !important; }
+.edit-preview-tab .vc-hi.vc-hi-removed { stroke: #ef4444 !important; }
+.edit-preview-tab .vc-hi-rect.vc-hi-added { fill: color-mix(in srgb, #3b82f6 20%, transparent); }
+.edit-preview-tab .vc-hi-rect.vc-hi-changed { fill: color-mix(in srgb, #eab308 24%, transparent); }
+.edit-preview-tab .vc-hi-rect.vc-hi-removed { fill: color-mix(in srgb, #ef4444 20%, transparent); }
