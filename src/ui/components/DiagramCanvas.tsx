@@ -228,6 +228,15 @@ export function DiagramCanvas() {
     else if (leftGuided) setSrcCollapsed(false);
   }, [guidedActive]);
 
+  // The caret that re-expands a collapsed diagram lives in the panel head,
+  // which mobile guided mode hides entirely — a diagram collapsed before entry
+  // (or before a desktop→mobile resize mid-guide) would be unrecoverable.
+  // Force it open whenever that bar is off-screen.
+  const panelHeadHidden = guidedActive && viewport.isMobile;
+  useEffect(() => {
+    if (panelHeadHidden) setCollapsed(false);
+  }, [panelHeadHidden]);
+
   // Sermon-prep highlights, as a nodeId → colour lookup, so a tagged word shows
   // its category colour in the diagram AND the running text (not just the panel).
   // Guided-step highlights overlay them (they win on shared ids while a step is
@@ -1015,12 +1024,13 @@ export function DiagramCanvas() {
   // the reader break out of that locked view, so it is dropped entirely here.
   // Keyed off `viewport.isMobile` (not `guidedNarrow`'s `vp.device`), so
   // forced-desktop guided readers keep the full bar, matching ResponsiveShell.
-  const hidePanelHeadForGuidedMobile = guidedActive && viewport.isMobile;
+  // (`panelHeadHidden` is computed up with the hooks: an effect there force-
+  // expands a collapsed diagram while the bar — and so its caret — is hidden.)
 
   return (
     <div className={`canvas${collapsed ? ' collapsed' : ''}${appMode === 'edit' ? ' editing' : ''}`}>
       <DiagramGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
-      {!hidePanelHeadForGuidedMobile && (
+      {!panelHeadHidden && (
       <div className="panel-head">
         <button
           type="button"

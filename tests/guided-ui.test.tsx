@@ -304,6 +304,22 @@ describe('guided mode UI', () => {
     expect(container.querySelector('.mobile-main .canvas:not(.collapsed)')).toBeTruthy();
   });
 
+  it('re-expands a diagram collapsed BEFORE guided entry (the caret is hidden with the bar)', () => {
+    setWidth(360);
+    useEditorStore.getState().setForceDesktop(false);
+    const { container } = render(createElement(ResponsiveShell));
+    // Collapse the diagram with the panel-head caret while guided is off …
+    const caret = container.querySelector<HTMLButtonElement>('.panel-head .collapse-btn, .panel-head button[title="Collapse diagram"]');
+    expect(caret).toBeTruthy();
+    act(() => caret!.click());
+    expect(container.querySelector('.canvas.collapsed')).toBeTruthy();
+    // … then enter guided: the bar (and its caret) disappears, so the diagram
+    // must be forced open again or the walkthrough would show nothing.
+    act(() => useGuidedStore.getState().enter('greek'));
+    expect(container.querySelector('.mobile-main .panel-head')).toBeNull();
+    expect(container.querySelector('.mobile-main .canvas:not(.collapsed)')).toBeTruthy();
+  });
+
   it('keeps the DIAGRAM control bar for a forced-desktop guided reader at a phone width', () => {
     setWidth(360);
     useEditorStore.getState().setForceDesktop(true);
