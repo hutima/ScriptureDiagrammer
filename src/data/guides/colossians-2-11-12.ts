@@ -31,7 +31,7 @@ export const colossians2: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
   summary:
-    'Paul tells the Colossians they were "circumcised with a circumcision made without hands" — the circumcision Christ himself works in them — buried with him in baptism, and raised with him too. Walk the one Greek sentence and watch how the diagram links circumcision to burial to baptism, down to one small relative pronoun, ἐν ᾧ (en hō, "in which"), that this guide reads as pointing back to that same baptism — though some readers instead trace it to Christ himself.',
+    "Paul links believers' circumcision, burial, and baptism to Christ.",
   devotionalFrame:
     'Colossians 2 is Paul\'s answer to teachers who would add rules, festivals, and (behind them) the old covenant\'s circumcision to the Colossians\' faith. His reply is that they already have everything in Christ: a circumcision not made with hands, a burial, and a resurrection — all received in union with him. The grammar of these two verses stacks those images into a single connected shape. Watch the diagram build the argument, and notice, at the end, one place — a single relative pronoun — where careful readers still trace the Greek two different ways.',
   confessionalFrame:

@@ -59,9 +59,9 @@ describe('guided mode UI', () => {
     expect(useGuidedStore.getState().active).toBe(false);
   });
 
-  it('has a dedicated Grammar launcher button that opens the intro modal', () => {
+  it('has a dedicated Guided launcher button that opens the intro modal', () => {
     render(createElement(TopBar));
-    const launch = screen.getByRole('button', { name: /✦ grammar/i });
+    const launch = screen.getByRole('button', { name: /✦ guided/i });
     fireEvent.click(launch);
     expect(useGuidedStore.getState().introOpen).toBe(true);
   });
@@ -248,7 +248,7 @@ describe('guided mode UI', () => {
     setWidth(360);
     render(createElement(TopBar));
     // The dedicated launcher…
-    expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /✦ guided/i })).toBeTruthy();
     // …and the ⋯-menu item are both still reachable on a phone.
     fireEvent.click(screen.getByRole('button', { name: '⋯' }));
     expect(screen.getByRole('menuitem', { name: /guided exploration/i })).toBeTruthy();
@@ -275,7 +275,7 @@ describe('guided mode UI', () => {
     setWidth(360);
     useEditorStore.getState().setForceDesktop(true);
     render(createElement(TopBar));
-    expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /✦ guided/i })).toBeTruthy();
     useGuidedStore.getState().enter('greek');
     expect(useGuidedStore.getState().active).toBe(true);
   });
@@ -283,7 +283,7 @@ describe('guided mode UI', () => {
   it('keeps both entry points on a desktop viewport', () => {
     setWidth(1280);
     render(createElement(TopBar));
-    expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /✦ guided/i })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '⋯' }));
     expect(screen.getByRole('menuitem', { name: /guided exploration/i })).toBeTruthy();
   });

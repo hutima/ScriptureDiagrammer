@@ -24,7 +24,7 @@ export const ephesians1: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
   summary:
-    'In Greek, Ephesians 1:3–14 is one unbroken sentence — the longest in the New Testament. The diagram shows why: everything hangs from one opening shout of praise, keeps circling back to the phrase "in Christ," and keeps landing, three separate times, on the same refrain — "to the praise of his glory."',
+    'Paul praises God in one long sentence tracing his plan of salvation.',
   devotionalFrame:
     'Open your own Bible alongside this diagram. Your translation almost certainly breaks these twelve verses into several sentences — a kindness to the English reader, since Paul does not pause for one breath in the Greek. As you move through the steps, watch two things: how often the phrase "in Christ" (or "in him," "in whom") recurs, and how the sentence keeps resolving into the same note of praise. This passage is not a theological outline to be dissected; it is a single, overflowing blessing, and the grammar itself is part of the good news.',
   steps: [

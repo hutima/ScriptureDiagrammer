@@ -25,7 +25,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
   summary:
-    'Matthew and Luke both hand down the same line of the Lord’s Prayer, "give us … our daily bread" — but Matthew’s verb is aorist and Luke’s is present, and Luke adds "day by day." The diagrams show two faithful ways of picturing one request, not a contradiction.',
+    'Matthew and Luke picture the same prayer for daily bread two ways.',
   devotionalFrame:
     'Two Gospels remember this same short prayer, worded almost identically — but each writer’s Greek paints its own small picture of what it looks like to ask the Father for daily bread. As you compare the two diagrams, notice that neither picture cancels the other. Together they show how rich one simple request can be.',
   steps: [

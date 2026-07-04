@@ -143,7 +143,7 @@ export function TopBar() {
         }
         aria-pressed={guidedActive}
       >
-        {guidedActive ? '✦ Leave guided' : '✦ Grammar'}
+        {guidedActive ? '✦ Leave guided' : '✦ Guided'}
       </button>
 
       <div className="spacer" />
@@ -188,13 +188,13 @@ export function TopBar() {
               <div className="menu-backdrop" onClick={close} />
               <div className="menu" role="menu">
                 <button role="menuitem" onClick={() => { setDataOpen(true); close(); }}>
-                  Import / Export data…
+                  Import / Export data
                 </button>
                 <button role="menuitem" onClick={() => { setResetOpen(true); close(); }}>
-                  Reset this passage…
+                  Reset this passage
                 </button>
                 <button role="menuitem" onClick={() => { setResetAllOpen(true); close(); }}>
-                  Reset all data…
+                  Reset all data
                 </button>
                 {vp.device !== 'desktop' && (
                   <button
@@ -205,7 +205,7 @@ export function TopBar() {
                       close();
                     }}
                   >
-                    {vp.forceDesktop ? 'Use mobile layout' : 'Force desktop mode…'}
+                    {vp.forceDesktop ? 'Use mobile layout' : 'Force desktop mode'}
                   </button>
                 )}
                 <div className="menu-sep" />
@@ -213,7 +213,7 @@ export function TopBar() {
                   About
                 </button>
                 <button role="menuitem" onClick={() => { setGuideOpen(true); close(); }}>
-                  Guide
+                  How to Use
                 </button>
                 {/* Guided mode is available on every viewport — see the
                     launcher button below and `state/guided.ts`. */}

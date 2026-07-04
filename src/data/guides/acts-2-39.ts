@@ -31,7 +31,7 @@ export const acts239: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
   summary:
-    'Peter grounds his Pentecost call in a promise, and the way he names its recipients — "to you and to your children, and to all who are far off" — deliberately echoes the covenant God made with Abraham: the same promise, now carrying its household sign forward from circumcision to baptism. Three steps stack the Greek of Acts 2:39 over the Hebrew of Genesis 17:12 so you can see the same covenant shape in both, and a closing clause that bounds the wide offer by God\'s own call.',
+    "Peter extends God's covenant promise to believers and their children.",
   devotionalFrame:
     'A promise, not just a command: after telling the crowd to repent and be baptized, Peter tells them why — "the promise is for you." Watch how he addresses it. The words he chooses for its recipients are the words of the old covenant made with Abraham, now opened wider than ever. Read the two diagrams together and you will see one story of grace, kept and enlarged.',
   confessionalFrame:

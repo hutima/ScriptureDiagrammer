@@ -17,7 +17,7 @@ export const acts2: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
   summary:
-    'Peter answers the Pentecost crowd with three linked actions — repent, be baptized, receive — and the diagram shows a small but striking shift in grammatical number between the first two. It also shows exactly where the debated phrase "for the forgiveness of sins" attaches, and why the grammar alone cannot settle everything it has been asked to answer.',
+    'Peter calls the crowd to repent, be baptized, and receive forgiveness.',
   devotionalFrame:
     'Peter\'s answer to a stunned crowd is short, but its grammar is doing careful work: one command in the plural, one in the singular, and a promise in the future tense — all held together by a tiny preposition Christians have debated for centuries. Read the diagram slowly. It will not settle every question, but it will show you precisely what is, and is not, being claimed.',
   confessionalFrame:

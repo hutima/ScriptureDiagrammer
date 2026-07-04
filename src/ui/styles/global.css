@@ -3736,6 +3736,11 @@ label.field.inline > span { margin-bottom: 0; }
 .guided-contested-btn { align-self: flex-start; }
 .guided-term-link {
   display: inline;
+  /* Keep the Greek surface and its parenthetical gloss from splitting across
+     a line break — the pair reads as one unit. Normal wrapping between
+     separate term links (and the surrounding prose) is unaffected: nowrap
+     only governs line breaks inside this element's own inline box. */
+  white-space: nowrap;
   padding: 0 2px;
   border: none;
   background: none;

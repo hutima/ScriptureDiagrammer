@@ -15,7 +15,7 @@ export const johnSin: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
   summary:
-    'A two-passage comparison: 1 John 2:1’s aorist ἁμάρτῃ (hamartē, “should sin”) pictures one specific act of sin met by an Advocate, while 3:6–9’s present-tense verbs picture sin as a settled, defining pattern that no longer characterizes someone born of God and abiding in Christ.',
+    'John contrasts a single act of sin with a settled, sinning way of life.',
   devotionalFrame:
     'These two passages sit only a chapter apart, and read alone they can sound like they pull in opposite directions: “if anyone sins, we have an advocate” — and then, “no one who is born of God practices sin.” Follow the diagrams closely and you will see John reaching for two different pictures of sin: one a single occurrence, the other a settled direction of life. Both are true, and both are for you.',
   steps: [

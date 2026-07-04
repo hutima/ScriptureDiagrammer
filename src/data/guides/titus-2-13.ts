@@ -18,7 +18,7 @@ export const titus2: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
   summary:
-    'Titus 2:13 packs a whole confession into one phrase: "waiting for our blessed hope, the appearing of the glory of our great God and Savior Jesus Christ." The diagram shows exactly how one article, one καί (kai, "and"), and one apposition tie "God," "Savior," and "Jesus Christ" together as a single person.',
+    'Titus calls Jesus Christ our great God and Savior in one breath.',
   devotionalFrame:
     'Paul is not writing a creed here — he is telling Titus how godly people wait. But the sentence he reaches for quietly does something enormous: in a single breath it calls Jesus Christ "our great God and Savior." Keep your own Bible open and follow the diagram to see exactly how the Greek holds that together.',
   steps: [

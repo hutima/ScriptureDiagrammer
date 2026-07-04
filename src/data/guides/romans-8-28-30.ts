@@ -24,7 +24,7 @@ export const romans8chain: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
   summary:
-    'Five verbs, one sentence: foreknew, predestined, called, justified, glorified. Paul writes the famous "golden chain" as a single Greek sentence whose diagram shows five verbs sharing one subject — God — and handing one group of people from link to link. "Foreknew" here is God\'s setting his covenant love on these people beforehand (the same sense as "you only have I known," Amos 3:2), not merely his foresight of their future choices. Walk the chain and see why even "glorified" is written as if already done.',
+    "Paul traces God's golden chain of five verbs from foreknowledge to glory.",
   devotionalFrame:
     'Romans 8:28 is one of the most-quoted promises in the Bible — and verses 29–30 are the reason Paul dares to make it. "All things work together for good" is not optimism; it rests on a chain of divine acts that runs from before creation to beyond the end. Watch the diagram: one subject does every verb, and the same people are carried through every link. The promise is as strong as the hands that hold the chain.',
   confessionalFrame:
