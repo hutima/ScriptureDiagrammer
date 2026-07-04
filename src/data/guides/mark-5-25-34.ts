@@ -17,8 +17,9 @@ export const mark5: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_mark_172', 'sblgnt_mark_173', 'sblgnt_mark_178'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'beginner',
+  topics: ['participles', 'faith', 'healing'],
   summary:
-    'Before this woman ever reaches out to touch Jesus, Greek piles up participle after participle describing her twelve years of suffering. The diagram shows how that long chain hangs off one small, decisive verb — and how the same pattern later paints her trembling confession.',
+    "Mark traces a suffering woman's long journey to one healing touch.",
   devotionalFrame:
     'Mark tells this story almost breathlessly. In Greek it is one long sentence that keeps adding description after description — a woman who was this, who had suffered that, who had spent everything — before it ever gets to what she does. Watching that grammar unfold is watching Mark slow down time so you feel exactly how much stood behind one quiet, desperate reach.',
   steps: [

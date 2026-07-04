@@ -14,8 +14,9 @@ export const hebrews1: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_hebrews_0'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['christology', 'sonship'],
   summary:
-    'The opening of Hebrews is one long, carefully built Greek sentence. The diagram shows how everything hangs on one main verb — “God has spoken” — while the glory of the Son is carried by participles and descriptions gathered around it.',
+    'Hebrews shows that God has spoken finally and fully through his Son.',
   devotionalFrame:
     'Before anything else, Hebrews wants you to know that God speaks. Everything this letter says about the Son is anchored to that one claim. As you follow the diagram, keep your own Bible open — the structure you are about to see is the structure your translation is faithfully carrying into English.',
   steps: [

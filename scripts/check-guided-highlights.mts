@@ -22,7 +22,7 @@
  *
  * Exits non-zero with a readable report on any failure.
  */
-const { grammarHighlightGuides } = await import('../src/data/grammarHighlights.ts');
+const { grammarHighlightGuides, guideDisplayDoc } = await import('../src/data/grammarHighlights.ts');
 const { guidedDocuments } = await import('../src/fixtures/guided/index.ts');
 const { getIssueById } = await import('../src/domain/contested/index.ts');
 
@@ -41,12 +41,35 @@ const idSets = (docs: Doc[]) => ({
 });
 
 for (const guide of grammarHighlightGuides) {
+  // Discourse-backed guides host the Discourse view over verse RANGES rather
+  // than a bundled syntax diagram, so the token/node/relation id checks below
+  // do not apply. Validate their range spec instead and move on.
+  if (guide.kind === 'discourse') {
+    if (!guide.discourse || guide.discourse.ranges.length === 0) {
+      fail(`${guide.id}: discourse guide has no discourse.ranges`);
+    }
+    for (const r of guide.discourse?.ranges ?? []) {
+      if (!r.sourceId || !r.startRef || !r.endRef || !r.bookNum) {
+        fail(`${guide.id}: discourse range is missing sourceId/bookNum/startRef/endRef`);
+      }
+    }
+    if (guide.steps.length === 0) fail(`${guide.id}: guide has no steps`);
+    console.log(
+      `✓ ${guide.id} (discourse: ${guide.discourse?.ranges.length ?? 0} range(s), ${guide.steps.length} steps)`,
+    );
+    continue;
+  }
   const docs = guide.bundledPassageIds.map((id) => {
     const d = guidedDocuments.find((x) => x.id === id);
     if (!d) fail(`${guide.id}: bundled passage "${id}" is not in the guided bundle (run guided:build?)`);
     return d;
   });
-  const present = docs.filter((d): d is NonNullable<typeof d> => !!d);
+  // Validate step ids against what the guide actually DISPLAYS: a guide with a
+  // `displayAlternateReadingId` re-draws its base through that alternate reading,
+  // so the ids the steps point at are the displayed doc's, not the pristine base's.
+  const present = docs
+    .filter((d): d is NonNullable<typeof d> => !!d)
+    .map((d) => guideDisplayDoc(guide, d));
   const bundledIds = new Set(guide.bundledPassageIds);
   // Pool (across all the guide's passages) — used for guide-global term ids.
   const pool = idSets(present);

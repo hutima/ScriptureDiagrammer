@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import type { GrammarHighlightGuide, GuidedDisplayMode, KrDocument } from '@/domain/schema';
 import type { DiagramMode } from '@/domain/layout';
-import { visibleGrammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
+import { visibleGrammarHighlightGuides, getGuide, guideDisplayDoc } from '@/data/grammarHighlights';
 import { getGuidedDocument } from '@/fixtures/guided';
 import { useTutorialStore } from '@/ui/tutorial/tutorialState';
 import { useEditorStore } from './store';
+import { useDiscourseStore } from './discourse';
 import type { AppMode } from './types';
 
 /**
@@ -159,6 +160,9 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
       selectedGreekTermId: null,
       prior: null,
     });
+    // Drop any guided-discourse display so a later DIRECT Discourse-mode entry
+    // restores the user's own range (or the first-load modal) as normal.
+    useDiscourseStore.getState().exitGuidedDiscourse();
     if (!prior) return;
     const editor = useEditorStore.getState();
     // Restore where safe. The guided passage stays loaded (it is a normal
@@ -172,12 +176,32 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
   openGuide: (guideId) => {
     const guide = getGuide(guideId);
     if (!guide) return;
+    // A discourse-backed guide hosts the Discourse view (a separate analysis
+    // layer, not a syntax lens) instead of a KR diagram: mount DiscourseCanvas
+    // via the editor's `diagramMode` and drive the discourse store directly.
+    if (guide.kind === 'discourse' && guide.discourse) {
+      const editor = useEditorStore.getState();
+      editor.setDiagramMode('discourse');
+      void useDiscourseStore.getState().enterGuidedDiscourse(guide.discourse);
+      set((s) => ({
+        selectedGuideId: guideId,
+        stepIndex: 0,
+        selectedGreekTermId: null,
+        focusNonce: s.focusNonce + 1,
+      }));
+      return;
+    }
+    // Switching to a SYNTAX guide (possibly from a discourse one): tear down any
+    // guided-discourse display so the syntax passage owns the canvas again.
+    useDiscourseStore.getState().exitGuidedDiscourse();
     // Open on the first step's passage if it names one, else the guide's first.
     const firstPassage = guide.steps[0]?.passageId ?? guide.bundledPassageIds[0]!;
     const doc = getGuidedDocument(firstPassage);
     if (!doc) return;
     const editor = useEditorStore.getState();
-    editor.loadDocument(doc, { corpus: 'gnt' });
+    // A guide may TEACH a construal by displaying an alternate reading applied to
+    // the bundled base (non-destructive; the pooled bundle is untouched).
+    editor.loadDocument(guideDisplayDoc(guide, doc), { corpus: 'gnt' });
     editor.setDiagramMode(guide.defaultDiagramMode);
     setGuideReadingContext(guide, doc.id);
     set((s) => ({
@@ -203,7 +227,7 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
       if (editor.doc.id !== step.passageId) {
         const doc = getGuidedDocument(step.passageId);
         if (doc) {
-          editor.loadDocument(doc, { corpus: 'gnt' });
+          editor.loadDocument(guideDisplayDoc(guide, doc), { corpus: 'gnt' });
           editor.setDiagramMode(guide.defaultDiagramMode);
           setGuideReadingContext(guide, doc.id);
         }

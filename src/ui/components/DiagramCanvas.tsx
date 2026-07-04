@@ -19,7 +19,7 @@ import {
   type ParallelView,
 } from '@/io';
 import type { KrDocument } from '@/domain/schema';
-import { MIN_SCALE, clamp, minZoomScale, maxZoomScale, clampPan, viewCenteredOn } from '@/ui/zoom';
+import { MIN_SCALE, clamp, minZoomScale, maxZoomScale, clampPan, viewCenteredOn, wheelZoomFactor } from '@/ui/zoom';
 import { PhraseBlockView } from './diagram/PhraseBlockView';
 import { MorphologyView } from './diagram/MorphologyView';
 import { nodeHighlightColors, relationHighlightColors, KEY_HIGHLIGHT_CATEGORIES } from '@/ui/sermon/highlights';
@@ -500,7 +500,7 @@ export function DiagramCanvas() {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const rect = vp.getBoundingClientRect();
-      zoomBy(Math.exp(-e.deltaY * 0.0015), e.clientX - rect.left, e.clientY - rect.top);
+      zoomBy(wheelZoomFactor(e.deltaY), e.clientX - rect.left, e.clientY - rect.top);
     };
     vp.addEventListener('wheel', onWheel, { passive: false });
     return () => vp.removeEventListener('wheel', onWheel);

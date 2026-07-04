@@ -26,8 +26,9 @@ export const lordsPrayerPetitions: GrammarHighlightGuide = {
   ],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'beginner',
+  topics: ['prayer', 'comparison'],
   summary:
-    'English hears “hallowed be thy name,” “thy kingdom come,” “thy will be done” as gentle wishes. In the Greek, every petition of the Lord’s Prayer is a command form — a true imperative mood, or (for one line) the grammar Greek uses instead to phrase a negative command. This guide walks all six petitions of Matthew 6:9–13 to see Jesus teaching his disciples to ask boldly.',
+    "Jesus teaches his disciples to pray the Lord's Prayer as bold commands.",
   devotionalFrame:
     'Before you meet a single Greek word, notice this: Jesus does not teach his disciples to pray with timid maybes. Six times in a row, in the short space of five verses, he puts a command on their lips. Follow the diagram through Matthew 6:9–13 and watch the same shape surface again and again — not because we get to command God from above, but because he invites us to ask him this boldly, this plainly, like children who trust they will be heard.',
   steps: [

@@ -928,11 +928,11 @@ const RAW: { issues: unknown[]; readings: unknown[] } = {
       ],
       "affectedRelationIds": ["r_s13_86", "r_s13_87"],
       "defaultReading": {
-        "label": "Antecedent = baptism",
-        "description": "The raised-with-him clause attaches to βαπτισμῷ; ᾧ refers to the baptism just named — “in which you were also raised”.",
-        "parseSummary": "βαπτισμῷ ←(apposition) ἐν ᾧ καὶ συνηγέρθητε"
+        "label": "As encoded: βαπτισμῷ in apposition to the raised clause",
+        "description": "The SBLGNT base makes the raised-with-him clause the object of the first ἐν and hangs τῷ βαπτισμῷ on that whole clause by an apposition relation — a parallel/appositional encoding of the two ἐν-phrases (the Nestle1904 base instead draws the same sense as a noun-headed relative clause modifying βαπτίσματι). Either way the nearest-noun antecedent of ᾧ is the baptism just named — “in baptism, in which you were also raised”.",
+        "parseSummary": "ἐν ᾧ καὶ συνηγέρθητε =(apposition) τῷ βαπτισμῷ"
       },
-      "alternateReadingIds": ["alt_col_2_12_raised_in_christ_sblgnt"],
+      "alternateReadingIds": ["alt_col_2_12_baptism_relative_sblgnt", "alt_col_2_12_raised_in_christ_sblgnt"],
       "bibliography": ["Moo, The Letters to the Colossians and to Philemon, on 2:12."],
       "sourceId": "macula-greek-sblgnt-lowfat"
     },
@@ -1846,6 +1846,47 @@ const RAW: { issues: unknown[]; readings: unknown[] } = {
       },
       "sourceId": "macula-greek-sblgnt-lowfat",
     },
+    // The nearest-noun reading (ᾧ = baptism) drawn as a proper NOUN-HEADED
+    // RELATIVE CLAUSE modifying βαπτισμῷ — the shape the Nestle1904 base already
+    // draws, and what the Colossians 2:11–12 guide DISPLAYS (via the guide's
+    // `displayAlternateReadingId`). It normalizes the SBLGNT apposition encoding:
+    // ἐν governs βαπτισμῷ as a plain object (r_s13_87 → the noun), and the
+    // ἐν ᾧ … συνηγέρθητε clause hangs adjectivally on βαπτισμῷ. Same tokens, same
+    // "in baptism" sense; only the attachment is normalized. Provenance manual/low.
+    {
+      "id": "alt_col_2_12_baptism_relative_sblgnt",
+      "issueId": "iss_col_2_12_raised_antecedent_sblgnt",
+      "passageId": "sblgnt_colossians_13",
+      "label": "Antecedent = baptism, drawn as a relative clause",
+      "shortLabel": "in baptism (relative clause)",
+      "interpretation": "ᾧ reaches back to the nearest noun βαπτισμῷ, drawn as a relative clause modifying it — “in baptism, in which you were also raised”.",
+      "description": "Re-draws the SBLGNT base — which hangs τῷ βαπτισμῷ in apposition to the whole raised clause — as a noun-headed relative clause: ἐν governs βαπτισμῷ as its plain object, and the ἐν ᾧ … συνηγέρθητε clause attaches adjectivally to βαπτισμῷ, exactly the shape the Nestle1904 base already draws. Same tokens, same “in baptism” sense; only the attachment is normalized to a relative clause.",
+      "sourceType": "syntax-only",
+      "confidence": "low",
+      "syntaxPatch": {
+        "relations": {
+          "update": {
+            "r_s13_87": { "dependentId": "w_n51002012005" },
+          },
+          "remove": ["r_s13_86"],
+          "upsert": [
+            {
+              "id": "alt_col_2_12_reladj_r1",
+              "type": "adjectival",
+              "headId": "w_n51002012005",
+              "dependentId": "cl_s13_67",
+              "label": "in which",
+              "provenance": {
+                "source": "manual",
+                "confidence": "low",
+                "reason": "Nearest-noun reading: ᾧ takes βαπτισμῷ as antecedent, drawn as a relative clause modifying the noun (the Nestle1904 base's own encoding); the SBLGNT base instead encodes it as an apposition to the whole raised clause.",
+              },
+            },
+          ],
+        },
+      },
+      "sourceId": "macula-greek-sblgnt-lowfat",
+    },
     {
       "id": "alt_col_2_12_raised_in_christ_sblgnt",
       "issueId": "iss_col_2_12_raised_antecedent_sblgnt",
@@ -1861,7 +1902,11 @@ const RAW: { issues: unknown[]; readings: unknown[] } = {
           "update": {
             "r_s13_87": { "dependentId": "w_n51002012005" },
           },
-          "remove": ["r_s13_86"],
+          // Drops the base apposition AND the relative-clause attachment the guide
+          // display-variant adds, so this reading is clean whether it overlays the
+          // pristine base (apposition present, relative absent → each remove a no-op
+          // where absent) or the guide's already-relativized display doc.
+          "remove": ["r_s13_86", "alt_col_2_12_reladj_r1"],
           "upsert": [
             {
               "id": "alt_col_2_12_r1",

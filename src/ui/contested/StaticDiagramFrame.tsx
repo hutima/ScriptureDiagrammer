@@ -1,15 +1,18 @@
-import { forwardRef, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { KrDocument, AlternateDiff } from '@/domain/schema';
 import { layoutForMode, type DiagramMode } from '@/domain/layout';
 import { measureText, BASE_FONT, SMALL_FONT } from '@/domain/layout/measure';
 import { dashFor, toneColor } from '@/domain/render';
+import { clamp, minZoomScale, maxZoomScale, wheelZoomFactor } from '@/ui/zoom';
 import { highlightForElement, impactedNodeIds } from './diffHighlighting';
 
 /**
  * A READ-ONLY diagram frame for one document and diagram mode. Used by the
- * side-by-side comparison: it renders the same geometric primitives the main
- * canvas draws (so the two frames match), but without pan/zoom, selection, or
- * editing — just the picture, plus subtle difference outlines from a diff.
+ * side-by-side comparison and the guided-mode stacked secondary diagram: it
+ * renders the same geometric primitives the main canvas draws (so the frames
+ * match), with drag-to-pan and (opt-in via `zoomable`) cursor-anchored
+ * wheel-zoom, but no selection or editing — just the picture, plus subtle
+ * difference outlines from a diff.
  */
 const INK = '#1f2933';
 
@@ -34,9 +37,24 @@ export const StaticDiagramFrame = forwardRef<
      * is identical to the previous behaviour.
      */
     rtl?: boolean;
+    /**
+     * Opt into wheel/trackpad scroll-to-zoom, anchored to the cursor — the
+     * SAME feel as the interactive `DiagramCanvas` (shared `wheelZoomFactor`
+     * math from `@/ui/zoom`), applied by scaling the SVG's own pixel size
+     * (crisp vector scaling; the existing scroll container still handles
+     * drag/scrollbar pan, so panning is untouched). Off by default so every
+     * OTHER `StaticDiagramFrame` consumer (contested comparison, edit
+     * preview, source compare) keeps its current plain-scroll behaviour; the
+     * guided-mode stacked secondary diagram is the one caller that turns it
+     * on. The wheel listener is bound directly to this frame's own scroll
+     * element (non-passive, so it can `preventDefault`), so it only ever
+     * hijacks the wheel while the cursor is over THIS diagram — normal page /
+     * guide-text scrolling elsewhere is untouched.
+     */
+    zoomable?: boolean;
   }
 >(function StaticDiagramFrame(
-  { doc, mode, diff = null, title, onScrollSync, highlightFills, rtl },
+  { doc, mode, diff = null, title, onScrollSync, highlightFills, rtl, zoomable = false },
   ref,
 ) {
   const layout = useMemo(
@@ -47,6 +65,63 @@ export const StaticDiagramFrame = forwardRef<
   const hebrew = doc.language === 'hbo';
   const nodeFills = highlightFills?.nodeFills;
   const relationFills = highlightFills?.relationFills;
+
+  // ---- wheel-to-zoom (opt-in; see `zoomable` doc comment above) ----------
+  const innerRef = useRef<HTMLDivElement | null>(null);
+  const setRefs = (node: HTMLDivElement | null) => {
+    innerRef.current = node;
+    if (typeof ref === 'function') ref(node);
+    else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+  };
+  const [scale, setScale] = useState(1);
+  const scaleRef = useRef(1);
+  scaleRef.current = scale;
+  // A new document (new passage, or a mode switch) always starts unzoomed —
+  // matching `DiagramCanvas`'s `resetZoom` on doc/mode change — so a guided
+  // step never inherits a stray zoom level from whatever the previous step
+  // (or a previous secondary passage) left behind.
+  useEffect(() => {
+    if (zoomable) setScale(1);
+  }, [zoomable, doc.id, mode]);
+  // Zoom toward the cursor: keep the content point under the pointer fixed by
+  // adjusting scroll offsets right after the scale (and so the SVG's pixel
+  // size) changes — a `useLayoutEffect` so it applies before paint, with no
+  // visible jump.
+  const pendingScroll = useRef<{ left: number; top: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = innerRef.current;
+    const pending = pendingScroll.current;
+    if (!el || !pending) return;
+    pendingScroll.current = null;
+    el.scrollLeft = pending.left;
+    el.scrollTop = pending.top;
+  }, [scale]);
+  useEffect(() => {
+    if (!zoomable) return;
+    const el = innerRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      const lo = minZoomScale(el.clientWidth, el.clientHeight, layout.width, layout.height);
+      const hi = maxZoomScale(lo);
+      const oldScale = scaleRef.current;
+      const newScale = clamp(oldScale * wheelZoomFactor(e.deltaY), lo, hi);
+      if (newScale === oldScale) return;
+      // The content-space point currently under the cursor, so it stays put.
+      const contentX = (el.scrollLeft + px) / oldScale;
+      const contentY = (el.scrollTop + py) / oldScale;
+      pendingScroll.current = {
+        left: contentX * newScale - px,
+        top: contentY * newScale - py,
+      };
+      setScale(newScale);
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [zoomable, layout.width, layout.height]);
 
   // Words impacted by the change, resolved AGAINST THIS FRAME'S document so the
   // base frame marks the OLD attachment and the variant frame marks the NEW one —
@@ -77,7 +152,7 @@ export const StaticDiagramFrame = forwardRef<
       {title && <div className="vc-frame-head">{title}</div>}
       <div
         className="vc-frame-scroll"
-        ref={ref}
+        ref={setRefs}
         onScroll={onScrollSync}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -86,8 +161,8 @@ export const StaticDiagramFrame = forwardRef<
       >
         <svg
           className={`diagram-paper${hebrew ? ' hebrew' : ''}`}
-          width={layout.width}
-          height={layout.height}
+          width={layout.width * scale}
+          height={layout.height * scale}
           viewBox={`0 0 ${layout.width} ${layout.height}`}
           role="img"
           aria-label={`${title}: ${doc.text || doc.title}`}

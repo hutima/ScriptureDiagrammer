@@ -505,6 +505,26 @@ export class SentenceConverter {
   }
 
   /**
+   * Whether a converted clause node predicates with an INFINITIVE (ἔχειν …). Such
+   * a clause is laid out like a prepositional phrase — an empty diagonal down to
+   * the infinitive's own baseline — a path that draws no connector label. So a
+   * subordinator introducing an infinitival clause (ὥστε … ἔχειν, 1 Cor 5:1)
+   * cannot ride the link as a stashed label; it must be attached as a real
+   * `conjunction` child of the clause instead (see the subordinator branch below).
+   */
+  private isInfinitivalClauseNode(clauseId: string): boolean {
+    const node = this.nodes.find((n) => n.id === clauseId);
+    if (!node || node.kind !== 'clause') return false;
+    const pred = this.relations.find(
+      (r) => r.headId === clauseId && (r.type === 'predicate' || r.type === 'copula'),
+    );
+    if (!pred) return false;
+    const depNode = this.nodes.find((n) => n.id === pred.dependentId);
+    const tid = depNode?.tokenIds[0];
+    return this.tokens.find((t) => t.id === tid)?.pos === 'infinitive';
+  }
+
+  /**
    * Attach any word node left UNREACHABLE — neither a dependent of a relation nor
    * the connector LABEL of one — to the root, so no source word is silently
    * dropped. This rescues a clause-initial connective (οὖν, γάρ, δέ…) sitting on
@@ -705,18 +725,29 @@ export class SentenceConverter {
         // baseline word; it rides the connecting line as the clause's label, and
         // the linking relation points at it via `labelNodeId`.
         const subParts: string[] = [];
-        let subNodeId: string | undefined;
+        const subNodeIds: string[] = [];
         for (const kid of kids) {
           if (this.isClauseLike(kid)) continue;
           const nodeId = this.subordinatorNode(kid); // token(s) + node, left unattached
-          if (subNodeId === undefined) subNodeId = nodeId; // label points at the first
+          subNodeIds.push(nodeId); // label points at the first
           const s = (kid.textContent ?? '').replace(/\s+/g, ' ').trim();
           if (s) subParts.push(s);
         }
         const rep = this.convert(clauseKids[0]!);
         const sub = subParts.join(' ');
-        if (sub && !this.subLabel.has(rep)) this.subLabel.set(rep, sub);
-        if (subNodeId && !this.subLabelNode.has(rep)) this.subLabelNode.set(rep, subNodeId);
+        const subNodeId = subNodeIds[0];
+        // An INFINITIVAL clause (ὥστε … ἔχειν, 1 Cor 5:1) is drawn like a PP —
+        // the layout draws no connector label there, so a stashed subordinator
+        // would silently vanish from every view. Attach it as a real
+        // `conjunction` child of the clause instead: it renders as the clause's
+        // introductory connective and is never orphaned. Finite subordinate
+        // clauses keep the connector-label convention (ὅτι/ἵνα on the dotted stem).
+        if (this.isInfinitivalClauseNode(rep)) {
+          for (const nodeId of subNodeIds) this.rel('conjunction', rep, nodeId);
+        } else {
+          if (sub && !this.subLabel.has(rep)) this.subLabel.set(rep, sub);
+          if (subNodeId && !this.subLabelNode.has(rep)) this.subLabelNode.set(rep, subNodeId);
+        }
         return rep;
       }
 

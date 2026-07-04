@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useEditorStore, useGuidedStore } from '@/state';
+import { getGuide } from '@/data/grammarHighlights';
 import { GuidedStepCard } from '@/ui/guided/GuidedStepCard';
 import { useViewport } from '@/ui/responsive';
 import { TopBar } from '@/ui/components/TopBar';
@@ -40,6 +41,12 @@ export function ResponsiveShell() {
   // desktop (a bottom card on mobile), and Discourse — a separate analysis
   // layer, not a syntax lens — can never be the active visualization inside it.
   const guidedActive = useGuidedStore((s) => s.active);
+  const guidedGuideId = useGuidedStore((s) => s.selectedGuideId);
+  // A discourse-backed guide deliberately KEEPS the Discourse visualization: it
+  // hosts DiscourseCanvas rather than a KR diagram, so the "guided ⇒ force KR"
+  // fallback below must not fire for it.
+  const guidedIsDiscourse =
+    guidedActive && getGuide(guidedGuideId ?? '')?.kind === 'discourse';
 
   // On a phone, lead with the most finger-friendly syntax lens, and keep the
   // sources drawer closed so the diagram gets the screen. One-time per mount —
@@ -76,11 +83,13 @@ export function ResponsiveShell() {
     if (discourseMode && appMode === 'explore' && vp.isDesktop && !guidedActive) setAppMode('edit');
   }, [discourseMode, appMode, vp.isDesktop, guidedActive, setAppMode]);
 
-  // Guided mode is syntax-only: if Discourse is somehow the active visualization
-  // (e.g. it was active when the guide was entered), fall back to KR.
+  // Most guides are syntax-only: if Discourse is somehow the active
+  // visualization (e.g. it was active when a SYNTAX guide was entered), fall
+  // back to KR. A discourse-backed guide is exempt — it intentionally hosts the
+  // Discourse view.
   useEffect(() => {
-    if (guidedActive && discourseMode) setDiagramMode('kellogg-reed');
-  }, [guidedActive, discourseMode, setDiagramMode]);
+    if (guidedActive && discourseMode && !guidedIsDiscourse) setDiagramMode('kellogg-reed');
+  }, [guidedActive, discourseMode, guidedIsDiscourse, setDiagramMode]);
 
   // Grammar Highlights wants the diagram + step card to own the FULL viewport
   // width on any narrow screen — including forced-desktop at phone/tablet
@@ -141,9 +150,12 @@ export function ResponsiveShell() {
         <main className="panel" style={{ borderRight: 'none', background: 'var(--bg)' }}>
           {discourseMode ? <DiscourseCanvas /> : <DiagramCanvas />}
         </main>
-        {guidedActive && !discourseMode ? (
+        {guidedActive ? (
           // Grammar Highlights: the walkthrough card owns the right slot (the
-          // reader info panel returns when the user leaves guided mode).
+          // reader info panel returns when the user leaves guided mode). For a
+          // discourse-backed guide it hosts the step prose ALONGSIDE the
+          // DiscourseCanvas in the center — the discourse tools/detail panel is
+          // suppressed (guided examples are read-only Explore walkthroughs).
           <aside
             className={`panel right guided-aside${guidedNarrow ? ' guided-full-width' : ''}`}
           >

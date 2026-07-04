@@ -20,8 +20,9 @@ export const firstTimothy2: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_1-timothy_16', 'sblgnt_1-timothy_17', 'sblgnt_1-timothy_18'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
+  topics: ['women in ministry', 'contested passage'],
   summary:
-    'A close, careful look at the Greek of one of the New Testament’s most debated passages: what the diagram can show plainly (what is coordinated with what, and where Paul’s appeals attach), read alongside the historic, majority reading of the church, and what it still leaves for the reader to weigh.',
+    'Paul instructs Timothy on women, learning, and authority in the church.',
   devotionalFrame:
     'Few passages carry as much pastoral weight as this one, and it deserves care. The steps below show what the Greek sentence actually says and how its pieces connect. This guide is written from a confessional Reformed stance that receives Paul’s instruction here — along with most of the church across its history — as a standing pattern for the church’s teaching offices, grounded not merely in the Ephesian situation but in the created order Paul appeals to in verse 13 (see the confessional note beneath the steps). Because this passage is debated more actively among evangelicals than most, the strongest form of the alternative reading is also summarized fairly below, with honest cautions for both. Read slowly, keep your Bible open beside the diagram, and let the text carry its full weight.',
   steps: [

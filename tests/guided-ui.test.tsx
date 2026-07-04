@@ -59,9 +59,9 @@ describe('guided mode UI', () => {
     expect(useGuidedStore.getState().active).toBe(false);
   });
 
-  it('has a dedicated Grammar launcher button that opens the intro modal', () => {
+  it('has a dedicated Guided launcher button that opens the intro modal', () => {
     render(createElement(TopBar));
-    const launch = screen.getByRole('button', { name: /✦ grammar/i });
+    const launch = screen.getByRole('button', { name: /✦ guided/i });
     fireEvent.click(launch);
     expect(useGuidedStore.getState().introOpen).toBe(true);
   });
@@ -90,12 +90,14 @@ describe('guided mode UI', () => {
     for (const g of visibleGrammarHighlightGuides) {
       expect(screen.getByText(g.title)).toBeTruthy();
     }
-    // …and hidden guides (Acts 2:39, pending its Discourse-mode rework) stay
-    // registered but never appear in the picker.
+    // …and hidden guides stay registered but never appear in the picker.
     for (const g of grammarHighlightGuides.filter((x) => x.hidden)) {
       expect(screen.queryByText(g.title)).toBeNull();
     }
-    expect(getGuide('guide-acts-2-39')?.hidden).toBe(true);
+    // Acts 2:39 was reworked into a discourse guide and un-hidden — it now
+    // appears in the visible library again.
+    expect(getGuide('guide-acts-2-39')?.hidden).toBeFalsy();
+    expect(visibleGrammarHighlightGuides.some((g) => g.id === 'guide-acts-2-39')).toBe(true);
   });
 
   it('step card renders term links, opens the detail panel, and navigates', () => {
@@ -187,29 +189,6 @@ describe('guided mode UI', () => {
     expect(rel?.type).toBe('apposition');
   });
 
-  it('a stacked step renders the secondary Hebrew frame with highlights on both diagrams', () => {
-    useGuidedStore.getState().enter('greek');
-    act(() => useGuidedStore.getState().openGuide('guide-acts-2-39'));
-    const guide = getGuide('guide-acts-2-39')!;
-    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
-    expect(stackedIndex).toBeGreaterThan(0);
-    act(() => useGuidedStore.getState().setStep(stackedIndex));
-    const { container } = render(createElement(DiagramCanvas));
-
-    // The stacked secondary diagram is a Hebrew (RTL) frame.
-    const hebrewSvg = container.querySelector('svg.diagram-paper.hebrew');
-    expect(hebrewSvg).toBeTruthy();
-    // The primary (Greek) diagram is the non-Hebrew paper.
-    const greekSvg = container.querySelector('svg.diagram-paper:not(.hebrew)');
-    expect(greekSvg).toBeTruthy();
-
-    // A guided emphasis swash lands on BOTH an Acts word (primary) and a Genesis
-    // word (secondary) — one highlight colour, two stacked diagrams.
-    const emphasis = GUIDED_HIGHLIGHT_COLORS.emphasized;
-    expect(greekSvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
-    expect(hebrewSvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
-  });
-
   it('a stacked step in the Lord\'s-Prayer guide renders both Gospels with highlights on each', () => {
     useGuidedStore.getState().enter('greek');
     act(() => useGuidedStore.getState().openGuide('guide-lords-prayer-bread'));
@@ -236,6 +215,39 @@ describe('guided mode UI', () => {
     expect(secondarySvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
   });
 
+  it('wheel/trackpad zoom on the stacked secondary diagram scales it, same as the primary (D1)', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-lords-prayer-bread'));
+    const guide = getGuide('guide-lords-prayer-bread')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    act(() => useGuidedStore.getState().setStep(stackedIndex));
+    const { container } = render(createElement(DiagramCanvas));
+
+    const secondarySvg = Array.from(container.querySelectorAll('svg.diagram-paper')).find((el) =>
+      el.closest('.guided-stacked'),
+    ) as SVGSVGElement;
+    expect(secondarySvg).toBeTruthy();
+    const scroller = secondarySvg.closest('.vc-frame-scroll') as HTMLElement;
+    expect(scroller).toBeTruthy();
+
+    const widthBefore = Number(secondarySvg.getAttribute('width'));
+    // Zoom in (negative deltaY, matching a scroll-up / pinch-out gesture) —
+    // the same `wheelZoomFactor` math the primary canvas uses.
+    act(() => {
+      fireEvent.wheel(scroller, { deltaY: -300 });
+    });
+    const widthAfter = Number(secondarySvg.getAttribute('width'));
+    expect(widthAfter).toBeGreaterThan(widthBefore);
+
+    // Zoom back out (positive deltaY) shrinks it again — a real toggle, not a
+    // one-way ratchet.
+    act(() => {
+      fireEvent.wheel(scroller, { deltaY: 300 });
+    });
+    const widthAfterZoomOut = Number(secondarySvg.getAttribute('width'));
+    expect(widthAfterZoomOut).toBeLessThan(widthAfter);
+  });
+
   it('a non-stacked guide renders no secondary frame', () => {
     useGuidedStore.getState().enter('greek');
     act(() => useGuidedStore.getState().openGuide('guide-john-1-1'));
@@ -248,7 +260,7 @@ describe('guided mode UI', () => {
     setWidth(360);
     render(createElement(TopBar));
     // The dedicated launcher…
-    expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /✦ guided/i })).toBeTruthy();
     // …and the ⋯-menu item are both still reachable on a phone.
     fireEvent.click(screen.getByRole('button', { name: '⋯' }));
     expect(screen.getByRole('menuitem', { name: /guided exploration/i })).toBeTruthy();
@@ -275,7 +287,7 @@ describe('guided mode UI', () => {
     setWidth(360);
     useEditorStore.getState().setForceDesktop(true);
     render(createElement(TopBar));
-    expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /✦ guided/i })).toBeTruthy();
     useGuidedStore.getState().enter('greek');
     expect(useGuidedStore.getState().active).toBe(true);
   });
@@ -283,7 +295,7 @@ describe('guided mode UI', () => {
   it('keeps both entry points on a desktop viewport', () => {
     setWidth(1280);
     render(createElement(TopBar));
-    expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /✦ guided/i })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '⋯' }));
     expect(screen.getByRole('menuitem', { name: /guided exploration/i })).toBeTruthy();
   });
@@ -323,6 +335,26 @@ describe('guided mode UI', () => {
     expect(backAtStep3).toBeTruthy();
     expect(backAtStep3.hasAttribute('disabled')).toBe(false);
     expect(backAtStep3.className).toContain('guided-nav-back');
+  });
+
+  it('renders the step nav as a pinned footer sibling of the scrollable content, not inline in the flow (D2)', () => {
+    useGuidedStore.getState().enter('greek');
+    const { container } = render(createElement(GuidedStepCard));
+    const card = container.querySelector('.guided-step-card');
+    expect(card).toBeTruthy();
+    const scrollArea = container.querySelector('.guided-step-card > .guided-step-scroll');
+    const nav = container.querySelector('.guided-step-card > .guided-step-nav');
+    expect(scrollArea).toBeTruthy();
+    expect(nav).toBeTruthy();
+    // The nav is a direct sibling AFTER the scroll area (a footer outside the
+    // scrollable body), not nested inside it — so it can never scroll away.
+    expect(scrollArea!.contains(nav)).toBe(false);
+    expect(nav!.compareDocumentPosition(scrollArea!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    // The step's prose lives inside the scrollable area…
+    expect(scrollArea!.querySelector('.guided-step-body')).toBeTruthy();
+    // …and Back/Next live in the pinned nav, not inside the scroll area.
+    expect(scrollArea!.querySelector('.guided-nav-back')).toBeNull();
+    expect(nav!.querySelector('.guided-nav-back')).toBeTruthy();
   });
 
   it('gives guided mode the full viewport width on a narrow real screen (incl. forced desktop)', () => {

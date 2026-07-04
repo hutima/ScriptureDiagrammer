@@ -15,8 +15,9 @@ export const secondPeter1: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_2-peter_0'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['christology', 'granville sharp'],
   summary:
-    'Peter opens his second letter the way any ancient letter opens — writer, readers, greeting. But tucked inside that greeting is the same grammatical shape as Titus 2:13: one article holding "God" and "Savior" together over one name, Jesus Christ.',
+    'Peter calls Jesus Christ both our God and our Savior in one phrase.',
   devotionalFrame:
     'Peter is not writing a doctrinal essay here — just a letter opening. But before he has finished his very first sentence, the grammar he reaches for quietly calls Jesus Christ "our God and Savior." Follow the diagram to see exactly how the Greek holds that title together.',
   steps: [

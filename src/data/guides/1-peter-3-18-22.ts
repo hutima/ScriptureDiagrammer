@@ -17,8 +17,9 @@ export const firstPeter3: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_1-peter_44', 'sblgnt_1-peter_45', 'sblgnt_1-peter_46'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
+  topics: ['baptism', 'christology', 'contested passage'],
   summary:
-    'One of the most argued-over passages in the New Testament: Christ\'s proclamation to "the spirits in prison" and Peter\'s claim that baptism "now saves you." The diagram shows exactly where the Greek leaves room for more than one faithful reading — and where Peter supplies his own guardrails.',
+    "Peter connects Christ's proclamation to imprisoned spirits with baptism's saving pledge.",
   devotionalFrame:
     "This short passage has comforted suffering Christians for two thousand years — and puzzled careful readers for just as long. Peter packs an enormous claim into a few tightly built Greek clauses: Christ's suffering, a mysterious proclamation, Noah's flood, and baptism, all in one breath. This guide will not settle every question the church has argued about here. What it can do is show you exactly where the sentence itself leaves room for more than one faithful reading, and where Peter supplies his own qualifiers. Keep your own Bible open alongside it — translation cannot decide this for you, and neither can a diagram; both can only show you clearly what the words actually say.",
   confessionalFrame:

@@ -19,8 +19,9 @@ export const matthew28: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_matthew_1132', 'sblgnt_matthew_1133'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'beginner',
+  topics: ['great commission', 'participles', 'baptism'],
   summary:
-    'One command holds this famous sending together — “make disciples” — carried out by going, baptizing, and teaching. The diagram shows how the command, its scope (“all nations”), and Jesus’ closing promise of presence all fit as one structure.',
+    'Jesus commands his disciples to make disciples of all nations.',
   devotionalFrame:
     'These two verses are often quoted a phrase at a time — “go,” “baptize,” “teach,” “I am with you.” The Greek sentence shows how they actually fit together: one command, carried out three ways, sent to everyone, backed by a promise. Keep your own Bible open as you follow the diagram.',
   steps: [

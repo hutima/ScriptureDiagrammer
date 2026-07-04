@@ -16,8 +16,9 @@ export const romans6: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_romans_126', 'sblgnt_romans_127'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['baptism', 'union with Christ'],
   summary:
-    'Paul asks a question every Roman believer is assumed to already know the answer to: what does baptism mean? The diagram traces a repeated εἰς (eis, “into”) construction and a σύν- (syn-, “with”) compound verb that together picture believers joined to Christ — in his death, his burial, and a genuinely new way of living.',
+    "Paul pictures baptism as union with Christ's death and new life.",
   devotionalFrame:
     'These two verses are one connected argument, and the Greek grammar carries it plainly: the same “into” shows up twice, and the next verse opens with a single word built from “with” + “bury.” Follow the diagram and watch how the sentence itself insists that what happened to Christ has happened, grammatically and really, to us.',
   steps: [

@@ -28,8 +28,9 @@ export const romans9doxology: GrammarHighlightGuide = {
   bundledPassageIds: ['sblgnt_romans_228'],
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
+  topics: ['christology', 'punctuation', 'contested passage'],
   summary:
-    "Paul's list of Israel's privileges climaxes in the Messiah — and then in one of the New Testament's plainest declarations of his deity: Christ is 'God over all, blessed forever.' The earliest manuscripts carry no punctuation, so a minority reading instead breaks away into a separate blessing of the Father. The diagram walks through the standard reading and the grammar that shapes the choice, alternate view included.",
+    'Paul asks whether this praise calls Christ, or only God, blessed.',
   devotionalFrame:
     "Paul has just poured out anguish over Israel (9:1–3) and then listed, with visible pride, everything God gave his people — culminating in the Messiah himself. Before he turns to the hard argument of the rest of chapter 9, he cannot help but break into praise. Watch how one small grammatical choice — where a sentence ends — carries real theological weight, and how, whichever way you read it, Paul ends up worshiping.",
   steps: [

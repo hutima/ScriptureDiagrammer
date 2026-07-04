@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { layoutDocument } from '@/domain/layout';
-import type { TextElement } from '@/domain/layout';
+import type { LineElement, TextElement } from '@/domain/layout';
 import { elementRects } from '@/domain/layout/kr/packing';
 import { getGuidedDocument } from '@/fixtures/guided';
 import { glossDoc } from '@/domain/model/queries';
@@ -58,5 +58,59 @@ describe('floating vocative cascade clears the clause (Matthew 6:9)', () => {
     const doc = getGuidedDocument(PASSAGE);
     expect(doc).toBeTruthy();
     expect(wordOverlapClashes(glossDoc(doc!))).toEqual([]);
+  });
+});
+
+/**
+ * REGRESSION — the lead-word dashed stem must not clash with a modifier slant.
+ *
+ * The Matthew 6:9 vocative Πάτερ … ὁ ἐν τοῖς οὐρανοῖς leads the three petitions
+ * on a coordination spine. The spine drops a dashed vertical stem at the verb
+ * column, down from the vocative's baseline to the first petition. The vocative
+ * hangs an articular PP whose article slant (τοῖς / "the" beneath οὐρανοῖς /
+ * "heavens") landed right at that stem's x — the stem sliced through the slant
+ * (Greek) or grazed its foot by a hair (gloss). The layout now nudges the lead
+ * row so the stem keeps a real gap from every slant it runs beside.
+ */
+const CLEAR = 2; // minimum acceptable horizontal gap, px
+
+/** Smallest horizontal gap between a dashed vertical stem and any modifier slant
+ *  it vertically overlaps. Negative when the stem passes THROUGH a slant. */
+function minStemSlantGap(doc: KrDocument): number {
+  const layout = layoutDocument(doc);
+  const isLine = (e: (typeof layout.elements)[number]): e is LineElement => e.kind === 'line';
+  const stems = layout.elements
+    .filter(isLine)
+    .filter((e) => e.style === 'dashed' && e.role === 'stem' && Math.abs(e.x1 - e.x2) < 0.5);
+  const slants = layout.elements.filter(isLine).filter((e) => e.role === 'slant');
+  let min = Infinity;
+  for (const st of stems) {
+    const sx = st.x1;
+    const yLo = Math.min(st.y1, st.y2);
+    const yHi = Math.max(st.y1, st.y2);
+    for (const sl of slants) {
+      const lo = Math.min(sl.y1, sl.y2);
+      const hi = Math.max(sl.y1, sl.y2);
+      if (hi <= yLo || lo >= yHi) continue; // no shared vertical band
+      const mnx = Math.min(sl.x1, sl.x2);
+      const mxx = Math.max(sl.x1, sl.x2);
+      const gap = sx < mnx ? mnx - sx : sx > mxx ? sx - mxx : -Math.min(sx - mnx, mxx - sx);
+      min = Math.min(min, gap);
+    }
+  }
+  return min;
+}
+
+describe('lead-word dashed stem clears modifier slants (Matthew 6:9)', () => {
+  it('Greek: stem keeps clearance from every slant', () => {
+    const doc = getGuidedDocument(PASSAGE);
+    expect(doc).toBeTruthy();
+    expect(minStemSlantGap(doc!)).toBeGreaterThanOrEqual(CLEAR);
+  });
+
+  it('English gloss: stem keeps clearance from every slant', () => {
+    const doc = getGuidedDocument(PASSAGE);
+    expect(doc).toBeTruthy();
+    expect(minStemSlantGap(glossDoc(doc!))).toBeGreaterThanOrEqual(CLEAR);
   });
 });

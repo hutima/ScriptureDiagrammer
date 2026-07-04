@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useEditorStore, useGuidedStore } from '@/state';
-import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
+import {
+  grammarHighlightGuides,
+  visibleGrammarHighlightGuides,
+  getGuide,
+  guideDisplayDoc,
+} from '@/data/grammarHighlights';
 import { guidedDocuments, getGuidedDocument } from '@/fixtures/guided';
 import { getIssueById, getAlternateReadings } from '@/domain/contested';
 import { layoutDocument } from '@/domain/layout';
@@ -22,19 +27,28 @@ describe('guided registry and bundle', () => {
   it('bundles every passage each guide references', () => {
     expect(grammarHighlightGuides.length).toBeGreaterThanOrEqual(1);
     for (const g of grammarHighlightGuides) {
+      expect(g.steps.length).toBeGreaterThanOrEqual(1);
+      // Discourse-backed guides host verse ranges (no bundled syntax passage).
+      if (g.kind === 'discourse') {
+        expect((g.discourse?.ranges.length ?? 0), g.id).toBeGreaterThanOrEqual(1);
+        continue;
+      }
       for (const pid of g.bundledPassageIds) {
         expect(guidedDocuments.some((d) => d.id === pid), `${g.id} → ${pid}`).toBe(true);
       }
       expect(g.sourceId).toBe('macula-greek-sblgnt-lowfat');
-      expect(g.steps.length).toBeGreaterThanOrEqual(1);
     }
   });
 
   it('references only real ids (focus, highlights, terms) — mirror of guided:check', () => {
     for (const g of grammarHighlightGuides) {
+      if (g.kind === 'discourse') continue; // no syntax ids to validate
       const docs = g.bundledPassageIds
         .map((id) => guidedDocuments.find((d) => d.id === id))
-        .filter((d): d is NonNullable<typeof d> => !!d);
+        .filter((d): d is NonNullable<typeof d> => !!d)
+        // A guide teaching a construal re-draws its base through an alternate
+        // reading; validate step ids against what it DISPLAYS (mirror guided:check).
+        .map((d) => guideDisplayDoc(g, d));
       const tokenIds = new Set(docs.flatMap((d) => d.tokens.map((t) => t.id)));
       const nodeIds = new Set(docs.flatMap((d) => d.syntax.nodes.map((n) => n.id)));
       const relationIds = new Set(docs.flatMap((d) => d.syntax.relations.map((r) => r.id)));
@@ -82,16 +96,22 @@ describe('guided registry and bundle', () => {
     );
   });
 
-  it('registers the Acts 2:39 stacked guide with both bundled passages', () => {
+  it('registers the Acts 2:39 guide as a two-source discourse example (Greek + Hebrew)', () => {
     const guide = getGuide('guide-acts-2-39');
     expect(guide).toBeTruthy();
-    expect(guide!.bundledPassageIds).toEqual(['sblgnt_acts_47', 'wlc_genesis_1_11']);
-    // Its stacked steps name a secondary passage that is one of the bundled ids.
-    const stacked = guide!.steps.filter((s) => s.secondaryPassageId);
-    expect(stacked.length).toBeGreaterThan(0);
-    for (const s of stacked) {
-      expect(guide!.bundledPassageIds).toContain(s.secondaryPassageId);
-    }
+    // Reworked from a stacked syntax guide into a discourse-backed one; it is
+    // un-hidden and appears in the visible library again.
+    expect(guide!.kind).toBe('discourse');
+    expect(guide!.hidden).toBeFalsy();
+    expect(visibleGrammarHighlightGuides.some((g) => g.id === 'guide-acts-2-39')).toBe(true);
+    // Two ranges, two DIFFERENT sources (Greek Acts + Hebrew Genesis).
+    const ranges = guide!.discourse!.ranges;
+    expect(ranges.map((r) => r.sourceId)).toEqual([
+      'macula-greek-sblgnt-lowfat',
+      'macula-hebrew-wlc-lowfat',
+    ]);
+    expect(ranges.map((r) => r.startRef)).toEqual(['2:39', '17:12']);
+    expect(guide!.topics).toEqual(['covenant', 'promise', 'discourse']);
   });
 
   it('registers the Lord\'s-Prayer guide with Matthew/Luke stacked on the comparison steps', () => {
@@ -240,15 +260,20 @@ describe('guided focus helpers', () => {
     expect(usedHighlightKinds(step)).toContain('emphasized');
   });
 
-  it('builds highlight maps over a stacked SECONDARY passage (its own ids)', () => {
-    const stackedGuide = getGuide('guide-acts-2-39')!;
-    const stacked = stackedGuide.steps.find((s) => s.secondaryPassageId)!;
-    const secDoc = getGuidedDocument(stacked.secondaryPassageId!)!;
+  it('builds highlight maps over a stacked Hebrew SECONDARY passage (its own ids)', () => {
+    // A synthetic stacked step over the bundled WLC Hebrew doc — the stacked
+    // feature is still used by the Lord's-Prayer guide; this keeps Hebrew (hbo)
+    // secondary coverage now that Acts 2:39 has become a discourse guide.
+    const secDoc = getGuidedDocument('wlc_genesis_1_11')!;
     expect(secDoc.language).toBe('hbo');
+    const secondaryFocus = {
+      nodeIds: ['w_o010170120052', 'w_o010170120082', 'w_o010170120083', 'w_o010170120182'],
+    };
     const { nodeFills } = guidedHighlightMaps(secDoc, {
-      ...stacked,
-      focus: stacked.secondaryFocus ?? {},
-      highlights: stacked.secondaryHighlights,
+      id: 's',
+      title: 't',
+      body: '',
+      focus: secondaryFocus,
     });
     expect(nodeFills.size).toBeGreaterThan(0);
     // Every highlighted node resolves in the SECONDARY passage, not the primary.
@@ -323,19 +348,6 @@ describe('guided store', () => {
     expect(useEditorStore.getState().doc.id).toBe('sblgnt_matthew_143');
   });
 
-  it('stepping onto a stacked step keeps the primary (Acts) document loaded', () => {
-    useGuidedStore.getState().enter('greek');
-    useGuidedStore.getState().openGuide('guide-acts-2-39');
-    expect(useEditorStore.getState().doc.id).toBe('sblgnt_acts_47');
-    const guide = getGuide('guide-acts-2-39')!;
-    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
-    expect(stackedIndex).toBeGreaterThan(0);
-    useGuidedStore.getState().setStep(stackedIndex);
-    // The secondary (Hebrew) passage is drawn read-only, never loaded into the
-    // editor store — the primary Greek sentence stays the one loaded document.
-    expect(useEditorStore.getState().doc.id).toBe('sblgnt_acts_47');
-  });
-
   it('stepping onto a Lord\'s-Prayer stacked step keeps the primary (Luke) document loaded', () => {
     useGuidedStore.getState().enter('greek');
     useGuidedStore.getState().openGuide('guide-lords-prayer-bread');
@@ -349,8 +361,28 @@ describe('guided store', () => {
     expect(useEditorStore.getState().doc.id).toBe('sblgnt_luke_511');
   });
 
+  it('Colossians 2:11–12 guide loads the DISPLAYED variant (ἐν ᾧ as a relative clause on βαπτισμῷ)', () => {
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide('guide-colossians-2-11-12');
+    const doc = useEditorStore.getState().doc;
+    expect(doc.id).toBe('sblgnt_colossians_13');
+    // The base apposition (raised-clause → βαπτισμῷ) is gone…
+    expect(doc.syntax.relations.some((r) => r.id === 'r_s13_86')).toBe(false);
+    // …re-drawn as an adjectival relative clause hanging on βαπτισμῷ.
+    const adj = doc.syntax.relations.filter(
+      (r) => r.headId === 'w_n51002012005' && r.type === 'adjectival' && r.dependentId === 'cl_s13_67',
+    );
+    expect(adj).toHaveLength(1);
+    // The first ἐν now governs βαπτισμῷ as its plain object.
+    expect(doc.syntax.relations.find((r) => r.id === 'r_s13_87')?.dependentId).toBe('w_n51002012005');
+    useGuidedStore.getState().leave();
+  });
+
   it('every guide in the library opens and lays out in its default mode', () => {
     for (const g of grammarHighlightGuides) {
+      // Discourse-backed guides host the Discourse view (a separate store); they
+      // do not load a syntax passage into the editor store, so skip them here.
+      if (g.kind === 'discourse') continue;
       useGuidedStore.getState().openGuide(g.id);
       const doc = useEditorStore.getState().doc;
       expect(

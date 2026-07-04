@@ -335,6 +335,62 @@ export function buildDiscourseDocumentFromRange(
 }
 
 /**
+ * Concatenate several independently-built `DiscourseDocument`s into ONE combined
+ * document, for a guided example that shows more than one passage together (e.g.
+ * a Greek NT verse beside its Hebrew OT covenant parallel). Pure + deterministic.
+ *
+ * This performs NO cross-language alignment and asserts NO syntax equivalence —
+ * each part keeps its own tokens, units, refs, and structure; they are simply
+ * laid end to end (root-level `order` re-sequenced across parts so the sections
+ * do not interleave). Unit/token ids are already unique across different
+ * books/sources, so no re-id is needed. Suggestions are dropped (a combined
+ * teaching document is not an editing surface).
+ */
+export function mergeDiscourseDocuments(
+  parts: DiscourseDocument[],
+  opts: { id: string; title: string; sourceId?: string; now?: string },
+): DiscourseDocument {
+  const first = parts[0];
+  const now = opts.now ?? first?.updatedAt ?? new Date().toISOString();
+  const units: DiscourseUnit[] = [];
+  let rootOffset = 0;
+  for (const part of parts) {
+    const roots = part.units.filter((u) => !u.parentId).sort((a, b) => a.order - b.order);
+    const rootRank = new Map(roots.map((u, i) => [u.id, i] as const));
+    for (const u of part.units) {
+      units.push(u.parentId ? { ...u } : { ...u, order: rootOffset + (rootRank.get(u.id) ?? 0) });
+    }
+    rootOffset += roots.length;
+  }
+  const doc: DiscourseDocument = {
+    schemaVersion: 1,
+    id: opts.id,
+    sourceDocIds: parts.flatMap((p) => p.sourceDocIds),
+    sourceId: opts.sourceId ?? first?.sourceId ?? 'custom-combined',
+    editionId: first?.editionId,
+    language: first?.language ?? 'grc',
+    title: opts.title,
+    range: first?.range ?? { book: '', startRef: '', endRef: '' },
+    granularity: first?.granularity ?? 'verse',
+    text: parts.map((p) => p.text).join('\n'),
+    tokens: parts.flatMap((p) => p.tokens),
+    units,
+    relations: parts.flatMap((p) => p.relations),
+    markers: parts.flatMap((p) => p.markers),
+    suggestions: [],
+    layoutHints: Object.assign({}, ...parts.map((p) => p.layoutHints)),
+    provenance: {
+      source: 'given',
+      confidence: 'high',
+      reason: `Combined ${parts.length} discourse range(s) for a guided example.`,
+    },
+    createdAt: now,
+    updatedAt: now,
+  };
+  return doc;
+}
+
+/**
  * Cheap structural fingerprint of a generated base (djb2, mirroring
  * `hashBase`), used to skip a stored patch authored against different source
  * data instead of misapplying it.
