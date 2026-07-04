@@ -6,14 +6,61 @@ import { create } from 'zustand';
  * store selectors and a small picker bridge) and never carries document state
  * of its own, so exiting it at any point leaves the app exactly as it is.
  *
- * Persistence is one key, `kr:tutorial:v1` — absent until the tour has been
+ * Persistence is one key, `kr:tutorial:v2` — absent until the tour has been
  * completed or dismissed once, after which it never auto-shows again. It can
  * still be replayed manually from the Guide. Where localStorage is unavailable
  * (private mode, some embedded webviews) we FAIL OPEN: the app works normally
  * and the tour simply never auto-starts (we could not remember a dismissal, so
  * auto-showing would nag on every launch).
+ *
+ * The key is VERSIONED. Bumping it (v1 → v2) re-shows the tour EXACTLY ONCE for
+ * every existing user, so a meaningful tutorial change (here: the new "Start
+ * guided mode" hand-off on the closing card) is stepped through on the next
+ * launch. To do that reliably we can't lean on `firstRun` (false for anyone who
+ * has ever opened a passage): instead, a user who completed an OLDER version
+ * still has that older key in storage, and `isTutorialResetPending()` reports
+ * "the current version is unseen AND a superseded version was seen" — which the
+ * overlay treats as a one-time reason to re-show. The moment the new version is
+ * completed or dismissed, `markTutorialSeen` writes the current key and sweeps
+ * the superseded ones, so the reset never fires a second time. It only fires
+ * again when the version is bumped anew (add the retired key to
+ * `LEGACY_TUTORIAL_KEYS`). A returning user who never saw ANY tutorial has no
+ * legacy key, so they are NOT nagged.
  */
-export const TUTORIAL_KEY = 'kr:tutorial:v1';
+export const TUTORIAL_KEY = 'kr:tutorial:v2';
+
+/** Superseded tutorial keys: their presence marks a user due the reset once. */
+const LEGACY_TUTORIAL_KEYS = ['kr:tutorial:v1'];
+
+/**
+ * True when the current tutorial version is unseen but a SUPERSEDED version was
+ * seen — i.e. this user completed an older tour and the version has since been
+ * bumped. The overlay uses this as a one-time reason to re-offer the tour even
+ * though it is not a first run. Pure read (no side effects) so it stays a
+ * stable signal until `markTutorialSeen` sweeps the legacy keys. Fail-open to
+ * false where storage is unavailable (we'd rather not nag than nag forever).
+ */
+export function isTutorialResetPending(): boolean {
+  if (typeof localStorage === 'undefined') return false;
+  if (isTutorialSeen()) return false;
+  try {
+    return LEGACY_TUTORIAL_KEYS.some((key) => localStorage.getItem(key) != null);
+  } catch {
+    return false;
+  }
+}
+
+/** Drop superseded tutorial flags once the current version is acknowledged. */
+function cleanupLegacyTutorialKeys(): void {
+  if (typeof localStorage === 'undefined') return;
+  for (const key of LEGACY_TUTORIAL_KEYS) {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* best-effort */
+    }
+  }
+}
 
 /** The five guided steps plus the closing card. */
 export type TutorialStepId = 'pick' | 'open' | 'gloss' | 'bsb' | 'kellogg' | 'done';
@@ -37,6 +84,9 @@ function markTutorialSeen(value: 'completed' | 'dismissed'): void {
   } catch {
     /* best-effort — worst case the tour offers itself again next launch */
   }
+  // Now that the current version is recorded, retire the superseded flags so
+  // the one-time reset can never re-fire (until the version is bumped anew).
+  cleanupLegacyTutorialKeys();
 }
 
 /** Test/dev helper: forget that the tour was seen (not surfaced in the UI). */
