@@ -16,8 +16,15 @@ import { GUIDED_HIGHLIGHT_COLORS } from '@/ui/guided/focus';
  * store tests in guided.test.ts.
  */
 
+function setWidth(px: number) {
+  Object.defineProperty(window, 'innerWidth', { value: px, configurable: true, writable: true });
+  window.dispatchEvent(new Event('resize'));
+}
+
 describe('guided mode UI', () => {
   beforeEach(() => {
+    setWidth(1280);
+    useEditorStore.getState().setForceDesktop(false);
     useGuidedStore.getState().leave();
     useGuidedStore.setState({ introOpen: false });
     useEditorStore.getState().newDocument('en', 'Guided UI');
@@ -149,6 +156,51 @@ describe('guided mode UI', () => {
     const { container } = render(createElement(DiagramCanvas));
     expect(container.querySelector('svg.diagram-paper')).toBeTruthy();
     expect(container.querySelector('svg.diagram-paper.hebrew')).toBeNull();
+  });
+
+  it('hides the guided entry points on a mobile viewport (desktop-only, like Edit)', () => {
+    setWidth(360);
+    render(createElement(TopBar));
+    // No dedicated launcher…
+    expect(screen.queryByRole('button', { name: /✦ grammar/i })).toBeNull();
+    // …and no ⋯-menu item either.
+    fireEvent.click(screen.getByRole('button', { name: '⋯' }));
+    expect(screen.queryByRole('menuitem', { name: /grammar highlights/i })).toBeNull();
+  });
+
+  it('the intro modal offers no enter action on mobile — a desktop-only note instead', () => {
+    setWidth(360);
+    render(createElement(TopBar));
+    // Belt-and-suspenders: even if the modal is opened programmatically…
+    act(() => useGuidedStore.getState().openIntro());
+    expect(screen.queryByText(/greek mode/i)).toBeNull();
+    expect(screen.queryByText(/english mode/i)).toBeNull();
+    expect(screen.getByText(/desktop-only/i)).toBeTruthy();
+  });
+
+  it('the store refuses a programmatic enter() on a mobile viewport', () => {
+    setWidth(360);
+    useGuidedStore.getState().enter('greek');
+    expect(useGuidedStore.getState().active).toBe(false);
+    // The editor state is untouched (no Explore/KR steering happened).
+    expect(useEditorStore.getState().doc.title).toBe('Guided UI');
+  });
+
+  it('force-desktop counts as desktop: launcher shown and enter() works at a phone width', () => {
+    setWidth(360);
+    useEditorStore.getState().setForceDesktop(true);
+    render(createElement(TopBar));
+    expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
+    useGuidedStore.getState().enter('greek');
+    expect(useGuidedStore.getState().active).toBe(true);
+  });
+
+  it('keeps both entry points on a desktop viewport', () => {
+    setWidth(1280);
+    render(createElement(TopBar));
+    expect(screen.getByRole('button', { name: /✦ grammar/i })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '⋯' }));
+    expect(screen.getByRole('menuitem', { name: /grammar highlights/i })).toBeTruthy();
   });
 
   it('a contested reference that cannot be resolved renders nothing', () => {

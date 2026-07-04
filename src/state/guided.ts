@@ -4,6 +4,9 @@ import type { DiagramMode } from '@/domain/layout';
 import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
 import { getGuidedDocument } from '@/fixtures/guided';
 import { useTutorialStore } from '@/ui/tutorial/tutorialState';
+// Import the pure viewport module directly (NOT the responsive index, whose
+// `useViewport` re-export imports this state package back — a module cycle).
+import { classifyWidth } from '@/ui/responsive/viewport';
 import { useEditorStore } from './store';
 import type { AppMode } from './types';
 
@@ -33,6 +36,19 @@ import type { AppMode } from './types';
  */
 
 const GUIDED_SEEN_KEY = 'kr:guided:v1';
+
+/**
+ * Guided mode is a DESKTOP reading experience. This mirrors exactly how
+ * `canEdit` is derived in the shell (`canEdit = vp.isDesktop`): a real
+ * desktop-class width, OR the user's force-desktop preference — which lives in
+ * the editor store (CLAUDE.md §13) so a non-hook caller can read it too. The
+ * entry points are hidden on small screens; this check makes the store itself
+ * refuse a programmatic/stale `enter()` on a phone as a no-op.
+ */
+export function canEnterGuided(): boolean {
+  const width = typeof window === 'undefined' ? 1280 : window.innerWidth;
+  return classifyWidth(width) === 'desktop' || useEditorStore.getState().forceDesktop;
+}
 
 function markIntroSeen(): void {
   try {
@@ -119,6 +135,10 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
   },
 
   enter: (displayMode) => {
+    // Desktop-only: on a phone/tablet viewport (without force-desktop) a
+    // stale or programmatic enter() must be a no-op, mirroring how Edit mode
+    // is gated by `canEdit = vp.isDesktop`.
+    if (!canEnterGuided()) return;
     const editor = useEditorStore.getState();
     const prior: PriorViewState = {
       appMode: editor.appMode,

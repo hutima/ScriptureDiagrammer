@@ -27,6 +27,13 @@ this branch — keep pushing to it, do not open a new one.
 - `4e29b7d` Stacked secondary diagram infra; `a188a96` WLC bundle; `24b2a96`
   Acts 2:39 guide (Acts 2:39 ∥ Genesis 17:12 with stacked OT+NT view).
   Guide id chapter segments match plan, 2234 tests green, 16 guides validate.
+- Guided (Grammar-highlights) mode is DESKTOP-ONLY, mirroring the
+  `canEdit = vp.isDesktop` pattern (force-desktop counts as desktop): the
+  TopBar launcher + ⋯-menu item hide on small screens, the intro modal swaps
+  its enter buttons for a "desktop only" note, and `useGuidedStore.enter()`
+  no-ops on non-desktop via `canEnterGuided()` (`src/state/guided.ts`,
+  reading width via `classifyWidth` + the editor store's forceDesktop flag).
+  Tests in `tests/guided-ui.test.tsx` (this commit).
 
 ## Done (handoff queue)
 
@@ -37,23 +44,19 @@ and `combinePassage`-prefixed token ids. Test added in `tests/macula-hebrew.test
 (Hebrew analogue of parallel.test.ts:51); demonstrates red/green via old/new
 regex. Commit: `762dd0f`. 2235 tests green (+1).
 
-## Queue (in order; specs are complete — no re-planning needed)
+### 2. Romans 8:28–30 guide — ordo salutis — DONE
+Landed as `6063bed`. The whole 8:28–30 range is ONE SBLGNT sentence,
+`sblgnt_romans_216` — which is exactly the passageId of the existing contested
+entry `iss_rom_8_28_variant_sblgnt`, so the bonus applied cleanly: the 8:28
+step carries `contested: { issueId: 'iss_rom_8_28_variant_sblgnt', … }` (the
+"+ ὁ θεός" textual variant, romans-9-5 pattern). 7 steps
+(`guide-romans-8-28-30`, intermediate), 10 Greek term chips incl. the five
+chain verbs; all guardrails honored (aorist chain viewed as a whole,
+ἐδόξασεν as confident anticipation, "confessional Reformed" label, fair
+Arminian/corporate προέγνω views). Registry tests extended in
+`tests/guided.test.ts`; 2237 green; 17 guides validate.
 
-### 2. Romans 8:28–30 guide — ordo salutis (easy/medium)
-Standard single-passage guide, no new infrastructure. Golden chain: foreknew →
-predestined → called → justified → glorified (προέγνω, προώρισεν, ἐκάλεσεν,
-ἐδικαίωσεν, ἐδόξασεν — the aorist chain viewed as a whole; NEVER "aorist =
-once-for-all"; note ἐδόξασεν as confident anticipation). Confessional Reformed
-frame: the unbreakable chain of salvation, God's purpose from foreknowledge to
-glory; fair notes on corporate/Arminian construals of προέγνω ("foreknew" =
-relational fore-love vs foresight of faith). Bonus: the existing contested
-entry `sblgnt_romans_216` (Rom 8:28 textual variant, "God works all things" vs
-"all things work together") can be referenced from step 1 via the step
-`contested` field IF it applies to the loaded passage. Steps: add range
-`{ Romans, 8, 28, 30 }` to `guidedPassages.ts`; `npm run guided:build`; dump
-ids (`npm run dump-syntax -- 'sblgnt:Romans 8:28'` etc.); author
-`src/data/guides/romans-8-28-30.ts`; register in `grammarHighlights.ts`;
-`guided:check`; full verify; push.
+## Queue (in order; specs are complete — no re-planning needed)
 
 ### 3. Colossians 2:11–12 package (advanced) — guide + contested reading + gloss fix
 User confirmed the contested reading must land in the SYNTAX-MODE registries

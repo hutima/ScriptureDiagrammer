@@ -1,4 +1,5 @@
 import { useGuidedStore } from '@/state';
+import { useViewport } from '@/ui/responsive';
 import { Modal } from '@/ui/components/common/Modal';
 
 /**
@@ -6,9 +7,15 @@ import { Modal } from '@/ui/components/common/Modal';
  * guided examples are and asks whether to start in Greek mode (Greek words,
  * tap terms for details) or English mode (glosses/English aids over the same
  * Greek syntax). Choosing either enters guided mode; closing just dismisses.
+ *
+ * Guided mode is DESKTOP-ONLY (like Edit mode): the entry points that open
+ * this modal are already hidden on small screens, and as a belt-and-suspenders
+ * the modal itself swaps the enter buttons for a "desktop only" note when the
+ * viewport is not desktop-class (the store's `enter()` is a no-op there too).
  */
 export function GrammarHighlightsIntroModal({ onClose }: { onClose: () => void }) {
   const enter = useGuidedStore((s) => s.enter);
+  const vp = useViewport();
   return (
     <Modal title="Grammar highlights" onClose={onClose} className="guided-intro-modal">
       <p>
@@ -36,22 +43,32 @@ export function GrammarHighlightsIntroModal({ onClose }: { onClose: () => void }
         discernment and weigh it against your own Bible, your translation&apos;s notes, and
         trusted teachers.
       </p>
-      <p style={{ marginBottom: 6 }}>How would you like to read?</p>
-      <div className="guided-intro-choices">
-        <button className="btn guided-choice" onClick={() => enter('greek')}>
-          <span className="guided-choice-title">Greek mode</span>
-          <span className="guided-choice-desc">
-            Show the Greek words; tap any term for its parsing and meaning.
-          </span>
-        </button>
-        <button className="btn guided-choice" onClick={() => enter('english')}>
-          <span className="guided-choice-title">English mode</span>
-          <span className="guided-choice-desc">
-            Show English glosses and reading aids — the diagram underneath stays the Greek
-            syntax.
-          </span>
-        </button>
-      </div>
+      {vp.isDesktop ? (
+        <>
+          <p style={{ marginBottom: 6 }}>How would you like to read?</p>
+          <div className="guided-intro-choices">
+            <button className="btn guided-choice" onClick={() => enter('greek')}>
+              <span className="guided-choice-title">Greek mode</span>
+              <span className="guided-choice-desc">
+                Show the Greek words; tap any term for its parsing and meaning.
+              </span>
+            </button>
+            <button className="btn guided-choice" onClick={() => enter('english')}>
+              <span className="guided-choice-title">English mode</span>
+              <span className="guided-choice-desc">
+                Show English glosses and reading aids — the diagram underneath stays the Greek
+                syntax.
+              </span>
+            </button>
+          </div>
+        </>
+      ) : (
+        <p className="guided-desktop-note" role="note">
+          Grammar highlights is a <strong>desktop-only</strong> reading experience — the guided
+          walkthroughs need room to pan around a full diagram. Open the app on a larger screen,
+          or turn on <strong>Force desktop mode</strong> from the ⋯ menu, to start a guide.
+        </p>
+      )}
     </Modal>
   );
 }
