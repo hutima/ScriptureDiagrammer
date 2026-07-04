@@ -16,7 +16,7 @@
 | B1 | Colossians 2:11–12 copy vs diagram (συνταφέντες apposition?) | in progress |
 | B2 | Romans 9:6–13 intro: shorten drastically | in progress |
 | B3 | Difficulty ordering + `topics?: string[]` tags on guides | in progress |
-| C  | Lowfat 1 Cor 5:1 `ὥστε` missing (1904 + SBLGNT) + regression tests | in progress |
+| C  | Lowfat 1 Cor 5:1 `ὥστε` missing (1904 + SBLGNT) + regression tests | done (95fe9f1) |
 | D1 | Stacked diagram zoom (Matt 6:11 / Luke 11:3 step 3, secondary diagram) | in progress |
 | D2 | Guided Next button sticky near lower-right | in progress |
 | E  | Discourse-backed guided examples (Acts 2:39, Eph 2:12–19, Psalm 46 chiasm; suppress self-directed modal from guided) | todo |
