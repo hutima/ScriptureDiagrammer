@@ -24,40 +24,20 @@ this branch — keep pushing to it, do not open a new one.
   **"confessional Reformed"**).
 - `6207de6` Tetragrammaton glosses render "LORD" (not "Yahweh") — override in
   `src/io/macula-hebrew.ts` `heGlossOf()`, keyed on lemma יהוה.
+- `4e29b7d` Stacked secondary diagram infra; `a188a96` WLC bundle; `24b2a96`
+  Acts 2:39 guide (Acts 2:39 ∥ Genesis 17:12 with stacked OT+NT view).
+  Guide id chapter segments match plan, 2234 tests green, 16 guides validate.
 
-## In flight
-
-- **Acts 2:39 ∥ Genesis 17:12 guide with stacked OT+NT view** (Opus agent).
-  Full plan summary: new optional step fields `secondaryPassageId` /
-  `secondaryFocus` / `secondaryHighlights` / `secondaryTitle` in
-  `schema/guided.ts`; new `src/ui/guided/GuidedStackedDiagram.tsx` rendering the
-  secondary doc READ-ONLY via `StaticDiagramFrame` (extended with optional
-  `highlightFills` + `rtl` props, contested usage unchanged) mounted in
-  `DiagramCanvas` below the main viewport; the secondary (Hebrew) doc is NEVER
-  loaded into the editor store. Build: `GUIDED_HEBREW_PASSAGES` (Gen 17:12) in
-  `guidedPassages.ts`; Hebrew loop in `scripts/build-guided-highlights.mts`
-  fetching WLC lowfat remotely, output to NEW bundle
-  `src/fixtures/guided/grammar-highlights-wlc.json`, concat in
-  `fixtures/guided/index.ts`. Guide `guide-acts-2-39`, passages
-  `sblgnt_acts_47` + `wlc_genesis_1_11` (id chapter segment reads `_1_` —
-  expected), 6 steps (promise → children → STACKED Abraham parallel → sign
-  changes/covenant stands → far off → effectual call), confessional Reformed
-  frame, fair credobaptist debate note, προσκαλέσηται never "once-for-all".
-  If this agent died mid-work: `git status`/`git log` to see how far it got;
-  re-run `npm run guided:build` before checks.
-
-## Queue (in order; specs are complete — no re-planning needed)
+## Done (handoff queue)
 
 ### 1. Fix: original-language ↔ BSB picker disappears on multi-verse OT load
-Diagnosed. NOT discourse mode — syntax-mode Verses strip. Cause:
-`parseHebrewId` (`src/io/parallel.ts:299`) uses start-anchored
-`/^t_o(\d{12})$/`; `combinePassage` prefixes ids (`s0_t_o…`) on multi-verse
-loads, so `alignParallelHebrew` finds 0 verses → `hasEnglish=false`
-(`DiagramCanvas.tsx:257`) → picker replaced by "Source text" label.
-**Fix:** change regex to `/(?:^|_)t_o(\d{12})$/`. **Test:** Hebrew analogue of
-`tests/parallel.test.ts:51` — combinePassage two OT sentences, assert
-`alignParallelHebrew` yields verses + nodeToEn entries (natural home:
-`tests/macula-hebrew.test.ts`).
+Diagnosed and fixed: `parseHebrewId` regex at `src/io/parallel.ts:299` changed
+from `/^t_o(\d{12})$/` to `/(?:^|_)t_o(\d{12})$/` to accept both unprefixed
+and `combinePassage`-prefixed token ids. Test added in `tests/macula-hebrew.test.ts`
+(Hebrew analogue of parallel.test.ts:51); demonstrates red/green via old/new
+regex. Commit: `762dd0f`. 2235 tests green (+1).
+
+## Queue (in order; specs are complete — no re-planning needed)
 
 ### 2. Romans 8:28–30 guide — ordo salutis (easy/medium)
 Standard single-passage guide, no new infrastructure. Golden chain: foreknew →
@@ -114,7 +94,7 @@ User confirmed the contested reading must land in the SYNTAX-MODE registries
   "baptism". Range `{ Colossians, 2, 11, 12 }` in guidedPassages; build; check.
 
 ## Verification gate (every push)
-`npm run typecheck` · `npm test` (2228 green as of `6207de6`; grows with each
+`npm run typecheck` · `npm test` (2235 green as of `762dd0f`; grows with each
 item) · `npm run guided:check` · `npm run contested:check`. Bundle JSON files
 are GENERATED — never hand-edit; re-run `guided:build` after merges.
 
@@ -122,3 +102,30 @@ are GENERATED — never hand-edit; re-run `guided:build` after merges.
 Branch `claude/romans-9-5-alternate-reading-r4yk97` only. Focused commits.
 Push with `-u origin`, retry on network errors only. The PR for this branch
 already exists — do not open another.
+
+## Follow-up phases (after queue completes)
+
+Merge choreography: when the remaining queue items (Romans 8:28–30, Colossians
+2:11–12 package) land, MERGE PR #233. Then restart this same branch from main
+(`git fetch origin main && git checkout -B claude/romans-9-5-alternate-reading-r4yk97 origin/main`)
+for each following phase; each phase gets its own PR, merged before the next.
+
+### Phase B — Matt 6:11 ∥ Luke 11:3 stacked view
+The stacked-view infra (secondaryPassageId/secondaryFocus/secondaryHighlights/
+secondaryTitle, GuidedStackedDiagram) shipped with Acts 2:39. Convert the
+Lord's-Prayer guide (src/data/guides/lords-prayer-bread.ts, passages
+sblgnt_matthew_143 + sblgnt_luke_511) so the δός vs δίδου comparison shows both
+passages AT ONCE via the secondary fields (e.g. Matthew primary with Luke
+stacked on the comparison steps), instead of only alternating passages between
+steps. guided:check + guided/guided-ui tests. Small task, cheap model.
+
+### Phase C — final two fixes (one PR)
+1. Gloss-mode regression, Matthew 28:19–20: in English gloss mode the diagram
+   shows "(I) | I commanded | whatever" with "you" (ὑμῖν) as a rotated slant
+   under the verb (user screenshot). Diagnose by comparing source vs glossDoc
+   rendering (glossDoc must never change structure — ids/relations/layout
+   unchanged; check connector-label suppression and dative complement
+   placement in gloss mode), fix minimally, add a test.
+2. LAST of all asks: guided mode Back button — UI-only, GuidedStepCard/
+   EditModeToolbar area: add Back beside Next (store already supports stepping
+   back; disable on step 1).
