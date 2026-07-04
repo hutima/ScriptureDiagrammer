@@ -17,9 +17,9 @@
 | B2 | Romans 9:6–13 intro: shorten drastically | done (5631a56) |
 | B3 | Difficulty ordering + `topics?: string[]` tags on guides | done (5631a56) |
 | C  | Lowfat 1 Cor 5:1 `ὥστε` missing (1904 + SBLGNT) + regression tests | done (95fe9f1) |
-| D1 | Stacked diagram zoom (Matt 6:11 / Luke 11:3 step 3, secondary diagram) | in progress |
-| D2 | Guided Next button sticky near lower-right | in progress |
-| E  | Discourse-backed guided examples (Acts 2:39, Eph 2:12–19, Psalm 46 chiasm; suppress self-directed modal from guided) | todo |
+| D1 | Stacked diagram zoom (Matt 6:11 / Luke 11:3 step 3, secondary diagram) | done (a214806) |
+| D2 | Guided Next button sticky near lower-right | done (a214806) |
+| E  | Discourse-backed guided examples (Acts 2:39, Eph 2:12–19, Psalm 46 chiasm; suppress self-directed modal from guided) | in progress |
 | F  | Guided grammar term help (dashed underline + glossary popover) | todo |
 | G  | (user, 2026-07-04) Matt 6:9 vocative cascade follow-up to #241: "the" slant under "heavens" still clashes with the dashed connector; extend the sub-baseline minimally so the connector joins clear of the modifier | done (see log) |
 
