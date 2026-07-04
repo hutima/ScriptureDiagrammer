@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { glossDoc, GRC_FUNCTION_GLOSS } from '@/domain/model';
+import { glossDoc, GRC_FUNCTION_GLOSS, GRC_CONTENT_GLOSS } from '@/domain/model';
 import { layoutDocument } from '@/domain/layout';
 import { KrDocumentSchema, type KrDocument } from '@/domain/schema';
 
@@ -74,6 +74,46 @@ describe('gloss-mode function-word fallback', () => {
     // ὅ (relative) is mapped; ὁ (article) is not.
     expect(GRC_FUNCTION_GLOSS['ὅ']).toBe('which');
     expect(GRC_FUNCTION_GLOSS['ὁ']).toBeUndefined();
+  });
+});
+
+/**
+ * Some CONTENT words ship unglossed in the base data (the SBLGNT Lowfat base
+ * leaves βαπτισμός empty). A tiny lemma-keyed fallback fills those so gloss mode
+ * never leaves a stray Greek content word — but a real data gloss always wins.
+ */
+function contentDoc(gloss: string): KrDocument {
+  return KrDocumentSchema.parse({
+    schemaVersion: 1, id: 'cd', title: 't', language: 'grc', text: 'βαπτισμῷ',
+    createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+    layoutHints: {},
+    tokens: [
+      { id: 't_bap', index: 0, surface: 'βαπτισμῷ', lemma: 'βαπτισμός', pos: 'noun', gloss },
+    ],
+    syntax: {
+      rootId: 'c0',
+      nodes: [
+        { id: 'c0', kind: 'clause', clauseType: 'independent', tokenIds: [] },
+        { id: 'n', kind: 'word', role: 'adverbial', tokenIds: ['t_bap'] },
+      ],
+      relations: [{ id: 'r1', type: 'adverbial', headId: 'c0', dependentId: 'n' }],
+    },
+  });
+}
+
+describe('gloss-mode content-word fallback (by lemma)', () => {
+  it('exposes the content-gloss table keyed by lemma', () => {
+    expect(GRC_CONTENT_GLOSS['βαπτισμός']).toBe('baptism');
+  });
+
+  it('glosses an unglossed content word (βαπτισμῷ → baptism) via its lemma', () => {
+    const g = glossDoc(contentDoc(''));
+    expect(g.tokens.find((t) => t.id === 't_bap')!.surface).toBe('baptism');
+  });
+
+  it('lets a real data gloss win over the content-gloss fallback', () => {
+    const g = glossDoc(contentDoc('washing'));
+    expect(g.tokens.find((t) => t.id === 't_bap')!.surface).toBe('washing');
   });
 });
 

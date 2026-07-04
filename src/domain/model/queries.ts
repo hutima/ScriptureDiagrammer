@@ -241,6 +241,17 @@ export const GRC_FUNCTION_GLOSS: Record<string, string> = {
   διό: 'therefore', διὸ: 'therefore',
 };
 
+/**
+ * Fallback English glosses for Greek CONTENT WORDS the base data sometimes ships
+ * unglossed (the SBLGNT Lowfat base leaves βαπτισμός's gloss EMPTY, for one). Keyed
+ * by LEMMA — a content word's inflected surface varies (βαπτισμῷ, βαπτισμοῦ …), so a
+ * lemma key covers every form. This is a LAST resort: a real data gloss always wins
+ * (it comes first in the fallback chain), and this table stays tiny and additive.
+ */
+export const GRC_CONTENT_GLOSS: Record<string, string> = {
+  βαπτισμός: 'baptism',
+};
+
 /** Gloss the (possibly multi-word) connector label of a relation for gloss mode. */
 function glossGreekLabel(label: string): string {
   return label
@@ -270,7 +281,13 @@ function glossRelationLabel(
       const words = node.tokenIds
         .map((tid) => tokenById.get(tid))
         .filter((t): t is Token => !!t)
-        .map((t) => tidyGloss(t.gloss) || GRC_FUNCTION_GLOSS[t.surface] || t.surface);
+        .map(
+          (t) =>
+            tidyGloss(t.gloss) ||
+            GRC_FUNCTION_GLOSS[t.surface] ||
+            GRC_CONTENT_GLOSS[t.lemma ?? ''] ||
+            t.surface,
+        );
       const joined = words.join(' ').trim();
       if (joined) return joined;
     }
@@ -300,8 +317,14 @@ export function glossDoc(doc: KrDocument): KrDocument {
     tokens: doc.tokens.map((t) => ({
       ...t,
       // Prefer the data's gloss; fall back to a function-word gloss (ἵνα, ὅς …)
-      // so unglossed subordinators/relatives don't stay Greek; else the surface.
-      surface: tidyGloss(t.gloss) || GRC_FUNCTION_GLOSS[t.surface] || t.surface,
+      // so unglossed subordinators/relatives don't stay Greek; then a content-word
+      // gloss by lemma (βαπτισμός → "baptism") for content words the base left
+      // unglossed; else the surface.
+      surface:
+        tidyGloss(t.gloss) ||
+        GRC_FUNCTION_GLOSS[t.surface] ||
+        GRC_CONTENT_GLOSS[t.lemma ?? ''] ||
+        t.surface,
     })),
     syntax: {
       ...doc.syntax,
