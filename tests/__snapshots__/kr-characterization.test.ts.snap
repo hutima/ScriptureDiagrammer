@@ -14094,8 +14094,8 @@ exports[`KR characterization — structural snapshots > sblgnt Romans 11:5 1`] =
 
 exports[`KR characterization — structural snapshots > sblgnt Romans 11:6 1`] = `
 {
-  "bounds": "370x290",
-  "compactness": "w=370 areaK=105",
+  "bounds": "370x340",
+  "compactness": "w=370 areaK=127",
   "lines": {
     "baseline/solid": 11,
     "coordination/dashed": 2,

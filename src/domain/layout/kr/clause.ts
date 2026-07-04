@@ -337,8 +337,15 @@ function layoutClauseSpine(
     // put the lead word in the MIDDLE of the fork) AND above the first member's
     // connector-label stub, which occupies that same band. The stem then drops
     // from the lead down to the top of the spine bar.
+    // A lead word can carry its own modifier cascade descending `height` below
+    // its baseline — the vocative Πάτερ ἡμῶν ὁ ἐν τοῖς οὐρανοῖς leading the
+    // Lord's-Prayer petitions (Matt 6:9) hangs a PP two rows deep. Anchoring
+    // the BASELINE at the clear level dropped that cascade into the first
+    // member (οὐρανοῖς / "heavens" printed over ἁγιασθήτω / "hallowed be"),
+    // so raise the row by the deepest cascade and it bottoms out clear.
     const ascent0 = laid[0] ? blockAscent(laid[0].block) : 0;
-    const leadY = Math.min(top - ascent0, firstStubTop) - LAYOUT.fontSize - 14;
+    const leadDrop = Math.max(0, ...blocks.map((b) => b.height));
+    const leadY = Math.min(top - ascent0, firstStubTop) - LAYOUT.fontSize - 14 - leadDrop;
     let x = Math.max(0, verbAlignX - GAPW - totalW);
     const leadStart = x;
     for (const b of blocks) {
@@ -346,8 +353,16 @@ function layoutClauseSpine(
       right = Math.max(right, x + b.width);
       x += b.width + GAPW;
     }
-    const lineY = leadY + 4;
-    elements.push(line(eid(), leadStart, lineY, verbAlignX, lineY, 'solid', 'baseline'));
+    // A lead block that carries a cascade draws its OWN baseline at leadY; the
+    // stub must ride AT that level to join it (4px below, it reads as a double
+    // line and leaves the lead geometrically detached from the stem), and it
+    // must run under the WHOLE row — a wide row overflows past verbAlignX, and
+    // a stub stopping there would strand the overflowing block (ἐξ ἔργων in
+    // Rom 11:6). A bare-word row keeps the classic 4px drop and stem-width
+    // stub, the text sitting just above it.
+    const lineY = leadDrop > 0 ? leadY : leadY + 4;
+    const lineRight = leadDrop > 0 ? Math.max(verbAlignX, x - GAPW) : verbAlignX;
+    elements.push(line(eid(), leadStart, lineY, lineRight, lineY, 'solid', 'baseline'));
     elements.push(line(eid(), verbAlignX, lineY, verbAlignX, top, 'dashed', 'stem'));
   }
 
@@ -1135,12 +1150,19 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
   // Direct address / interjection: each rides its own short line floating ABOVE
   // the clause, unconnected — it is outside the sentence's grammar.
   if (floatingRels.length) {
+    // `fy` is the lowest y the next floating block may reach. A vocative can
+    // carry its own modifier cascade descending `block.height` BELOW its
+    // baseline (Πάτερ ἡμῶν ὁ ἐν τοῖς οὐρανοῖς, Matt 6:9) — anchoring the
+    // BASELINE at the clear level dropped that cascade straight into the
+    // clause (οὐρανοῖς / "heavens" printed over ἁγιασθήτω / "hallowed be"),
+    // so lift each block by its own height and the cascade bottoms out at fy.
     let fy = aboveY - LAYOUT.slantDrop;
     for (const r of floatingRels) {
       const block = ctx.layoutNode(ctx, r.dependentId, seen);
-      elements.push(...translate(block, 0, fy));
+      const by = fy - block.height;
+      elements.push(...translate(block, 0, by));
       width = Math.max(width, block.width);
-      fy -= block.height + LAYOUT.slantDrop;
+      fy = by - blockAscent(block) - LAYOUT.slantDrop;
     }
   }
 
