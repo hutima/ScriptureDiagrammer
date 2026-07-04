@@ -38,6 +38,9 @@ export const GUIDED_PASSAGES: GuidedPassageRange[] = [
   // --- Contested / deeper set ------------------------------------------------
   // Acts 2:38 — repentance, baptism, forgiveness (εἰς ἄφεσιν).
   { book: 'Acts', chapter: 2, verseFrom: 38, verseTo: 38 },
+  // Acts 2:39 — the covenant promise "to you and to your children" (stacked
+  // beneath its Genesis 17:12 parallel below).
+  { book: 'Acts', chapter: 2, verseFrom: 39, verseTo: 39 },
   // Romans 6:3–4 — baptism and union with Christ.
   { book: 'Romans', chapter: 6, verseFrom: 3, verseTo: 4 },
   // Ephesians 1:3–14 — the one long sentence; election + repeated PPs.
@@ -52,4 +55,25 @@ export const GUIDED_PASSAGES: GuidedPassageRange[] = [
   { book: 'Titus', chapter: 2, verseFrom: 13, verseTo: 13 },
   // 2 Peter 1:1 — the same construction as Titus 2:13.
   { book: '2 Peter', chapter: 1, verseFrom: 1, verseTo: 1 },
+];
+
+/**
+ * A Hebrew Old-Testament range for the guided bundle. These are extracted from
+ * the WLC Lowfat source (macula-hebrew) into a SEPARATE bundle
+ * (`src/fixtures/guided/grammar-highlights-wlc.json`) so a guide can stack an OT
+ * parallel beneath its NT sentence (see a step's `secondaryPassageId`). The
+ * `book` matches a name in `OT_BOOKS` (src/io/ot.ts).
+ */
+export interface GuidedHebrewPassageRange {
+  /** OT book name exactly as in `OT_BOOKS` (src/io/ot.ts). */
+  book: string;
+  chapter: number;
+  verseFrom: number;
+  verseTo: number;
+}
+
+export const GUIDED_HEBREW_PASSAGES: GuidedHebrewPassageRange[] = [
+  // Genesis 17:12 — the covenant sign given to Abraham "to you and to your
+  // offspring throughout your generations" (parallel to Acts 2:39).
+  { book: 'Genesis', chapter: 17, verseFrom: 12, verseTo: 12 },
 ];

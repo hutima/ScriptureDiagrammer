@@ -81,6 +81,13 @@
    ]
   },
   {
+   "ref": "Acts 2:39–39",
+   "book": "Acts",
+   "passageIds": [
+    "sblgnt_acts_47"
+   ]
+  },
+  {
    "ref": "Romans 6:3–4",
    "book": "Romans",
    "passageIds": [
@@ -18193,6 +18200,998 @@
       "type": "conjunction",
       "headId": "cl_s46_0",
       "dependentId": "w_n44002038002",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     }
+    ]
+   },
+   "layoutHints": {},
+   "notes": "",
+   "createdAt": "2024-01-01T00:00:00.000Z",
+   "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+   "schemaVersion": 1,
+   "id": "sblgnt_acts_47",
+   "title": "Acts 2:39",
+   "language": "grc",
+   "text": "ὑμῖν γάρ ἐστιν ἡ ἐπαγγελία καὶ τοῖς τέκνοις ὑμῶν καὶ πᾶσι τοῖς εἰς μακρὰν ὅσους ἂν προσκαλέσηται κύριος ὁ θεὸς ἡμῶν",
+   "tokens": [
+    {
+     "id": "t_n44002039001",
+     "index": 0,
+     "surface": "ὑμῖν",
+     "lemma": "σύ",
+     "language": "grc",
+     "pos": "pronoun",
+     "morphology": {
+      "case": "dative",
+      "number": "plural",
+      "extra": {
+       "ref": "ACT 2:39!1",
+       "strong": "5213"
+      }
+     },
+     "gloss": "To you",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039002",
+     "index": 1,
+     "surface": "γάρ",
+     "lemma": "γάρ",
+     "language": "grc",
+     "pos": "conjunction",
+     "morphology": {
+      "extra": {
+       "ref": "ACT 2:39!2",
+       "strong": "1063"
+      }
+     },
+     "gloss": "for",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039003",
+     "index": 2,
+     "surface": "ἐστιν",
+     "lemma": "εἰμί",
+     "language": "grc",
+     "pos": "verb",
+     "morphology": {
+      "number": "singular",
+      "person": "third",
+      "tense": "present",
+      "voice": "active",
+      "mood": "indicative",
+      "extra": {
+       "ref": "ACT 2:39!3",
+       "strong": "2076"
+      }
+     },
+     "gloss": "is",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039004",
+     "index": 3,
+     "surface": "ἡ",
+     "lemma": "ὁ",
+     "language": "grc",
+     "pos": "article",
+     "morphology": {
+      "case": "nominative",
+      "gender": "feminine",
+      "number": "singular",
+      "extra": {
+       "ref": "ACT 2:39!4",
+       "strong": "3588"
+      }
+     },
+     "gloss": "the",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039005",
+     "index": 4,
+     "surface": "ἐπαγγελία",
+     "lemma": "ἐπαγγελία",
+     "language": "grc",
+     "pos": "noun",
+     "morphology": {
+      "case": "nominative",
+      "gender": "feminine",
+      "number": "singular",
+      "extra": {
+       "ref": "ACT 2:39!5",
+       "strong": "1860",
+       "cat": "NP"
+      }
+     },
+     "gloss": "promise",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039006",
+     "index": 5,
+     "surface": "καὶ",
+     "lemma": "καί",
+     "language": "grc",
+     "pos": "conjunction",
+     "morphology": {
+      "extra": {
+       "ref": "ACT 2:39!6",
+       "strong": "2532"
+      }
+     },
+     "gloss": "and",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039007",
+     "index": 6,
+     "surface": "τοῖς",
+     "lemma": "ὁ",
+     "language": "grc",
+     "pos": "article",
+     "morphology": {
+      "case": "dative",
+      "gender": "neuter",
+      "number": "plural",
+      "extra": {
+       "ref": "ACT 2:39!7",
+       "strong": "3588"
+      }
+     },
+     "gloss": "to the",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039008",
+     "index": 7,
+     "surface": "τέκνοις",
+     "lemma": "τέκνον",
+     "language": "grc",
+     "pos": "noun",
+     "morphology": {
+      "case": "dative",
+      "gender": "neuter",
+      "number": "plural",
+      "extra": {
+       "ref": "ACT 2:39!8",
+       "strong": "5043",
+       "cat": "NP"
+      }
+     },
+     "gloss": "children",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039009",
+     "index": 8,
+     "surface": "ὑμῶν",
+     "lemma": "σύ",
+     "language": "grc",
+     "pos": "pronoun",
+     "morphology": {
+      "case": "genitive",
+      "number": "plural",
+      "extra": {
+       "ref": "ACT 2:39!9",
+       "strong": "5216"
+      }
+     },
+     "gloss": "of you",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039010",
+     "index": 9,
+     "surface": "καὶ",
+     "lemma": "καί",
+     "language": "grc",
+     "pos": "conjunction",
+     "morphology": {
+      "extra": {
+       "ref": "ACT 2:39!10",
+       "strong": "2532"
+      }
+     },
+     "gloss": "and",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039011",
+     "index": 10,
+     "surface": "πᾶσι",
+     "lemma": "πᾶς",
+     "language": "grc",
+     "pos": "adjective",
+     "morphology": {
+      "case": "dative",
+      "gender": "masculine",
+      "number": "plural",
+      "extra": {
+       "ref": "ACT 2:39!11",
+       "strong": "3956"
+      }
+     },
+     "gloss": "to all",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039012",
+     "index": 11,
+     "surface": "τοῖς",
+     "lemma": "ὁ",
+     "language": "grc",
+     "pos": "article",
+     "morphology": {
+      "case": "dative",
+      "gender": "masculine",
+      "number": "plural",
+      "extra": {
+       "ref": "ACT 2:39!12",
+       "strong": "3588",
+       "cat": "NP"
+      }
+     },
+     "gloss": "those",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039013",
+     "index": 12,
+     "surface": "εἰς",
+     "lemma": "εἰς",
+     "language": "grc",
+     "pos": "preposition",
+     "morphology": {
+      "extra": {
+       "ref": "ACT 2:39!13",
+       "strong": "1519",
+       "cat": "PP"
+      }
+     },
+     "gloss": "at",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039014",
+     "index": 13,
+     "surface": "μακρὰν",
+     "lemma": "μακρός",
+     "language": "grc",
+     "pos": "adjective",
+     "morphology": {
+      "case": "accusative",
+      "gender": "feminine",
+      "number": "singular",
+      "extra": {
+       "ref": "ACT 2:39!14",
+       "strong": "3117"
+      }
+     },
+     "gloss": "a distance",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039015",
+     "index": 14,
+     "surface": "ὅσους",
+     "lemma": "ὅσος",
+     "language": "grc",
+     "pos": "pronoun",
+     "morphology": {
+      "case": "accusative",
+      "gender": "masculine",
+      "number": "plural",
+      "extra": {
+       "ref": "ACT 2:39!15",
+       "strong": "3745"
+      }
+     },
+     "gloss": "as many as",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039016",
+     "index": 15,
+     "surface": "ἂν",
+     "lemma": "ἄν",
+     "language": "grc",
+     "pos": "particle",
+     "morphology": {
+      "extra": {
+       "ref": "ACT 2:39!16",
+       "strong": "302"
+      }
+     },
+     "gloss": "-",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039017",
+     "index": 16,
+     "surface": "προσκαλέσηται",
+     "lemma": "προσκαλέομαι",
+     "language": "grc",
+     "pos": "verb",
+     "morphology": {
+      "number": "singular",
+      "person": "third",
+      "tense": "aorist",
+      "voice": "middle",
+      "mood": "subjunctive",
+      "extra": {
+       "ref": "ACT 2:39!17",
+       "strong": "4341"
+      }
+     },
+     "gloss": "shall call to Himself",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039018",
+     "index": 17,
+     "surface": "κύριος",
+     "lemma": "κύριος",
+     "language": "grc",
+     "pos": "noun",
+     "morphology": {
+      "case": "nominative",
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "ref": "ACT 2:39!18",
+       "strong": "2962",
+       "cat": "NP"
+      }
+     },
+     "gloss": "[the] Lord",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039019",
+     "index": 18,
+     "surface": "ὁ",
+     "lemma": "ὁ",
+     "language": "grc",
+     "pos": "article",
+     "morphology": {
+      "case": "nominative",
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "ref": "ACT 2:39!19",
+       "strong": "3588"
+      }
+     },
+     "gloss": "the",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039020",
+     "index": 19,
+     "surface": "θεὸς",
+     "lemma": "θεός",
+     "language": "grc",
+     "pos": "noun",
+     "morphology": {
+      "case": "nominative",
+      "gender": "masculine",
+      "number": "singular",
+      "extra": {
+       "ref": "ACT 2:39!20",
+       "strong": "2316",
+       "cat": "NP"
+      }
+     },
+     "gloss": "God",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    },
+    {
+     "id": "t_n44002039021",
+     "index": 20,
+     "surface": "ἡμῶν",
+     "lemma": "ἐγώ",
+     "language": "grc",
+     "pos": "pronoun",
+     "morphology": {
+      "case": "genitive",
+      "number": "plural",
+      "extra": {
+       "ref": "ACT 2:39!21",
+       "strong": "2257"
+      }
+     },
+     "gloss": "of us",
+     "provenance": {
+      "source": "given",
+      "confidence": "high"
+     }
+    }
+   ],
+   "syntax": {
+    "rootId": "cl_s47_0",
+    "nodes": [
+     {
+      "id": "w_n44002039002",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039002"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "cl_s47_0",
+      "kind": "clause",
+      "clauseType": "coordinate",
+      "tokenIds": [],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "cl_s47_1",
+      "kind": "clause",
+      "clauseType": "unknown",
+      "tokenIds": [],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039003",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039003"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039001",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039001"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039005",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039005"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039004",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039004"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039006",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039006"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "cl_s47_7",
+      "kind": "clause",
+      "clauseType": "unknown",
+      "tokenIds": [],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "impl_cl_s47_7",
+      "kind": "word",
+      "role": "predicate",
+      "tokenIds": [],
+      "implied": true,
+      "label": "(ἐστίν)",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039008",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039008"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039009",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039009"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039007",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039007"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039012",
+      "kind": "word",
+      "role": "substantivalPrepositionalPhrase",
+      "tokenIds": [
+       "t_n44002039012"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039013",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039013"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039014",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039014"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039016",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039016"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "cl_s47_13",
+      "kind": "clause",
+      "clauseType": "unknown",
+      "tokenIds": [],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039017",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039017"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039015",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039015"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039018",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039018"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039020",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039020"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039021",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039021"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039019",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039019"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039011",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039011"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "w_n44002039010",
+      "kind": "word",
+      "tokenIds": [
+       "t_n44002039010"
+      ],
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     }
+    ],
+    "relations": [
+     {
+      "id": "r_s47_2",
+      "type": "predicate",
+      "headId": "cl_s47_1",
+      "dependentId": "w_n44002039003",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_3",
+      "type": "predicateNominative",
+      "headId": "w_n44002039003",
+      "dependentId": "w_n44002039001",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_4",
+      "type": "determiner",
+      "headId": "w_n44002039005",
+      "dependentId": "w_n44002039004",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_5",
+      "type": "subject",
+      "headId": "cl_s47_1",
+      "dependentId": "w_n44002039005",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_6",
+      "type": "conjunct",
+      "headId": "cl_s47_0",
+      "dependentId": "cl_s47_1",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_8",
+      "type": "predicate",
+      "headId": "cl_s47_7",
+      "dependentId": "impl_cl_s47_7",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_9",
+      "type": "genitive",
+      "headId": "w_n44002039008",
+      "dependentId": "w_n44002039009",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_10",
+      "type": "determiner",
+      "headId": "w_n44002039008",
+      "dependentId": "w_n44002039007",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_11",
+      "type": "prepositionObject",
+      "headId": "w_n44002039013",
+      "dependentId": "w_n44002039014",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_12",
+      "type": "prepositionalPhrase",
+      "headId": "w_n44002039012",
+      "dependentId": "w_n44002039013",
+      "provenance": {
+       "source": "converted",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_14",
+      "type": "predicate",
+      "headId": "cl_s47_13",
+      "dependentId": "w_n44002039017",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_15",
+      "type": "directObject",
+      "headId": "w_n44002039017",
+      "dependentId": "w_n44002039015",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_16",
+      "type": "genitive",
+      "headId": "w_n44002039020",
+      "dependentId": "w_n44002039021",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_17",
+      "type": "determiner",
+      "headId": "w_n44002039020",
+      "dependentId": "w_n44002039019",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_18",
+      "type": "apposition",
+      "headId": "w_n44002039018",
+      "dependentId": "w_n44002039020",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_19",
+      "type": "subject",
+      "headId": "cl_s47_13",
+      "dependentId": "w_n44002039018",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_20",
+      "type": "apposition",
+      "headId": "w_n44002039012",
+      "dependentId": "cl_s47_13",
+      "label": "ἂν",
+      "labelNodeId": "w_n44002039016",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_21",
+      "type": "adjectival",
+      "headId": "w_n44002039012",
+      "dependentId": "w_n44002039011",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_22",
+      "type": "coordinator",
+      "headId": "w_n44002039012",
+      "dependentId": "w_n44002039010",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_23",
+      "type": "conjunct",
+      "headId": "w_n44002039008",
+      "dependentId": "w_n44002039012",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_24",
+      "type": "predicateNominative",
+      "headId": "impl_cl_s47_7",
+      "dependentId": "w_n44002039008",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_25",
+      "type": "conjunct",
+      "headId": "cl_s47_0",
+      "dependentId": "cl_s47_7",
+      "label": "καὶ",
+      "labelNodeId": "w_n44002039006",
+      "provenance": {
+       "source": "given",
+       "confidence": "high"
+      }
+     },
+     {
+      "id": "r_s47_26",
+      "type": "conjunction",
+      "headId": "cl_s47_0",
+      "dependentId": "w_n44002039002",
       "provenance": {
        "source": "given",
        "confidence": "high"

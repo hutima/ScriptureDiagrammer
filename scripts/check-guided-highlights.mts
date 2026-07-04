@@ -96,6 +96,42 @@ for (const guide of grammarHighlightGuides) {
     for (const id of h?.relationIds ?? []) {
       if (!scope.relationIds.has(id)) fail(`${where}: highlight relation ${id} not in passage ${stepPassageId}`);
     }
+    // Stacked secondary passage — its focus/highlight ids resolve in the
+    // SECONDARY passage's OWN id pool (not the primary's), mirroring the
+    // per-step scope logic above.
+    if (step.secondaryPassageId) {
+      if (!bundledIds.has(step.secondaryPassageId)) {
+        fail(`${where}: secondaryPassageId "${step.secondaryPassageId}" is not in bundledPassageIds`);
+      }
+      const secDoc = present.find((d) => d.id === step.secondaryPassageId);
+      const secScope = secDoc ? idSets([secDoc]) : pool;
+      for (const id of step.secondaryFocus?.tokenIds ?? []) {
+        if (!secScope.tokenIds.has(id))
+          fail(`${where}: secondary focus token ${id} not in passage ${step.secondaryPassageId}`);
+      }
+      for (const id of step.secondaryFocus?.nodeIds ?? []) {
+        if (!secScope.nodeIds.has(id))
+          fail(`${where}: secondary focus node ${id} not in passage ${step.secondaryPassageId}`);
+      }
+      for (const id of step.secondaryFocus?.relationIds ?? []) {
+        if (!secScope.relationIds.has(id))
+          fail(`${where}: secondary focus relation ${id} not in passage ${step.secondaryPassageId}`);
+      }
+      const sh = step.secondaryHighlights;
+      for (const id of [
+        ...(sh?.addedNodeIds ?? []),
+        ...(sh?.changedNodeIds ?? []),
+        ...(sh?.removedNodeIds ?? []),
+        ...(sh?.emphasizedNodeIds ?? []),
+      ]) {
+        if (!secScope.nodeIds.has(id))
+          fail(`${where}: secondary highlight node ${id} not in passage ${step.secondaryPassageId}`);
+      }
+      for (const id of sh?.relationIds ?? []) {
+        if (!secScope.relationIds.has(id))
+          fail(`${where}: secondary highlight relation ${id} not in passage ${step.secondaryPassageId}`);
+      }
+    }
     for (const id of step.greekTermIds ?? []) {
       if (!termIds.has(id)) fail(`${where}: greekTermIds entry "${id}" has no matching term`);
     }
