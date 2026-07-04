@@ -155,7 +155,12 @@ export const GuidedDebateViewSchema = z.object({
 });
 export const GuidedDebateSummarySchema = z.object({
   issue: z.string(),
-  views: z.array(GuidedDebateViewSchema).min(2),
+  /**
+   * Usually two or more readings; a single view is allowed for the case where
+   * the app deliberately presents ONE standard reading and folds a fringe
+   * alternative into that view's cautions (e.g. John 1:1's "a god").
+   */
+  views: z.array(GuidedDebateViewSchema).min(1),
   /** How the grammar OPENS the question (it does not close it). */
   grammarOpensQuestionHow: z.string(),
 });

@@ -8,6 +8,7 @@ import { john1 } from './guides/john-1-1';
 import { mark5 } from './guides/mark-5-25-34';
 import { matthew28 } from './guides/matthew-28-19-20';
 import { lordsPrayerBread } from './guides/lords-prayer-bread';
+import { lordsPrayerPetitions } from './guides/lords-prayer-petitions';
 import { johnSin } from './guides/1-john-sin';
 import { firstPeter3 } from './guides/1-peter-3-18-22';
 import { acts2 } from './guides/acts-2-38';
@@ -52,6 +53,7 @@ const guides: GrammarHighlightGuide[] = [
   mark5,
   matthew28,
   lordsPrayerBread,
+  lordsPrayerPetitions,
   johnSin,
   // Contested / deeper — grammar opens the question.
   firstPeter3,

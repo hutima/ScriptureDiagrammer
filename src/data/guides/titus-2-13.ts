@@ -1,12 +1,13 @@
 import type { GrammarHighlightGuide } from '@/domain/schema';
 
 /**
- * Titus 2:13 — the classic Granville Sharp construction: one article (τοῦ)
- * governing two singular, personal, non-proper nouns joined by καί (θεοῦ …
- * καὶ σωτῆρος), the whole phrase standing in apposition to one name, Ἰησοῦ
- * Χριστοῦ. A companion to the shorter 2 Peter 1:1 guide, which uses the
- * identical shape. Authored against the bundled SBLGNT passage
- * `sblgnt_titus_17` (dump with `npm run guided:dump`).
+ * Titus 2:13 — the classic Granville Sharp construction: one article (τοῦ —
+ * tou, "the") governing two singular, personal, non-proper nouns joined by
+ * καί (kai, "and") — θεοῦ (theou, "God") … καὶ σωτῆρος (kai sōtēros, "and
+ * Savior") — the whole phrase standing in apposition to one name, Ἰησοῦ
+ * Χριστοῦ (Iēsou Christou, "Jesus Christ"). A companion to the shorter
+ * 2 Peter 1:1 guide, which uses the identical shape. Authored against the
+ * bundled SBLGNT passage `sblgnt_titus_17` (dump with `npm run guided:dump`).
  */
 export const titus2: GrammarHighlightGuide = {
   id: 'guide-titus-2-13',
@@ -17,7 +18,7 @@ export const titus2: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
   summary:
-    'Titus 2:13 packs a whole confession into one phrase: "waiting for our blessed hope, the appearing of the glory of our great God and Savior Jesus Christ." The diagram shows exactly how one article, one καί, and one apposition tie "God," "Savior," and "Jesus Christ" together as a single person.',
+    'Titus 2:13 packs a whole confession into one phrase: "waiting for our blessed hope, the appearing of the glory of our great God and Savior Jesus Christ." The diagram shows exactly how one article, one καί (kai, "and"), and one apposition tie "God," "Savior," and "Jesus Christ" together as a single person.',
   devotionalFrame:
     'Paul is not writing a creed here — he is telling Titus how godly people wait. But the sentence he reaches for quietly does something enormous: in a single breath it calls Jesus Christ "our great God and Savior." Keep your own Bible open and follow the diagram to see exactly how the Greek holds that together.',
   steps: [
@@ -25,7 +26,7 @@ export const titus2: GrammarHighlightGuide = {
       id: 'step-two-things-awaited',
       title: 'Waiting for one glorious appearing',
       body:
-        'Paul describes believers as people "awaiting" one reality that has two faces: the [[elpida]] ("hope") we hold onto now, and its ἐπιφάνειαν ("appearing") — the moment that hope becomes visible. The diagram joins "hope" and "appearing" as a matched pair under one article, connected by καί: not two separate hopes, but one future reality named first as a hope, then as its unveiling.',
+        'Paul describes believers as people "awaiting" one reality that has two faces: the [[elpida]] ("hope") we hold onto now, and its ἐπιφάνειαν (epiphaneian, "appearing") — the moment that hope becomes visible. The diagram joins "hope" and "appearing" as a matched pair under one article, connected by [[kai]]: not two separate hopes, but one future reality named first as a hope, then as its unveiling.',
       focus: {
         nodeIds: [
           'w_n56002013001',
@@ -46,7 +47,7 @@ export const titus2: GrammarHighlightGuide = {
       id: 'step-one-article-two-nouns',
       title: 'One article holds two titles together',
       body:
-        'Now look at whose glory is appearing: "the glory of [[tou]] great [[theou]] and ([[kai]]) [[soteros]] of us." In Greek there is only one definite article here — [[tou]] — and it stands in front of θεοῦ ("God") alone. σωτῆρος ("Savior") gets no article of its own; instead it is joined to θεοῦ by [[kai]] as a matched partner sharing that same "the." The diagram draws this exactly: one article branching to "great God," that noun linked by a coordinator to "Savior" standing right beside it.',
+        'Now look at whose glory is appearing: "the glory of [[tou]] great [[theou]] and ([[kai]]) [[soteros]] of us." In Greek there is only one definite article here — [[tou]] — and it stands in front of [[theou]] alone. [[soteros]] gets no article of its own; instead it is joined to [[theou]] by [[kai]] as a matched partner sharing that same "the." The diagram draws this exactly: one article branching to "great God," that noun linked by a coordinator to "Savior" standing right beside it.',
       focus: {
         nodeIds: [
           'w_n56002013009',
@@ -62,7 +63,7 @@ export const titus2: GrammarHighlightGuide = {
         emphasizedNodeIds: ['w_n56002013009', 'w_n56002013011', 'w_n56002013013'],
       },
       caution:
-        'This pattern (often named for the 18th-century grammarian Granville Sharp) is narrow and well-defined: it applies reliably to singular, personal, non-proper nouns joined by καί under one article — exactly what θεός and σωτήρ are here. It is not a claim that every Greek "the X and Y" phrase works this way; it is this specific shape doing specific work.',
+        'This pattern (often named for the 18th-century grammarian Granville Sharp) is narrow and well-defined: it applies reliably to singular, personal, non-proper nouns joined by [[kai]] under one article — exactly what [[theou]] and [[soteros]] are here. It is not a claim that every Greek "the X and Y" phrase works this way; it is this specific shape doing specific work.',
       greekTermIds: ['tou', 'theou', 'kai', 'soteros'],
     },
     {
@@ -88,7 +89,7 @@ export const titus2: GrammarHighlightGuide = {
       id: 'step-whose-glory',
       title: 'The glory that belongs to him',
       body:
-        'Follow the genitive chain all the way back: the ἐπιφάνειαν ("appearing") is the appearing of "the glory," and that glory belongs, grammatically, to "our great God and Savior Jesus Christ." What believers are waiting to see unveiled is not an abstract brightness — it is the very glory of this one person.',
+        'Follow the genitive chain all the way back: the ἐπιφάνειαν (epiphaneian, "appearing") is the appearing of "the glory," and that glory belongs, grammatically, to "our great God and Savior Jesus Christ." What believers are waiting to see unveiled is not an abstract brightness — it is the very glory of this one person.',
       focus: {
         nodeIds: [
           'w_n56002013006',
@@ -111,24 +112,24 @@ export const titus2: GrammarHighlightGuide = {
       'Does "our great God and Savior Jesus Christ" name one person — Jesus called both God and Savior — or two: God the Father, and separately the Savior Jesus Christ?',
     views: [
       {
-        label: 'One person (the majority reading)',
+        label: 'One person — the standard reading',
         summary:
-          'One article (τοῦ) governs both "God" and "Savior," joined by καί — the pattern Granville Sharp described for singular, personal, non-proper nouns. That shape points to a single referent: Jesus Christ is here called both "God" and "Savior." Most modern grammarians and English translations (ESV, NIV, NASB, NKJV, CSB, and others) read the verse this way, and the identical construction appears again in 2 Peter 1:1 ("our God and Savior Jesus Christ"), and arguably in Romans 9:5.',
+          'One article (τοῦ — tou, "the") governs both "God" and "Savior," joined by καί (kai, "and") — the pattern Granville Sharp described for singular, personal, non-proper nouns. That shape points to a single referent: Jesus Christ is here called both "God" and "Savior." This is the reading followed above, and it is also the reading of most modern grammarians and English translations (ESV, NIV, NASB, NKJV, CSB, and others); the identical construction appears again in 2 Peter 1:1 ("our God and Savior Jesus Christ"), and arguably in Romans 9:5.',
       },
       {
-        label: 'Two persons (a minority reading)',
+        label: 'Two persons — an alternate reading',
         summary:
           'A minority reading takes "the great God" as the Father and "our Savior Jesus Christ" as a second, distinct figure introduced alongside him, treating the shared article more loosely than the construction generally requires.',
         cautions: [
-          'This view has to explain why θεός and σωτήρ — both singular, personal, non-proper nouns joined by one καί under one article — would behave differently here than the same construction does elsewhere in the New Testament.',
+          'This view has to explain why θεός (theos, "God") and σωτήρ (sōtēr, "Savior") — both singular, personal, non-proper nouns joined by one καί (kai, "and") under one article — would behave differently here than the same construction does elsewhere in the New Testament.',
         ],
       },
     ],
     grammarOpensQuestionHow:
-      'The single-article, one-καί shape strongly favors one referent rather than two, since θεός and σωτήρ meet exactly the conditions (singular, personal, non-proper) the construction requires. But grammar establishes a strong likelihood, not an airtight proof by itself — it opens and constrains the question rather than settling every theological implication on its own.',
+      'The single-article, one-καί (kai, "and") shape strongly favors one referent rather than two, since θεός (theos, "God") and σωτήρ (sōtēr, "Savior") meet exactly the conditions (singular, personal, non-proper) the construction requires. But grammar establishes a strong likelihood, not an airtight proof by itself — it opens and constrains the question rather than settling every theological implication on its own.',
   },
   confessionalFrame:
-    'Read confessionally: this verse stands with Romans 9:5 and 2 Peter 1:1 as another place Scripture calls Jesus Christ God outright, worshiping him as fully divine alongside the Father — consistent with the church\'s historic confession of Christ\'s full deity.',
+    'Read confessionally: this verse names one person, Jesus Christ, as "our great God and Savior," and stands with Romans 9:5 and 2 Peter 1:1 as another place Scripture calls him God outright, worshiping him as fully divine alongside the Father — consistent with the church\'s historic confession of Christ\'s full deity.',
   greekTerms: [
     {
       id: 'elpida',
@@ -150,7 +151,7 @@ export const titus2: GrammarHighlightGuide = {
       gloss: 'the',
       parsing: 'definite article, genitive masculine singular',
       explanation:
-        'The single article that opens "the great God" — in the diagram it attaches only to θεοῦ; "Savior" (σωτῆρος) is joined to that same article by καί rather than taking one of its own.',
+        'The single article that opens "the great God" — in the diagram it attaches only to θεοῦ (theou, "God"); "Savior" (σωτῆρος, sōtēros) is joined to that same article by καί (kai, "and") rather than taking one of its own.',
       implication:
         'This is the hinge of the whole construction: one article covering two nouns joined by "and" is what ties "God" and "Savior" to a single person rather than two.',
     },
@@ -174,7 +175,7 @@ export const titus2: GrammarHighlightGuide = {
       gloss: 'and',
       parsing: 'conjunction',
       explanation:
-        'The small word that joins "Savior" to "God" under the single article τοῦ — ordinary in itself, but doing careful work here: joining two titles under one shared article rather than introducing a new person with a new one.',
+        'The small word that joins "Savior" to "God" under the single article τοῦ (tou, "the") — ordinary in itself, but doing careful work here: joining two titles under one shared article rather than introducing a new person with a new one.',
       caution:
         'Not every Greek "X and Y" carries this force. The reading depends on the whole shape here — one article, two singular non-proper nouns, one καί — not on the conjunction by itself.',
     },
@@ -187,7 +188,7 @@ export const titus2: GrammarHighlightGuide = {
       gloss: 'Savior',
       parsing: 'noun, genitive masculine singular',
       explanation:
-        'The second matched title, joined to "God" under the same article — like θεοῦ, a singular common noun rather than a proper name, which is exactly the shape Granville Sharp\'s rule describes.',
+        'The second matched title, joined to "God" under the same article — like θεοῦ (theou, "God"), a singular common noun rather than a proper name, which is exactly the shape Granville Sharp\'s rule describes.',
       implication:
         'Sharing an article with "God" and standing right beside "Jesus Christ," this word identifies the Savior as the very person just called God.',
     },

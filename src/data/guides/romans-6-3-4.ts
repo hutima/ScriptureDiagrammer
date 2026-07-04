@@ -17,7 +17,7 @@ export const romans6: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
   summary:
-    'Paul asks a question every Roman believer is assumed to already know the answer to: what does baptism mean? The diagram traces a repeated εἰς (“into”) construction and a σύν- (“with”) compound verb that together picture believers joined to Christ — in his death, his burial, and a genuinely new way of living.',
+    'Paul asks a question every Roman believer is assumed to already know the answer to: what does baptism mean? The diagram traces a repeated εἰς (eis, “into”) construction and a σύν- (syn-, “with”) compound verb that together picture believers joined to Christ — in his death, his burial, and a genuinely new way of living.',
   devotionalFrame:
     'These two verses are one connected argument, and the Greek grammar carries it plainly: the same “into” shows up twice, and the next verse opens with a single word built from “with” + “bury.” Follow the diagram and watch how the sentence itself insists that what happened to Christ has happened, grammatically and really, to us.',
   steps: [
@@ -26,7 +26,7 @@ export const romans6: GrammarHighlightGuide = {
       title: 'A question everyone should already know the answer to',
       passageId: 'sblgnt_romans_126',
       body:
-        'Paul begins with a rhetorical question: “ἢ ἀγνοεῖτε ὅτι…” — “Or do you not know that…?” The diagram puts [[agnoeite]] on the main baseline, with the whole ὅτι-clause hanging beneath it as its direct object. Paul is not introducing new teaching here; he is reminding the Romans of something baptism itself already pictures, if they think through what it means.',
+        'Paul begins with a rhetorical question: “ἢ ἀγνοεῖτε ὅτι…” (ē agnoeite hoti…) — “Or do you not know that…?” The diagram puts [[agnoeite]] on the main baseline, with the whole ὅτι-clause (hoti, “that”) hanging beneath it as its direct object. Paul is not introducing new teaching here; he is reminding the Romans of something baptism itself already pictures, if they think through what it means.',
       focus: {
         nodeIds: ['w_n45006003001', 'w_n45006003002', 'w_n45006003003', 'cl_s126_0', 'cl_s126_2'],
         relationIds: ['r_s126_1', 'r_s126_16', 'r_s126_15'],
@@ -42,7 +42,7 @@ export const romans6: GrammarHighlightGuide = {
       title: 'Baptized into Christ Jesus',
       passageId: 'sblgnt_romans_126',
       body:
-        'Look at the first clause inside the ὅτι: “ὅσοι ἐβαπτίσθημεν εἰς Χριστὸν Ἰησοῦν” — “as many of us as were baptized into Christ Jesus.” The verb [[ebaptisthemen]] is passive: something was done TO us. And the preposition [[eis]] with the accusative does not just mean “in connection with” Christ — it pictures baptism as a movement INTO him, into union with his person.',
+        'Look at the first clause inside the ὅτι (hoti, “that”): “ὅσοι ἐβαπτίσθημεν εἰς Χριστὸν Ἰησοῦν” (hosoi ebaptisthēmen eis Christon Iēsoun) — “as many of us as were baptized into Christ Jesus.” The verb [[ebaptisthemen]] is passive: something was done TO us. And the preposition [[eis]] with the accusative does not just mean “in connection with” Christ — it pictures baptism as a movement INTO him, into union with his person.',
       focus: {
         nodeIds: [
           'w_n45006003004',
@@ -68,7 +68,7 @@ export const romans6: GrammarHighlightGuide = {
       title: 'Baptized into his death',
       passageId: 'sblgnt_romans_126',
       body:
-        'The sentence is not finished. The whole clause you just traced — “we who were baptized into Christ Jesus” — turns out to be the grammatical SUBJECT of a second baptism: “…were baptized into his death.” The diagram shows this plainly: the subject beneath the second baptismal clause is not a single word but that entire earlier clause. And the preposition repeats — the same [[eis]] + accusative pattern that carried us into Christ now carries us into his death, made personal by the pronoun αὐτοῦ, “his.”',
+        'The sentence is not finished. The whole clause you just traced — “we who were baptized into Christ Jesus” — turns out to be the grammatical SUBJECT of a second baptism: “…were baptized into his death.” The diagram shows this plainly: the subject beneath the second baptismal clause is not a single word but that entire earlier clause. And the preposition repeats — the same [[eis]] + accusative pattern that carried us into Christ now carries us into his death, made personal by the pronoun αὐτοῦ (autou), “his.”',
       focus: {
         nodeIds: [
           'cl_s126_4',
@@ -93,7 +93,7 @@ export const romans6: GrammarHighlightGuide = {
       title: 'Buried with him',
       passageId: 'sblgnt_romans_127',
       body:
-        'Verse 4 opens with a single Greek word built from a preposition and a verb: [[synetaphemen]], “we were buried together with.” The σύν- (“with”) prefix is doing real grammatical work — it is why the next word, [[auto]] (“him”), stands in the dative case, the case Greek uses for accompaniment. The diagram hangs both “with him” and the phrase “through baptism into death” beneath this one verb, all describing a single, shared burial.',
+        'Verse 4 opens with a single Greek word built from a preposition and a verb: [[synetaphemen]], “we were buried together with.” The σύν- (syn-, “with”) prefix is doing real grammatical work — it is why the next word, [[auto]] (“him”), stands in the dative case, the case Greek uses for accompaniment. The diagram hangs both “with him” and the phrase “through baptism into death” beneath this one verb, all describing a single, shared burial.',
       focus: {
         nodeIds: [
           'w_n45006004001',
@@ -131,7 +131,7 @@ export const romans6: GrammarHighlightGuide = {
       title: 'So that we might walk in newness of life',
       passageId: 'sblgnt_romans_127',
       body:
-        'The verse now leans toward a goal: [[hina]] (“so that”) introduces the purpose of being buried with Christ. Inside that purpose clause Paul builds a comparison with ὥσπερ … οὕτως καί (“just as … so also”): just as Christ was raised from the dead by the Father\'s glory, so also we might [[peripatesomen]] — “walk” — in newness of life. The diagram lays the comparison out visibly: the resurrection clause supports the “just as,” and “we … might walk” carries the “so also,” both hanging beneath the same purpose clause.',
+        'The verse now leans toward a goal: [[hina]] (“so that”) introduces the purpose of being buried with Christ. Inside that purpose clause Paul builds a comparison with ὥσπερ … οὕτως καί (hōsper … houtōs kai, “just as … so also”): just as Christ was raised from the dead by the Father\'s glory, so also we might [[peripatesomen]] — “walk” — in newness of life. The diagram lays the comparison out visibly: the resurrection clause supports the “just as,” and “we … might walk” carries the “so also,” both hanging beneath the same purpose clause.',
       focus: {
         nodeIds: [
           'w_n45006004010',
@@ -167,7 +167,7 @@ export const romans6: GrammarHighlightGuide = {
       implication:
         'This is the destination of the whole grammar hook: union with Christ in his death and burial is never presented as an end in itself. It aims at a new way of living — walking, day by day, in a genuinely new kind of life, patterned after resurrection rather than death.',
       caution:
-        'περιπατήσωμεν is subjunctive, not indicative — the mood itself marks this as a goal to pursue, not a report that it happens automatically. And as with the earlier aorists in these verses, resist turning "were baptized," "were buried," or "was raised" into a precise timeline: Paul\'s point in this passage is union with Christ and its moral consequence — a new manner of life — not a mechanical theory of exactly how or when baptism accomplishes that union.',
+        '[[peripatesomen]] is subjunctive, not indicative — the mood itself marks this as a goal to pursue, not a report that it happens automatically. And as with the earlier aorists in these verses, resist turning "were baptized," "were buried," or "was raised" into a precise timeline: Paul\'s point in this passage is union with Christ and its moral consequence — a new manner of life — not a mechanical theory of exactly how or when baptism accomplishes that union.',
       greekTermIds: ['hina', 'peripatesomen'],
     },
   ],
@@ -181,7 +181,7 @@ export const romans6: GrammarHighlightGuide = {
       gloss: 'are you unaware / do you not know',
       parsing: 'present active indicative, 2nd plural (in a negated rhetorical question)',
       explanation:
-        'From ἀ- ("not") + a root meaning "to know" — literally "to not know, to be ignorant of." Paired with the rhetorical ἢ ("or"), it expects the answer "of course we know."',
+        'From ἀ- (a-, "not") + a root meaning "to know" — literally "to not know, to be ignorant of." Paired with the rhetorical ἢ (ē, "or"), it expects the answer "of course we know."',
       implication:
         'Paul treats what follows as common Christian knowledge, not new teaching — something the meaning of baptism already tells us once we think it through.',
     },
@@ -220,7 +220,7 @@ export const romans6: GrammarHighlightGuide = {
       gloss: 'we were buried together with',
       parsing: 'aorist passive indicative, 1st plural',
       explanation:
-        'Built from σύν ("with, together") + a root meaning "to bury." The σύν- prefix is not decorative — compounds like this are one of Paul\'s regular ways of naming believers\' shared experience with Christ.',
+        'Built from σύν (syn, "with, together") + a root meaning "to bury." The σύν- prefix is not decorative — compounds like this are one of Paul\'s regular ways of naming believers\' shared experience with Christ.',
       implication: 'One word does double duty: it names an action (burial) and a companion (Christ) at the same time.',
     },
     {
@@ -232,7 +232,7 @@ export const romans6: GrammarHighlightGuide = {
       gloss: 'with him',
       parsing: 'dative masculine singular pronoun',
       explanation:
-        'A dative of association ("with him"), called for by the σύν- built into συνετάφημεν. The case quietly confirms what the compound verb already says: this burial has a companion.',
+        'A dative of association ("with him"), called for by the σύν- (syn-, "with") built into συνετάφημεν (synetaphēmen, "we were buried together with"). The case quietly confirms what the compound verb already says: this burial has a companion.',
     },
     {
       id: 'hina',
@@ -254,7 +254,7 @@ export const romans6: GrammarHighlightGuide = {
       gloss: 'we might walk / should walk',
       parsing: 'aorist active subjunctive, 1st plural',
       explanation:
-        '"Walk" is a common biblical image for the pattern of a person\'s daily conduct. The subjunctive mood marks this as the goal set before believers, matched to Christ\'s resurrection by the ὥσπερ … οὕτως καί ("just as … so also") comparison earlier in the sentence.',
+        '"Walk" is a common biblical image for the pattern of a person\'s daily conduct. The subjunctive mood marks this as the goal set before believers, matched to Christ\'s resurrection by the ὥσπερ … οὕτως καί (hōsper … houtōs kai, "just as … so also") comparison earlier in the sentence.',
       caution:
         'Do not read the aorist subjunctive here as one isolated act of walking; the subjunctive mood already signals a purposed goal, and "walking" itself pictures an ongoing pattern of life, not a single event.',
     },

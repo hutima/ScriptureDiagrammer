@@ -28,6 +28,9 @@ export const GUIDED_PASSAGES: GuidedPassageRange[] = [
   // Matthew 6:11 ∥ Luke 11:3 — aorist δός vs present δίδου (aspect, cautiously).
   { book: 'Matthew', chapter: 6, verseFrom: 11, verseTo: 11 },
   { book: 'Luke', chapter: 11, verseFrom: 3, verseTo: 3 },
+  // Matthew 6:9–13 — the Lord's Prayer: six petitions, every one a command
+  // form (3rd-person imperatives, 2nd-person imperatives, one prohibition).
+  { book: 'Matthew', chapter: 6, verseFrom: 9, verseTo: 13 },
   // 1 John 2:1 ∥ 1 John 3:6–9 — an act of sin vs a settled pattern.
   { book: '1 John', chapter: 2, verseFrom: 1, verseTo: 1 },
   { book: '1 John', chapter: 3, verseFrom: 6, verseTo: 9 },

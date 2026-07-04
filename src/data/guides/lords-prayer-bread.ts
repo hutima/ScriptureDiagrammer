@@ -75,7 +75,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       id: 'step-luke-present',
       title: 'Luke: the same prayer, a different verb form',
       body:
-        'Luke hands down the same line almost word for word — "our bread, the daily one" — but where Matthew has δός, Luke has [[didou]]. Below you can see Matthew\'s wording at the same time: δός stays highlighted in the stacked panel, so the two verb forms sit side by side rather than one replacing the other on screen. Same verb, same meaning "give," but a present-tense imperative instead of an aorist one. The aorist in Matthew viewed the asking as a whole, a single act; the present in Luke pictures the asking as ongoing, still in progress as it is spoken.',
+        'Luke hands down the same line almost word for word — "our bread, the daily one" — but where Matthew has [[dos]], Luke has [[didou]]. Below you can see Matthew\'s wording at the same time: [[dos]] stays highlighted in the stacked panel, so the two verb forms sit side by side rather than one replacing the other on screen. Same verb, same meaning "give," but a present-tense imperative instead of an aorist one. The aorist in Matthew viewed the asking as a whole, a single act; the present in Luke pictures the asking as ongoing, still in progress as it is spoken.',
       passageId: 'sblgnt_luke_511',
       focus: {
         nodeIds: ['cl_s511_0', 'w_n42011003006', 'w_n42011003002'],
@@ -84,7 +84,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       panZoom: { fit: 'nodes', padding: 130 },
       highlights: { emphasizedNodeIds: ['w_n42011003006'] },
       secondaryPassageId: 'sblgnt_matthew_143',
-      secondaryTitle: 'Matthew 6:11 — δός, an aorist imperative',
+      secondaryTitle: 'Matthew 6:11 — δός (dos, "give"), an aorist imperative',
       secondaryFocus: {
         nodeIds: ['cl_s143_0', 'w_n40006011006'],
         relationIds: ['r_s143_1'],
@@ -100,7 +100,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       id: 'step-luke-each-day',
       title: '"Day by day" — spelled out, not just implied',
       body:
-        'Luke does not leave the "ongoing" sense to the verb alone. He adds a whole phrase: [[kathHemeran]], "according to the day" — "each day" or "day by day." In the diagram it hangs beneath the verb as its own modifying phrase, governing "day" the way a preposition governs its object. Below, Matthew\'s σήμερον ("today") stays highlighted in the stacked panel, so you can compare the two Gospels\' modifiers directly: Matthew names the day itself, Luke names its recurrence. Luke states outright what the present tense only suggests.',
+        'Luke does not leave the "ongoing" sense to the verb alone. He adds a whole phrase: [[kathHemeran]], "according to the day" — "each day" or "day by day." In the diagram it hangs beneath the verb as its own modifying phrase, governing "day" the way a preposition governs its object. Below, Matthew\'s [[sEmeron]] stays highlighted in the stacked panel, so you can compare the two Gospels\' modifiers directly: Matthew names the day itself, Luke names its recurrence. Luke states outright what the present tense only suggests.',
       passageId: 'sblgnt_luke_511',
       focus: {
         nodeIds: [
@@ -114,7 +114,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       panZoom: { fit: 'nodes', padding: 130 },
       highlights: { emphasizedNodeIds: ['w_n42011003009', 'w_n42011003010'] },
       secondaryPassageId: 'sblgnt_matthew_143',
-      secondaryTitle: 'Matthew 6:11 — σήμερον, "today"',
+      secondaryTitle: 'Matthew 6:11 — σήμερον (sēmeron), "today"',
       secondaryFocus: {
         nodeIds: ['w_n40006011006', 'w_n40006011008'],
         relationIds: ['r_s143_8'],
@@ -128,7 +128,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       id: 'step-two-pictures',
       title: 'One petition, two faithful pictures',
       body:
-        'Set side by side, Matthew asks for [[dos]] — bread for today, one plain request. Luke asks for [[didou]] [[kathHemeran]] — bread, day by day, an asking pictured as ongoing. Below, both diagrams are stacked and highlighted together — Matthew\'s δός and σήμερον above Luke\'s δίδου and καθ\' ἡμέραν — so the comparison is visible, not just described. Neither Gospel is correcting the other, and neither reading contradicts your English Bible, whichever wording it uses. The grammar simply lets us see two true angles on what it means to depend on the Father for daily bread — right now, and every day after this one.',
+        'Set side by side, Matthew asks for [[dos]] — bread for today, one plain request. Luke asks for [[didou]] [[kathHemeran]] — bread, day by day, an asking pictured as ongoing. Below, both diagrams are stacked and highlighted together — Matthew\'s [[dos]] and [[sEmeron]] above Luke\'s [[didou]] and καθ\' ἡμέραν (kath\' hēmeran, "day by day") — so the comparison is visible, not just described. Neither Gospel is correcting the other, and neither reading contradicts your English Bible, whichever wording it uses. The grammar simply lets us see two true angles on what it means to depend on the Father for daily bread — right now, and every day after this one.',
       passageId: 'sblgnt_luke_511',
       focus: {
         nodeIds: ['cl_s511_0', 'w_n42011003006', 'w_n42011003009'],
@@ -216,7 +216,7 @@ export const lordsPrayerBread: GrammarHighlightGuide = {
       gloss: 'according to / each',
       parsing: 'preposition, governing ἡμέραν (accusative)',
       explanation:
-        'This small preposition governs "day" (ἡμέραν) to form the phrase "day by day" or "each day," attached to Luke’s verb as its own modifying phrase. Luke states outright, in so many words, what the present tense on its own only hints at.',
+        'This small preposition governs "day" (ἡμέραν, hēmeran) to form the phrase "day by day" or "each day," attached to Luke’s verb as its own modifying phrase. Luke states outright, in so many words, what the present tense on its own only hints at.',
       implication:
         'Luke’s sense of an ongoing, repeated request comes as much from this added phrase as from his choice of verb tense — the two work together, not the tense alone.',
     },

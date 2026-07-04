@@ -23,7 +23,7 @@ export const hebrews1: GrammarHighlightGuide = {
       id: 'step-main-verb',
       title: 'Find the main verb first',
       body:
-        'This whole passage — four verses in your Bible — is one Greek sentence, and it has one main statement: God [[elalesen]] to us in his Son. Everything else in verses 1–4 hangs off this clause. The diagram puts that main clause on the top baseline: subject ὁ θεός on the left of the divider, the verb on the right.',
+        'This whole passage — four verses in your Bible — is one Greek sentence, and it has one main statement: God [[elalesen]] to us in his Son. Everything else in verses 1–4 hangs off this clause. The diagram puts that main clause on the top baseline: subject ὁ θεός (ho theos, “God”) on the left of the divider, the verb on the right.',
       focus: {
         nodeIds: ['w_n58001002006', 'w_n58001001006'],
         relationIds: ['r_s0_2', 'r_s0_16'],
@@ -50,7 +50,7 @@ export const hebrews1: GrammarHighlightGuide = {
       id: 'step-radiance-fork',
       title: 'Radiance and exact imprint — a matched pair',
       body:
-        'Verse 3 describes the Son with two nouns joined by καί: [[apaugasma]] (“radiance”) and [[charakter]] (“exact imprint”). The diagram draws them as a fork: two parallel lines joined at one point, both leaning back toward the little verb [[on]] (“being”). One person, two pictures — what streams out from God’s glory, and what is stamped with God’s very nature.',
+        'Verse 3 describes the Son with two nouns joined by καί (kai, “and”): [[apaugasma]] (“radiance”) and [[charakter]] (“exact imprint”). The diagram draws them as a fork: two parallel lines joined at one point, both leaning back toward the little verb [[on]] (“being”). One person, two pictures — what streams out from God’s glory, and what is stamped with God’s very nature.',
       focus: {
         nodeIds: ['w_n58001003003', 'w_n58001003007', 'w_n58001003002'],
         relationIds: ['r_s0_48', 'r_s0_47'],
@@ -145,7 +145,7 @@ export const hebrews1: GrammarHighlightGuide = {
       gloss: 'exact imprint, stamp',
       parsing: 'noun, nominative masculine singular',
       explanation:
-        'The impress a die stamps into metal — an exact correspondence. The Son bears the very stamp of God’s nature (ὑπόστασις).',
+        'The impress a die stamps into metal — an exact correspondence. The Son bears the very stamp of God’s nature (ὑπόστασις, hypostasis, “essential nature”).',
     },
     {
       id: 'ekathisen',

@@ -31,49 +31,49 @@ export const colossians2: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
   summary:
-    'Paul tells the Colossians they were "circumcised with a circumcision made without hands," buried with Christ, and raised with him. Walk the one Greek sentence and watch how the diagram links circumcision to burial to baptism — and where one small relative pronoun (ἐν ᾧ) leaves a real, debated choice about what raised them: the baptism just named, or Christ himself.',
+    'Paul tells the Colossians they were "circumcised with a circumcision made without hands" — the circumcision Christ himself works in them — buried with him in baptism, and raised with him too. Walk the one Greek sentence and watch how the diagram links circumcision to burial to baptism, down to one small relative pronoun, ἐν ᾧ (en hō, "in which"), that this guide reads as pointing back to that same baptism — though some readers instead trace it to Christ himself.',
   devotionalFrame:
-    'Colossians 2 is Paul\'s answer to teachers who would add rules, festivals, and (behind them) the old covenant\'s circumcision to the Colossians\' faith. His reply is that they already have everything in Christ: a circumcision not made with hands, a burial, and a resurrection — all received in union with him. The grammar of these two verses stacks those images into a single connected shape. Watch the diagram build the argument, and notice, at the end, one place where the Greek itself keeps a door open.',
+    'Colossians 2 is Paul\'s answer to teachers who would add rules, festivals, and (behind them) the old covenant\'s circumcision to the Colossians\' faith. His reply is that they already have everything in Christ: a circumcision not made with hands, a burial, and a resurrection — all received in union with him. The grammar of these two verses stacks those images into a single connected shape. Watch the diagram build the argument, and notice, at the end, one place — a single relative pronoun — where careful readers still trace the Greek two different ways.',
   confessionalFrame:
-    'A confessional note (confessional Reformed): this tradition reads Colossians 2:11–12 as one of the clearest New-Testament links between circumcision and baptism — the base tree\'s own hinge (περιετμήθητε governing the "buried with him … in baptism" clause) is taken to show that baptism is the new-covenant sign that answers to the old-covenant circumcision, which grounds the covenantal (including infant-baptism) reading of the sign. This is offered as a labelled conviction, not a claim that the grammar forces it: the passage joins the images without spelling out who receives the sign or when, and the fair summary below includes the credobaptist reading and the "circumcision of Christ = his death" reading that many careful interpreters hold.',
+    'A confessional note (confessional Reformed): this tradition reads Colossians 2:11–12 as one of the clearest New-Testament links between circumcision and baptism — the base tree\'s own hinge (περιετμήθητε, perietmēthēte, "you were circumcised," governing the "buried with him … in baptism" clause) is taken to show that baptism is the new-covenant sign that answers to the old-covenant circumcision, which grounds the covenantal (including infant-baptism) reading of the sign. This is offered as a labelled conviction, not a claim that the grammar forces it: the passage joins the images without spelling out who receives the sign or when, and the fair summary below includes the credobaptist reading and the "circumcision of Christ = his death" reading that many careful interpreters hold.',
   debateSummary: {
     issue:
-      'Colossians 2:11–12 stacks three images — a circumcision "made without hands," a burial "in baptism," and a raising "through faith." Two questions are genuinely open in the grammar: what is "the circumcision of Christ," and — at ἐν ᾧ in v.12b — what raised you: the baptism just named, or Christ?',
+      'Colossians 2:11–12 stacks three images — a circumcision "made without hands," a burial "in baptism," and a raising "through faith." Two lexical questions sit underneath the grammar: what is "the circumcision of Christ," and — at ἐν ᾧ (en hō) in v.12b — what raised you: the baptism just named, or Christ? This guide takes a position on both, and gives the alternates a fair hearing below.',
     views: [
       {
-        label: 'ἐν ᾧ antecedent = baptism ("in which you were also raised")',
+        label: '"The circumcision of Christ" = the circumcision Christ performs in the believer — this guide\'s reading',
         summary:
-          'Takes the relative ᾧ in v.12b to reach back to the nearest noun, βαπτισμῷ: "buried with him in baptism, in which you were also raised through faith." On this reading burial and resurrection are both described as happening in the one baptism — the reading the base tree draws, and the one many English versions render ("wherein / in which you were also raised").',
+          'A second question sits beneath the antecedent question: what is ἡ περιτομὴ τοῦ Χριστοῦ (hē peritomē tou Christou), "the circumcision of Christ"? This guide reads it as the spiritual circumcision Christ himself performs on the believer at conversion — the cutting away of the old self, worked by union with him, of which the outward, hand-made rite was always only a shadow. The genitive τοῦ Χριστοῦ (tou Christou, "of Christ") names Christ as the one who does the circumcising, and the surrounding "made without hands … putting off the body of the flesh" language fits a work Christ performs IN the believer better than a rite he alone underwent. Some careful readers take the same genitive the other way — as the "circumcision" Christ himself underwent, his death, the stripping off of the body of flesh on the cross. That reading is real and defensible; the genitive by itself does not adjudicate between the two.',
+        cautions: [
+          'The credobaptist reading belongs here too: even where baptism and circumcision are linked as covenant signs, this passage describes an already-believing, already-buried-and-raised people, so it does not by itself settle who should receive baptism or when. That question is argued from the whole of Scripture, not from these two verses alone.',
+        ],
+      },
+      {
+        label: 'ἐν ᾧ antecedent = baptism ("in baptism, in which you were also raised") — this guide\'s reading',
+        summary:
+          'This guide takes the relative ᾧ (hō) in v.12b to reach back to the nearest noun, βαπτισμῷ (baptismō, "baptism"): "buried with him in baptism, in which you were also raised through faith." Burial and resurrection are both pictured as happening in that one baptism — the reading the base tree draws, the reading many English versions render ("wherein / in which you were also raised"), and the reading this guide teaches as standard.',
         cautions: [
           'Reading the raising as "in baptism" does not by itself make baptism the instrument that raises apart from faith — the same clause immediately grounds the raising "through faith in the working of God." The antecedent question is about reference, not about mechanism.',
         ],
       },
       {
-        label: 'ἐν ᾧ antecedent = Christ ("in whom you were also raised")',
+        label: 'ἐν ᾧ antecedent = Christ ("in whom you were also raised") — the leading alternate',
         summary:
-          'Takes ᾧ to reach back past baptism to the person of the whole context — the Christ you were buried WITH (συνταφέντες αὐτῷ) and circumcised in (ἐν ᾧ, v.11a) — so "in whom you were also raised." Greek relative pronouns often reach to a governing person rather than the nearest noun, and v.11a\'s ἐν ᾧ already refers to Christ, which this reading takes as the pattern for v.12b. The app carries this as the alternate reading; open it on the contested step to see the raised-clause re-attach to "buried with him."',
+          'The leading alternate takes ᾧ (hō) to reach back past baptism to the person of the whole context — the Christ you were buried WITH (συνταφέντες αὐτῷ, syntaphentes autō) and circumcised in (ἐν ᾧ, en hō, v.11a) — so "in whom you were also raised." Greek relative pronouns can reach to a governing person rather than the nearest noun, and v.11a\'s own ἐν ᾧ (en hō) already refers to Christ, which this reading takes as the pattern for v.12b — a real, defensible construal, argued from the wider context and the v.11a parallel rather than from proximity. The app carries it as the alternate reading; open it on the contested step to see the raised-clause re-attach to "buried with him" instead of to "baptism."',
         cautions: [
-          'The nearest-noun pull toward βαπτισμῷ is real, so this reading argues from the wider context and the v.11a parallel rather than from proximity — a genuine, defensible construal, not a correction of the base.',
-        ],
-      },
-      {
-        label: '"The circumcision of Christ" — his death, or the believer\'s conversion?',
-        summary:
-          'Beneath the antecedent question sits a second one: does ἡ περιτομὴ τοῦ Χριστοῦ mean the "circumcision" Christ underwent — his death, the stripping off of the body of flesh on the cross — or the spiritual circumcision Christ performs on the believer at conversion? Both are held by careful readers; the phrase\'s genitive (τοῦ Χριστοῦ) can be read either way, and the surrounding "made without hands … putting off the body of the flesh" language is cited on both sides.',
-        cautions: [
-          'The credobaptist reading belongs here too: even where baptism and circumcision are linked as covenant signs, this passage describes an already-believing, already-buried-and-raised people, so it does not by itself settle who should receive baptism or when. That question is argued from the whole of Scripture, not from these two verses alone.',
+          'The nearest-noun pull toward βαπτισμῷ (baptismō, "baptism") is real — which is why this guide teaches that reading as standard — but the wider-context argument here is a genuine, defensible construal, not a correction of the base.',
         ],
       },
     ],
     grammarOpensQuestionHow:
-      'The syntax settles a great deal and refuses to settle the rest. It draws the hinge plainly — the "buried with him … in baptism" clause hangs off "you were circumcised," so circumcision, burial, and baptism are one connected movement — and it leaves βαπτισμῷ genuinely unglossed and ᾧ genuinely ambiguous. Whether ᾧ points to baptism or to Christ, and whether "the circumcision of Christ" is his death or the believer\'s conversion, are questions of reference and lexical sense that the tree frames but cannot decide. English translations rightly render the words and, at ἐν ᾧ, quietly choose one antecedent while others footnote the alternative.',
+      'The syntax settles a great deal. It draws the hinge plainly — the "buried with him … in baptism" clause hangs off "you were circumcised," so circumcision, burial, and baptism are one connected movement — and this guide reads βαπτισμῷ (baptismō, "baptism") as both the location of the burial AND the antecedent of ἐν ᾧ (en hō): "in baptism, in which you were also raised." What the syntax does not settle by itself is the sense of two words: whether ᾧ (hō) could instead reach past baptism to Christ, and whether "the circumcision of Christ" names his own death or the circumcision he performs in the believer. This guide takes the nearest-noun, believer-centered reading on both counts as the natural sense of the words in context; the alternates above are real and defensible, which is why English translations occasionally render them differently at ἐν ᾧ (en hō).',
   },
   steps: [
     {
       id: 'step-circumcised-without-hands',
       title: 'Circumcised — but "made without hands"',
       body:
-        'Paul tells the Colossians they were [[peritmethete]] — "you were circumcised" — with a circumcision [[acheiropoieto]], "made without hands." The diagram hangs περιτομῇ ("with a circumcision") beneath the verb, and ἀχειροποιήτῳ ("not hand-made") slants beneath that noun, qualifying it. The whole phrase turns an outward, physical rite into something God does inwardly. Notice the verb is passive: they did not circumcise themselves — it was done TO them.',
+        'Paul tells the Colossians they were [[peritmethete]] — "you were circumcised" — with a circumcision [[acheiropoieto]], "made without hands." The diagram hangs περιτομῇ (peritomē, "with a circumcision") beneath the verb, and [[acheiropoieto]] slants beneath that noun, qualifying it. The whole phrase turns an outward, physical rite into something God does inwardly. Notice the verb is passive: they did not circumcise themselves — it was done TO them.',
       focus: {
         nodeIds: ['w_n51002011004', 'w_n51002011005', 'w_n51002011006'],
         relationIds: ['r_s13_46', 'r_s13_51', 'r_s13_50'],
@@ -88,9 +88,9 @@ export const colossians2: GrammarHighlightGuide = {
     },
     {
       id: 'step-circumcision-of-christ',
-      title: 'The circumcision of Christ',
+      title: 'The circumcision of Christ — his own work in you',
       body:
-        'The phrase resolves into "in the circumcision [[christou]] — of Christ." The diagram draws Χριστοῦ as a genitive beneath περιτομῇ, and the whole "in the circumcision of Christ" phrase hangs adverbially beneath "you were circumcised." Whose circumcision is this? Careful readers differ: it may be the "circumcision" Christ himself underwent — his death, the stripping away of the flesh on the cross — or the spiritual circumcision Christ works in the believer. The genitive leaves the door open; see this guide\'s debate summary.',
+        'The phrase resolves into "in the circumcision [[christou]] — of Christ." The diagram draws [[christou]] as a genitive beneath περιτομῇ (peritomē, "circumcision"), and the whole "in the circumcision of Christ" phrase hangs adverbially beneath "you were circumcised." This is the circumcision Christ himself performs on the believer — the inward cutting-away of the old self, worked by union with him, not a rite he alone underwent on the cross. (Some readers take the genitive the other way, as Christ\'s own "circumcision" — his death; see this guide\'s "Where readers differ" for that alternate reading, fairly presented.)',
       focus: {
         nodeIds: ['w_n51002011014', 'w_n51002011016', 'w_n51002011018'],
         relationIds: ['r_s13_63', 'r_s13_61', 'r_s13_59'],
@@ -98,16 +98,16 @@ export const colossians2: GrammarHighlightGuide = {
       panZoom: { fit: 'nodes', padding: 150 },
       highlights: { emphasizedNodeIds: ['w_n51002011018'] },
       implication:
-        'Either way, this circumcision belongs to Christ, not to the ritual knife — it is his work, received by union with him, and that is where Paul turns next.',
+        'This circumcision belongs to Christ, not to the ritual knife — his work, done in the believer by union with him — and that union is where Paul turns next.',
       caution:
-        'A genitive ("of Christ") only marks a relationship; it does not label its own kind. Whether it means the circumcision Christ underwent or the one he performs is a question of sense the diagram frames but cannot settle.',
+        'A genitive ("of Christ") only marks a relationship; it does not by itself label which kind. This guide reads the surrounding "made without hands" language as pointing to Christ\'s work IN the believer rather than to an event he alone underwent — but the genitive alone does not force that reading, which is why "Where readers differ" gives the alternate a fair hearing.',
       greekTermIds: ['christou'],
     },
     {
       id: 'step-syntaphentes-hinge',
       title: 'The hinge: buried with him',
       body:
-        'Now watch the sentence turn. [[syntaphentes]] αὐτῷ — "having been buried with him" — opens a new clause, and the diagram draws it hanging OFF the verb "you were circumcised" (the highlighted link). That attachment is the whole argument in miniature: the circumcision "made without hands" IS a burial with Christ. The participle σύν-compound ("buried-together-WITH") ties them into one act, and αὐτῷ ("with him") names the one you were buried with. This hinge — circumcision leading straight into burial — is what the base tree already draws, before any reading is chosen.',
+        'Now watch the sentence turn. [[syntaphentes]] αὐτῷ (autō) — "having been buried with him" — opens a new clause, and the diagram draws it hanging OFF the verb "you were circumcised" (the highlighted link). That attachment is the whole argument in miniature: the circumcision "made without hands" IS a burial with Christ. The participle\'s σύν- (syn-, "with/together") prefix ("buried-together-WITH") ties them into one act, and αὐτῷ (autō, "with him") names the one you were buried with. This hinge — circumcision leading straight into burial — is what the base tree already draws, before any reading is chosen.',
       focus: {
         nodeIds: ['w_n51002011004', 'w_n51002012001', 'w_n51002012002'],
         relationIds: ['r_s13_89', 'r_s13_65', 'r_s13_66'],
@@ -122,7 +122,7 @@ export const colossians2: GrammarHighlightGuide = {
       id: 'step-in-baptism',
       title: 'In baptism',
       body:
-        'The burial has a location: συνταφέντες αὐτῷ ἐν τῷ [[baptismo]] — "buried with him in baptism." The diagram hangs the "in baptism" phrase beneath the participle. Here is a small window into the data: the SBLGNT base ships βαπτισμῷ with NO English gloss at all. In English-gloss mode the app now fills it from the word\'s dictionary form (βαπτισμός → "baptism"), so the diagram reads fully in English instead of leaving one stray Greek word — a real data gloss always wins where one exists, and this fallback only steps in where the base left a blank.',
+        'The burial has a location: [[syntaphentes]] αὐτῷ (autō) ἐν τῷ [[baptismo]] — "buried with him in baptism." The diagram hangs the "in baptism" phrase beneath the participle. Here is a small window into the data: the SBLGNT base ships βαπτισμῷ (baptismō) with NO English gloss at all. In English-gloss mode the app now fills it from the word\'s dictionary form (βαπτισμός, baptismos → "baptism"), so the diagram reads fully in English instead of leaving one stray Greek word — a real data gloss always wins where one exists, and this fallback only steps in where the base left a blank.',
       focus: {
         nodeIds: ['w_n51002012001', 'w_n51002012003', 'w_n51002012005'],
         relationIds: ['r_s13_88', 'r_s13_85'],
@@ -131,13 +131,13 @@ export const colossians2: GrammarHighlightGuide = {
       highlights: { emphasizedNodeIds: ['w_n51002012005'] },
       implication:
         'Baptism is where Paul locates the burial with Christ — the visible sign attached to an invisible circumcision "made without hands."',
-      greekTermIds: ['baptismo'],
+      greekTermIds: ['syntaphentes', 'baptismo'],
     },
     {
       id: 'step-raised-in-whom',
-      title: 'Raised — in baptism, or in Christ?',
+      title: 'Raised — in that same baptism',
       body:
-        'Then: ἐν ᾧ καὶ [[synegerthete]] — "in whom/which you were also raised." The little relative pronoun ᾧ has to point somewhere, and the diagram draws it reaching back to βαπτισμῷ: "in which [baptism] you were also raised." But the antecedent is genuinely debated. It may instead reach past baptism to the person of the whole passage — the Christ you were buried WITH — so "in whom [Christ] you were also raised," exactly as v.11\'s earlier ἐν ᾧ already refers to Christ. Open the alternate reading below to see the raised-clause re-attach to "buried with him." Nothing about the words changes; only where one relative pronoun points.',
+        'Then: ἐν ᾧ (en hō) καὶ [[synegerthete]] — "in which you were also raised." The relative pronoun ᾧ (hō) points back to the nearest noun in the sentence, βαπτισμῷ (baptismō, "baptism"), and that is how the diagram — and most English versions — read it: "in baptism, in which you were also raised." Burial and resurrection are both pictured as happening in that one baptism, with the raising immediately grounded in faith in God\'s working. (Some readers instead take ᾧ (hō) to reach past baptism to Christ himself — "in whom you were also raised," on the pattern of v.11a\'s own ἐν ᾧ (en hō) = Christ; open "Where readers differ" below to see that alternate reading drawn structurally.) Nothing about the Greek words changes between the two readings — only where the pronoun is understood to point.',
       focus: {
         nodeIds: ['w_n51002012005', 'w_n51002012007', 'w_n51002012009'],
         relationIds: ['r_s13_86', 'r_s13_87', 'r_s13_70'],
@@ -145,11 +145,11 @@ export const colossians2: GrammarHighlightGuide = {
       panZoom: { fit: 'nodes', padding: 150 },
       highlights: { emphasizedNodeIds: ['w_n51002012007', 'w_n51002012009'] },
       caution:
-        'Both antecedents are held by serious readers of Greek: the nearest-noun pull toward "baptism" is real, and so is the pattern set by v.11a\'s ἐν ᾧ = Christ. The grammar frames the choice; it does not make it for you.',
+        'The nearest-noun pull toward "baptism" is the grammar\'s normal default, which is why this guide reads ᾧ (hō) that way; the Christ-antecedent reading is a real, defensible alternative some careful readers hold on the pattern of v.11a — see "Where readers differ" for a fair hearing of it.',
       contested: {
         issueId: 'iss_col_2_12_raised_antecedent_sblgnt',
         note:
-          'This debated attachment is in the app\'s alternate-readings registry. Open it to preview the "in whom (Christ)" reading drawn structurally — the raised-clause hangs off "buried with him" instead of off "baptism."',
+          'This step follows the standard "in baptism" reading. The alternate "in whom" (Christ) construal is in the app\'s alternate-readings registry — open it to preview that reading drawn structurally, with the raised-clause hanging off "buried with him" instead of off "baptism."',
       },
       greekTermIds: ['synegerthete'],
     },
@@ -157,7 +157,7 @@ export const colossians2: GrammarHighlightGuide = {
       id: 'step-through-faith',
       title: 'Through faith in the working of God',
       body:
-        'However you resolve that pronoun, the clause lands the same way: you were raised διὰ τῆς [[pisteos]] τῆς ἐνεργείας τοῦ [[theou]] — "through faith in the working of God." The diagram hangs "through faith" beneath the verb, then cascades genitives beneath it: faith — in the working — of God. The power that raises is God\'s, "who raised Christ from the dead" (the phrase the sentence closes on); the way it is received is faith. Baptism pictures it, but the working belongs to God.',
+        'Whichever way you take that pronoun, the clause lands the same way: you were raised διὰ τῆς [[pisteos]] τῆς ἐνεργείας τοῦ [[theou]] (dia tēs pisteōs tēs energeias tou theou) — "through faith in the working of God." The diagram hangs "through faith" beneath the verb, then cascades genitives beneath it: faith — in the working — of God. The power that raises is God\'s, "who raised Christ from the dead" (the phrase the sentence closes on); the way it is received is faith. Baptism pictures it, but the working belongs to God.',
       focus: {
         nodeIds: ['w_n51002012012', 'w_n51002012014', 'w_n51002012016'],
         relationIds: ['r_s13_84', 'r_s13_83', 'r_s13_81', 'r_s13_79'],
@@ -203,9 +203,9 @@ export const colossians2: GrammarHighlightGuide = {
       gloss: 'of Christ',
       parsing: 'proper noun, genitive masculine singular',
       explanation:
-        'The genitive in "the circumcision of Christ." It may name the circumcision Christ underwent (his death) or the one he performs in the believer — a genuine ambiguity the genitive leaves open.',
+        'The genitive in "the circumcision of Christ." This guide reads it as the circumcision Christ himself performs in the believer at conversion — the spiritual "cutting away" worked by union with him (some readers instead take it as the circumcision Christ himself underwent, his death; see "Where readers differ").',
       implication:
-        'Whichever sense you take, the circumcision belongs to Christ and is received in union with him, not through a ritual "made with hands."',
+        'This is Christ\'s own work of union — the believer receives it, rather than performing it, and it comes not through a ritual "made with hands."',
     },
     {
       id: 'syntaphentes',
@@ -216,7 +216,7 @@ export const colossians2: GrammarHighlightGuide = {
       gloss: 'having been buried with',
       parsing: 'aorist passive participle, nominative masculine plural',
       explanation:
-        'A σύν-compound — "buried-together-WITH." It opens the clause that the base tree hangs off "you were circumcised," welding circumcision and burial into one act. αὐτῷ ("with him") names Christ as the one buried with.',
+        'A σύν- (syn-, "with/together") compound — "buried-together-WITH." It opens the clause that the base tree hangs off "you were circumcised," welding circumcision and burial into one act. αὐτῷ (autō, "with him") names Christ as the one buried with.',
     },
     {
       id: 'baptismo',
@@ -227,7 +227,7 @@ export const colossians2: GrammarHighlightGuide = {
       gloss: 'baptism',
       parsing: 'noun, dative masculine singular (object of ἐν)',
       explanation:
-        'Where Paul locates the burial with Christ: "in baptism." In the SBLGNT base data this word ships with no gloss at all, so the diagram fills it from its dictionary form (βαπτισμός → "baptism") in English-gloss mode.',
+        'Where Paul locates the burial with Christ: "in baptism." In the SBLGNT base data this word ships with no gloss at all, so the diagram fills it from its dictionary form (βαπτισμός, baptismos → "baptism") in English-gloss mode. This guide also takes this same noun as the antecedent of ἐν ᾧ (en hō) in v.12b: "in baptism, in which you were also raised" (see "Raised — in that same baptism").',
       caution:
         'Locating the burial "in baptism" describes where the union is pictured; the same sentence grounds the raising "through faith in the working of God," so the sign and the faith are not played off against each other.',
     },
@@ -240,9 +240,9 @@ export const colossians2: GrammarHighlightGuide = {
       gloss: 'you were raised with',
       parsing: 'aorist passive indicative, 2nd person plural',
       explanation:
-        'Another σύν-compound and another passive: "you were raised together with [him]." It is the verb governed by the debated ἐν ᾧ — "in whom/which you were also raised."',
+        'Another σύν- (syn-, "with/together") compound and another passive: "you were raised together with [him]." It is the verb governed by ἐν ᾧ (en hō) — read on this guide\'s standard reading as "in baptism, in which you were also raised" (see "Where readers differ" for the alternate "in whom [Christ]").',
       caution:
-        'The aorist views the raising as a whole; it is Paul\'s way of speaking of a settled reality, not a claim about "once-for-all" timing. The open question here is what ᾧ points to, not what the tense means.',
+        'The aorist views the raising as a whole; it is Paul\'s way of speaking of a settled reality, not a claim about "once-for-all" timing. The open question here is what ᾧ (hō) points to, not what the tense means.',
     },
     {
       id: 'pisteos',
@@ -253,7 +253,7 @@ export const colossians2: GrammarHighlightGuide = {
       gloss: 'faith',
       parsing: 'noun, genitive feminine singular (object of διά)',
       explanation:
-        '"Through faith" — the means by which the raising is received. Whatever ᾧ points to, the clause immediately names faith as the channel and God\'s working as the power.',
+        '"Through faith" — the means by which the raising is received. Whichever way you take ᾧ (hō), the clause immediately names faith as the channel and God\'s working as the power.',
     },
     {
       id: 'theou',

@@ -15,7 +15,7 @@ export const johnSin: GrammarHighlightGuide = {
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'intermediate',
   summary:
-    'A two-passage comparison: 1 John 2:1’s aorist ἁμάρτῃ pictures one specific act of sin met by an Advocate, while 3:6–9’s present-tense verbs picture sin as a settled, defining pattern that no longer characterizes someone born of God and abiding in Christ.',
+    'A two-passage comparison: 1 John 2:1’s aorist ἁμάρτῃ (hamartē, “should sin”) pictures one specific act of sin met by an Advocate, while 3:6–9’s present-tense verbs picture sin as a settled, defining pattern that no longer characterizes someone born of God and abiding in Christ.',
   devotionalFrame:
     'These two passages sit only a chapter apart, and read alone they can sound like they pull in opposite directions: “if anyone sins, we have an advocate” — and then, “no one who is born of God practices sin.” Follow the diagrams closely and you will see John reaching for two different pictures of sin: one a single occurrence, the other a settled direction of life. Both are true, and both are for you.',
   steps: [
@@ -56,7 +56,7 @@ export const johnSin: GrammarHighlightGuide = {
       panZoom: { fit: 'nodes', padding: 120 },
       highlights: { emphasizedNodeIds: ['w_n62002001013', 'w_n62002001018'] },
       implication:
-        'This is the answer to every specific failure that ἁμάρτῃ pictures: not excuse, not despair, but an Advocate — himself righteous — pleading our case with the Father.',
+        'This is the answer to every specific failure that [[hamarte]] pictures: not excuse, not despair, but an Advocate — himself righteous — pleading our case with the Father.',
       greekTermIds: ['echomen', 'parakleton'],
     },
     {
@@ -64,7 +64,7 @@ export const johnSin: GrammarHighlightGuide = {
       title: '“Does not sin” — a settled, present-tense pattern',
       passageId: 'sblgnt_1-john_60',
       body:
-        'A chapter later, John describes something different. [[menon]] (“abiding”) and [[hamartanei]] (“sins”) are both present tense: “Everyone who abides in him does not sin.” The present tense views the action as ongoing, in progress — not a single case like ἁμάρτῃ, but a continuing condition. John has moved from an isolated lapse to the settled direction of a life.',
+        'A chapter later, John describes something different. [[menon]] (“abiding”) and [[hamartanei]] (“sins”) are both present tense: “Everyone who abides in him does not sin.” The present tense views the action as ongoing, in progress — not a single case like [[hamarte]], but a continuing condition. John has moved from an isolated lapse to the settled direction of a life.',
       focus: {
         nodeIds: ['w_n62003006001', 'w_n62003006005', 'w_n62003006007'],
         relationIds: ['r_s60_7', 'r_s60_6', 'r_s60_3', 'r_s60_1'],
@@ -82,7 +82,7 @@ export const johnSin: GrammarHighlightGuide = {
       title: 'Born of God: sin is not the practice of the new life',
       passageId: 'sblgnt_1-john_66',
       body:
-        'The pattern repeats in 3:9: “everyone [[gegennemenos]] of God does not [[poiei]] sin” — literally, does not “practice” or “keep doing” sin. [[poiei]] is present tense again, the same ongoing picture as ἁμαρτάνει in verse 6. But now John gives the reason: God’s seed abides in him. The new birth, not willpower, is why sin is no longer the shape of this life.',
+        'The pattern repeats in 3:9: “everyone [[gegennemenos]] of God does not [[poiei]] sin” — literally, does not “practice” or “keep doing” sin. [[poiei]] is present tense again, the same ongoing picture as [[hamartanei]] in verse 6. But now John gives the reason: God’s seed abides in him. The new birth, not willpower, is why sin is no longer the shape of this life.',
       focus: {
         nodeIds: ['w_n62003009001', 'w_n62003009003', 'w_n62003009009'],
         relationIds: ['r_s66_8', 'r_s66_7', 'r_s66_3', 'r_s66_1', 'r_s66_9'],
@@ -103,7 +103,7 @@ export const johnSin: GrammarHighlightGuide = {
       {
         label: 'Aspectual / habitual-pattern reading',
         summary:
-          'The aorist ἁμάρτῃ in 2:1 pictures a specific, occasional act of sin, while the present-tense ἁμαρτάνει and ποιεῖ in 3:6, 9 describe a continuing, characteristic practice or direction of life. On this reading John is not claiming Christians never sin — he has already denied that possibility in 1:8–10 — but that a person born of God and abiding in Christ is not defined or ruled by sin as a settled pattern.',
+          'The aorist ἁμάρτῃ (hamartē, “should sin”) in 2:1 pictures a specific, occasional act of sin, while the present-tense ἁμαρτάνει (hamartanei, “sins”) and ποιεῖ (poiei, “practices”) in 3:6, 9 describe a continuing, characteristic practice or direction of life. On this reading John is not claiming Christians never sin — he has already denied that possibility in 1:8–10 — but that a person born of God and abiding in Christ is not defined or ruled by sin as a settled pattern.',
         cautions: [
           'Verb aspect is a real signal, but it does not by itself prove “habitual” — some present-tense verbs are simply general statements, not necessarily iterative ones. This reading still needs the rest of chapter 3 (the new birth, the devil’s pattern, love versus hate) to carry most of the weight, not the tense alone.',
         ],
@@ -130,7 +130,7 @@ export const johnSin: GrammarHighlightGuide = {
       gloss: 'should sin',
       parsing: 'aorist active subjunctive, 3rd singular',
       explanation:
-        'Governed by ἐάν (“if”), this pictures one potential act of sin as a single whole — a specific case in view, not a description of a lifestyle.',
+        'Governed by ἐάν (ean, “if”), this pictures one potential act of sin as a single whole — a specific case in view, not a description of a lifestyle.',
       implication: 'This is the scenario 2:1 is built to answer: a real believer, after a real failure.',
       caution:
         'The aorist does not mean “just once, and it can never happen again” — it simply views this one occurrence as a complete whole.',
@@ -177,7 +177,7 @@ export const johnSin: GrammarHighlightGuide = {
       gloss: 'sins',
       parsing: 'present active indicative, 3rd singular',
       explanation:
-        'The same verb as ἁμάρτῃ in 2:1, now present tense: sin viewed as ongoing rather than as one instance.',
+        'The same verb as ἁμάρτῃ (hamartē, “should sin”) in 2:1, now present tense: sin viewed as ongoing rather than as one instance.',
       caution:
         'Present tense pictures the action as in progress; it does not automatically mean “without exception, forever.” Context — the letter’s argument about the new birth and abiding in Christ — carries most of that weight.',
     },

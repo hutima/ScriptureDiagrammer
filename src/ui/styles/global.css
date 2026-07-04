@@ -1979,7 +1979,11 @@ button.mc-code.glossed:hover {
 .hl-swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; }
 
 /* ---- Sermon drawer ---- */
-.sermon-aside { width: var(--right-w, 360px); }
+/* The width fallback MUST match `.workspace`'s right-track fallback (340px):
+   `--right-w` is only ever assigned at ≤1024px, so on a real desktop both
+   rules run on their fallbacks — a wider aside overflows its grid track past
+   the browser's right edge and swallows the panel's right padding. */
+.sermon-aside { width: var(--right-w, 340px); }
 .sermon-drawer { display: flex; flex-direction: column; gap: 8px; padding: 4px 12px 24px; overflow: auto; }
 .sermon-section { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
 .sermon-section h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--accent); margin: 12px 0 8px; }
@@ -3640,7 +3644,11 @@ label.field.inline > span { margin-bottom: 0; }
 .guided-picker-meta { font-size: 11px; color: var(--ink-soft, #64748b); }
 .guided-picker-summary { font-size: 12px; color: var(--ink-soft, #475569); line-height: 1.4; }
 .guided-picker-note { font-size: 12px; color: var(--muted, #64748b); line-height: 1.4; }
-.guided-aside { width: var(--right-w, 360px); }
+/* Fallback matches `.workspace`'s right-track fallback (340px) — see
+   `.sermon-aside` above: a 360px fallback overflowed the 340px track on real
+   desktops, pushing the step card's right padding off-screen. Small screens
+   are untouched (≤1024px sets `--right-w`; mobile uses `.guided-mobile-card`). */
+.guided-aside { width: var(--right-w, 340px); }
 /* `.guided-full-width` is set from ResponsiveShell whenever guided mode is
    active on any narrow REAL device width (`vp.device !== 'desktop'` —
    including forced-desktop at phone/tablet widths, since forcing desktop is a
@@ -3737,6 +3745,18 @@ label.field.inline > span { margin-bottom: 0; }
   text-decoration: underline dotted;
   cursor: pointer;
 }
+/* English display mode appends "(translit, gloss)" to each term link so the
+   copy never shows bare Greek to a reader who chose English — softer and
+   unbolded so the Greek surface stays the visual anchor. */
+.guided-term-inline-gloss {
+  /* inline-block: an atomic inline box, so the button's dotted underline does
+     not propagate onto the English parenthetical. */
+  display: inline-block;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink-soft, #64748b);
+  text-decoration: none;
+}
 .guided-term-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .guided-term-chip {
   padding: 3px 10px;
@@ -3806,7 +3826,8 @@ label.field.inline > span { margin-bottom: 0; }
   border-color: var(--line);
 }
 .guided-debate summary { cursor: pointer; font-weight: 600; }
-.guided-debate-caution { color: var(--ink-soft, #64748b); }
+.guided-debate-cautions { margin: 4px 0 0; padding-left: 16px; }
+.guided-debate-caution { color: var(--ink-soft, #64748b); font-style: italic; }
 .guided-debate-grammar { font-style: italic; }
 .guided-empty { color: var(--muted, #64748b); }
 .guided-mobile-card {

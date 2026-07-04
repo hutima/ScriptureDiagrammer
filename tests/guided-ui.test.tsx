@@ -125,6 +125,31 @@ describe('guided mode UI', () => {
     expect(useGuidedStore.getState().selectedGreekTermId).toBe('ekpeptoken');
   });
 
+  it('English display mode appends an inline transliteration gloss to term links; Greek mode does not', () => {
+    useGuidedStore.getState().enter('english');
+    const guide = grammarHighlightGuides[0]!;
+    const stepIdx = guide.steps.findIndex((s) => /\[\[/.test(s.body));
+    expect(stepIdx).toBeGreaterThanOrEqual(0);
+    act(() => useGuidedStore.getState().setStep(stepIdx));
+    const termId = guide.steps[stepIdx]!.body.match(/\[\[([a-zA-Z0-9_-]+)\]\]/)![1]!;
+    const term = guide.greekTerms.find((t) => t.id === termId)!;
+    const { container, unmount } = render(createElement(GuidedStepCard));
+    const links = Array.from(container.querySelectorAll<HTMLButtonElement>('.guided-term-link'));
+    const link = links.find((l) => l.textContent?.startsWith(term.surface));
+    expect(link).toBeTruthy();
+    // "surface (translit…)" — the gloss itself may be elided when the prose
+    // already gives the English on the same line, so assert the stable prefix.
+    const inline = link!.querySelector('.guided-term-inline-gloss');
+    expect(inline?.textContent?.trim().startsWith(`(${term.transliteration}`)).toBe(true);
+    unmount();
+    // Greek display mode keeps the bare surface — no parenthetical.
+    act(() => useGuidedStore.getState().leave());
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().setStep(stepIdx));
+    const greek = render(createElement(GuidedStepCard));
+    expect(greek.container.querySelector('.guided-term-inline-gloss')).toBeNull();
+  });
+
   it('a step with a contested reference offers "See the alternate reading" and opens the panel', () => {
     useGuidedStore.getState().enter('greek');
     act(() => useGuidedStore.getState().openGuide('guide-romans-9-5'));

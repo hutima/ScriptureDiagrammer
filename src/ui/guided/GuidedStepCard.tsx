@@ -14,17 +14,44 @@ const KIND_LABELS: Record<keyof typeof GUIDED_HIGHLIGHT_COLORS, string> = {
 };
 
 /**
+ * The English-mode parenthetical shown after a term link, so a reader who
+ * chose English glosses is never faced with bare Greek: "ἀρχῇ (archē,
+ * beginning)". When the prose block itself already gives the gloss in-line
+ * (e.g. …[[pros]] τὸν θεόν, "with God"…) the parenthetical shortens to just
+ * the transliteration — the meaning is already on the line.
+ */
+function inlineGlossFor(term: GuidedGreekTerm, blockText: string): string {
+  const alternatives = term.gloss
+    .split(/[,;]\s*/)
+    .map((g) => g.trim())
+    .filter(Boolean);
+  const glossOnLine = alternatives.some((g) => {
+    const escaped = g.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`\\b${escaped}\\b`, 'i').test(blockText);
+  });
+  if (glossOnLine || alternatives.length === 0) return `(${term.transliteration})`;
+  return `(${term.transliteration}, ${alternatives[0]})`;
+}
+
+/**
  * Render a step's prose (body, implication, caution, devotional frame),
  * turning `[[termId]]` markers into tappable Greek-term links (the term's
  * surface form). Unknown ids render as plain text so a typo degrades readably
- * (and `guided:check` catches it at build time anyway).
+ * (and `guided:check` catches it at build time anyway). In ENGLISH display
+ * mode every term link carries an inline transliteration + gloss (see
+ * `inlineGlossFor`), so the explanatory copy stays readable to someone who
+ * cannot read Greek script.
  */
 function renderBody(
   body: string,
   guide: GrammarHighlightGuide,
   onTerm: (id: string) => void,
+  english: boolean,
 ): ReactNode[] {
   const parts = body.split(/\[\[([a-zA-Z0-9_-]+)\]\]/g);
+  // The "gloss already on the line" check reads the block's plain prose with
+  // marker syntax removed (markers render as Greek, not English).
+  const plainText = body.replace(/\[\[[a-zA-Z0-9_-]+\]\]/g, ' ');
   return parts.map((part, i) => {
     if (i % 2 === 0) return <Fragment key={i}>{part}</Fragment>;
     const term = guide.greekTerms.find((t) => t.id === part);
@@ -32,6 +59,9 @@ function renderBody(
     return (
       <button key={i} className="guided-term-link" onClick={() => onTerm(term.id)}>
         {term.surface}
+        {english && (
+          <span className="guided-term-inline-gloss"> {inlineGlossFor(term, plainText)}</span>
+        )}
       </button>
     );
   });
@@ -67,6 +97,7 @@ export function GuidedStepCard() {
   const prevStep = useGuidedStore((s) => s.prevStep);
   const selectedTermId = useGuidedStore((s) => s.selectedGreekTermId);
   const selectGreekTerm = useGuidedStore((s) => s.selectGreekTerm);
+  const english = useGuidedStore((s) => s.displayMode === 'english');
   const openContestedPanel = useEditorStore((s) => s.openContestedPanel);
 
   const guide = guideId ? getGuide(guideId) : undefined;
@@ -96,18 +127,18 @@ export function GuidedStepCard() {
         </span>
       </div>
       {stepIndex === 0 && guide.devotionalFrame && (
-        <p className="guided-frame">{renderBody(guide.devotionalFrame, guide, selectGreekTerm)}</p>
+        <p className="guided-frame">{renderBody(guide.devotionalFrame, guide, selectGreekTerm, english)}</p>
       )}
       <h3 className="guided-step-title">{step.title}</h3>
-      <p className="guided-step-body">{renderBody(step.body, guide, selectGreekTerm)}</p>
+      <p className="guided-step-body">{renderBody(step.body, guide, selectGreekTerm, english)}</p>
       {step.implication && (
         <p className="guided-implication">
-          <strong>Why it matters:</strong> {renderBody(step.implication, guide, selectGreekTerm)}
+          <strong>Why it matters:</strong> {renderBody(step.implication, guide, selectGreekTerm, english)}
         </p>
       )}
       {step.caution && (
         <p className="guided-caution">
-          <strong>A caution:</strong> {renderBody(step.caution, guide, selectGreekTerm)}
+          <strong>A caution:</strong> {renderBody(step.caution, guide, selectGreekTerm, english)}
         </p>
       )}
       {chipTerms.length > 0 && (
@@ -169,12 +200,15 @@ export function GuidedStepCard() {
             {guide.debateSummary.views.map((v) => (
               <li key={v.label}>
                 <strong>{v.label}:</strong> {v.summary}
-                {v.cautions?.map((c, i) => (
-                  <em key={i} className="guided-debate-caution">
-                    {' '}
-                    {c}
-                  </em>
-                ))}
+                {v.cautions && v.cautions.length > 0 && (
+                  <ul className="guided-debate-cautions">
+                    {v.cautions.map((c, i) => (
+                      <li key={i} className="guided-debate-caution">
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

@@ -3,9 +3,9 @@ import type { GrammarHighlightGuide } from '@/domain/schema';
 /**
  * 2 Peter 1:1 — a shorter companion to the Titus 2:13 guide: the same
  * Granville Sharp shape (one article, two singular common nouns joined by
- * καί, both naming one person) appears again in Peter's own opening
- * greeting. Authored against the bundled SBLGNT passage `sblgnt_2-peter_0`
- * (dump with `npm run guided:dump`).
+ * καί (kai, "and"), both naming one person) appears again in Peter's own
+ * opening greeting. Authored against the bundled SBLGNT passage
+ * `sblgnt_2-peter_0` (dump with `npm run guided:dump`).
  */
 export const secondPeter1: GrammarHighlightGuide = {
   id: 'guide-2-peter-1-1',
@@ -79,7 +79,7 @@ export const secondPeter1: GrammarHighlightGuide = {
       id: 'step-granville-sharp',
       title: 'One article, two titles, one name',
       body:
-        'Here is the ground of that faith: "through the [[dikaiosyne]] of [[tou]] [[theou]] ἡμῶν [[kai_2]] [[soteros]] Ἰησοῦ Χριστοῦ" — "the righteousness of our God and Savior Jesus Christ." Notice what the diagram shows: the article [[tou]] attaches only once, to [[theou]] ("God"); [[soteros]] ("Savior") is joined to it by [[kai_2]] as a matched partner under that same article, and the whole phrase leans on the one name Jesus Christ. One article, two titles, one person.',
+        'Here is the ground of that faith: "through the [[dikaiosyne]] of [[tou]] [[theou]] ἡμῶν (hēmōn, "our") [[kai_2]] [[soteros]] Ἰησοῦ Χριστοῦ (Iēsou Christou, "Jesus Christ")" — "the righteousness of our God and Savior Jesus Christ." Notice what the diagram shows: the article [[tou]] attaches only once, to [[theou]] ("God"); [[soteros]] ("Savior") is joined to it by [[kai_2]] as a matched partner under that same article, and the whole phrase leans on the one name Jesus Christ — one article, two titles, one person, Jesus Christ himself named God and Savior.',
       focus: {
         nodeIds: [
           'w_n61001001014',
@@ -106,9 +106,9 @@ export const secondPeter1: GrammarHighlightGuide = {
         emphasizedNodeIds: ['w_n61001001015', 'w_n61001001016', 'w_n61001001019'],
       },
       implication:
-        'This is the identical construction behind Titus 2:13 ("our great God and Savior Jesus Christ") and it stands alongside Romans 9:5 as another place the New Testament calls Jesus Christ God outright. Peter grounds his readers\' faith in the righteousness of the very person he is writing to them about.',
+        'One article governing both singular nouns means "God and Savior" names one person: Jesus Christ. This is the identical construction behind Titus 2:13 ("our great God and Savior Jesus Christ"), and Peter uses the very same shape again later in this letter — "our Lord and Savior Jesus Christ" (2 Peter 1:11; also 2:20; 3:2, 18) — where everyone agrees only one person is meant. Read that way here too, this verse stands alongside Romans 9:5 as another place the New Testament calls Jesus Christ God outright. Peter grounds his readers\' faith in the righteousness of the very person he is writing to them about.',
       caution:
-        'The rule this depends on (often named for the grammarian Granville Sharp) is narrow and well-defined: it applies to singular, personal, non-proper nouns joined by καί under one article — exactly what θεοῦ ("God") and σωτῆρος ("Savior") are here. It is not a general rule that any "X and Y" phrase means one thing; it is this specific shape. A few readers still take "God" and "Savior Jesus Christ" as two separate figures loosely joined — the grammar does not make that reading impossible, but it does make the one-person reading the natural one.',
+        'The rule this depends on (often named for the grammarian Granville Sharp) is narrow and well-defined: it applies to singular, personal, non-proper nouns joined by [[kai_2]] under one article — exactly what [[theou]] and [[soteros]] are here. It is not a general rule that any "X and Y" phrase means one thing; it is this specific shape, and it is what ties "Savior" to the "God" just named as one and the same person.',
       greekTermIds: ['dikaiosyne', 'tou', 'theou', 'kai_2', 'soteros'],
     },
   ],
@@ -117,12 +117,12 @@ export const secondPeter1: GrammarHighlightGuide = {
       'Does "our God and Savior Jesus Christ" name one person — Jesus called both God and Savior — or two: God the Father, and separately the Savior Jesus Christ?',
     views: [
       {
-        label: 'One person (the majority reading)',
+        label: 'One person (the standard reading)',
         summary:
-          'One article (τοῦ) governs both "God" and "Savior," joined by καί — the pattern Granville Sharp described for singular, personal, non-proper nouns. That shape points to a single referent: Jesus Christ is here called both "God" and "Savior." Most modern grammarians and translations (ESV, NIV, NASB, NKJV, and others) read it this way, and Peter uses the identical construction elsewhere in this letter (2 Peter 1:11; 2:20; 3:2, 18, "our Lord and Savior Jesus Christ") where all sides agree only one person is meant.',
+          'One article (τοῦ, tou, "the") governs both "God" and "Savior," joined by καί (kai, "and") — the pattern Granville Sharp described for singular, personal, non-proper nouns. That shape points to a single referent: Jesus Christ is here called both "God" and "Savior." Most modern grammarians and translations (ESV, NIV, NASB, NKJV, and others) read it this way, and Peter uses the identical construction elsewhere in this letter (2 Peter 1:11; 2:20; 3:2, 18, "our Lord and Savior Jesus Christ") where all sides agree only one person is meant.',
       },
       {
-        label: 'Two persons (a minority reading)',
+        label: 'Two persons (an alternate reading)',
         summary:
           'A minority reading takes "God" as the Father and "Savior Jesus Christ" as a separate figure added alongside, treating the shared article more loosely. This reading has to explain why the same repeated construction in Peter\'s later chapters is not read the same way, and it runs against how this grammatical pattern normally behaves.',
         cautions: [
@@ -131,7 +131,7 @@ export const secondPeter1: GrammarHighlightGuide = {
       },
     ],
     grammarOpensQuestionHow:
-      'The single-article, one-καί pattern strongly favors one referent, and Peter\'s own repeated use of the same shape later in this letter makes a different meaning here unlikely. But grammar establishes a strong probability, not an ironclad proof by itself — it opens and constrains the question rather than settling every theological implication on its own.',
+      'The single-article, one-καί (kai, "and") pattern strongly favors one referent, and Peter\'s own repeated use of the same shape later in this letter makes a different meaning here unlikely. But grammar establishes a strong probability, not an ironclad proof by itself — it opens and constrains the question rather than settling every theological implication on its own.',
   },
   confessionalFrame:
     'Read confessionally: this verse stands with Titus 2:13, John 1:1, and Romans 9:5 as another place Scripture calls Jesus Christ God outright, worshiping him as fully divine alongside the Father — consistent with the church\'s historic confession of Christ\'s full deity.',
@@ -145,7 +145,7 @@ export const secondPeter1: GrammarHighlightGuide = {
       gloss: 'Simon',
       parsing: 'proper noun, nominative masculine singular',
       explanation:
-        'The Hebrew/Aramaic form of Peter\'s first name (as in Acts 15:14), used alongside his more familiar Greek name Πέτρος ("Peter") — the writer identifying himself at the very start of the letter.',
+        'The Hebrew/Aramaic form of Peter\'s first name (as in Acts 15:14), used alongside his more familiar Greek name Πέτρος (Petros, "Peter") — the writer identifying himself at the very start of the letter.',
     },
     {
       id: 'kai_1',
@@ -189,7 +189,7 @@ export const secondPeter1: GrammarHighlightGuide = {
       gloss: 'the',
       parsing: 'definite article, genitive masculine singular',
       explanation:
-        'The single article that opens the phrase "the God and Savior" — in the diagram it attaches only to "God" (θεοῦ), and "Savior" (σωτῆρος) is joined to that same article by καί rather than getting an article of its own.',
+        'The single article that opens the phrase "the God and Savior" — in the diagram it attaches only to "God" (θεοῦ, theou), and "Savior" (σωτῆρος, sōtēros) is joined to that same article by καί (kai, "and") rather than getting an article of its own.',
       implication:
         'This is the hinge of the whole construction: one article covering two nouns joined by "and" is what ties "God" and "Savior" to a single person rather than two.',
     },
@@ -213,7 +213,7 @@ export const secondPeter1: GrammarHighlightGuide = {
       gloss: 'and',
       parsing: 'conjunction',
       explanation:
-        'The καί that joins "Savior" to "God" under the single article τοῦ — the same small word, doing the same joining work, that appears in Titus 2:13\'s "our great God and Savior."',
+        'The καί that joins "Savior" to "God" under the single article τοῦ (tou, "the") — the same small word, doing the same joining work, that appears in Titus 2:13\'s "our great God and Savior."',
       caution:
         'Not every "X and Y" in Greek carries this force — the reading depends on the specific shape here (one article, two singular non-proper nouns, one καί), not on the conjunction alone.',
     },
@@ -226,7 +226,7 @@ export const secondPeter1: GrammarHighlightGuide = {
       gloss: 'Savior',
       parsing: 'noun, genitive masculine singular',
       explanation:
-        'The second matched title, joined to "God" under the same article — and, like θεοῦ, a singular common noun rather than a proper name, which is exactly the shape Granville Sharp\'s rule describes.',
+        'The second matched title, joined to "God" under the same article — and, like θεοῦ (theou), a singular common noun rather than a proper name, which is exactly the shape Granville Sharp\'s rule describes.',
       implication:
         'Sharing an article with "God" and standing right beside "Jesus Christ," this word identifies the Savior as the very person just called God — the same pairing Peter uses repeatedly later in this letter (1:11; 2:20; 3:2, 18).',
     },
