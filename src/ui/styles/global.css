@@ -2944,6 +2944,13 @@ label.field.inline > span { margin-bottom: 0; }
   background: var(--bg-soft, #f8f9fa);
   font-size: 12px;
 }
+/* Collapsible wrapper around the four "detail" groups (Structure, Indent/
+   order, Annotation, History) — see DiscourseToolbar. Reuses the left panel's
+   `.discourse-outline-toggle` disclosure look; the groups container is just
+   another flex column so collapsing it genuinely frees vertical space for
+   the side panel's other sections instead of merely hiding overflow. */
+.discourse-toolbar-groups-toggle { margin: 0; }
+.discourse-toolbar-groups { display: flex; flex-direction: column; gap: 8px; }
 .discourse-toolbar-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .discourse-toolbar-group-label {
   width: 100%;
@@ -3078,9 +3085,39 @@ label.field.inline > span { margin-bottom: 0; }
 .discourse-inspector-edit textarea, .discourse-relation-editor textarea { resize: vertical; font: inherit; }
 /* A Notes field grows to fill unused vertical space instead of sitting at a
    fixed rows=2/3 height; the textarea itself stretches to match. A sensible
-   floor keeps it usable even when the panel is short. */
-.discourse-notes-field { display: flex; flex-direction: column; flex: 1; min-height: 72px; }
-.discourse-notes-field textarea { flex: 1; min-height: 72px; }
+   floor keeps it usable even when the panel is short.
+
+   TWO bugs compounded to let a manually-resized textarea paint OVER the
+   sibling content below it instead of pushing it down (or scrolling):
+
+   1. SPECIFICITY: the base rule `label.field { display: block; }` (an
+      element + a class) is MORE specific than a bare `.discourse-notes-field
+      { display: flex; }` (one class), so `display: block` always won on this
+      element — the label never actually became the flex container its own
+      comment claimed, and its `flex-direction`/child layout rules had no
+      effect. Selecting on BOTH classes (`.field.discourse-notes-field`, two
+      classes) outweighs `label.field` regardless of source order, so the
+      label reliably becomes the flex column it was meant to be.
+   2. SHRINKING: `.discourse-relation-editor`/`.discourse-inspector` are flex
+      columns with a fixed (ancestor-assigned) height plus `overflow-y: auto`.
+      Per the flexbox spec, `overflow` other than `visible` resets a flex
+      item's automatic minimum size to 0, so with the default `flex-shrink: 1`
+      the browser happily SHRINKS the notes field back down to its
+      `min-height` floor to make everything "fit" the fixed height — even
+      though the textarea's own dragged-open `height` says otherwise. The
+      textarea (now taller than the box its shrunk parent affords it) simply
+      painted past that box instead of respecting it. `flex-shrink: 0` on both
+      the field and the textarea removes that silent compression: once
+      genuinely too tall for the available space, the column overflows its
+      container and `overflow-y: auto` scrolls it, exactly as intended,
+      instead of quietly clamping and overlapping.
+
+   `flex-basis: auto` (not the shorthand's `0%` default) is still needed on
+   both so the flex algorithm's sizing is based on the field's actual content
+   height (which, once it IS a flex column, includes a manually-resized
+   textarea) rather than starting every distribution from a computed 0. */
+.field.discourse-notes-field { display: flex; flex-direction: column; flex: 1 0 auto; min-height: 72px; }
+.field.discourse-notes-field textarea { flex: 1 0 auto; min-height: 72px; }
 /* Vertical stack — every control full-width, non-overlapping, in reading order
    (Type · Label · Confidence · Color · Notes · Relation highlights · actions). */
 .discourse-relation-editor {
@@ -3101,6 +3138,12 @@ label.field.inline > span { margin-bottom: 0; }
 }
 .discourse-relation-editor .field,
 .discourse-relation-editor label.field { width: 100%; margin-bottom: 0; }
+/* Collapsible "Style & details" (Type/Label/Confidence/Color/Dash/Width) —
+   the toggle matches the left panel's `.discourse-outline-toggle` disclosure;
+   the body is just another flex column so collapsing it hands its `gap`-8px
+   worth of rows straight back to Notes below (the fix in #1's flex chain). */
+.discourse-relation-details-toggle { margin: 0; }
+.discourse-relation-details { display: flex; flex-direction: column; gap: 8px; }
 .discourse-relation-editor .field > span {
   display: block;
   font-size: 12px;

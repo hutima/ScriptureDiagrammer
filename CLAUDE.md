@@ -544,4 +544,13 @@ its own document model, store, persistence, and renderer. See
   ResizeObserver defers measurement to an animation frame (no observe-mutate
   loop). A **Multi-select** Tools mode gates Group/Ungroup and adds batch unit
   coloring (`setUnitsColor`, one undo step); plain clicks extend the selection
-  while it is active.
+  while it is active. The right-side panel houses two collapsible disclosure
+  sections, both open by default, with collapsed state persisted under two
+  `kr:discoursePref:` keys (`toolbarGroupsCollapsed`, `relationDetailsCollapsed`,
+  hydrated at store creation): the Edit toolbar's "Editing tools" group
+  (Structure/Indent/Annotation/History — Relate and Delete unit stay outside)
+  and the relation editor's "Style & details" group (Type/Label/Confidence/
+  Color/Dash/Width — Notes, relation highlights, and Delete relation stay
+  outside). The Notes fields (`.field.discourse-notes-field`) use `flex: 1 0 auto`
+  so they grow into unused panel space, and manual textarea resize pushes
+  content below it into the editor's scroll instead of overlapping it.
