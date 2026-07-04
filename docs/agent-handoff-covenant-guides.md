@@ -107,7 +107,17 @@ Merge choreography: when the remaining queue items (Romans 8:28–30, Colossians
 (`git fetch origin main && git checkout -B claude/romans-9-5-alternate-reading-r4yk97 origin/main`)
 for each following phase; each phase gets its own PR, merged before the next.
 
-### Phase B — Matt 6:11 ∥ Luke 11:3 stacked view
+### Phase B — Back button for guided-mode step navigation — DONE
+- Back button was implemented as part of the original guided-mode
+  infrastructure (commit `96ceceb`). Located in `GuidedStepCard.tsx`
+  (lines 152–154): disabled on step 1, mirrors Next styling/behavior
+  (both use `className="btn"`, secondary uses `primary`, Back uses plain,
+  matching CSS-defined patterns). Store action `prevStep()` already supported
+  (implemented in `src/state/guided.ts`). Tests verify: Back disabled on step 1,
+  clicking Next then Back returns to prior step (`tests/guided-ui.test.tsx`
+  lines 108–110). 2248 tests green; no new files needed. This item is COMPLETE.
+
+### Phase C — Matt 6:11 ∥ Luke 11:3 stacked view
 The stacked-view infra (secondaryPassageId/secondaryFocus/secondaryHighlights/
 secondaryTitle, GuidedStackedDiagram) shipped with Acts 2:39. Convert the
 Lord's-Prayer guide (src/data/guides/lords-prayer-bread.ts, passages
@@ -116,13 +126,10 @@ passages AT ONCE via the secondary fields (e.g. Matthew primary with Luke
 stacked on the comparison steps), instead of only alternating passages between
 steps. guided:check + guided/guided-ui tests. Small task, cheap model.
 
-### Phase C — final two fixes (one PR)
-1. Gloss-mode regression, Matthew 28:19–20: in English gloss mode the diagram
-   shows "(I) | I commanded | whatever" with "you" (ὑμῖν) as a rotated slant
-   under the verb (user screenshot). Diagnose by comparing source vs glossDoc
-   rendering (glossDoc must never change structure — ids/relations/layout
-   unchanged; check connector-label suppression and dative complement
-   placement in gloss mode), fix minimally, add a test.
-2. LAST of all asks: guided mode Back button — UI-only, GuidedStepCard/
-   EditModeToolbar area: add Back beside Next (store already supports stepping
-   back; disable on step 1).
+### Phase D — final one fix
+Gloss-mode regression, Matthew 28:19–20: in English gloss mode the diagram
+shows "(I) | I commanded | whatever" with "you" (ὑμῖν) as a rotated slant
+under the verb (user screenshot). Diagnose by comparing source vs glossDoc
+rendering (glossDoc must never change structure — ids/relations/layout
+unchanged; check connector-label suppression and dative complement
+placement in gloss mode), fix minimally, add a test.
