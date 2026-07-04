@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { useEditorStore, useGuidedStore } from '@/state';
 import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
 import { guidedDocuments, getGuidedDocument } from '@/fixtures/guided';
+import { getIssueById, getAlternateReadings } from '@/domain/contested';
 import { layoutDocument } from '@/domain/layout';
 import {
   resolveFocusIds,
@@ -48,6 +49,33 @@ describe('guided registry and bundle', () => {
         }
       }
     }
+  });
+
+  it('every step contested reference resolves to a real issue that applies to its passage', () => {
+    for (const g of grammarHighlightGuides) {
+      for (const s of g.steps) {
+        if (!s.contested) continue;
+        const issue = getIssueById(s.contested.issueId);
+        expect(issue, `${g.id}/${s.id} → ${s.contested.issueId}`).toBeTruthy();
+        const pid = s.passageId ?? g.bundledPassageIds[0]!;
+        expect(
+          issue!.passageId === pid || (issue!.mergePassageIds?.includes(pid) ?? false),
+          `${g.id}/${s.id}: issue ${issue!.id} does not apply to ${pid}`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it('the Romans 9:5 guide teaches from the REAL registry issue and reading', () => {
+    const guide = getGuide('guide-romans-9-5')!;
+    const step = guide.steps.find((s) => s.contested);
+    expect(step?.contested?.issueId).toBe('iss_rom_9_5_doxology_sblgnt');
+    const issue = getIssueById('iss_rom_9_5_doxology_sblgnt')!;
+    // The issue spans both bundled sentences (a cross-boundary merge issue).
+    expect(issue.mergePassageIds).toEqual(['sblgnt_romans_228', 'sblgnt_romans_229']);
+    expect(getAlternateReadings(issue.id).map((r) => r.id)).toContain(
+      'alt_rom_9_5_to_christ_sblgnt',
+    );
   });
 
   it('clones bundled documents on load (never hands out the bundle itself)', () => {
@@ -159,6 +187,36 @@ describe('guided store', () => {
       // The default lens lays the loaded passage out without throwing.
       expect(() => layoutDocument(doc, { mode: 'kellogg-reed' })).not.toThrow();
     }
+  });
+
+  it('opening a guide sets the reading context to its bundled passages', () => {
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide('guide-romans-9-5');
+    const e = useEditorStore.getState();
+    expect(e.gntPassages.map((d) => d.id)).toEqual(['sblgnt_romans_228', 'sblgnt_romans_229']);
+    expect(e.gntIndex).toBe(0);
+  });
+
+  it('the Romans 9:5 cross-boundary alternate previews structurally inside guided mode', () => {
+    // The alternate reading is authored against the MERGED 9:3–5a + 9:5b
+    // document; the guided reading context makes both sentences available so
+    // `openContestedPanel` can build that combined base.
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide('guide-romans-9-5');
+    useEditorStore.getState().openContestedPanel('iss_rom_9_5_doxology_sblgnt');
+    const e = useEditorStore.getState();
+    expect(e.contested.showAlternateParsePanel).toBe(true);
+    expect(e.contestedBaseDoc).not.toBeNull();
+    e.previewAlternateReading('alt_rom_9_5_to_christ_sblgnt');
+    const preview = useEditorStore.getState().previewDoc;
+    expect(preview).not.toBeNull();
+    // The doxology clause now hangs off Χριστός in apposition, exactly as the
+    // registry's syntaxPatch describes.
+    const rel = preview!.syntax.relations.find((r) => r.id === 'disc_r1');
+    expect(rel?.headId).toBe('s0_w_n45009005008');
+    expect(rel?.type).toBe('apposition');
+    // Previewing never touches the loaded document.
+    expect(useEditorStore.getState().doc.id).toBe('sblgnt_romans_228');
   });
 
   it('enter(english) shows English aids but the parse stays the Greek syntax', () => {

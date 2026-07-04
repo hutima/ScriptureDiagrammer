@@ -5,7 +5,7 @@ import { TopBar } from '@/ui/components/TopBar';
 import { LeftPanel } from '@/ui/panels/LeftPanel';
 import { GuidedStepCard } from '@/ui/guided/GuidedStepCard';
 import { useEditorStore, useGuidedStore } from '@/state';
-import { grammarHighlightGuides } from '@/data/grammarHighlights';
+import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
 
 /**
  * Grammar Highlights UI smoke — the entry flow (⋯ menu → intro modal → mode
@@ -88,5 +88,41 @@ describe('guided mode UI', () => {
     expect(screen.getByText(`Step 2 of ${guide.steps.length}`)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
     expect(useGuidedStore.getState().stepIndex).toBe(0);
+  });
+
+  it('a step with a contested reference offers "See the alternate reading" and opens the panel', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-romans-9-5'));
+    render(createElement(GuidedStepCard));
+    const guide = getGuide('guide-romans-9-5')!;
+    const contestedIndex = guide.steps.findIndex((s) => s.contested);
+    expect(contestedIndex).toBeGreaterThanOrEqual(0);
+    // Steps without a contested reference render no affordance.
+    expect(screen.queryByRole('button', { name: /see the alternate reading/i })).toBeNull();
+    act(() => useGuidedStore.getState().setStep(contestedIndex));
+    fireEvent.click(screen.getByRole('button', { name: /see the alternate reading/i }));
+    const e = useEditorStore.getState();
+    expect(e.contested.showAlternateParsePanel).toBe(true);
+    expect(e.contested.selectedContestedIssueId).toBe('iss_rom_9_5_doxology_sblgnt');
+    // The merged (9:3–5a + 9:5b) contested base was buildable inside guided mode.
+    expect(e.contestedBaseDoc).not.toBeNull();
+  });
+
+  it('a contested reference that cannot be resolved renders nothing', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-romans-9-5'));
+    const guide = getGuide('guide-romans-9-5')!;
+    const contestedIndex = guide.steps.findIndex((s) => s.contested);
+    const step = guide.steps[contestedIndex]!;
+    const original = step.contested;
+    try {
+      // Point the step at a nonexistent issue: the card must degrade silently.
+      step.contested = { issueId: 'iss_does_not_exist' };
+      act(() => useGuidedStore.getState().setStep(contestedIndex));
+      render(createElement(GuidedStepCard));
+      expect(screen.queryByRole('button', { name: /see the alternate reading/i })).toBeNull();
+    } finally {
+      step.contested = original;
+    }
   });
 });

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { GuidedDisplayMode } from '@/domain/schema';
+import type { GrammarHighlightGuide, GuidedDisplayMode, KrDocument } from '@/domain/schema';
 import type { DiagramMode } from '@/domain/layout';
 import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
 import { getGuidedDocument } from '@/fixtures/guided';
@@ -40,6 +40,23 @@ function markIntroSeen(): void {
   } catch {
     /* best-effort */
   }
+}
+
+/**
+ * After a guided passage loads (which clears the book reading context), set
+ * the context to the guide's OWN bundled passages. This mirrors what the
+ * pickers do after `loadDocument`, and it is what lets a cross-sentence
+ * contested issue (e.g. Romans 9:5, whose alternate reading is authored
+ * against the MERGED 9:3–5a + 9:5b document) build its combined base while
+ * guided mode is active — `mergedContestedBase` looks the spanned sentences
+ * up in `gntPassages`.
+ */
+function setGuideReadingContext(guide: GrammarHighlightGuide, loadedId: string): void {
+  const docs = guide.bundledPassageIds
+    .map((id) => getGuidedDocument(id))
+    .filter((d): d is KrDocument => !!d);
+  const index = docs.findIndex((d) => d.id === loadedId);
+  useEditorStore.getState().setGntContext(docs, Math.max(0, index));
 }
 
 interface PriorViewState {
@@ -153,6 +170,7 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
     const editor = useEditorStore.getState();
     editor.loadDocument(doc, { corpus: 'gnt' });
     editor.setDiagramMode(guide.defaultDiagramMode);
+    setGuideReadingContext(guide, doc.id);
     set((s) => ({
       selectedGuideId: guideId,
       stepIndex: 0,
@@ -178,6 +196,7 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
         if (doc) {
           editor.loadDocument(doc, { corpus: 'gnt' });
           editor.setDiagramMode(guide.defaultDiagramMode);
+          setGuideReadingContext(guide, doc.id);
         }
       }
     }

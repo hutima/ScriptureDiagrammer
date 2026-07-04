@@ -56,6 +56,29 @@ export const romans9doxology: GrammarHighlightGuide = {
       greekTermIds: ['ho_on', 'theos'],
     },
     {
+      id: 'step-see-both-readings',
+      title: 'See both readings drawn — the app can show you each',
+      passageId: 'sblgnt_romans_229',
+      body:
+        "This is a rare place where you can watch a punctuation decision change a diagram. The base tree here draws [[ho_on]] ἐπὶ πάντων [[theos]] [[eulogetos]] as its own sentence — an independent blessing of God: '…the Christ according to the flesh. God who is over all be blessed forever!' The app also carries the other reading: open the alternate reading below and the same Greek words re-attach to [[christos]] at the end of the previous clause — '…the Christ according to the flesh, who is God over all, blessed forever.' Nothing about the words changes; only where the sentence ends. Because the boundary sits between two sentences, the app shows them merged so you can see the clause move from one home to the other.",
+      focus: {
+        nodeIds: ['w_n45009005013', 'w_n45009005016'],
+        relationIds: ['r_s229_3', 'r_s229_7'],
+      },
+      panZoom: { fit: 'nodes', padding: 140 },
+      highlights: { emphasizedNodeIds: ['w_n45009005013', 'w_n45009005016'] },
+      implication:
+        'Every printed Greek text and every translation has already made this decision for you — most modern editions print one choice and honestly footnote the other. Punctuation is itself an act of interpretation, and seeing both structures drawn is the clearest way to feel what is actually at stake.',
+      caution:
+        'Previewing the alternate never changes anything — it is a lens, not an edit. Both structures are defensible readings of the same unpunctuated Greek; neither diagram is "the correction" of the other.',
+      greekTermIds: ['christos', 'ho_on', 'theos'],
+      contested: {
+        issueId: 'iss_rom_9_5_doxology_sblgnt',
+        note:
+          'This debated clause is in the app\'s alternate-readings registry. Open it to preview the "refers to Christ" reading drawn structurally — and to compare it with the base doxology reading side by side.',
+      },
+    },
+    {
       id: 'step-word-order',
       title: 'Why word order matters here',
       passageId: 'sblgnt_romans_229',

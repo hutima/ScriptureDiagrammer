@@ -80,6 +80,22 @@ export const GuidedGreekTermSchema = z.object({
 });
 export type GuidedGreekTerm = z.infer<typeof GuidedGreekTermSchema>;
 
+/**
+ * Optional, ADDITIVE link from a step to a contested-syntax issue (§14 of
+ * CLAUDE.md): the step card offers "See the alternate reading", which opens the
+ * normal alternate-readings panel for that issue. Always a REAL issue id from
+ * the curated registry (validated by `guided:check`), and the issue must apply
+ * to the step's own passage (by `passageId` or `mergePassageIds`); the card
+ * renders nothing when the issue cannot be resolved.
+ */
+export const GuidedStepContestedSchema = z.object({
+  /** Id of a `ContestedSyntaxIssue` in the curated registry. */
+  issueId: z.string(),
+  /** Optional short lead-in shown beside the affordance. */
+  note: z.string().optional(),
+});
+export type GuidedStepContested = z.infer<typeof GuidedStepContestedSchema>;
+
 export const GuidedStepSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -106,6 +122,8 @@ export const GuidedStepSchema = z.object({
   caution: z.string().optional(),
   /** Terms surfaced as chips under this step (besides inline links). */
   greekTermIds: z.array(z.string()).optional(),
+  /** Optional pointer to a contested-syntax issue this step teaches from. */
+  contested: GuidedStepContestedSchema.optional(),
 });
 export type GuidedStep = z.infer<typeof GuidedStepSchema>;
 

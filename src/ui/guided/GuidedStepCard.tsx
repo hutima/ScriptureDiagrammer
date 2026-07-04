@@ -1,7 +1,8 @@
 import { Fragment, type ReactNode } from 'react';
-import { useGuidedStore } from '@/state';
+import { useEditorStore, useGuidedStore } from '@/state';
 import { getGuide } from '@/data/grammarHighlights';
-import type { GrammarHighlightGuide, GuidedGreekTerm } from '@/domain/schema';
+import { getIssueById } from '@/domain/contested';
+import type { GrammarHighlightGuide, GuidedGreekTerm, GuidedStep } from '@/domain/schema';
 import { GUIDED_HIGHLIGHT_COLORS, usedHighlightKinds } from './focus';
 import { GuidedGreekTermPanel } from './GuidedGreekTermPanel';
 
@@ -36,6 +37,21 @@ function renderBody(
 }
 
 /**
+ * Resolve a step's optional contested-issue reference to a REAL issue that
+ * applies to the step's own passage (directly or via `mergePassageIds`).
+ * Anything unresolved returns undefined so the affordance degrades to nothing.
+ */
+function resolveStepContestedIssue(guide: GrammarHighlightGuide, step: GuidedStep) {
+  if (!step.contested) return undefined;
+  const issue = getIssueById(step.contested.issueId);
+  if (!issue) return undefined;
+  const passageId = step.passageId ?? guide.bundledPassageIds[0]!;
+  const applies =
+    issue.passageId === passageId || (issue.mergePassageIds?.includes(passageId) ?? false);
+  return applies ? issue : undefined;
+}
+
+/**
  * The guided walkthrough card: current step title/body (with tappable Greek
  * terms), the "why it matters" / caution notes, a highlight legend (text +
  * color, never color alone), step navigation, and — when a term is tapped —
@@ -50,6 +66,7 @@ export function GuidedStepCard() {
   const prevStep = useGuidedStore((s) => s.prevStep);
   const selectedTermId = useGuidedStore((s) => s.selectedGreekTermId);
   const selectGreekTerm = useGuidedStore((s) => s.selectGreekTerm);
+  const openContestedPanel = useEditorStore((s) => s.openContestedPanel);
 
   const guide = guideId ? getGuide(guideId) : undefined;
   if (!guide) {
@@ -67,6 +84,7 @@ export function GuidedStepCard() {
     .map((id) => guide.greekTerms.find((t) => t.id === id))
     .filter((t): t is GuidedGreekTerm => !!t);
   const kinds = usedHighlightKinds(step);
+  const contestedIssue = resolveStepContestedIssue(guide, step);
 
   return (
     <div className="guided-step-card" data-tour="guided-step-card">
@@ -102,6 +120,18 @@ export function GuidedStepCard() {
               {t.surface}
             </button>
           ))}
+        </div>
+      )}
+      {contestedIssue && (
+        <div className="guided-contested">
+          {step.contested?.note && <p className="guided-contested-note">{step.contested.note}</p>}
+          <button
+            className="btn guided-contested-btn"
+            title="Open the alternate-readings panel for this debated passage"
+            onClick={() => openContestedPanel(contestedIssue.id)}
+          >
+            See the alternate reading
+          </button>
         </div>
       )}
       {term && <GuidedGreekTermPanel term={term} onClose={() => selectGreekTerm(null)} />}

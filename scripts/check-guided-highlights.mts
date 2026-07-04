@@ -15,12 +15,16 @@
  *    the term's `surface` matches the token's surface (a mismatch means the id
  *    points at the wrong word);
  *  - every `[[termId]]` marker in step bodies resolves to a Greek term;
- *  - every `greekTermIds` entry resolves.
+ *  - every `greekTermIds` entry resolves;
+ *  - every `step.contested.issueId` resolves to a REAL issue in the curated
+ *    contested-syntax registry, and that issue applies to the step's own
+ *    passage (its `passageId` or one of its `mergePassageIds`).
  *
  * Exits non-zero with a readable report on any failure.
  */
 const { grammarHighlightGuides } = await import('../src/data/grammarHighlights.ts');
 const { guidedDocuments } = await import('../src/fixtures/guided/index.ts');
+const { getIssueById } = await import('../src/domain/contested/index.ts');
 
 type Doc = (typeof guidedDocuments)[number];
 
@@ -97,6 +101,19 @@ for (const guide of grammarHighlightGuides) {
     }
     for (const m of step.body.matchAll(/\[\[([a-zA-Z0-9_-]+)\]\]/g)) {
       if (!termIds.has(m[1]!)) fail(`${where}: body references unknown term [[${m[1]}]]`);
+    }
+    if (step.contested) {
+      const issue = getIssueById(step.contested.issueId);
+      if (!issue) {
+        fail(`${where}: contested issueId "${step.contested.issueId}" not in the contested registry`);
+      } else if (
+        issue.passageId !== stepPassageId &&
+        !(issue.mergePassageIds?.includes(stepPassageId!) ?? false)
+      ) {
+        fail(
+          `${where}: contested issue "${issue.id}" does not apply to passage ${stepPassageId} (issue passage: ${issue.passageId})`,
+        );
+      }
     }
     const hasFocus =
       (step.focus.tokenIds?.length ?? 0) +
