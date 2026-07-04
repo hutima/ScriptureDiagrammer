@@ -53,6 +53,28 @@ function overlapsRange(title: string, chap: number, v0: number, v1: number): boo
   return c === chap && b >= v0 && a <= v1;
 }
 
+/**
+ * Ids the AUTHORED guides actually use (bundledPassageIds + per-step
+ * passageIds). Once guides exist, the bundle keeps ONLY these documents, so an
+ * extraction range that yields many sentences never bloats the shipped bundle
+ * with sentences no guide walks. Pass `--all` (or before any guide references a
+ * range) to keep every extracted sentence — the mode used to inspect ids
+ * (`npm run guided:dump`) while authoring a new guide.
+ */
+const keepAll = process.argv.includes('--all');
+let referenced = new Set<string>();
+try {
+  const { grammarHighlightGuides } = await import('../src/data/grammarHighlights.ts');
+  for (const g of grammarHighlightGuides) {
+    for (const id of g.bundledPassageIds) referenced.add(id);
+    for (const s of g.steps) if (s.passageId) referenced.add(s.passageId);
+  }
+} catch (e) {
+  console.warn('(could not read the guide registry; keeping all extracted docs)', e);
+  referenced = new Set();
+}
+const filtering = !keepAll && referenced.size > 0;
+
 const documents: unknown[] = [];
 const manifest: { ref: string; book: string; passageIds: string[] }[] = [];
 
@@ -71,12 +93,25 @@ for (const p of GUIDED_PASSAGES) {
   }
   const ids: string[] = [];
   for (const d of matched) {
+    // In filtering mode keep only sentences an authored guide references.
+    if (filtering && !referenced.has(d.id)) continue;
     const valid = KrDocumentSchema.parse(d);
     if (!documents.some((x) => (x as { id: string }).id === valid.id)) documents.push(valid);
     ids.push(valid.id);
   }
   manifest.push({ ref: `${p.book} ${p.chapter}:${p.verseFrom}–${p.verseTo}`, book: p.book, passageIds: ids });
-  console.log(`✓ ${p.book} ${p.chapter}:${p.verseFrom}–${p.verseTo} → ${ids.join(', ')}`);
+  console.log(`✓ ${p.book} ${p.chapter}:${p.verseFrom}–${p.verseTo} → ${ids.join(', ') || '(none referenced)'}`);
+}
+
+if (filtering) {
+  const missing = [...referenced].filter((id) => !documents.some((d) => (d as { id: string }).id === id));
+  if (missing.length) {
+    throw new Error(
+      `Guides reference passage ids not produced by any range: ${missing.join(', ')}. ` +
+        `Add the covering verse range to GUIDED_PASSAGES.`,
+    );
+  }
+  console.log(`(lean bundle: kept ${documents.length} referenced document(s))`);
 }
 
 const out = {

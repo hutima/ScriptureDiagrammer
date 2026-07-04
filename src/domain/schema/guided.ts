@@ -88,6 +88,15 @@ export const GuidedStepSchema = z.object({
    * (rendered as a tappable term link showing the term's surface form).
    */
   body: z.string(),
+  /**
+   * The bundled passage this step is about, for guides that walk more than one
+   * sentence (e.g. a multi-verse narrative, or a two-gospel comparison). MUST
+   * be one of the guide's `bundledPassageIds`. Omit for a single-passage guide
+   * (the step stays on the guide's first passage). When a step names a
+   * different passage than the one currently loaded, guided mode loads it
+   * before focusing — so a guide can move the reader across sentences.
+   */
+  passageId: z.string().optional(),
   focus: GuidedFocusSchema.default({}),
   panZoom: GuidedPanZoomSchema.optional(),
   highlights: GuidedHighlightsSchema.optional(),

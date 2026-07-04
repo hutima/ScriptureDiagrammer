@@ -18,7 +18,8 @@
     "contested:check": "vite-node scripts/check-contested-registry.mts",
     "kr:compactness": "vite-node scripts/kr-compactness-report.mts --",
     "guided:build": "vite-node scripts/build-guided-highlights.mts",
-    "guided:check": "vite-node scripts/check-guided-highlights.mts"
+    "guided:check": "vite-node scripts/check-guided-highlights.mts",
+    "guided:dump": "vite-node scripts/dump-guided-doc.mts --"
   },
   "dependencies": {
     "idb": "^8.0.0",

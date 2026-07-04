@@ -146,7 +146,9 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
   openGuide: (guideId) => {
     const guide = getGuide(guideId);
     if (!guide) return;
-    const doc = getGuidedDocument(guide.bundledPassageIds[0]!);
+    // Open on the first step's passage if it names one, else the guide's first.
+    const firstPassage = guide.steps[0]?.passageId ?? guide.bundledPassageIds[0]!;
+    const doc = getGuidedDocument(firstPassage);
     if (!doc) return;
     const editor = useEditorStore.getState();
     editor.loadDocument(doc, { corpus: 'gnt' });
@@ -164,6 +166,21 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
     const guide = selectedGuideId ? getGuide(selectedGuideId) : undefined;
     if (!guide) return;
     const clamped = Math.max(0, Math.min(guide.steps.length - 1, index));
+    const step = guide.steps[clamped]!;
+    // A multi-sentence guide names the passage each step is about; load it
+    // (through the normal path) when the step moves to a different sentence
+    // than the one currently shown. The focus effect then fits the step's
+    // targets in the freshly-loaded document.
+    if (step.passageId) {
+      const editor = useEditorStore.getState();
+      if (editor.doc.id !== step.passageId) {
+        const doc = getGuidedDocument(step.passageId);
+        if (doc) {
+          editor.loadDocument(doc, { corpus: 'gnt' });
+          editor.setDiagramMode(guide.defaultDiagramMode);
+        }
+      }
+    }
     set((s) => ({
       stepIndex: clamped,
       selectedGreekTermId: null,
