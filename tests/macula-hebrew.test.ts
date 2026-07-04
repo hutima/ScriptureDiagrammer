@@ -5,6 +5,7 @@ import { KrDocumentSchema } from '@/domain/schema';
 import { layoutDocument } from '@/domain/layout';
 import { measureText } from '@/domain/layout/measure';
 import { alignParallelHebrew, type OtParallelBook } from '@/io';
+import { combinePassage } from '@/io/passage';
 
 /**
  * The Hebrew Bible mode converts Clear-Bible macula-hebrew (WLC) Lowfat trees.
@@ -206,5 +207,54 @@ describe('Hebrew text measurement', () => {
     expect(measureText('בָּרָ֣א')).toBeCloseTo(measureText('ברא'), 5);
     // A maqaf (visible separator) DOES add width.
     expect(measureText('עַל־')).toBeGreaterThan(measureText('על'));
+  });
+});
+
+describe('Hebrew parallel alignment with combined passages', () => {
+  it('aligns Hebrew when token ids are prefixed by combinePassage', () => {
+    // When combinePassage merges multiple sentences, it prefixes token ids
+    // (e.g., s0_t_o… , s1_t_o…). parseHebrewId must match t_o after the prefix.
+    const hebrewXml = readFileSync('tests/fixtures-macula-hebrew-gen-1-1-3.xml', 'utf8');
+    const docs = maculaHebrewToDocuments(hebrewXml, { book: 'Genesis' });
+    expect(docs).toHaveLength(3); // GEN 1:1, 1:2, 1:3
+
+    // Combine sentences 0 and 1 (Gen 1:1 and Gen 1:2).
+    const combined = combinePassage([docs[0]!, docs[1]!]);
+    expect(combined.syntax.nodes.length).toBeGreaterThan(0);
+
+    // Verify token ids are now prefixed (s0_t_o… and s1_t_o…).
+    const hasPrefix = combined.tokens.some((t) => t.id.startsWith('s0_') || t.id.startsWith('s1_'));
+    expect(hasPrefix).toBe(true);
+
+    // Create a minimal BSB Genesis book with links for the verses in Gen 1:1-2.
+    // Genesis 1:1 and 1:2 contain several shared morphemes we can link (e.g., the
+    // noun "God" o010010010031 → "0031", noun "earth" o010010010072 → "0072").
+    const book: OtParallelBook = {
+      version: 'BSB',
+      book: 'Genesis',
+      bookNum: 1,
+      verses: {
+        '1.1': ['In', 'the', 'beginning', 'God', 'created', 'the', 'heavens', 'and', 'the', 'earth'],
+        '1.2': ['Now', 'the', 'earth', 'was', 'formless', 'and', 'empty', 'and', 'darkness', 'was', 'over', 'the', 'surface', 'of', 'the', 'deep'],
+      },
+      links: {
+        '1.1': [
+          { i: '0031', e: [3] }, // God
+          { i: '0072', e: [9] }, // earth
+        ],
+        '1.2': [
+          { i: '0013', e: [2] }, // earth
+        ],
+      },
+    };
+
+    // Align the combined passage; parseHebrewId must handle prefixed ids.
+    const view = alignParallelHebrew(combined, book);
+
+    // Both verses should be present and non-empty.
+    expect(view.verses.map((v) => v.key).sort()).toEqual(['1.1', '1.2']);
+    // At least one word-to-node mapping should exist (God in 1.1, earth in 1.2).
+    expect(view.nodeToEn.size).toBeGreaterThan(0);
+    expect(view.verses.length).toBeGreaterThan(0);
   });
 });

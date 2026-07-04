@@ -296,7 +296,7 @@ export function alignParallel(doc: KrDocument, book: ParallelBook): ParallelView
 
 /** A macula-hebrew token id "t_o<bb ccc vvv www m>" → [verseKey, morphemeKey]. */
 function parseHebrewId(id: string): [string, string] | undefined {
-  const m = /^t_o(\d{12})$/.exec(id);
+  const m = /(?:^|_)t_o(\d{12})$/.exec(id);
   if (!m) return undefined;
   const d = m[1]!;
   return [`${Number(d.slice(2, 5))}.${Number(d.slice(5, 8))}`, d.slice(8)];
