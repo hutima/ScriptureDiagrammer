@@ -25,7 +25,7 @@ import {
   layoutCoordination,
 } from './coordination';
 import { drawDiagonalCoordination, drawDiagonalModifier } from './diagonal';
-import { blockAscent, clearStemX, pedestalRoom, rightWithinBand } from './geometry';
+import { blockAscent, clearStemX, pedestalRoom, rightWithinBand, spineBarBottom } from './geometry';
 import { drawInfinitive, layoutInfinitiveFork } from './infinitives';
 import { BandPacker } from './packing';
 import { layoutDiscourse } from './discourse';
@@ -593,11 +593,15 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     const center = (block.wordLeft + (block.wordRight || block.width)) / 2;
     const connectX = Math.max(LAYOUT.pedestalFootHalf, block.verbX ?? center);
     const apexY = -LAYOUT.pedestalFootRise;
+    // A compound (spine) subject is met at its bar's BOTTOM end — a full-height
+    // riser would run a second vertical alongside the bar, through the lower
+    // members' verbs (same treatment as the pedestalled clause complement).
+    const riserTop = baseY + (spineBarBottom(block) ?? 0);
     // The little forked foot standing on the main line, and the riser up to the
     // substantive's own baseline.
     elements.push(line(eid(), connectX - LAYOUT.pedestalFootHalf, 0, connectX, apexY, 'solid', 'stem'));
     elements.push(line(eid(), connectX + LAYOUT.pedestalFootHalf, 0, connectX, apexY, 'solid', 'stem'));
-    elements.push(line(eid(), connectX, apexY, connectX, baseY, 'solid', 'stem', undefined, subjectRel?.id));
+    elements.push(line(eid(), connectX, apexY, connectX, riserTop, 'solid', 'stem', undefined, subjectRel?.id));
     x = Math.max(block.width, connectX + LAYOUT.pedestalFootHalf);
     divX = x;
     // Main line under the pedestal, out to the subject|predicate cross.
@@ -966,18 +970,30 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     );
     elements.push(...translate(block, baseStart, baseY));
     const apexY = -LAYOUT.pedestalFootRise;
-    // Connect at the centre of the embedded clause's own baseline span — but
-    // slide off-centre if a below-baseline modifier of the clause hangs in the
-    // riser's band, so the riser (and the connector label riding it) doesn't run
-    // straight through that text (Rom 9:6 "τοῦ θεοῦ / of God" under the pedestal).
+    // A compound clause on the pedestal (a coordination SPINE — "Jacob I loved,
+    // but Esau I hated" as the object of "it is written", Rom 9:13) is met AT
+    // its bar column, and from BELOW: the riser rises only to the bar's bottom
+    // end. A full-height riser would duplicate the bar's column alongside it and
+    // cut straight through the lower members' verbs.
+    const barBottom = spineBarBottom(block);
+    // Otherwise connect at the centre of the embedded clause's own baseline span
+    // — but slide off-centre if a below-baseline modifier of the clause hangs in
+    // the riser's band, so the riser (and the connector label riding it) doesn't
+    // run straight through that text (Rom 9:6 "τοῦ θεοῦ / of God" under the
+    // pedestal).
     const centreX = baseStart + (block.wordLeft + (block.wordRight || block.width)) / 2;
-    const connectX = clearStemX(
-      elements.slice(elements.length - block.elements.length),
-      { yTop: baseY, yBottom: apexY },
-      centreX,
-      baseStart + LAYOUT.pedestalFootHalf,
-      baseStart + (block.wordRight || block.width) - LAYOUT.pedestalFootHalf,
-    );
+    const connectX =
+      barBottom != null
+        ? baseStart + block.wordLeft
+        : clearStemX(
+            elements.slice(elements.length - block.elements.length),
+            { yTop: baseY, yBottom: apexY },
+            centreX,
+            baseStart + LAYOUT.pedestalFootHalf,
+            baseStart + (block.wordRight || block.width) - LAYOUT.pedestalFootHalf,
+          );
+    // Where the riser stops: the spine bar's bottom, or a plain clause's baseline.
+    const riserTop = baseY + (barBottom ?? 0);
     // The horizontal stretch of main line from the object stem out to the foot,
     // so the pedestal reads as THIS verb's direct object rather than a detached
     // "Y" floating off to the side.
@@ -985,11 +1001,11 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     // The little forked foot standing on the main line.
     elements.push(line(eid(), connectX - LAYOUT.pedestalFootHalf, 0, connectX, apexY, 'solid', 'stem'));
     elements.push(line(eid(), connectX + LAYOUT.pedestalFootHalf, 0, connectX, apexY, 'solid', 'stem'));
-    // The riser up to the embedded clause's baseline.
-    elements.push(line(eid(), connectX, apexY, connectX, baseY, 'solid', 'stem', undefined, rel.id));
+    // The riser up to the embedded clause.
+    elements.push(line(eid(), connectX, apexY, connectX, riserTop, 'solid', 'stem', undefined, rel.id));
     // The connecting word (that / ὅτι / ἵνα) rides the riser.
     if (rel.label && showLabel(ctx, rel.dependentId)) {
-      elements.push(smallText(eid(), connectX + 5, (apexY + baseY) / 2, rel.label, 'start', rel.id, rel.labelNodeId));
+      elements.push(smallText(eid(), connectX + 5, (apexY + riserTop) / 2, rel.label, 'start', rel.id, rel.labelNodeId));
     }
     x = baseStart + block.width;
     const shift = packSlice(lenBefore, sepX);

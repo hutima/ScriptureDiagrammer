@@ -92,7 +92,16 @@ export const StaticDiagramFrame = forwardRef<
           role="img"
           aria-label={`${title}: ${doc.text || doc.title}`}
         >
-          {layout.elements.map((el) => {
+          {/* Draw structural lines/curves first, then every word on top, so a
+              word's white halo masks ANY line crossing it — the same stable
+              partition the live canvas and `layoutToSvg` use, so this static
+              frame (the guided stacked diagram, the contested comparison)
+              matches them instead of letting a later-emitted spine draw OVER
+              the words. */}
+          {[
+            ...layout.elements.filter((e) => e.kind !== 'text'),
+            ...layout.elements.filter((e) => e.kind === 'text'),
+          ].map((el) => {
             const hi = highlightForElement(el, diff);
             const hiClass = hi ? ` vc-hi vc-hi-${hi}` : '';
             const relHl = el.relationId ? relationFills?.get(el.relationId) : undefined;
@@ -186,6 +195,10 @@ export const StaticDiagramFrame = forwardRef<
                     rx={3}
                   />
                 )}
+                {/* Upright words carry the white halo (paint-order stroke) the
+                    canvas and SVG export use, masking a line passing behind the
+                    glyphs; a rotated word lies ALONG its own slant, where a halo
+                    would erase the line under its tails. */}
                 <text
                   className={`kr-text${greek ? '' : ''}`}
                   x={el.x}
@@ -194,7 +207,9 @@ export const StaticDiagramFrame = forwardRef<
                   fontSize={size}
                   fontStyle={el.italic ? 'italic' : undefined}
                   fill={fill}
-                  {...(el.rotate ? { transform: `rotate(${el.rotate} ${el.x} ${el.y})` } : {})}
+                  {...(el.rotate
+                    ? { transform: `rotate(${el.rotate} ${el.x} ${el.y})` }
+                    : { stroke: '#fff', strokeWidth: 3, paintOrder: 'stroke', strokeLinejoin: 'round' })}
                 >
                   {el.text}
                 </text>

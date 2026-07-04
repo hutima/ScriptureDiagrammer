@@ -8,6 +8,7 @@ import { layoutCoordination } from './coordination';
 import { layoutHead } from './word';
 import type { Block, Ctx } from './types';
 import { isWordCoordination } from './classify';
+import { gapDashedLinesBehindWords } from './geometry';
 import { bounds, emptyBlock, mirrorX, resetEid, translate } from './primitives';
 
 /**
@@ -95,6 +96,13 @@ export function layoutDocument(
     const classicArea = (classicB.maxX - classicB.minX) * (classicB.maxY - classicB.minY);
     if (classicArea <= packedArea) block = classic;
   }
+  // The compound-sentence spine (and its lead stem) legitimately runs down the
+  // verb column, BEHIND the verb words. Make that pass-behind real geometry:
+  // gap every dashed vertical where it crosses a word's measured glyph band, so
+  // the picture reads identically in every renderer/export — halo or not — and
+  // wider glossed text can never reintroduce a line-through-word. Untouched
+  // lines keep their exact objects, so crossing-free documents are unchanged.
+  block = { ...block, elements: gapDashedLinesBehindWords(block.elements) };
   // Flag connectors for low-confidence (ambiguous) relations so both the canvas
   // and the export draw them in a distinct colour, inviting the user to relink.
   const tentative = new Set(

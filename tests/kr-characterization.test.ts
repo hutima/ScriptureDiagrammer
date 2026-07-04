@@ -94,13 +94,51 @@ function touches(a: LineElement, b: LineElement): boolean {
   );
 }
 
-/** Union-find over the layout's lines by geometric contact. */
-function components(lines: LineElement[]): LineElement[][] {
+/**
+ * Two collinear DASHED VERTICAL segments whose gap is covered by a word's
+ * glyph band are one line that visibly passes BEHIND that word — the layout's
+ * `gapDashedLinesBehindWords` split it there on purpose. The word bridges them.
+ * Deliberately narrow: same x, dashed, small gap, word straddling the column
+ * and covering the gap — a genuinely detached line cannot ride this.
+ */
+function wordBridged(a: LineElement, b: LineElement, words: TextElement[]): boolean {
+  const vert = (l: LineElement) => l.style === 'dashed' && Math.abs(l.x1 - l.x2) < 0.6;
+  if (!vert(a) || !vert(b) || Math.abs(a.x1 - b.x1) > 0.6) return false;
+  const aHi = Math.max(a.y1, a.y2);
+  const bLo = Math.min(b.y1, b.y2);
+  const bHi = Math.max(b.y1, b.y2);
+  const aLo = Math.min(a.y1, a.y2);
+  const gapLo = Math.min(aHi, bHi);
+  const gapHi = Math.max(aLo, bLo);
+  if (gapLo >= gapHi || gapHi - gapLo > 60) return false; // overlap → touches(); big gap → real break
+  // The gap must be covered by (a union of) word glyph bands straddling the
+  // column, each padded by the layout's gap margin.
+  const PADV = 8;
+  const covering = words
+    .filter((w) => {
+      const bx = uprightBox(w);
+      return a.x1 > bx.x0 && a.x1 < bx.x1;
+    })
+    .map((w) => ({ lo: w.y - 14 - PADV, hi: w.y + 3 + PADV }))
+    .sort((p, q) => p.lo - q.lo);
+  let cursor = gapLo;
+  for (const c of covering) {
+    if (c.lo > cursor + 0.5) break;
+    cursor = Math.max(cursor, c.hi);
+    if (cursor >= gapHi - 0.5) return true;
+  }
+  return false;
+}
+
+/** Union-find over the layout's lines by geometric contact (plus word bridges
+ *  across the layout's deliberate pass-behind gaps, see `wordBridged`). */
+function components(lines: LineElement[], words: TextElement[] = []): LineElement[][] {
   const parent = lines.map((_, i) => i);
   const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i]!)));
   for (let i = 0; i < lines.length; i++)
     for (let j = i + 1; j < lines.length; j++)
-      if (touches(lines[i]!, lines[j]!)) parent[find(i)] = find(j);
+      if (touches(lines[i]!, lines[j]!) || wordBridged(lines[i]!, lines[j]!, words))
+        parent[find(i)] = find(j);
   const groups = new Map<number, LineElement[]>();
   lines.forEach((l, i) => {
     const r = find(i);
@@ -201,12 +239,11 @@ describe('KR characterization — word texts do not overprint each other (frozen
 // Clash guard 2: no line may pass THROUGH an upright word's glyph box.
 //
 // Exemptions (designed, not incidental — see docs/kr-refactor-status.md):
-//  - dashed `coordination` lines: the compound-sentence verb spine runs
-//    verb-to-verb and deliberately passes BEHIND the verb-aligned words; the
-//    renderer paints a paper-coloured halo under every upright word precisely
-//    so this reads cleanly (kr/clause.ts "The dashed bar runs verb-to-verb",
-//    render/svg.ts "paper-coloured halo"). Blanket-exempting the class keeps
-//    the guard quiet for every such join without per-passage freezing.
+//  - (REMOVED) dashed `coordination` lines used to be blanket-exempt: the
+//    compound-sentence verb spine runs verb-to-verb behind the verb-aligned
+//    words, relying on the renderer halo. The layout engine now GAPS every
+//    dashed vertical at the glyph bands it crosses (`gapDashedLinesBehindWords`),
+//    so the pass-behind is real geometry and the guard covers the class again.
 //  - grazing contact: the box is shrunk 2px per side and a line must run more
 //    than 4px INSIDE it to count, so separator ticks/dividers that legitimately
 //    abut a word, and the word's own baseline ~6px under the anchor, never fire.
@@ -250,11 +287,7 @@ describe('KR characterization — lines do not run through word texts (frozen)',
     it(name, () => {
       const layout = layoutDocument(doc, doc.layoutHints);
       const words = layout.elements.filter(isUprightWord);
-      const lines = layout.elements
-        .filter(isLine)
-        // The verb-to-verb coordination spine passes behind words by design
-        // (halo-backed) — see the exemption rationale above.
-        .filter((l) => !(l.role === 'coordination' && l.style === 'dashed'));
+      const lines = layout.elements.filter(isLine);
       const PAD = 2; // shrink the glyph box: abutting/grazing is legitimate
       const MIN_RUN = 4; // a line must run >4px inside the shrunk box to count
       // The word's baseline sits textRise (6px) below the text anchor.
@@ -393,10 +426,13 @@ describe('KR characterization — line connectivity (frozen offender snapshot)',
     it(name, () => {
       const layout = layoutDocument(doc, doc.layoutHints);
       const lines = layout.elements.filter(isLine);
+      const bridgeWords = layout.elements.filter(
+        (e): e is TextElement => e.kind === 'text' && !(e as TextElement).rotate,
+      );
       const relType = new Map(doc.syntax.relations.map((r) => [r.id, r.type]));
       const floats = floatIds(doc);
       const spineCoords = spineCoordinatorNodes(doc);
-      const offenders = components(lines).filter((group) => {
+      const offenders = components(lines, bridgeWords).filter((group) => {
         const isClause = group.some((l) => l.role === 'divider');
         const isFloat = group.some(
           (l) =>
