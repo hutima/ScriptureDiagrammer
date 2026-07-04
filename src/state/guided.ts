@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { GrammarHighlightGuide, GuidedDisplayMode, KrDocument } from '@/domain/schema';
 import type { DiagramMode } from '@/domain/layout';
-import { visibleGrammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
+import { visibleGrammarHighlightGuides, getGuide, guideDisplayDoc } from '@/data/grammarHighlights';
 import { getGuidedDocument } from '@/fixtures/guided';
 import { useTutorialStore } from '@/ui/tutorial/tutorialState';
 import { useEditorStore } from './store';
@@ -199,7 +199,9 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
     const doc = getGuidedDocument(firstPassage);
     if (!doc) return;
     const editor = useEditorStore.getState();
-    editor.loadDocument(doc, { corpus: 'gnt' });
+    // A guide may TEACH a construal by displaying an alternate reading applied to
+    // the bundled base (non-destructive; the pooled bundle is untouched).
+    editor.loadDocument(guideDisplayDoc(guide, doc), { corpus: 'gnt' });
     editor.setDiagramMode(guide.defaultDiagramMode);
     setGuideReadingContext(guide, doc.id);
     set((s) => ({
@@ -225,7 +227,7 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
       if (editor.doc.id !== step.passageId) {
         const doc = getGuidedDocument(step.passageId);
         if (doc) {
-          editor.loadDocument(doc, { corpus: 'gnt' });
+          editor.loadDocument(guideDisplayDoc(guide, doc), { corpus: 'gnt' });
           editor.setDiagramMode(guide.defaultDiagramMode);
           setGuideReadingContext(guide, doc.id);
         }

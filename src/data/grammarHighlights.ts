@@ -2,7 +2,9 @@ import {
   GrammarHighlightsRegistrySchema,
   type GrammarHighlightGuide,
   type GrammarHighlightsRegistry,
+  type KrDocument,
 } from '@/domain/schema';
+import { getReadingById, applyAlternateReadingPreview } from '@/domain/contested';
 import { hebrews1 } from './guides/hebrews-1';
 import { john1 } from './guides/john-1-1';
 import { mark5 } from './guides/mark-5-25-34';
@@ -103,4 +105,21 @@ export const visibleGrammarHighlightGuides: GrammarHighlightGuide[] = grammarHig
 
 export function getGuide(id: string): GrammarHighlightGuide | undefined {
   return grammarHighlightGuides.find((g) => g.id === id);
+}
+
+/**
+ * The document a guide DISPLAYS for `baseDoc` — normally the bundled base itself,
+ * but a guide carrying `displayAlternateReadingId` teaches a specific construal by
+ * applying that alternate reading (non-destructively, via the shared contested
+ * helper) when the reading targets this passage. Pure: the base is never mutated,
+ * and it is the ONE authority both the runtime (guided store) and the offline
+ * validator (`guided:check`) use, so what the guide draws and what is validated
+ * can never drift. A missing/mismatched reading id falls back to the base.
+ */
+export function guideDisplayDoc(guide: GrammarHighlightGuide, baseDoc: KrDocument): KrDocument {
+  const readingId = guide.displayAlternateReadingId;
+  if (!readingId) return baseDoc;
+  const reading = getReadingById(readingId);
+  if (!reading || reading.passageId !== baseDoc.id) return baseDoc;
+  return applyAlternateReadingPreview(baseDoc, reading);
 }

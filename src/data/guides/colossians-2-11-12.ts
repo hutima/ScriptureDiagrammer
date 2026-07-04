@@ -28,6 +28,13 @@ export const colossians2: GrammarHighlightGuide = {
   reference: 'Colossians 2:11–12',
   sourceId: 'macula-greek-sblgnt-lowfat',
   bundledPassageIds: ['sblgnt_colossians_13'],
+  // This guide TEACHES the nearest-noun reading of ἐν ᾧ (v.12b) by DISPLAYING it:
+  // the bundled SBLGNT base encodes the two ἐν-phrases as parallel/appositional
+  // (τῷ βαπτισμῷ apposed to the whole raised clause), so the guide applies this
+  // alternate at load to re-draw it as the noun-headed relative clause modifying
+  // βαπτισμῷ — the shape the Nestle1904 base already draws. Non-destructive; the
+  // bundled base is untouched, and step ids below are validated against the result.
+  displayAlternateReadingId: 'alt_col_2_12_baptism_relative_sblgnt',
   defaultDiagramMode: 'kellogg-reed',
   difficulty: 'advanced',
   topics: ['baptism', 'union with Christ', 'participles'],
@@ -52,7 +59,7 @@ export const colossians2: GrammarHighlightGuide = {
       {
         label: 'ἐν ᾧ antecedent = baptism ("in baptism, in which you were also raised") — this guide\'s reading',
         summary:
-          'This guide takes the relative ᾧ (hō) in v.12b to reach back to the nearest noun, βαπτισμῷ (baptismō, "baptism"): "buried with him in baptism, in which you were also raised through faith." Burial and resurrection are both pictured as happening in that one baptism — the reading the base tree draws, the reading many English versions render ("wherein / in which you were also raised"), and the reading this guide teaches as standard.',
+          'This guide takes the relative ᾧ (hō) in v.12b to reach back to the nearest noun, βαπτισμῷ (baptismō, "baptism"): "buried with him in baptism, in which you were also raised through faith," and DRAWS it as a relative clause modifying βαπτισμῷ. Burial and resurrection are both pictured as happening in that one baptism — the reading many English versions render ("wherein / in which you were also raised"), the shape the Nestle1904 base tree already draws, and the reading this guide teaches as standard. (The SBLGNT base encodes the same sense differently — as a parallel/appositional link between the two ἐν-phrases, drawn with an "=" in the plain view; the guide normalizes it to the relative clause to make the reading legible.)',
         cautions: [
           'Reading the raising as "in baptism" does not by itself make baptism the instrument that raises apart from faith — the same clause immediately grounds the raising "through faith in the working of God." The antecedent question is about reference, not about mechanism.',
         ],
@@ -138,19 +145,19 @@ export const colossians2: GrammarHighlightGuide = {
       id: 'step-raised-in-whom',
       title: 'Raised — in that same baptism',
       body:
-        'Then: ἐν ᾧ (en hō) καὶ [[synegerthete]] — "in which you were also raised." Most English versions — and this guide — take the relative pronoun ᾧ (hō) back to the nearest noun, βαπτισμῷ (baptismō, "baptism"): "in baptism, in which you were also raised." The diagram does not draw that link as an ordinary modifier hanging FROM baptism, the way it draws "in baptism" itself hanging from the participle above: the tree instead attaches βαπτισμῷ onto the "you were also raised" clause, so it is drawn trailing at the END of that clause\'s own cascade — after "in which," "also," and "through faith in the working of God" — rather than appearing as the noun the clause modifies. The wording and the sense stay the same either way; only the diagram\'s drawn order is unusual at this one point. Burial and resurrection are both pictured as happening in that one baptism, with the raising immediately grounded in faith in God\'s working. (Some readers instead take ᾧ (hō) to reach past baptism to Christ himself — "in whom you were also raised," on the pattern of v.11a\'s own ἐν ᾧ (en hō) = Christ; open "Where readers differ" below to see that alternate reading drawn structurally.) Nothing about the Greek words changes between the two readings — only where the pronoun is understood to point.',
+        'Then: ἐν ᾧ (en hō) καὶ [[synegerthete]] — "in which you were also raised." This guide takes the relative pronoun ᾧ (hō) back to the nearest noun, βαπτισμῷ (baptismō, "baptism"): "in baptism, in which you were also raised" — and DRAWS it that way. The ἐν ᾧ … συνηγέρθητε clause hangs as a relative clause beneath βαπτισμῷ (the highlighted link), modifying that noun the way any relative clause modifies its antecedent. Burial and resurrection are both pictured as happening in that one baptism, with the raising immediately grounded in faith in God\'s working. A note on the diagram you are seeing: the two default Greek source trees encode this spot differently. The Nestle1904 tree draws exactly this relative clause; the SBLGNT tree instead encodes the two ἐν-phrases (ἐν τῷ βαπτισμῷ and ἐν ᾧ …) as PARALLEL / APPOSITIONAL — it makes the raised clause the object of the first ἐν and hangs τῷ βαπτισμῷ on it by apposition (shown by the "=" mark in the plain view). Same wording, same "in baptism" sense; this guide simply normalizes the SBLGNT encoding to the relative-clause shape so the reading is easy to see. (Some readers instead take ᾧ (hō) to reach past baptism to Christ himself — "in whom you were also raised," on the pattern of v.11a\'s own ἐν ᾧ (en hō) = Christ; open "Where readers differ" below to see that alternate reading drawn structurally.) Nothing about the Greek words changes between the readings — only where the pronoun is understood to point, and that question stays genuinely open.',
       focus: {
         nodeIds: ['w_n51002012005', 'w_n51002012007', 'w_n51002012009'],
-        relationIds: ['r_s13_86', 'r_s13_87', 'r_s13_70'],
+        relationIds: ['alt_col_2_12_reladj_r1', 'r_s13_87', 'r_s13_70'],
       },
       panZoom: { fit: 'nodes', padding: 150 },
-      highlights: { emphasizedNodeIds: ['w_n51002012007', 'w_n51002012009'] },
+      highlights: { emphasizedNodeIds: ['w_n51002012005', 'w_n51002012007', 'w_n51002012009'] },
       caution:
-        'The nearest-noun pull toward "baptism" is the grammar\'s normal default, which is why this guide reads ᾧ (hō) that way; the Christ-antecedent reading is a real, defensible alternative some careful readers hold on the pattern of v.11a — see "Where readers differ" for a fair hearing of it.',
+        'The nearest-noun pull toward "baptism" is the grammar\'s normal default, which is why this guide reads ᾧ (hō) that way and draws it so; the Christ-antecedent reading is a real, defensible alternative some careful readers hold on the pattern of v.11a — see "Where readers differ" for a fair hearing of it. The antecedent question is genuinely open.',
       contested: {
         issueId: 'iss_col_2_12_raised_antecedent_sblgnt',
         note:
-          'This step follows the standard "in baptism" reading. The alternate "in whom" (Christ) construal is in the app\'s alternate-readings registry — open it to preview that reading drawn structurally, with the raised-clause hanging off "buried with him" instead of off "baptism."',
+          'This step draws the standard "in baptism" reading as a relative clause modifying βαπτισμῷ. The alternate "in whom" (Christ) construal is in the app\'s alternate-readings registry — open it to preview that reading drawn structurally, with the raised-clause hanging off "buried with him" instead of off "baptism."',
       },
       greekTermIds: ['synegerthete'],
     },

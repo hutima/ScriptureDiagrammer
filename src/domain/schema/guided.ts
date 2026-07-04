@@ -273,6 +273,20 @@ export const GrammarHighlightGuideSchema = z.object({
    * references stay valid) but never appear in the guided library picker.
    */
   hidden: z.boolean().optional(),
+  /**
+   * Optional id of a contested-syntax ALTERNATE READING to apply (non-destructively,
+   * via the normal `applyAlternateReadingPreview` helper) to the bundled base when
+   * this guide loads its passage — so the guide can TEACH a specific construal by
+   * DISPLAYING it, rather than only describing it. Additive: absent = the pristine
+   * base is shown. The reading must belong to a real issue on the guide's passage;
+   * the bundled base is never mutated (the alternate is applied to a fresh clone),
+   * and step focus/highlight ids are validated against the RESULTING displayed doc.
+   * Used for Colossians 2:11–12, whose SBLGNT base encodes the ἐν ᾧ clause as an
+   * apposition to the whole raised clause; the guide displays it re-drawn as the
+   * noun-headed relative clause modifying βαπτισμῷ (the shape the Nestle1904 base
+   * already draws), so the walkthrough teaches that reading.
+   */
+  displayAlternateReadingId: z.string().optional(),
 }).superRefine((guide, ctx) => {
   if (guide.kind === 'discourse') {
     if (!guide.discourse) {

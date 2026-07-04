@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useEditorStore, useGuidedStore } from '@/state';
-import { grammarHighlightGuides, visibleGrammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
+import {
+  grammarHighlightGuides,
+  visibleGrammarHighlightGuides,
+  getGuide,
+  guideDisplayDoc,
+} from '@/data/grammarHighlights';
 import { guidedDocuments, getGuidedDocument } from '@/fixtures/guided';
 import { getIssueById, getAlternateReadings } from '@/domain/contested';
 import { layoutDocument } from '@/domain/layout';
@@ -40,7 +45,10 @@ describe('guided registry and bundle', () => {
       if (g.kind === 'discourse') continue; // no syntax ids to validate
       const docs = g.bundledPassageIds
         .map((id) => guidedDocuments.find((d) => d.id === id))
-        .filter((d): d is NonNullable<typeof d> => !!d);
+        .filter((d): d is NonNullable<typeof d> => !!d)
+        // A guide teaching a construal re-draws its base through an alternate
+        // reading; validate step ids against what it DISPLAYS (mirror guided:check).
+        .map((d) => guideDisplayDoc(g, d));
       const tokenIds = new Set(docs.flatMap((d) => d.tokens.map((t) => t.id)));
       const nodeIds = new Set(docs.flatMap((d) => d.syntax.nodes.map((n) => n.id)));
       const relationIds = new Set(docs.flatMap((d) => d.syntax.relations.map((r) => r.id)));
@@ -351,6 +359,23 @@ describe('guided store', () => {
     // is drawn read-only and never loaded into the editor store.
     expect(useEditorStore.getState().doc.id).toBe(guide.steps[stackedIndex]!.passageId);
     expect(useEditorStore.getState().doc.id).toBe('sblgnt_luke_511');
+  });
+
+  it('Colossians 2:11–12 guide loads the DISPLAYED variant (ἐν ᾧ as a relative clause on βαπτισμῷ)', () => {
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide('guide-colossians-2-11-12');
+    const doc = useEditorStore.getState().doc;
+    expect(doc.id).toBe('sblgnt_colossians_13');
+    // The base apposition (raised-clause → βαπτισμῷ) is gone…
+    expect(doc.syntax.relations.some((r) => r.id === 'r_s13_86')).toBe(false);
+    // …re-drawn as an adjectival relative clause hanging on βαπτισμῷ.
+    const adj = doc.syntax.relations.filter(
+      (r) => r.headId === 'w_n51002012005' && r.type === 'adjectival' && r.dependentId === 'cl_s13_67',
+    );
+    expect(adj).toHaveLength(1);
+    // The first ἐν now governs βαπτισμῷ as its plain object.
+    expect(doc.syntax.relations.find((r) => r.id === 'r_s13_87')?.dependentId).toBe('w_n51002012005');
+    useGuidedStore.getState().leave();
   });
 
   it('every guide in the library opens and lays out in its default mode', () => {
