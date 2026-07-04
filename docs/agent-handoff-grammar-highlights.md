@@ -264,4 +264,117 @@ Phase 2:
 
 ## Decisions still needing Tim's approval
 
-- Final guided-example list + all theological copy (Phase 3 proposal).
+- The guided-example list below (Phase 3 proposal) + all theological copy.
+- The Hebrews 1:1–4 SAMPLE guide's copy (already shipped for testing —
+  review/edit `src/data/grammarHighlights.ts` before public release).
+
+---
+
+# PHASE 3 PROPOSAL — Grammar Highlights guided examples (FOR TIM'S APPROVAL)
+
+Check off the entries you approve; the next agent then (1) adds each range to
+`src/data/guidedPassages.ts`, (2) runs `npm run guided:build`, (3) dumps ids
+(`npm run dump-syntax -- 'sblgnt:<ref>'`), (4) authors the guide, (5) runs
+`npm run guided:check`. Copy follows the guardrails (devotional register,
+translations affirmed, aspect never overstated, contested readings summarized
+fairly with the Reformed-Anglican note kept distinct and labelled).
+
+## Core set (recommended for v1)
+
+1. **[ ] Hebrews 1:1–4** — *shipped as the sample; needs copy review only.*
+   Hook: elegant theological compression — participles + predicate structures
+   around one main verb. Point: God's final word is the Son; the seated
+   posture ends the priestly work. Caution: grammar supports but does not
+   exhaust Christology (Nicaea note already in the sample). Difficulty:
+   intermediate. Effort: DONE (review only). **v1.**
+
+2. **[ ] Mark 5:25–34 — the participle pile.** Hook: seven-plus participles
+   stack onto "a woman…" before the main verb ἥψατο ("she touched") — the
+   grammar makes the reader wait, feeling her twelve years. Point: grammar
+   slows the reader down: suffering, spending, worsening… then the touch.
+   Caution: not every participle carries sermon weight; the pile is narrative
+   art, not seven doctrines. Difficulty: beginner-friendly despite length.
+   Effort: medium (fixture already in the KR corpus; long sentence needs
+   careful step focus). **v1.**
+
+3. **[ ] Matthew 28:19–20 — imperative and participles.** Hook: μαθητεύσατε
+   is the one imperative; πορευθέντες / βαπτίζοντες / διδάσκοντες serve it.
+   Point: "go" matters (an attendant-circumstance participle often carries
+   imperatival force), but "make disciples" is the grammatical center.
+   Caution: do NOT preach "the Greek says there's no command to go" — that
+   over-corrects; the participle shares the imperative's urgency. Difficulty:
+   beginner. Effort: low-medium. **v1.**
+
+4. **[ ] Matthew 6:11 ∥ Luke 11:3 — δός vs δίδου.** Hook: same petition, two
+   aspects — Matthew's aorist imperative vs Luke's present imperative +
+   καθ' ἡμέραν. Point: the SAME prayer heard two ways: "give" viewed whole,
+   and "keep on giving day by day." Shows why translations differ — both are
+   right. Caution: the flagship aspect-caution example: never "aorist =
+   once-for-all"; Luke's "each day" comes as much from καθ' ἡμέραν as from the
+   tense. Needs TWO bundled passages (both gospels) and a compare-style step
+   flow (infrastructure supports multiple bundledPassageIds; steps can only
+   focus the LOADED passage, so the guide would switch passages between steps
+   — small store enhancement: a step-level `passageId` field. Flagged as the
+   one infra addition this entry needs). Difficulty: intermediate. Effort:
+   medium-high. **v1 if the step-passage switch is approved; else v1.1.**
+
+5. **[ ] 1 John 2:1 ∥ 3:6–9 — an act vs a pattern.** Hook: aorist ἁμάρτῃ
+   ("if anyone does sin") in 2:1 beside the present-tense forms of chapter 3
+   ("keeps on sinning / practicing sin"). Point: John is not contradicting
+   himself: committing a sin ≠ a settled pattern of sinning; pastoral comfort
+   AND holiness. Caution: aspect HELPS here but the resolution is ultimately
+   the whole epistle's argument (advocate, abiding, new birth) — say so
+   explicitly. Same two-passage need as #4. Difficulty: intermediate.
+   Effort: medium-high. **v1 or v1.1 with #4.**
+
+6. **[ ] 1 Peter 3:18–22 — "translation cannot decide for you."** Hook: the
+   grammar around ἐν ᾧ, τοῖς ἐν φυλακῇ πνεύμασιν, and ὃ καὶ ὑμᾶς ἀντίτυπον νῦν
+   σῴζει βάπτισμα raises real interpretive forks. Point: the diagram shows
+   WHERE the decisions sit; fair `debateSummary` of (a) Christ preaching
+   through Noah, (b) proclamation to imprisoned spirits after death, (c) the
+   fallen-angels reading; plus the "baptism now saves you… as an appeal/pledge"
+   clarification. Confessional note: Anglican formularies' sacramental realism
+   stated as a note, not as "the grammar's verdict." Caution heavy by design.
+   Difficulty: advanced. Effort: high (richest debateSummary). **v1 (this is
+   the flagship "grammar opens questions" entry).**
+
+## Optional / contested set (propose for v1.1+, pending approval)
+
+7. **[ ] Acts 2:38** — εἰς ἄφεσιν and the plural/singular shifts
+   (μετανοήσατε…βαπτισθήτω ἕκαστος); repentance, baptism, forgiveness across
+   traditions. Advanced; high effort.
+8. **[ ] Romans 6:3–4** — aorist passives + εἰς Χριστόν: baptism and union
+   with Christ. Intermediate; medium.
+9. **[ ] 1 Peter 3:21 (deep dive)** — spun out of #6 if #6 stays shorter.
+10. **[ ] Ephesians 1:3–14** — the one-sentence doxology; ἐν ᾧ chains and
+    election. Advanced; high (very large diagram — good stress case for
+    focused-branch fitting). Confessional framing naturally relevant.
+11. **[ ] Romans 9:6–24** — argument flow, οὐχ οἷον δὲ ὅτι…; election and
+    fair cautions. Advanced; high.
+12. **[ ] 1 Timothy 2:11–15** — αὐθεντεῖν, οὐδέ coordination, the γάρ chain;
+    grammar opens the debated questions, does not settle complementarian/
+    egalitarian conclusions. Advanced; high; needs the most careful tone.
+13. **[ ] Romans 9:5** — punctuation decides the doxology ("…Christ, who is
+    God over all, blessed forever" vs a separate doxology). Pairs naturally
+    with the existing contested-syntax registry entry. Intermediate; medium.
+14. **[ ] Titus 2:13** — Granville Sharp construction (τοῦ μεγάλου θεοῦ καὶ
+    σωτῆρος ἡμῶν Ἰησοῦ Χριστοῦ), with the rule's REAL scope and its limits
+    stated. SBLGNT fixture already in the KR corpus. Intermediate; medium.
+15. **[ ] 2 Peter 1:1** — same construction as #14; propose as a short
+    "look again" appendix step INSIDE #14 rather than its own guide.
+16. **[ ] John 1:1 (beginner entry)** — anarthrous predicate nominative +
+    word order (θεὸς ἦν ὁ λόγος): why "the Word was God" and not "a god" or
+    "God was the Word" — WITHOUT overclaiming Colwell's rule; qualitative
+    force presented fairly. John is already bundled for SBLGNT. Beginner;
+    low-medium effort. **Recommend promoting to v1 as the easy on-ramp.**
+
+## Proposal notes
+
+- Recommended v1: #1, #2, #3, #16 (+ #6 as the contested flagship), with #4/#5
+  following as soon as the step-level passage switch lands. That gives two
+  beginner, two intermediate, one advanced — a real difficulty ramp.
+- Every contested entry ships with `debateSummary` (fair views + cautions) and
+  keeps `confessionalFrame` a clearly-labelled separate field.
+- Bundle-size impact: each guide adds roughly one sentence-document (~30–70K
+  pretty-printed JSON; Eph 1:3–14 more). All 6 v1 entries ≈ ~300K bundled,
+  still far from "bundling the SBLGNT."
