@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useEditorStore, useDiscourseStore } from '@/state';
+import { useEditorStore, useDiscourseStore, useGuidedStore } from '@/state';
+import { GrammarHighlightsIntroModal } from '@/ui/guided/GrammarHighlightsIntroModal';
 import { glossDoc, docDirection } from '@/domain/model';
 import { useViewport } from '@/ui/responsive';
 import { ModeSwitcher } from '@/ui/shell/ModeSwitcher';
@@ -51,6 +52,14 @@ export function TopBar() {
   // effective layout desktop). `isDesktop` is true exactly when the device is a
   // real desktop OR force-desktop is on, so it captures both cases.
   const canEdit = vp.isDesktop;
+
+  // Grammar Highlights guided mode: the intro modal + active-state chrome (the
+  // "Leave guided mode" button, and the app-mode switcher locked to Explore).
+  const guidedActive = useGuidedStore((s) => s.active);
+  const guidedIntroOpen = useGuidedStore((s) => s.introOpen);
+  const openGuidedIntro = useGuidedStore((s) => s.openIntro);
+  const closeGuidedIntro = useGuidedStore((s) => s.closeIntro);
+  const leaveGuided = useGuidedStore((s) => s.leave);
 
   const [exportOpen, setExportOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -117,11 +126,20 @@ export function TopBar() {
         <span className="brand-name">Scripture Diagrammer</span>
       </div>
 
-      <ModeSwitcher canEdit={canEdit} />
+      <ModeSwitcher canEdit={canEdit} locked={guidedActive} />
 
       <div className="spacer" />
 
       <div className="btn-group">
+        {guidedActive && (
+          <button
+            className="btn"
+            onClick={leaveGuided}
+            title="Exit Grammar highlights and restore your previous view"
+          >
+            Leave guided mode
+          </button>
+        )}
         {!vp.isDesktop && (
           <button
             className="btn"
@@ -188,6 +206,9 @@ export function TopBar() {
                 <button role="menuitem" onClick={() => { setGuideOpen(true); close(); }}>
                   Guide
                 </button>
+                <button role="menuitem" onClick={() => { openGuidedIntro(); close(); }}>
+                  Grammar highlights…
+                </button>
               </div>
             </>
           )}
@@ -215,6 +236,7 @@ export function TopBar() {
       )}
       {aboutOpen && <AboutModal onClose={() => setAboutOpen(false)} />}
       {guideOpen && <GuideModal onClose={() => setGuideOpen(false)} />}
+      {guidedIntroOpen && <GrammarHighlightsIntroModal onClose={closeGuidedIntro} />}
     </header>
   );
 }

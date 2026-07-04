@@ -1,4 +1,4 @@
-import { useEditorStore } from '@/state';
+import { useEditorStore, useGuidedStore } from '@/state';
 import { DIAGRAM_MODES } from '@/domain/layout';
 import { useViewport } from '@/ui/responsive';
 
@@ -15,7 +15,11 @@ export function VisualizationSwitcher({ compact = false }: { compact?: boolean }
   const diagramMode = useEditorStore((s) => s.diagramMode);
   const setDiagramMode = useEditorStore((s) => s.setDiagramMode);
   const { isMobile } = useViewport();
-  const modes = DIAGRAM_MODES.filter((m) => m.id !== 'discourse' || !isMobile);
+  // Grammar Highlights is a SYNTAX walkthrough: the reader may switch among the
+  // syntax lenses, but Discourse (a separate analysis layer over a different
+  // document model) is removed from the list while guided mode is active.
+  const guidedActive = useGuidedStore((s) => s.active);
+  const modes = DIAGRAM_MODES.filter((m) => m.id !== 'discourse' || (!isMobile && !guidedActive));
   return (
     <label className={`viz-switcher${compact ? ' compact' : ''}`}>
       <span className="sr-only">Visualization</span>

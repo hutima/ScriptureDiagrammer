@@ -13,7 +13,7 @@ const MODES: { id: AppMode; label: string; short: string }[] = [
  * keeps all three modes available but *defaults* to Edit on entry (that default
  * lives in ResponsiveShell) because Discourse is manual-first.
  */
-export function ModeSwitcher({ canEdit }: { canEdit: boolean }) {
+export function ModeSwitcher({ canEdit, locked = false }: { canEdit: boolean; locked?: boolean }) {
   const appMode = useEditorStore((s) => s.appMode);
   const setAppMode = useEditorStore((s) => s.setAppMode);
   const modes = MODES.filter((m) => m.id !== 'edit' || canEdit);
@@ -23,8 +23,11 @@ export function ModeSwitcher({ canEdit }: { canEdit: boolean }) {
         <button
           key={m.id}
           className={appMode === m.id ? 'active' : ''}
+          // Grammar Highlights locks the app to Explore while it is active —
+          // reading, not editing, is the whole point of the guided walkthrough.
+          disabled={locked && m.id !== appMode}
           onClick={() => setAppMode(m.id)}
-          title={m.label}
+          title={locked ? 'Locked to Explore during Grammar highlights' : m.label}
         >
           {m.short}
         </button>

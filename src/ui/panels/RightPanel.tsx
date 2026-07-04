@@ -7,8 +7,9 @@ import { RelationshipList } from './right/RelationshipList';
 import { NotesEditor } from './right/NotesEditor';
 import { InferencePanel } from './right/InferencePanel';
 import { ModeSwitch } from './right/ModeSwitch';
+import { EditPreviewTab } from '@/ui/editor/EditPreviewTab';
 
-type Tab = 'verses' | 'edit' | 'relationships' | 'inferences' | 'notes';
+type Tab = 'verses' | 'preview' | 'edit' | 'relationships' | 'inferences' | 'notes';
 
 /**
  * Right panel. When EDITING is enabled a working-mode switch (Parsed / Assisted /
@@ -24,6 +25,7 @@ type Tab = 'verses' | 'edit' | 'relationships' | 'inferences' | 'notes';
  */
 export function RightPanel({ hidden = false }: { hidden?: boolean }) {
   const mode = useEditorStore((s) => s.mode);
+  const appMode = useEditorStore((s) => s.appMode);
   const versesInPanel = useEditorStore((s) => s.versesInPanel);
   const setVersesHost = useEditorStore((s) => s.setVersesHost);
   const vp = useViewport();
@@ -42,8 +44,16 @@ export function RightPanel({ hidden = false }: { hidden?: boolean }) {
     if (versesActive) setTab('verses');
   }, [versesActive]);
 
+  // ENTERING Edit mode leads with the Preview tab — a live read-only KR window
+  // over the same graph, so edits made in Phrase/Block are seen as a formal
+  // diagram immediately. (Leaving Edit drops the tab; `activeTab` falls back.)
+  useEffect(() => {
+    if (appMode === 'edit') setTab('preview');
+  }, [appMode]);
+
   const tabs: { id: Tab; label: string }[] = [
     ...(versesActive ? [{ id: 'verses' as const, label: 'Verses' }] : []),
+    ...(appMode === 'edit' ? [{ id: 'preview' as const, label: 'Preview' }] : []),
     ...(editing ? [{ id: 'edit' as const, label: 'Edit' }] : []),
     { id: 'relationships', label: 'Relations' },
     ...(editing && mode === 'assisted' ? [{ id: 'inferences' as const, label: 'Inferences' }] : []),
@@ -86,6 +96,7 @@ export function RightPanel({ hidden = false }: { hidden?: boolean }) {
         <div className="verses-tab-host" ref={(el) => setVersesHost(el)} />
       ) : (
         <div className="panel-body">
+          {activeTab === 'preview' && appMode === 'edit' && <EditPreviewTab />}
           {activeTab === 'edit' && editing && <Inspector />}
           {activeTab === 'relationships' && <RelationshipList />}
           {activeTab === 'inferences' && editing && <InferencePanel />}
