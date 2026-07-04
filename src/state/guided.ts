@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { GrammarHighlightGuide, GuidedDisplayMode, KrDocument } from '@/domain/schema';
 import type { DiagramMode } from '@/domain/layout';
-import { grammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
+import { visibleGrammarHighlightGuides, getGuide } from '@/data/grammarHighlights';
 import { getGuidedDocument } from '@/fixtures/guided';
 import { useTutorialStore } from '@/ui/tutorial/tutorialState';
 import { useEditorStore } from './store';
@@ -146,7 +146,7 @@ export const useGuidedStore = create<GuidedStore>((set, get) => ({
     editor.setGlossMode(displayMode === 'english');
     editor.setSourceTextVersion(displayMode === 'english' ? 'en' : 'grc');
     set({ active: true, displayMode, introOpen: false, prior });
-    const first = grammarHighlightGuides[0];
+    const first = visibleGrammarHighlightGuides[0];
     if (first) get().openGuide(first.id);
   },
 
