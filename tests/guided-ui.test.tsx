@@ -150,6 +150,32 @@ describe('guided mode UI', () => {
     expect(hebrewSvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
   });
 
+  it('a stacked step in the Lord\'s-Prayer guide renders both Gospels with highlights on each', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-lords-prayer-bread'));
+    const guide = getGuide('guide-lords-prayer-bread')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    expect(stackedIndex).toBeGreaterThan(0);
+    act(() => useGuidedStore.getState().setStep(stackedIndex));
+    const { container } = render(createElement(DiagramCanvas));
+
+    // Two Greek diagram papers render: the primary (loaded) passage and the
+    // stacked secondary, which is drawn inside its own `.guided-stacked` frame.
+    const papers = Array.from(container.querySelectorAll('svg.diagram-paper'));
+    expect(papers.length).toBe(2);
+    const secondarySvg = papers.find((el) => el.closest('.guided-stacked'));
+    const primarySvg = papers.find((el) => !el.closest('.guided-stacked'));
+    expect(secondarySvg).toBeTruthy();
+    expect(primarySvg).toBeTruthy();
+    expect(container.querySelector('.guided-stacked-head')?.textContent).toMatch(/Matthew 6:11/);
+
+    // The parallel imperatives — δίδου (primary, Luke) and δός (secondary,
+    // Matthew) — both carry the guided emphasis swash at once.
+    const emphasis = GUIDED_HIGHLIGHT_COLORS.emphasized;
+    expect(primarySvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
+    expect(secondarySvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
+  });
+
   it('a non-stacked guide renders no secondary frame', () => {
     useGuidedStore.getState().enter('greek');
     act(() => useGuidedStore.getState().openGuide('guide-john-1-1'));
