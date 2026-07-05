@@ -54,24 +54,52 @@ for (const guide of grammarHighlightGuides) {
         fail(`${guide.id}: discourse range is missing sourceId/bookNum/startRef/endRef`);
       }
     }
-    // Every seededArcs endpoint and seededHighlights ref must fall inside at
-    // least one declared range, so a typo'd ref is caught here instead of
-    // silently being skipped at guided-load time.
+    // Every seededArcs endpoint, seededHighlights ref, and seededSplits ref
+    // must fall inside at least one declared range, so a typo'd ref is caught
+    // here instead of silently being skipped at guided-load time. A ref may
+    // carry a `/N` ordinal suffix (addressing the Nth leaf unit produced by a
+    // seededSplit for that refStart) — strip it before checking the range,
+    // and reject a malformed suffix (non-integer or non-positive) outright.
     const ranges = guide.discourse?.ranges ?? [];
-    const refInAnyRange = (ref: string) => ranges.some((r) => refInRange(ref, r.startRef, r.endRef));
+    const stripOrdinalSuffix = (ref: string): { base: string; malformed: boolean } => {
+      const m = /^(.*)\/([^/]+)$/.exec(ref);
+      if (!m) return { base: ref, malformed: false };
+      const n = Number(m[2]);
+      const malformed = !Number.isInteger(n) || n < 1;
+      return { base: m[1]!, malformed };
+    };
+    const refInAnyRange = (ref: string): boolean => {
+      const { base, malformed } = stripOrdinalSuffix(ref);
+      if (malformed) return false;
+      return ranges.some((r) => refInRange(base, r.startRef, r.endRef));
+    };
+    const refIsMalformed = (ref: string): boolean => stripOrdinalSuffix(ref).malformed;
     for (const arc of guide.discourse?.seededArcs ?? []) {
-      if (!refInAnyRange(arc.sourceRef)) {
+      if (refIsMalformed(arc.sourceRef)) {
+        fail(`${guide.id}: seededArcs "${arc.id}" sourceRef ${arc.sourceRef} has a malformed /N ordinal suffix`);
+      } else if (!refInAnyRange(arc.sourceRef)) {
         fail(`${guide.id}: seededArcs "${arc.id}" sourceRef ${arc.sourceRef} is outside every declared range`);
       }
-      if (!refInAnyRange(arc.targetRef)) {
+      if (refIsMalformed(arc.targetRef)) {
+        fail(`${guide.id}: seededArcs "${arc.id}" targetRef ${arc.targetRef} has a malformed /N ordinal suffix`);
+      } else if (!refInAnyRange(arc.targetRef)) {
         fail(`${guide.id}: seededArcs "${arc.id}" targetRef ${arc.targetRef} is outside every declared range`);
       }
     }
     for (const h of guide.discourse?.seededHighlights ?? []) {
       for (const ref of h.refs) {
-        if (!refInAnyRange(ref)) {
+        if (refIsMalformed(ref)) {
+          fail(`${guide.id}: seededHighlights (${h.color}) ref ${ref} has a malformed /N ordinal suffix`);
+        } else if (!refInAnyRange(ref)) {
           fail(`${guide.id}: seededHighlights (${h.color}) ref ${ref} is outside every declared range`);
         }
+      }
+    }
+    for (const s of guide.discourse?.seededSplits ?? []) {
+      if (refIsMalformed(s.ref)) {
+        fail(`${guide.id}: seededSplits ref ${s.ref} has a malformed /N ordinal suffix`);
+      } else if (!refInAnyRange(s.ref)) {
+        fail(`${guide.id}: seededSplits ref ${s.ref} is outside every declared range`);
       }
     }
     if (guide.steps.length === 0) fail(`${guide.id}: guide has no steps`);

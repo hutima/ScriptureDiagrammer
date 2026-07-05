@@ -220,6 +220,11 @@ export type GuidedDiscourseRange = z.infer<typeof GuidedDiscourseRangeSchema>;
  * units by their `refStart` (e.g. "2:12"); an arc whose refs cannot be resolved
  * in the combined document is silently skipped. Never persisted, never
  * authoritative — it is teaching scaffolding for the proposed structure.
+ *
+ * `sourceRef`/`targetRef` may carry an ordinal suffix — `'2:39/2'` means the
+ * 2nd leaf unit (1-based, outline order) whose `refStart` is `'2:39'` — needed
+ * once `seededSplits` produce several units from one verse. A plain ref (no
+ * suffix) keeps meaning the first such unit.
  */
 export const GuidedDiscourseArcSchema = z.object({
   id: z.string(),
@@ -239,6 +244,11 @@ export type GuidedDiscourseArc = z.infer<typeof GuidedDiscourseArcSchema>;
  * cannot be resolved in the combined document is silently skipped. Never
  * persisted, never authoritative — it is teaching scaffolding for the proposed
  * structure, exactly like `seededArcs`.
+ *
+ * Each entry in `refs` may carry an ordinal suffix — `'2:39/2'` means the 2nd
+ * leaf unit (1-based, outline order) whose `refStart` is `'2:39'` — needed once
+ * `seededSplits` produce several units from one verse. A plain ref (no suffix)
+ * keeps meaning the first such unit.
  */
 export const GuidedDiscourseHighlightSchema = z.object({
   /** Verse refs (unit `refStart`s, e.g. "2:39") that share this color. */
@@ -247,9 +257,35 @@ export const GuidedDiscourseHighlightSchema = z.object({
 });
 export type GuidedDiscourseHighlight = z.infer<typeof GuidedDiscourseHighlightSchema>;
 
+/**
+ * A guide-authored request to split one loaded verse unit into several
+ * PHRASE units, so a seeded arc/highlight can point at a phrase rather than a
+ * whole verse (see `GuidedDiscourseArcSchema`'s `/N` sub-ref addressing).
+ * Display-only teaching scaffolding, applied in-memory when the guide opens —
+ * never persisted, never touches the syntax pipeline.
+ */
+export const GuidedDiscourseSplitSchema = z.object({
+  /** The unit (by refStart) to split, e.g. '2:39'. */
+  ref: z.string(),
+  /**
+   * One entry per split point: candidate phrases (matched case-insensitively,
+   * punctuation-insensitively, against consecutive token surfaces); the FIRST
+   * candidate that matches wins, and the unit is split so the matched phrase
+   * STARTS the new unit. A split point with no matching candidate is skipped
+   * silently (e.g. under a fallback translation with different wording).
+   */
+  before: z.array(z.array(z.string()).min(1)).min(1),
+});
+export type GuidedDiscourseSplit = z.infer<typeof GuidedDiscourseSplitSchema>;
+
 export const GuidedDiscourseSpecSchema = z.object({
   /** One or more verse ranges loaded and CONCATENATED into one discourse doc. */
   ranges: z.array(GuidedDiscourseRangeSchema).min(1),
+  /**
+   * Optional sample phrase-level splits applied (in order, before arcs/
+   * highlights are seeded) to the combined doc for the guide's display.
+   */
+  seededSplits: z.array(GuidedDiscourseSplitSchema).optional(),
   /** Optional sample arcs seeded into the combined doc for the guide's display. */
   seededArcs: z.array(GuidedDiscourseArcSchema).optional(),
   /** Optional sample unit coloring seeded into the combined doc for the guide's display. */

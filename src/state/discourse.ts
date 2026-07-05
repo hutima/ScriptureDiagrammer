@@ -7,6 +7,7 @@ import type {
   DiscourseUnitColor,
   DiscourseUnitKind,
   GuidedDiscourseSpec,
+  GuidedDiscourseSplit,
   HighlightCategory,
   KrDocument,
   SermonAnchor,
@@ -533,6 +534,110 @@ function isDemoRange(s: {
   );
 }
 
+/** Lowercase, strip everything but letters/digits — punctuation/case-insensitive word match. */
+function normalizeGuidedWord(w: string): string {
+  return w.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+/** A candidate phrase → its normalized, non-empty words. */
+function normalizeGuidedPhrase(phrase: string): string[] {
+  return phrase
+    .split(/\s+/)
+    .map(normalizeGuidedWord)
+    .filter((w) => w.length > 0);
+}
+
+/**
+ * Apply one guide's `seededSplits` to a freshly-merged discourse doc (display
+ * only, never persisted): for each spec, split the FIRST leaf unit whose
+ * `refStart` matches, at each split point's first matching candidate phrase.
+ * Candidate phrases are matched against the unit's ORIGINAL (pre-split) token
+ * surfaces so split points can be authored independently of each other; the
+ * resulting token boundaries are then applied in ascending token order (a
+ * later split point may land inside the unit an earlier split point produced,
+ * so each split re-locates its target token's CURRENT containing unit).
+ * A split point with no matching candidate is silently skipped — this is how
+ * a guide degrades gracefully under a fallback translation with different
+ * wording.
+ */
+function applyGuidedDiscourseSplits(
+  doc: DiscourseDocument,
+  splits: GuidedDiscourseSplit[] | undefined,
+  now: string,
+): DiscourseDocument {
+  if (!splits?.length) return doc;
+  let result = doc;
+  for (const spec of splits) {
+    const targetUnit = leafUnits(result).find((u) => u.refStart === spec.ref);
+    if (!targetUnit) continue;
+    const originalTokenIds = targetUnit.tokenIds;
+    const tokenSurface = new Map(result.tokens.map((t) => [t.id, t.surface] as const));
+    const normalizedTokens = originalTokenIds.map((id) => normalizeGuidedWord(tokenSurface.get(id) ?? ''));
+    const matchedTokenIds: string[] = [];
+    for (const candidates of spec.before) {
+      let matchTokenId: string | undefined;
+      for (const candidate of candidates) {
+        const words = normalizeGuidedPhrase(candidate);
+        if (!words.length) continue;
+        for (let i = 0; i <= normalizedTokens.length - words.length; i++) {
+          let ok = true;
+          for (let j = 0; j < words.length; j++) {
+            if (normalizedTokens[i + j] !== words[j]) {
+              ok = false;
+              break;
+            }
+          }
+          if (ok) {
+            matchTokenId = originalTokenIds[i];
+            break;
+          }
+        }
+        if (matchTokenId) break;
+      }
+      if (matchTokenId) matchedTokenIds.push(matchTokenId);
+    }
+    if (!matchedTokenIds.length) continue;
+    // Apply in ascending ORIGINAL-position order so each split's target token
+    // is still resolvable via a simple "which unit currently owns it" lookup.
+    const originalOrder = new Map(originalTokenIds.map((id, i) => [id, i]));
+    const orderedTokenIds = [...new Set(matchedTokenIds)].sort(
+      (a, b) => originalOrder.get(a)! - originalOrder.get(b)!,
+    );
+    for (const atTokenId of orderedTokenIds) {
+      const containingUnit = result.units.find((u) => u.tokenIds.includes(atTokenId));
+      if (!containingUnit) continue;
+      result = splitDiscourseUnit(result, containingUnit.id, atTokenId, now);
+    }
+  }
+  return result;
+}
+
+/**
+ * Resolve a guided-discourse ref (`'2:39'`, or `'2:39/2'` for the 2nd leaf
+ * unit sharing that `refStart` in outline order) against a discourse doc,
+ * grouping leaf units by `refStart` in outline order. Returns `undefined` for
+ * an unresolved ref (missing refStart, out-of-range ordinal, or a malformed
+ * suffix) — callers silently skip, exactly as the old plain-refStart lookup did.
+ */
+function makeGuidedRefResolver(doc: DiscourseDocument): (ref: string) => string | undefined {
+  const groups = new Map<string, string[]>();
+  for (const u of leafUnits(doc)) {
+    if (!u.refStart) continue;
+    const arr = groups.get(u.refStart);
+    if (arr) arr.push(u.id);
+    else groups.set(u.refStart, [u.id]);
+  }
+  return (ref: string) => {
+    const m = /^(.*)\/(\d+)$/.exec(ref);
+    const base = m ? m[1]! : ref;
+    const ordinal = m ? Number(m[2]) : 1;
+    if (!Number.isInteger(ordinal) || ordinal < 1) return undefined;
+    const arr = groups.get(base);
+    if (!arr) return undefined;
+    return arr[ordinal - 1];
+  };
+}
+
 const DEFAULT_VIEW: DiscourseViewToggles = {
   // Marker hint chips are OFF by default and only toggleable in Edit mode; a
   // fresh read (Explore) stays uncluttered.
@@ -875,12 +980,14 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
                     .join('  ·  ') || parts.map((p) => p.title).join('  ·  '),
                 now,
               });
-        // Shared refStart → unit id map for both SAMPLE arcs and SAMPLE
-        // highlights below — teaching scaffolding, never persisted.
-        const byRef = new Map<string, string>();
-        for (const u of leafUnits(merged)) {
-          if (u.refStart && !byRef.has(u.refStart)) byRef.set(u.refStart, u.id);
-        }
+        // Optional SAMPLE phrase-level splits (display-only) — applied BEFORE
+        // ref resolution so seeded arcs/highlights can address the resulting
+        // phrase units via the `/N` sub-ref ordinal.
+        merged = applyGuidedDiscourseSplits(merged, spec.seededSplits, now);
+        // Shared ref resolver (refStart, optionally with a `/N` ordinal) for
+        // both SAMPLE arcs and SAMPLE highlights below — teaching scaffolding,
+        // never persisted.
+        const resolveGuidedRef = makeGuidedRefResolver(merged);
         // Seed any SAMPLE arcs (by refStart) directly into the doc — teaching
         // scaffolding, never persisted. Unresolved refs are skipped.
         if (spec.seededArcs?.length) {
@@ -890,8 +997,8 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
             reason: 'Sample discourse arc for a guided example — a proposed structure, not authoritative.',
           };
           for (const arc of spec.seededArcs) {
-            const sourceUnitId = byRef.get(arc.sourceRef);
-            const targetUnitId = byRef.get(arc.targetRef);
+            const sourceUnitId = resolveGuidedRef(arc.sourceRef);
+            const targetUnitId = resolveGuidedRef(arc.targetRef);
             if (!sourceUnitId || !targetUnitId) continue;
             merged = addDiscourseRelation(
               merged,
@@ -915,7 +1022,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         // edits still diff cleanly against a coloring-free patch baseline.
         if (spec.seededHighlights?.length) {
           for (const h of spec.seededHighlights) {
-            const resolvedIds = h.refs.map((ref) => byRef.get(ref)).filter((id): id is string => !!id);
+            const resolvedIds = h.refs.map((ref) => resolveGuidedRef(ref)).filter((id): id is string => !!id);
             if (!resolvedIds.length) continue;
             merged = setDiscourseUnitsColor(merged, resolvedIds, h.color, now);
           }

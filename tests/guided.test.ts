@@ -109,11 +109,11 @@ describe('guided registry and bundle', () => {
     const ranges = guide!.discourse!.ranges;
     expect(ranges.map((r) => r.sourceId)).toEqual(['english-asv', 'english-asv']);
     expect(ranges.map((r) => r.bookNum)).toEqual([44, 1]);
-    expect(ranges.map((r) => r.startRef)).toEqual(['2:39', '17:12']);
+    expect(ranges.map((r) => r.startRef)).toEqual(['2:38', '17:12']);
     expect(ranges.every((r) => r.fallback?.sourceId === 'english-bsb-all')).toBe(true);
     expect(ranges.map((r) => r.fallback?.bookNum)).toEqual([44, 1]);
     expect(ranges.every((r) => !!r.fallback?.notice)).toBe(true);
-    expect(guide!.topics).toEqual(['covenant', 'promise', 'discourse']);
+    expect(guide!.topics).toEqual(['covenant', 'promise', 'discourse', 'baptism']);
   });
 
   it('registers the Lord\'s-Prayer guide with Matthew/Luke stacked on the comparison steps', () => {

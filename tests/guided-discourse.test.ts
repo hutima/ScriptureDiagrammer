@@ -254,6 +254,11 @@ describe('guided store — Acts 2:39 guide loads ASV with a bundled-BSB fallback
           chapter: 2,
           verses: [
             {
+              verse: 38,
+              text:
+                'And Peter said unto them, Repent ye, and be baptized every one of you in the name of Jesus Christ unto the remission of your sins; and ye shall receive the gift of the Holy Spirit.',
+            },
+            {
               verse: 39,
               text:
                 'For to you is the promise, and to your children, and to all that are afar off, even as many as the Lord our God shall call unto him.',
@@ -325,7 +330,7 @@ describe('guided store — Acts 2:39 guide loads ASV with a bundled-BSB fallback
     expect(visibleGrammarHighlightGuides.some((g) => g.id === guide.id)).toBe(true);
   });
 
-  it('loads the ASV range for both verses, seeds the parallel arc, and sets no notice', async () => {
+  it('loads the ASV range for both verses, splits them into phrase units, and seeds four parallel arcs', async () => {
     stubAsvSuccess();
     useGuidedStore.getState().enter('greek');
     useGuidedStore.getState().openGuide('guide-acts-2-39');
@@ -334,15 +339,38 @@ describe('guided store — Acts 2:39 guide loads ASV with a bundled-BSB fallback
     });
     const s = useDiscourseStore.getState();
     expect(s.doc!.language).toBe('en');
-    const refs = new Set(leafUnits(s.doc!).map((u) => u.refStart));
+    const leaves = leafUnits(s.doc!);
+    const refs = new Set(leaves.map((u) => u.refStart));
+    expect(refs.has('2:38')).toBe(true);
     expect(refs.has('2:39')).toBe(true);
     expect(refs.has('17:12')).toBe(true);
-    expect(s.doc!.relations.filter((r) => r.type === 'parallel').length).toBe(1);
+    // seededSplits broke each verse into its expected number of phrase units.
+    const countOf = (ref: string) => leaves.filter((u) => u.refStart === ref).length;
+    expect(countOf('2:38')).toBe(3);
+    expect(countOf('2:39')).toBe(4);
+    expect(countOf('17:12')).toBe(4);
+    // The four seeded arcs are all 'parallel'.
+    expect(s.doc!.relations.filter((r) => r.type === 'parallel').length).toBe(4);
     expect(s.guidedNotice).toBeNull();
-    // The seeded highlight colors both leaves of the covenant-echo pair.
-    const unitByRef = new Map(leafUnits(s.doc!).map((u) => [u.refStart, u]));
-    expect(unitByRef.get('2:39')!.color).toBe('green');
-    expect(unitByRef.get('17:12')!.color).toBe('green');
+    // The second '2:39' unit's tokens start with "and to your children".
+    const unitsByRef = new Map<string, typeof leaves>();
+    for (const u of leaves) unitsByRef.set(u.refStart, [...(unitsByRef.get(u.refStart) ?? []), u]);
+    const tokenSurface = new Map(s.doc!.tokens.map((t) => [t.id, t.surface] as const));
+    const surfacesOf = (u: (typeof leaves)[number]) => u.tokenIds.map((id) => tokenSurface.get(id));
+    const acts239Units = unitsByRef.get('2:39')!;
+    expect(surfacesOf(acts239Units[1]!).slice(0, 3).join(' ').toLowerCase()).toBe('and to your');
+    // The four color-coded pairs: 2:38/2 ↔ 17:12/1 (purple, the sign), and
+    // within 17:12, unit order is: /1 purple, /2 blue, /3 green, /4 orange.
+    const acts238Units = unitsByRef.get('2:38')!;
+    const gen1712Units = unitsByRef.get('17:12')!;
+    expect(acts238Units[1]!.color).toBe('purple');
+    expect(gen1712Units[0]!.color).toBe('purple');
+    expect(gen1712Units[1]!.color).toBe('blue');
+    expect(gen1712Units[2]!.color).toBe('green');
+    expect(gen1712Units[3]!.color).toBe('orange');
+    expect(acts239Units[0]!.color).toBe('blue');
+    expect(acts239Units[1]!.color).toBe('green');
+    expect(acts239Units[2]!.color).toBe('orange');
   });
 
   it('falls back to bundled BSB when the ASV fetch fails, and surfaces a notice', async () => {
@@ -354,12 +382,19 @@ describe('guided store — Acts 2:39 guide loads ASV with a bundled-BSB fallback
     });
     const s = useDiscourseStore.getState();
     expect(s.doc!.language).toBe('en');
-    const refs = new Set(leafUnits(s.doc!).map((u) => u.refStart));
+    const leaves = leafUnits(s.doc!);
+    const refs = new Set(leaves.map((u) => u.refStart));
+    expect(refs.has('2:38')).toBe(true);
     expect(refs.has('2:39')).toBe(true);
     expect(refs.has('17:12')).toBe(true);
     expect(s.guidedNotice).toBeTruthy();
     expect(s.guidedNotice).toMatch(/ASV/);
     expect(s.guidedNotice).toMatch(/BSB/);
+    // It never throws even though Genesis 17:12's BSB clause order matches
+    // none of the seeded split candidates — that verse just degrades to one
+    // whole-verse unit. At least the 2:38 "and be baptized" split matched the
+    // BSB wording too, so it produced ≥2 units.
+    expect(leaves.filter((u) => u.refStart === '2:38').length).toBeGreaterThanOrEqual(2);
   });
 
   it('surfaces a readable error when both the ASV and bundled BSB fetches fail', async () => {
