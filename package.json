@@ -19,7 +19,9 @@
     "kr:compactness": "vite-node scripts/kr-compactness-report.mts --",
     "guided:build": "vite-node scripts/build-guided-highlights.mts",
     "guided:check": "vite-node scripts/check-guided-highlights.mts",
-    "guided:dump": "vite-node scripts/dump-guided-doc.mts --"
+    "guided:dump": "vite-node scripts/dump-guided-doc.mts --",
+    "guided:text:export": "vite-node scripts/export-guided-text.mts --",
+    "guided:text:import": "vite-node scripts/import-guided-text.mts --"
   },
   "dependencies": {
     "idb": "^8.0.0",
