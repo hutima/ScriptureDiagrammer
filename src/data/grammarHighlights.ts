@@ -47,6 +47,11 @@ import { psalm46 } from './guides/psalm-46';
  *   where relevant) stays a clearly-separate, labelled note.
  * - Greek terms in step bodies are written as `[[termId]]` and resolved
  *   against `greekTerms`; details live in the term panel, not the step card.
+ * - Bulk prose review: `npm run guided:text:export` dumps every guide's text
+ *   into one editable Markdown file (guided-text.md), and
+ *   `npm run guided:text:import` applies the edits back onto these modules as
+ *   a drop-in replacement of exactly the changed string literals (ids, focus
+ *   targets, and comments untouched). See scripts/lib/guided-text.mts.
  *
  * Order below is the STABLE manual order within a difficulty tier — core
  * grammar first, then the contested / deeper passages. The picker's actual
