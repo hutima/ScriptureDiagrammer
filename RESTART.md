@@ -43,8 +43,9 @@ bundle (pre-existing, unrelated to this task):
 This task therefore spliced ONLY the four new Ephesians docs + manifest entry
 into the committed bundle (node one-off, JSON.stringify(out, null, 1) same as
 the builder), leaving every previously committed byte unchanged.
-- [ ] D. `npm run guided:check`, `npm run typecheck`, `npm test`. Commit:
-      "Validate Ephesians 2 gospel study"
+- [x] D. `npm run guided:check` → all 22 guides validate;
+      `npm run typecheck` → clean; `npm test` → 128 files, 2330/2330 pass.
+      Commit: "Validate Ephesians 2 gospel study"
 - [ ] E. Final theological/product review; `npm run build`; restore RESTART.md
       to prior state (see NOTE). Commit: "Finalize Ephesians 2 gospel guide"
 - [ ] PR (only if mergeable).
