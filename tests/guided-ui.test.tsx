@@ -123,6 +123,23 @@ describe('guided mode UI', () => {
     expect(useGuidedStore.getState().stepIndex).toBe(0);
   });
 
+  it('advancing a step closes the "Where readers differ" disclosure and scrolls to the top', () => {
+    useGuidedStore.getState().enter('greek');
+    // Any syntax guide with a debate summary renders the disclosure (a
+    // discourse guide would try to fetch its ranges here).
+    const guide = grammarHighlightGuides.find((g) => g.kind !== 'discourse' && g.debateSummary)!;
+    expect(guide).toBeTruthy();
+    act(() => useGuidedStore.getState().openGuide(guide.id));
+    const { container } = render(createElement(GuidedStepCard));
+    const details = container.querySelector<HTMLDetailsElement>('details.guided-debate')!;
+    expect(details).toBeTruthy();
+    // Reader opens the disclosure, then moves on — the next step starts fresh.
+    details.open = true;
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(useGuidedStore.getState().stepIndex).toBe(1);
+    expect(details.open).toBe(false);
+  });
+
   it('converts [[term]] markers in implication/caution prose, not just the body (Romans 9:6-13 step 1)', () => {
     useGuidedStore.getState().enter('greek');
     act(() => useGuidedStore.getState().openGuide('guide-romans-9-6-13'));
