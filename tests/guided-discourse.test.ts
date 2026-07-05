@@ -6,6 +6,8 @@ import {
   buildDiscourseDocumentFromPlainText,
   mergeDiscourseDocuments,
   leafUnits,
+  discourseOutlineHtml,
+  discourseOutlineSvg,
 } from '@/domain/discourse';
 import {
   isDiscourseFirstLoadModalDismissed,
@@ -13,6 +15,7 @@ import {
 } from '@/persistence';
 import { getGuide, visibleGrammarHighlightGuides } from '@/data/grammarHighlights';
 import { ASV_URL, clearRemoteEnglishCache } from '@/io';
+import { UNIT_COLOR_HEX } from '@/domain/discourse/export';
 
 /**
  * Section E — discourse-backed guided examples: the schema extension, the
@@ -41,6 +44,38 @@ describe('guided schema — kind: discourse', () => {
       expect(parsed.data.discourse!.ranges[0]!.granularity).toBe('verse');
       expect(parsed.data.bundledPassageIds).toEqual([]);
     }
+  });
+
+  it('accepts seededHighlights and rejects an unknown color', () => {
+    const base = {
+      id: 'g',
+      kind: 'discourse' as const,
+      title: 't',
+      reference: 'r',
+      difficulty: 'intermediate' as const,
+      summary: 's',
+      discourse: {
+        ranges: [{ sourceId: 'english-bsb', bookNum: 10, startRef: '2:12', endRef: '2:19' }],
+      },
+      steps: [{ id: 's1', title: 'a', body: 'b' }],
+    };
+    const ok = GrammarHighlightGuideSchema.safeParse({
+      ...base,
+      discourse: {
+        ...base.discourse,
+        seededHighlights: [{ refs: ['2:12', '2:19'], color: 'blue' }],
+      },
+    });
+    expect(ok.success).toBe(true);
+
+    const bad = GrammarHighlightGuideSchema.safeParse({
+      ...base,
+      discourse: {
+        ...base.discourse,
+        seededHighlights: [{ refs: ['2:12'], color: 'chartreuse' }],
+      },
+    });
+    expect(bad.success).toBe(false);
   });
 
   it('rejects a discourse guide with no discourse spec', () => {
@@ -175,6 +210,21 @@ describe('guided store — opening a discourse guide hosts the Discourse view', 
     expect(refs.has('2:19')).toBe(true);
     // The four sample chiasm arcs were seeded.
     expect(s.doc!.relations.filter((r) => r.type === 'chiasm').length).toBe(4);
+    // The four sample highlights were seeded alongside the arcs, coordinated
+    // with them (same pairs, distinct colors).
+    const unitByRef = new Map(leafUnits(s.doc!).map((u) => [u.refStart, u]));
+    expect(unitByRef.get('2:12')!.color).toBe('blue');
+    expect(unitByRef.get('2:19')!.color).toBe('blue');
+    expect(unitByRef.get('2:15')!.color).toBe('purple');
+    expect(unitByRef.get('2:16')!.color).toBe('purple');
+    // Canvas + exports share the ONE rendering authority (`unit.color` +
+    // `UNIT_COLOR_HEX`): both the printable HTML outline and the SVG outline
+    // (which also backs the print/PDF surface) reflect the same seeded colors.
+    const html = discourseOutlineHtml(s.doc!);
+    expect(html).toContain(UNIT_COLOR_HEX.blue);
+    const svg = discourseOutlineSvg(s.doc!);
+    expect(svg).toContain(UNIT_COLOR_HEX.blue);
+    expect(svg).toContain(UNIT_COLOR_HEX.purple);
     // A guided visit never opens the first-load modal.
     expect(s.firstLoadModalOpen).toBe(false);
     // Leaving guided mode tears the hosted discourse doc down again.
@@ -289,6 +339,10 @@ describe('guided store — Acts 2:39 guide loads ASV with a bundled-BSB fallback
     expect(refs.has('17:12')).toBe(true);
     expect(s.doc!.relations.filter((r) => r.type === 'parallel').length).toBe(1);
     expect(s.guidedNotice).toBeNull();
+    // The seeded highlight colors both leaves of the covenant-echo pair.
+    const unitByRef = new Map(leafUnits(s.doc!).map((u) => [u.refStart, u]));
+    expect(unitByRef.get('2:39')!.color).toBe('green');
+    expect(unitByRef.get('17:12')!.color).toBe('green');
   });
 
   it('falls back to bundled BSB when the ASV fetch fails, and surfaces a notice', async () => {

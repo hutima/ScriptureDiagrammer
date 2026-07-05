@@ -25,6 +25,7 @@
 const { grammarHighlightGuides, guideDisplayDoc } = await import('../src/data/grammarHighlights.ts');
 const { guidedDocuments } = await import('../src/fixtures/guided/index.ts');
 const { getIssueById } = await import('../src/domain/contested/index.ts');
+const { refInRange } = await import('../src/domain/discourse/index.ts');
 
 type Doc = (typeof guidedDocuments)[number];
 
@@ -51,6 +52,26 @@ for (const guide of grammarHighlightGuides) {
     for (const r of guide.discourse?.ranges ?? []) {
       if (!r.sourceId || !r.startRef || !r.endRef || !r.bookNum) {
         fail(`${guide.id}: discourse range is missing sourceId/bookNum/startRef/endRef`);
+      }
+    }
+    // Every seededArcs endpoint and seededHighlights ref must fall inside at
+    // least one declared range, so a typo'd ref is caught here instead of
+    // silently being skipped at guided-load time.
+    const ranges = guide.discourse?.ranges ?? [];
+    const refInAnyRange = (ref: string) => ranges.some((r) => refInRange(ref, r.startRef, r.endRef));
+    for (const arc of guide.discourse?.seededArcs ?? []) {
+      if (!refInAnyRange(arc.sourceRef)) {
+        fail(`${guide.id}: seededArcs "${arc.id}" sourceRef ${arc.sourceRef} is outside every declared range`);
+      }
+      if (!refInAnyRange(arc.targetRef)) {
+        fail(`${guide.id}: seededArcs "${arc.id}" targetRef ${arc.targetRef} is outside every declared range`);
+      }
+    }
+    for (const h of guide.discourse?.seededHighlights ?? []) {
+      for (const ref of h.refs) {
+        if (!refInAnyRange(ref)) {
+          fail(`${guide.id}: seededHighlights (${h.color}) ref ${ref} is outside every declared range`);
+        }
       }
     }
     if (guide.steps.length === 0) fail(`${guide.id}: guide has no steps`);

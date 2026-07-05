@@ -80,6 +80,8 @@ export const acts239: GrammarHighlightGuide = {
         notes: '"to you… and to your children… and to all that are afar off" echoes "to you and your offspring… even the foreigner"',
       },
     ],
+    // Same pair, echoed as a shared highlight color alongside the arc.
+    seededHighlights: [{ refs: ['2:39', '17:12'], color: 'green' }],
   },
   steps: [
     {

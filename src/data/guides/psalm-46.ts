@@ -18,7 +18,9 @@ import type { GrammarHighlightGuide } from '@/domain/schema';
  * Loaded from the bundled BSB English OT (`english-bsb-ot`) through the normal
  * range pipeline. Sample correspondence arcs are seeded for the pairs that fall
  * on distinct verses (the E/E′ pivot sits inside a single verse, so it is shown
- * in the prose rather than as an arc). The chiasm is offered as a PROPOSED
+ * in the prose rather than as an arc). A matching sample highlight color is
+ * seeded for each pair too — including the E pivot, which gets a highlight but
+ * no arc, so it is still marked visually. The chiasm is offered as a PROPOSED
  * reading, clearly labelled — not a certain structure.
  */
 export const psalm46: GrammarHighlightGuide = {
@@ -52,6 +54,18 @@ export const psalm46: GrammarHighlightGuide = {
       { id: 'ga_ps46_b', sourceRef: '46:2', targetRef: '46:10', type: 'chiasm', label: 'B ↔ B′', notes: 'we will not fear ↔ "be still, and know that I am God"' },
       { id: 'ga_ps46_c', sourceRef: '46:3', targetRef: '46:8', type: 'chiasm', label: 'C ↔ C′', notes: 'natural upheaval (seas, mountains) ↔ political upheaval (wars cease)' },
       { id: 'ga_ps46_d', sourceRef: '46:5', targetRef: '46:7', type: 'chiasm', label: 'D ↔ D′', notes: 'God is within her ↔ the LORD of Hosts is with us' },
+    ],
+    // Same pairs, echoed as shared highlight colors alongside the arcs. Unlike
+    // the arcs (which pick one representative verse per side), a highlight can
+    // cover the FULL span the prose describes: C′ colors both vv.8–9 and D
+    // colors both vv.4–5. E has no arc at all (it pairs within a single verse),
+    // so its highlight is the only thing that marks it visually.
+    seededHighlights: [
+      { refs: ['46:1', '46:11'], color: 'blue' },
+      { refs: ['46:2', '46:10'], color: 'green' },
+      { refs: ['46:3', '46:8', '46:9'], color: 'orange' },
+      { refs: ['46:4', '46:5', '46:7'], color: 'purple' },
+      { refs: ['46:6'], color: 'yellow' },
     ],
   },
   steps: [
@@ -89,7 +103,7 @@ export const psalm46: GrammarHighlightGuide = {
       id: 'step-centre',
       title: 'E / E′ — the still centre where God speaks',
       body:
-        'At the very middle (v.6) the psalm reaches its turning point: "Nations rage, kingdoms crumble" (E) — and then, "He lifts His voice, the earth melts" (E′). The loudest chaos in the psalm sits at its protected centre, and it is answered not by a battle but by a word. God speaks; the tumult dissolves.',
+        'At the very middle (v.6) the psalm reaches its turning point: "Nations rage, kingdoms crumble" (E) — and then, "He lifts His voice, the earth melts" (E′). The loudest chaos in the psalm sits at its protected centre, and it is answered not by a battle but by a word. God speaks; the tumult dissolves. (This verse has no arc of its own — it pairs within itself — so it is marked with a highlight instead.)',
       focus: {},
       panZoom: { fit: 'whole-diagram' },
       implication:

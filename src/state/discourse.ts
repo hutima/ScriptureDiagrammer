@@ -875,13 +875,15 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
                     .join('  ·  ') || parts.map((p) => p.title).join('  ·  '),
                 now,
               });
+        // Shared refStart → unit id map for both SAMPLE arcs and SAMPLE
+        // highlights below — teaching scaffolding, never persisted.
+        const byRef = new Map<string, string>();
+        for (const u of leafUnits(merged)) {
+          if (u.refStart && !byRef.has(u.refStart)) byRef.set(u.refStart, u.id);
+        }
         // Seed any SAMPLE arcs (by refStart) directly into the doc — teaching
         // scaffolding, never persisted. Unresolved refs are skipped.
         if (spec.seededArcs?.length) {
-          const byRef = new Map<string, string>();
-          for (const u of leafUnits(merged)) {
-            if (u.refStart && !byRef.has(u.refStart)) byRef.set(u.refStart, u.id);
-          }
           const provenance = {
             source: 'manual' as const,
             confidence: 'low' as const,
@@ -905,6 +907,17 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
               },
               now,
             );
+          }
+        }
+        // Seed any SAMPLE unit coloring (by refStart) — same teaching-scaffold
+        // rules as seededArcs: unresolved refs are skipped, display-only, never
+        // persisted. Units colored here land in BOTH baseDoc and doc, so guided
+        // edits still diff cleanly against a coloring-free patch baseline.
+        if (spec.seededHighlights?.length) {
+          for (const h of spec.seededHighlights) {
+            const resolvedIds = h.refs.map((ref) => byRef.get(ref)).filter((id): id is string => !!id);
+            if (!resolvedIds.length) continue;
+            merged = setDiscourseUnitsColor(merged, resolvedIds, h.color, now);
           }
         }
         set({

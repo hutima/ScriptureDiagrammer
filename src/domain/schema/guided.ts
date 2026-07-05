@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DiscourseGranularitySchema, DiscourseRelationTypeSchema } from './discourse';
+import { DiscourseGranularitySchema, DiscourseRelationTypeSchema, DiscourseUnitColorSchema } from './discourse';
 
 /**
  * GRAMMAR HIGHLIGHTS — the guided syntax-reading mode.
@@ -231,11 +231,29 @@ export const GuidedDiscourseArcSchema = z.object({
 });
 export type GuidedDiscourseArc = z.infer<typeof GuidedDiscourseArcSchema>;
 
+/**
+ * A SAMPLE unit coloring seeded for a discourse guide's display only, mirroring
+ * `GuidedDiscourseArcSchema`: connected verses (named by their unit `refStart`s,
+ * e.g. "2:12") share a `color` so the correspondence the guide is teaching is
+ * visible as a highlight in addition to (or instead of) an arc. A ref that
+ * cannot be resolved in the combined document is silently skipped. Never
+ * persisted, never authoritative — it is teaching scaffolding for the proposed
+ * structure, exactly like `seededArcs`.
+ */
+export const GuidedDiscourseHighlightSchema = z.object({
+  /** Verse refs (unit `refStart`s, e.g. "2:39") that share this color. */
+  refs: z.array(z.string()).min(1),
+  color: DiscourseUnitColorSchema,
+});
+export type GuidedDiscourseHighlight = z.infer<typeof GuidedDiscourseHighlightSchema>;
+
 export const GuidedDiscourseSpecSchema = z.object({
   /** One or more verse ranges loaded and CONCATENATED into one discourse doc. */
   ranges: z.array(GuidedDiscourseRangeSchema).min(1),
   /** Optional sample arcs seeded into the combined doc for the guide's display. */
   seededArcs: z.array(GuidedDiscourseArcSchema).optional(),
+  /** Optional sample unit coloring seeded into the combined doc for the guide's display. */
+  seededHighlights: z.array(GuidedDiscourseHighlightSchema).optional(),
 });
 export type GuidedDiscourseSpec = z.infer<typeof GuidedDiscourseSpecSchema>;
 

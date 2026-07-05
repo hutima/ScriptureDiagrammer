@@ -6,8 +6,10 @@
 ## Status
 
 - [x] Change 1 — ASV default + BSB fallback + `guidedNotice` + tests (committed; typecheck/test/guided:check green)
-- [ ] Change 2 — seededHighlights + seeds in ALL THREE discourse guides (user expanded scope: Acts + Ephesians 2:12–19 + Psalm 46) + tests (commit pending)
-  - Color plan: Acts 2:39+Gen 17:12 green · Eph pairs 12/19 blue, 13/18 green, 14/17 orange, 15/16 purple · Ps46 A(1,11) blue, B(2,10) green, C(3,8,9) orange, D(4,5,7) purple, pivot v6 yellow
+- [x] Change 2 — seededHighlights in all three discourse guides + SVG-export unit color bars (committed)
+- [x] Step-nav fix — Next closes "Where readers differ" + scrolls card to top (committed)
+- [ ] Agent A — stacked-comparison symmetry: touch pan on stacked panel (`.vc-frame-scroll` has `touch-action:none`), label BOTH panels, word-tap details on stacked panel
+- [ ] Agent B — Acts 2:39 rework: expand to 2:38–39, seeded phrase SPLITS (splitDiscourseUnit(doc, unitId, atTokenId, now); word-matching with ASV+BSB candidates), sub-ref addressing 'ref/N', FOUR parallelisms (you/children/far-off/baptized↔circumcised) with arcs+colors+per-parallelism steps, guided:check suffix handling, tests
 - [ ] Final — build + lint, delete this file, push, open PR
 
 ## Verified facts (do not re-derive)
