@@ -134,8 +134,10 @@ interface OutlineRenderOptions {
   includeNotes?: boolean;
 }
 
-/** Mid-tone hex per unit color tag, for the exported outline's left border. */
-const UNIT_COLOR_HEX: Record<string, string> = {
+/** Mid-tone hex per unit color tag — the ONE color table for exported unit
+ *  coloring (the HTML outline's left border and the SVG outline's left bar),
+ *  matching the canvas's `.discourse-unit.color-*` border colors. */
+export const UNIT_COLOR_HEX: Record<string, string> = {
   red: '#c0392b',
   orange: '#ca6f1e',
   yellow: '#b7950b',
@@ -314,8 +316,13 @@ export function discourseOutlineSvg(
   // squeezed out of the text column), so wrap width never depends on it.
   const wrapAt = (x: number) => Math.max(20, Math.floor((820 - PAD - x) / CHARW));
 
+  // Colored left bar per color-tagged unit (the SVG counterpart of the HTML
+  // outline's `border-left` and the canvas's `.color-*` border), spanning the
+  // unit's own lines. Same `UNIT_COLOR_HEX` authority — never a second table.
+  const colorBars: { hex: string; x: number; from: number; to: number }[] = [];
   for (const unit of outlineOrder(doc)) {
     const x = effectiveIndent(unit) * INDENT;
+    const firstLine = lines.length;
     headY.set(unit.id, yOfLineIndex(lines.length)); // this heading's y
     lines.push({ x, cls: 'h', text: `• ${unitHeading(doc, unit)}` });
     if (includeText && unit.tokenIds.length) {
@@ -329,6 +336,8 @@ export function discourseOutlineSvg(
     for (const rel of unitRelationLines(doc, unit)) {
       lines.push({ x: x + 14, cls: 'r', text: `↳ ${rel}` });
     }
+    const hex = unit.color ? UNIT_COLOR_HEX[unit.color] : undefined;
+    if (hex) colorBars.push({ hex, x, from: firstLine, to: lines.length - 1 });
   }
 
   // --- Relation gutter geometry — the ONE pure helper shared with the on-screen
@@ -385,9 +394,20 @@ export function discourseOutlineSvg(
     })
     .join('\n');
 
+  // Unit color bars sit just left of the unit's own indent column, spanning
+  // from the heading line's top to the last line's descender.
+  const bars = colorBars
+    .map((b) => {
+      const yTop = yOfLineIndex(b.from) - 13;
+      const yBot = yOfLineIndex(b.to) + 5;
+      return `<rect x="${PAD + b.x - 8}" y="${yTop}" width="3" height="${yBot - yTop}" rx="1.5" fill="${b.hex}"/>`;
+    })
+    .join('\n');
+
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${height}" viewBox="0 0 ${WIDTH} ${height}" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="13">`,
     `<rect width="${WIDTH}" height="${height}" fill="#ffffff"/>`,
+    bars,
     GUTTER ? renderOutlineArcs(relLayout.relations, WIDTH - GUTTER) : '',
     body,
     '</svg>',

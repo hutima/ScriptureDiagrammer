@@ -1238,6 +1238,15 @@ export function DiagramCanvas() {
       {versesInPanelActive
         ? versesHost && createPortal(renderSourceStrip('panel'), versesHost)
         : renderSourceStrip('center')}
+      {/* Counterpart to `GuidedStackedDiagram`'s secondary heading below: on a
+          stacked-comparison step, label the PRIMARY canvas too (with the
+          loaded document's own title) so a two-passage comparison never shows
+          a title on only one of the two panels. Additive — an ordinary
+          (non-stacked) guided step, or no guided step at all, renders nothing
+          here, matching `GuidedStackedDiagram`'s own mount condition. */}
+      {guidedActive && guidedStep?.secondaryPassageId && !htmlMode && (
+        <div className="guided-primary-head">{doc.title}</div>
+      )}
       {editCompare ? (
         <div className="canvas-viewport compare-mode">
           <EditCompareView />

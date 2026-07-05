@@ -1,5 +1,5 @@
-import { Fragment, type ReactNode } from 'react';
-import { useEditorStore, useGuidedStore } from '@/state';
+import { Fragment, useEffect, useRef, type ReactNode } from 'react';
+import { useDiscourseStore, useEditorStore, useGuidedStore } from '@/state';
 import { getGuide } from '@/data/grammarHighlights';
 import { getIssueById } from '@/domain/contested';
 import type { GrammarHighlightGuide, GuidedGreekTerm, GuidedStep } from '@/domain/schema';
@@ -113,6 +113,22 @@ export function GuidedStepCard() {
   const selectGreekTerm = useGuidedStore((s) => s.selectGreekTerm);
   const english = useGuidedStore((s) => s.displayMode === 'english');
   const openContestedPanel = useEditorStore((s) => s.openContestedPanel);
+  // Honest, reader-facing note when a discourse-backed guide's range had to
+  // fall back to a bundled source (see `GuidedDiscourseRange.fallback`).
+  // Shown on EVERY step, not just the first — a reader may land on any step.
+  const guidedNotice = useDiscourseStore((s) => s.guidedNotice);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const debateRef = useRef<HTMLDetailsElement>(null);
+  // Each step (or guide) change starts the card fresh: close the "Where
+  // readers differ" disclosure — it belongs to the GUIDE, not the step, so it
+  // would otherwise stay open from step to step — and jump the scrollable
+  // prose back to the top so the new step is read from its beginning.
+  // (`scrollTo` is optional-called: jsdom doesn't implement it.)
+  useEffect(() => {
+    if (debateRef.current) debateRef.current.open = false;
+    scrollRef.current?.scrollTo?.({ top: 0 });
+  }, [guideId, stepIndex]);
 
   const guide = guideId ? getGuide(guideId) : undefined;
   if (!guide) {
@@ -139,13 +155,14 @@ export function GuidedStepCard() {
           the card even when a step's prose is short (nothing to scroll), and it
           stays put — never scrolling out of view — once prose is long enough to
           scroll. See the CSS for `.guided-step-scroll` / `.guided-step-nav`. */}
-      <div className="guided-step-scroll">
+      <div className="guided-step-scroll" ref={scrollRef}>
         <div className="guided-step-head">
           <span className="guided-step-ref">{guide.reference}</span>
           <span className="guided-step-count">
             Step {stepIndex + 1} of {guide.steps.length}
           </span>
         </div>
+        {guidedNotice && <p className="guided-source-notice">{guidedNotice}</p>}
         {stepIndex === 0 && guide.devotionalFrame && (
           <p className="guided-frame">{renderBody(guide.devotionalFrame, guide, selectGreekTerm, english)}</p>
         )}
@@ -201,7 +218,7 @@ export function GuidedStepCard() {
           </div>
         )}
         {guide.debateSummary && (
-          <details className="guided-debate">
+          <details className="guided-debate" ref={debateRef}>
             <summary>Where readers differ</summary>
             <p>{guide.debateSummary.issue}</p>
             <ul>

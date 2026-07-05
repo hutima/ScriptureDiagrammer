@@ -45,6 +45,13 @@ export const ephesians212: GrammarHighlightGuide = {
       { id: 'ga_eph_c', sourceRef: '2:14', targetRef: '2:17', type: 'chiasm', label: 'C ↔ C′', notes: 'he is our peace ↔ he preached peace' },
       { id: 'ga_eph_d', sourceRef: '2:15', targetRef: '2:16', type: 'chiasm', label: 'D ↔ D′', notes: 'one new man ↔ reconciled in one body' },
     ],
+    // Same four pairs, echoed as shared highlight colors alongside the arcs.
+    seededHighlights: [
+      { refs: ['2:12', '2:19'], color: 'blue' },
+      { refs: ['2:13', '2:18'], color: 'green' },
+      { refs: ['2:14', '2:17'], color: 'orange' },
+      { refs: ['2:15', '2:16'], color: 'purple' },
+    ],
   },
   steps: [
     {

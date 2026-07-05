@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DiscourseGranularitySchema, DiscourseRelationTypeSchema } from './discourse';
+import { DiscourseGranularitySchema, DiscourseRelationTypeSchema, DiscourseUnitColorSchema } from './discourse';
 
 /**
  * GRAMMAR HIGHLIGHTS — the guided syntax-reading mode.
@@ -192,6 +192,25 @@ export const GuidedDiscourseRangeSchema = z.object({
   granularity: DiscourseGranularitySchema.default('verse'),
   /** Optional short section heading for this range in the combined outline. */
   label: z.string().optional(),
+  /**
+   * Optional fallback source for this SAME range, tried when the primary
+   * `sourceId` fails to load (e.g. a remote English source like `english-asv`
+   * that could not be fetched). The fallback is loaded with the SAME
+   * `startRef`/`endRef`/`granularity` as the primary range, only its
+   * `sourceId`/`bookNum` differ — normally a bundled, always-available source
+   * (e.g. `english-bsb-all`). `notice` is an honest, reader-facing note
+   * surfaced in the guided step card whenever the fallback had to be used, so
+   * a silent substitution never happens — the reader always sees a working
+   * canvas AND knows which text produced it.
+   */
+  fallback: z
+    .object({
+      sourceId: z.string(),
+      bookNum: z.number().int().positive(),
+      /** Honest, reader-facing note shown in the step card when the fallback was used. */
+      notice: z.string(),
+    })
+    .optional(),
 });
 export type GuidedDiscourseRange = z.infer<typeof GuidedDiscourseRangeSchema>;
 
@@ -201,6 +220,11 @@ export type GuidedDiscourseRange = z.infer<typeof GuidedDiscourseRangeSchema>;
  * units by their `refStart` (e.g. "2:12"); an arc whose refs cannot be resolved
  * in the combined document is silently skipped. Never persisted, never
  * authoritative — it is teaching scaffolding for the proposed structure.
+ *
+ * `sourceRef`/`targetRef` may carry an ordinal suffix — `'2:39/2'` means the
+ * 2nd leaf unit (1-based, outline order) whose `refStart` is `'2:39'` — needed
+ * once `seededSplits` produce several units from one verse. A plain ref (no
+ * suffix) keeps meaning the first such unit.
  */
 export const GuidedDiscourseArcSchema = z.object({
   id: z.string(),
@@ -212,11 +236,60 @@ export const GuidedDiscourseArcSchema = z.object({
 });
 export type GuidedDiscourseArc = z.infer<typeof GuidedDiscourseArcSchema>;
 
+/**
+ * A SAMPLE unit coloring seeded for a discourse guide's display only, mirroring
+ * `GuidedDiscourseArcSchema`: connected verses (named by their unit `refStart`s,
+ * e.g. "2:12") share a `color` so the correspondence the guide is teaching is
+ * visible as a highlight in addition to (or instead of) an arc. A ref that
+ * cannot be resolved in the combined document is silently skipped. Never
+ * persisted, never authoritative — it is teaching scaffolding for the proposed
+ * structure, exactly like `seededArcs`.
+ *
+ * Each entry in `refs` may carry an ordinal suffix — `'2:39/2'` means the 2nd
+ * leaf unit (1-based, outline order) whose `refStart` is `'2:39'` — needed once
+ * `seededSplits` produce several units from one verse. A plain ref (no suffix)
+ * keeps meaning the first such unit.
+ */
+export const GuidedDiscourseHighlightSchema = z.object({
+  /** Verse refs (unit `refStart`s, e.g. "2:39") that share this color. */
+  refs: z.array(z.string()).min(1),
+  color: DiscourseUnitColorSchema,
+});
+export type GuidedDiscourseHighlight = z.infer<typeof GuidedDiscourseHighlightSchema>;
+
+/**
+ * A guide-authored request to split one loaded verse unit into several
+ * PHRASE units, so a seeded arc/highlight can point at a phrase rather than a
+ * whole verse (see `GuidedDiscourseArcSchema`'s `/N` sub-ref addressing).
+ * Display-only teaching scaffolding, applied in-memory when the guide opens —
+ * never persisted, never touches the syntax pipeline.
+ */
+export const GuidedDiscourseSplitSchema = z.object({
+  /** The unit (by refStart) to split, e.g. '2:39'. */
+  ref: z.string(),
+  /**
+   * One entry per split point: candidate phrases (matched case-insensitively,
+   * punctuation-insensitively, against consecutive token surfaces); the FIRST
+   * candidate that matches wins, and the unit is split so the matched phrase
+   * STARTS the new unit. A split point with no matching candidate is skipped
+   * silently (e.g. under a fallback translation with different wording).
+   */
+  before: z.array(z.array(z.string()).min(1)).min(1),
+});
+export type GuidedDiscourseSplit = z.infer<typeof GuidedDiscourseSplitSchema>;
+
 export const GuidedDiscourseSpecSchema = z.object({
   /** One or more verse ranges loaded and CONCATENATED into one discourse doc. */
   ranges: z.array(GuidedDiscourseRangeSchema).min(1),
+  /**
+   * Optional sample phrase-level splits applied (in order, before arcs/
+   * highlights are seeded) to the combined doc for the guide's display.
+   */
+  seededSplits: z.array(GuidedDiscourseSplitSchema).optional(),
   /** Optional sample arcs seeded into the combined doc for the guide's display. */
   seededArcs: z.array(GuidedDiscourseArcSchema).optional(),
+  /** Optional sample unit coloring seeded into the combined doc for the guide's display. */
+  seededHighlights: z.array(GuidedDiscourseHighlightSchema).optional(),
 });
 export type GuidedDiscourseSpec = z.infer<typeof GuidedDiscourseSpecSchema>;
 

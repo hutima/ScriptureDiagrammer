@@ -2552,8 +2552,11 @@ button.mc-code.glossed:hover {
   padding: 6px 10px; border-bottom: 1px solid var(--line); background: var(--panel);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-/* Drag-to-pan (grab the diagram and pull) plus wheel / scrollbar. */
-.vc-frame-scroll { overflow: auto; flex: 1; min-height: 0; padding: 8px; cursor: grab; touch-action: none; }
+/* Drag-to-pan (grab the diagram and pull) plus wheel / scrollbar. `pan-x
+   pan-y` (not `none`) lets a touch/pen pointer scroll this container
+   natively — the JS drag-pan in `StaticDiagramFrame` only engages for a
+   mouse pointer, so the two pan paths never fight on a touchscreen. */
+.vc-frame-scroll { overflow: auto; flex: 1; min-height: 0; padding: 8px; cursor: grab; touch-action: pan-x pan-y; }
 .vc-frame-scroll:active { cursor: grabbing; }
 /* The block outline is HTML — native scroll, no drag-pan/grab. */
 .bdf-scroll { cursor: default; touch-action: auto; }
@@ -3717,8 +3720,20 @@ label.field.inline > span { margin-bottom: 0; }
   background: color-mix(in srgb, var(--accent, #b90e31) 6%, transparent);
   font-style: italic;
 }
+/* Honest note that a guided-discourse range fell back to a bundled source
+   (e.g. a remote ASV fetch failed) — muted and small, never hidden, shown on
+   every step so a reader landing mid-guide still sees it. */
+.guided-source-notice {
+  margin: 0;
+  padding: 6px 10px;
+  border-left: 3px solid var(--ink-soft, #64748b);
+  background: color-mix(in srgb, var(--ink-soft, #64748b) 8%, transparent);
+  font-size: 12px;
+  color: var(--ink-soft, #64748b);
+}
 /* Stacked secondary (parallel) diagram beneath the main guided canvas. */
 .guided-stacked {
+  position: relative; /* anchors the word-tap detail popover (below) */
   display: flex;
   flex-direction: column;
   min-height: 140px;
@@ -3726,7 +3741,13 @@ label.field.inline > span { margin-bottom: 0; }
   border-top: 2px solid var(--border, #d7dde3);
   background: var(--paper, #fff);
 }
-.guided-stacked-head {
+/* `.guided-primary-head` is the counterpart heading rendered above the MAIN
+   canvas on a stacked-comparison step, so both panels are labeled (previously
+   only the secondary carried a title). Same look, different DOM location —
+   kept as a distinct class (not applied to the secondary head too) so
+   existing `.guided-stacked-head` lookups keep matching only the secondary. */
+.guided-stacked-head,
+.guided-primary-head {
   flex: none;
   padding: 5px 10px;
   font-size: 12px;
@@ -3736,6 +3757,18 @@ label.field.inline > span { margin-bottom: 0; }
   background: color-mix(in srgb, var(--accent, #b90e31) 5%, transparent);
 }
 .guided-stacked .vc-frame { flex: 1; min-height: 0; }
+/* Compact word-detail popover for a tap on the stacked (secondary) diagram —
+   the same dark card the primary canvas uses (`.kr-reveal`), pinned to the
+   bottom of the stacked panel (which has no camera/anchor coordinates of its
+   own, unlike the primary canvas's transform-based view). */
+.guided-stacked-reveal {
+  left: 50%;
+  transform: translateX(-50%);
+  top: auto;
+  bottom: 10px;
+  z-index: 20;
+  max-width: min(300px, calc(100% - 20px));
+}
 .guided-step-title { margin: 2px 0 0; font-size: 15px; }
 .guided-step-body { margin: 0; }
 .guided-implication {

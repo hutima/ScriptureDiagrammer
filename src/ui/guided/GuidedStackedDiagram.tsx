@@ -1,10 +1,28 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { layoutForMode, type DiagramMode } from '@/domain/layout';
-import type { GuidedStep } from '@/domain/schema';
-import { glossDoc, docDirection } from '@/domain/model';
+import type { GrammarHighlightGuide, GuidedGreekTerm, GuidedStep, KrDocument } from '@/domain/schema';
+import { describeFunction, getNode, glossDoc, docDirection } from '@/domain/model';
 import { getGuidedDocument } from '@/fixtures/guided';
 import { StaticDiagramFrame } from '@/ui/contested/StaticDiagramFrame';
+import { getGuide } from '@/data/grammarHighlights';
+import { useGuidedStore } from '@/state';
 import { guidedHighlightMaps, resolveFocusIds, focusBounds } from './focus';
+
+/**
+ * Does a guide anchor a term to this node (any of its tokens), in the
+ * SECONDARY document? Mirrors the step-card's term links, but resolved from a
+ * tapped node instead of a `[[termId]]` marker in prose.
+ */
+function greekTermForNode(
+  guide: GrammarHighlightGuide | undefined,
+  doc: KrDocument,
+  nodeId: string,
+): GuidedGreekTerm | undefined {
+  if (!guide) return undefined;
+  const node = getNode(doc.syntax, nodeId);
+  if (!node) return undefined;
+  return guide.greekTerms.find((t) => node.tokenIds.includes(t.tokenId));
+}
 
 /**
  * A SECONDARY, read-only diagram stacked beneath the main guided canvas — used
@@ -50,6 +68,16 @@ export function GuidedStackedDiagram({
     () => (step.secondaryPassageId ? getGuidedDocument(step.secondaryPassageId) : undefined),
     [step.secondaryPassageId],
   );
+  // Word-tap detail, symmetric with the primary canvas's tap-to-reveal: a tap
+  // on a word here either opens ITS full guide term panel (when the guide
+  // anchors a `greekTerms` entry to that token — same panel a term link in the
+  // step card opens) or, absent that, a small local popover with the plain
+  // word info (`describeFunction`, resolved against the SECONDARY document so
+  // morphology/lemma/gloss are never mixed up with the primary passage).
+  const guideId = useGuidedStore((s) => s.selectedGuideId);
+  const guide = useMemo(() => (guideId ? getGuide(guideId) : undefined), [guideId]);
+  const [tappedNodeId, setTappedNodeId] = useState<string | null>(null);
+  useEffect(() => setTappedNodeId(null), [step.id]);
   // English display glosses the secondary words too (structure unchanged), except
   // Morphology which always stays in the source language.
   const glossed = glossMode && mode !== 'morphology';
@@ -123,6 +151,23 @@ export function GuidedStackedDiagram({
     el.scrollTop = Math.max(0, cy - h / 2);
   }, [step.id, step.secondaryPassageId, glossed, rtl, layout, targetIds]);
 
+  // Resolve a tap: a guide-annotated word hands off to the full term panel
+  // (via the shared store — the SAME panel `GuidedStepCard` renders for a
+  // `[[termId]]` link); anything else opens the compact local popover.
+  const onWordTap = (nodeId: string) => {
+    const term = baseDoc ? greekTermForNode(guide, baseDoc, nodeId) : undefined;
+    if (term) {
+      setTappedNodeId(null);
+      useGuidedStore.getState().selectGreekTerm(term.id);
+      return;
+    }
+    setTappedNodeId((cur) => (cur === nodeId ? null : nodeId));
+  };
+  const tappedDetail = useMemo(
+    () => (tappedNodeId && baseDoc ? describeFunction(baseDoc, tappedNodeId) : undefined),
+    [tappedNodeId, baseDoc],
+  );
+
   if (!baseDoc || !doc || !maps) return null;
   const title = step.secondaryTitle ?? baseDoc.title;
   return (
@@ -136,7 +181,35 @@ export function GuidedStackedDiagram({
         highlightFills={maps}
         rtl={rtl}
         zoomable
+        onWordTap={onWordTap}
       />
+      {tappedDetail && (
+        <div className="kr-reveal guided-stacked-reveal" role="status">
+          <button
+            className="kr-reveal-close"
+            title="Close"
+            aria-label="Close"
+            onClick={() => setTappedNodeId(null)}
+          >
+            ✕
+          </button>
+          <div className="kr-reveal-word">
+            {tappedDetail.word}
+            {tappedDetail.lemma && tappedDetail.lemma !== tappedDetail.word && (
+              <span className="kr-reveal-lemma"> · {tappedDetail.lemma}</span>
+            )}
+            {tappedDetail.gloss && <span className="kr-reveal-gloss"> · {tappedDetail.gloss}</span>}
+          </div>
+          {tappedDetail.translit && (
+            <div className="kr-reveal-translit">{tappedDetail.translit}</div>
+          )}
+          <div className="kr-reveal-role">{tappedDetail.role}</div>
+          <div className="kr-reveal-detail">{tappedDetail.detail}</div>
+          {tappedDetail.grammar && (
+            <div className="kr-reveal-grammar">{tappedDetail.grammar}</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
