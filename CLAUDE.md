@@ -554,3 +554,16 @@ its own document model, store, persistence, and renderer. See
   outside). The Notes fields (`.field.discourse-notes-field`) use `flex: 1 0 auto`
   so they grow into unused panel space, and manual textarea resize pushes
   content below it into the editor's scroll instead of overlapping it.
+
+## 17. Guided-mode text review (export → edit → reimport)
+
+All Grammar-Highlights (guided mode) prose is reviewable in ONE generated
+Markdown file and re-importable as a drop-in replacement of exactly the
+changed string literals in `src/data/guides/*.ts` (ids/focus/comments
+untouched): `npm run guided:text:export` → edit `guided-text.md` between the
+`@field` markers → `npm run guided:text:import -- guided-text.md`
+(`--dry-run` to preview), then `npm run guided:check`. Full workflow, editing
+rules, safety checks, and a paste-able prompt for a fresh session:
+`docs/guided-text-review-workflow.md`. The committed `guided-text.md` is a
+generated snapshot — regenerate it after any import; the guide modules stay
+the single source of truth.
