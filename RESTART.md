@@ -22,13 +22,27 @@ presentation from an explicitly confessional Reformed perspective.
 - [x] A. Added `{ book: 'Ephesians', chapter: 2, verseFrom: 8, verseTo: 10 }` to
       `src/data/guidedPassages.ts`; ran `npm run guided:build -- --all` (wrote
       60 Greek docs); dumped ids. Commit: "Add Ephesians 2 gospel passage range"
-- [ ] B. Author `src/data/guides/ephesians-2-8-10.ts` exporting
-      `ephesians2Gospel: GrammarHighlightGuide` (id `guide-ephesians-2-8-10`,
-      sourceId `macula-greek-sblgnt-lowfat`, kellogg-reed, intermediate,
-      5–6 steps + greekTerms with REAL dumped ids).
-- [ ] C. Register in `src/data/grammarHighlights.ts` (near romans8chain /
-      ephesians1); run lean `npm run guided:build`. Commit:
-      "Register Ephesians 2 gospel guide"
+- [x] B. Authored `src/data/guides/ephesians-2-8-10.ts` (`ephesians2Gospel`,
+      6 steps, 13 greekTerms, real ids, no debateSummary/contested/alternates).
+- [x] C. Registered in `src/data/grammarHighlights.ts` after `ephesians1`.
+      Bundle: SPLICED (see note) — committed bundle + Eph 2:8–10 manifest
+      entry + 4 docs; purely additive diff. guided:check: all 22 guides pass.
+      Commit: "Register Ephesians 2 gospel guide"
+
+### Bundle splice note (IMPORTANT for future regens)
+A fresh full `npm run guided:build` on current main DRIFTS from the committed
+bundle (pre-existing, unrelated to this task):
+- derived clause/relation ids renumber in sblgnt_1-timothy_17
+  (cl_s17_13→cl_s17_14; guide-1-timothy-2-11-15 step-not-but would fail
+  guided:check on a full regen — its ids need updating whenever the bundle is
+  regenerated wholesale);
+- sblgnt_acts_47 is no longer referenced (acts-2-39 guide is discourse-backed
+  now) and would be dropped by a lean rebuild; kept as committed;
+- grammar-highlights-wlc.json would go to 0 docs (Genesis 17:12 no longer
+  referenced); restored to committed state.
+This task therefore spliced ONLY the four new Ephesians docs + manifest entry
+into the committed bundle (node one-off, JSON.stringify(out, null, 1) same as
+the builder), leaving every previously committed byte unchanged.
 - [ ] D. `npm run guided:check`, `npm run typecheck`, `npm test`. Commit:
       "Validate Ephesians 2 gospel study"
 - [ ] E. Final theological/product review; `npm run build`; restore RESTART.md
