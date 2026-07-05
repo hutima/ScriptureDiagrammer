@@ -232,6 +232,108 @@ describe('guided mode UI', () => {
     expect(secondarySvg!.querySelector(`rect[fill="${emphasis}"]`)).toBeTruthy();
   });
 
+  it('labels BOTH panels on a stacked-comparison step, and neither on a plain step', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-lords-prayer-bread'));
+    const guide = getGuide('guide-lords-prayer-bread')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    act(() => useGuidedStore.getState().setStep(stackedIndex));
+    const { container, unmount } = render(createElement(DiagramCanvas));
+
+    // The primary (loaded) canvas is now labeled with ITS OWN document's
+    // title — previously only the secondary/stacked panel carried a heading.
+    const primaryHead = container.querySelector('.guided-primary-head');
+    const secondaryHead = container.querySelector('.guided-stacked-head');
+    expect(primaryHead).toBeTruthy();
+    expect(secondaryHead).toBeTruthy();
+    expect(primaryHead!.textContent).toMatch(/Luke 11:3/);
+    expect(secondaryHead!.textContent).toMatch(/Matthew 6:11/);
+    unmount();
+
+    // A step with no secondary passage renders neither heading — additive,
+    // ordinary guided steps are unchanged.
+    act(() => useGuidedStore.getState().setStep(0));
+    const { container: plain } = render(createElement(DiagramCanvas));
+    expect(plain.querySelector('.guided-primary-head')).toBeNull();
+    expect(plain.querySelector('.guided-stacked-head')).toBeNull();
+  });
+
+  it('tapping a guide-annotated word in the stacked frame opens its Greek term panel, symmetric with the primary canvas', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-lords-prayer-bread'));
+    const guide = getGuide('guide-lords-prayer-bread')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    act(() => useGuidedStore.getState().setStep(stackedIndex));
+    const { container } = render(createElement(DiagramCanvas));
+
+    const secondarySvg = Array.from(container.querySelectorAll('svg.diagram-paper')).find((el) =>
+      el.closest('.guided-stacked'),
+    )!;
+    expect(secondarySvg).toBeTruthy();
+    // δὸς ("dos") — Matthew's aorist imperative "give" — is the token the
+    // guide's `dos` greekTerms entry anchors to.
+    const dosWord = secondarySvg.querySelector('g[data-node-id="w_n40006011006"]');
+    expect(dosWord).toBeTruthy();
+    // A tap: pointerdown then pointerup at (nearly) the same point — no drag.
+    act(() => {
+      fireEvent.pointerDown(dosWord!, { clientX: 10, clientY: 10, pointerId: 1 });
+      fireEvent.pointerUp(dosWord!, { clientX: 10, clientY: 10, pointerId: 1 });
+    });
+    expect(useGuidedStore.getState().selectedGreekTermId).toBe('dos');
+    // No local popover — the guide term panel took over instead.
+    expect(container.querySelector('.guided-stacked-reveal')).toBeNull();
+  });
+
+  it('tapping a plain (non-annotated) word in the stacked frame opens a local word-detail popover', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-lords-prayer-bread'));
+    const guide = getGuide('guide-lords-prayer-bread')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    act(() => useGuidedStore.getState().setStep(stackedIndex));
+    const { container } = render(createElement(DiagramCanvas));
+
+    const secondarySvg = Array.from(container.querySelectorAll('svg.diagram-paper')).find((el) =>
+      el.closest('.guided-stacked'),
+    )!;
+    // ἄρτον ("bread") carries no `greekTerms` anchor at this step.
+    const breadWord = secondarySvg.querySelector('g[data-node-id="w_n40006011002"]');
+    expect(breadWord).toBeTruthy();
+    expect(container.querySelector('.guided-stacked-reveal')).toBeNull();
+    act(() => {
+      fireEvent.pointerDown(breadWord!, { clientX: 20, clientY: 20, pointerId: 2 });
+      fireEvent.pointerUp(breadWord!, { clientX: 20, clientY: 20, pointerId: 2 });
+    });
+    const popover = container.querySelector('.guided-stacked-reveal');
+    expect(popover).toBeTruthy();
+    expect(popover!.textContent).toContain('ἄρτον');
+    expect(useGuidedStore.getState().selectedGreekTermId).toBeNull();
+
+    // The close button dismisses it.
+    fireEvent.click(popover!.querySelector('.kr-reveal-close')!);
+    expect(container.querySelector('.guided-stacked-reveal')).toBeNull();
+  });
+
+  it('a drag (pointer moves past the tap threshold) on the stacked frame does not open any detail popover', () => {
+    useGuidedStore.getState().enter('greek');
+    act(() => useGuidedStore.getState().openGuide('guide-lords-prayer-bread'));
+    const guide = getGuide('guide-lords-prayer-bread')!;
+    const stackedIndex = guide.steps.findIndex((s) => s.secondaryPassageId);
+    act(() => useGuidedStore.getState().setStep(stackedIndex));
+    const { container } = render(createElement(DiagramCanvas));
+
+    const secondarySvg = Array.from(container.querySelectorAll('svg.diagram-paper')).find((el) =>
+      el.closest('.guided-stacked'),
+    )!;
+    const breadWord = secondarySvg.querySelector('g[data-node-id="w_n40006011002"]')!;
+    act(() => {
+      fireEvent.pointerDown(breadWord, { clientX: 20, clientY: 20, pointerId: 3 });
+      fireEvent.pointerMove(breadWord, { clientX: 60, clientY: 60, pointerId: 3 });
+      fireEvent.pointerUp(breadWord, { clientX: 60, clientY: 60, pointerId: 3 });
+    });
+    expect(container.querySelector('.guided-stacked-reveal')).toBeNull();
+    expect(useGuidedStore.getState().selectedGreekTermId).toBeNull();
+  });
+
   it('wheel/trackpad zoom on the stacked secondary diagram scales it, same as the primary (D1)', () => {
     useGuidedStore.getState().enter('greek');
     act(() => useGuidedStore.getState().openGuide('guide-lords-prayer-bread'));

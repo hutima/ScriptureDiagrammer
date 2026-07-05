@@ -52,9 +52,19 @@ export const StaticDiagramFrame = forwardRef<
      * guide-text scrolling elsewhere is untouched.
      */
     zoomable?: boolean;
+    /**
+     * Optional word-tap callback (guided-mode stacked secondary diagram): a
+     * tap/click on a word (a real click, not a drag — gated by a small
+     * movement threshold measured against the pointer-down position, same
+     * idea as the primary canvas's `moved` guard) invokes this with the
+     * word's node id. Undefined by default, so every OTHER consumer
+     * (contested comparison, edit preview, source compare) is unaffected —
+     * this frame stays generic; the caller decides what a tap means.
+     */
+    onWordTap?: (nodeId: string) => void;
   }
 >(function StaticDiagramFrame(
-  { doc, mode, diff = null, title, onScrollSync, highlightFills, rtl, zoomable = false },
+  { doc, mode, diff = null, title, onScrollSync, highlightFills, rtl, zoomable = false, onWordTap },
   ref,
 ) {
   const layout = useMemo(
@@ -129,22 +139,53 @@ export const StaticDiagramFrame = forwardRef<
   const impactedNodes = useMemo(() => impactedNodeIds(diff, doc), [diff, doc]);
 
   // Drag-to-pan (grab the diagram and pull), in addition to wheel / scrollbar.
+  // Only a MOUSE pointer drives this JS pan — touch/pen rely on the container's
+  // native scrolling (`.vc-frame-scroll`'s `touch-action: pan-x pan-y`), so the
+  // two pan paths never fight on a touchscreen (previously `touch-action: none`
+  // killed native scroll and left this JS handler as the only path, which iOS
+  // reported as broken).
   const drag = useRef<{ x: number; y: number; sl: number; st: number } | null>(null);
+  // Tap-vs-drag: track the pointer-down position for EVERY pointer type (not
+  // just mouse) and require it stay within a small threshold before treating a
+  // pointerup as a tap — the same idea as the primary canvas's `moved` guard.
+  const tapStart = useRef<{ x: number; y: number } | null>(null);
+  const movedRef = useRef(false);
+  const TAP_MOVE_THRESHOLD = 6;
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
     const el = e.currentTarget;
-    drag.current = { x: e.clientX, y: e.clientY, sl: el.scrollLeft, st: el.scrollTop };
-    el.setPointerCapture?.(e.pointerId);
+    tapStart.current = { x: e.clientX, y: e.clientY };
+    movedRef.current = false;
+    if (e.pointerType === 'mouse') {
+      drag.current = { x: e.clientX, y: e.clientY, sl: el.scrollLeft, st: el.scrollTop };
+      el.setPointerCapture?.(e.pointerId);
+    }
   };
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (tapStart.current && !movedRef.current) {
+      const dx = e.clientX - tapStart.current.x;
+      const dy = e.clientY - tapStart.current.y;
+      if (Math.hypot(dx, dy) > TAP_MOVE_THRESHOLD) movedRef.current = true;
+    }
     if (!drag.current) return;
     const el = e.currentTarget;
     el.scrollLeft = drag.current.sl - (e.clientX - drag.current.x);
     el.scrollTop = drag.current.st - (e.clientY - drag.current.y);
   };
   const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (drag.current) e.currentTarget.releasePointerCapture?.(e.pointerId);
     drag.current = null;
-    e.currentTarget.releasePointerCapture?.(e.pointerId);
+    if (onWordTap && tapStart.current && !movedRef.current) {
+      const target = e.target as Element | null;
+      const nodeId = target?.closest?.('[data-node-id]')?.getAttribute('data-node-id');
+      if (nodeId) onWordTap(nodeId);
+    }
+    tapStart.current = null;
+  };
+  const cancelDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (drag.current) e.currentTarget.releasePointerCapture?.(e.pointerId);
+    drag.current = null;
+    tapStart.current = null;
   };
 
   return (
@@ -157,7 +198,7 @@ export const StaticDiagramFrame = forwardRef<
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
-        onPointerCancel={endDrag}
+        onPointerCancel={cancelDrag}
       >
         <svg
           className={`diagram-paper${hebrew ? ' hebrew' : ''}`}
@@ -248,7 +289,10 @@ export const StaticDiagramFrame = forwardRef<
             // the live canvas's `hlByNode` painting (drawn under any diff outline).
             const hlFill = el.nodeId ? nodeFills?.get(el.nodeId) : undefined;
             return (
-              <g key={el.id}>
+              // `data-node-id` is the hit target for `onWordTap`: it sits on the
+              // whole group (glyph + any highlight rect) so a tap anywhere on the
+              // word — not just the exact text glyph — resolves to its node.
+              <g key={el.id} data-node-id={el.nodeId}>
                 {hlFill && (
                   <rect
                     x={bx - 3}
