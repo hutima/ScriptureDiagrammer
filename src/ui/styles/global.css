@@ -3717,6 +3717,17 @@ label.field.inline > span { margin-bottom: 0; }
   background: color-mix(in srgb, var(--accent, #b90e31) 6%, transparent);
   font-style: italic;
 }
+/* Honest note that a guided-discourse range fell back to a bundled source
+   (e.g. a remote ASV fetch failed) — muted and small, never hidden, shown on
+   every step so a reader landing mid-guide still sees it. */
+.guided-source-notice {
+  margin: 0;
+  padding: 6px 10px;
+  border-left: 3px solid var(--ink-soft, #64748b);
+  background: color-mix(in srgb, var(--ink-soft, #64748b) 8%, transparent);
+  font-size: 12px;
+  color: var(--ink-soft, #64748b);
+}
 /* Stacked secondary (parallel) diagram beneath the main guided canvas. */
 .guided-stacked {
   display: flex;

@@ -12,6 +12,7 @@ import {
   isDefaultDemoHidden,
 } from '@/persistence';
 import { getGuide, visibleGrammarHighlightGuides } from '@/data/grammarHighlights';
+import { ASV_URL, clearRemoteEnglishCache } from '@/io';
 
 /**
  * Section E — discourse-backed guided examples: the schema extension, the
@@ -180,5 +181,151 @@ describe('guided store — opening a discourse guide hosts the Discourse view', 
     useGuidedStore.getState().leave();
     expect(useDiscourseStore.getState().guidedContext).toBe(false);
     expect(useDiscourseStore.getState().doc).toBeNull();
+  });
+});
+
+/**
+ * Section F — the Acts 2:39 discourse guide: ASV (remote) primary sources with
+ * a bundled-BSB fallback per range (`GuidedDiscourseRange.fallback`), and the
+ * `guidedNotice` surfaced when a fallback had to be used. All fetches are
+ * mocked; no live network.
+ */
+describe('guided store — Acts 2:39 guide loads ASV with a bundled-BSB fallback', () => {
+  function asvBible() {
+    const books = Array.from({ length: 66 }, (_, i) => ({
+      name: `B${i + 1}`,
+      chapters: [] as { chapter: number; verses: { verse: number; text: string }[] }[],
+    }));
+    // Acts = book 44 (66-book canonical numbering).
+    books[43] = {
+      name: 'Acts',
+      chapters: [
+        {
+          chapter: 2,
+          verses: [
+            {
+              verse: 39,
+              text:
+                'For to you is the promise, and to your children, and to all that are afar off, even as many as the Lord our God shall call unto him.',
+            },
+          ],
+        },
+      ],
+    };
+    // Genesis = book 1.
+    books[0] = {
+      name: 'Genesis',
+      chapters: [
+        {
+          chapter: 17,
+          verses: [
+            {
+              verse: 12,
+              text:
+                'And he that is eight days old shall be circumcised among you, every male throughout your generations, he that is born in the house, or bought with money of any stranger, that is not of thy seed.',
+            },
+          ],
+        },
+      ],
+    };
+    return { translation: 'ASV', books };
+  }
+
+  function stubAsvSuccess() {
+    const acts = JSON.parse(readFileSync('public/parallel/bsb/05-acts.json', 'utf8'));
+    const genesis = JSON.parse(readFileSync('public/parallel/bsb/ot/01-genesis.json', 'utf8'));
+    const fn = vi.fn(async (url: string) => {
+      if (url === ASV_URL) return { ok: true, status: 200, json: async () => asvBible() } as Response;
+      if (url.includes('05-acts.json')) return { ok: true, status: 200, json: async () => acts } as Response;
+      if (url.includes('01-genesis.json')) return { ok: true, status: 200, json: async () => genesis } as Response;
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    });
+    vi.stubGlobal('fetch', fn);
+    return fn;
+  }
+
+  function stubAsvFailureBsbFallback() {
+    const acts = JSON.parse(readFileSync('public/parallel/bsb/05-acts.json', 'utf8'));
+    const genesis = JSON.parse(readFileSync('public/parallel/bsb/ot/01-genesis.json', 'utf8'));
+    const fn = vi.fn(async (url: string) => {
+      if (url === ASV_URL) return { ok: false, status: 503, json: async () => ({}) } as Response;
+      if (url.includes('05-acts.json')) return { ok: true, status: 200, json: async () => acts } as Response;
+      if (url.includes('01-genesis.json')) return { ok: true, status: 200, json: async () => genesis } as Response;
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    });
+    vi.stubGlobal('fetch', fn);
+    return fn;
+  }
+
+  beforeEach(() => {
+    clearRemoteEnglishCache();
+    useGuidedStore.getState().leave();
+    useDiscourseStore.getState().exitGuidedDiscourse();
+    useEditorStore.getState().newDocument('en', 'Test');
+    useEditorStore.getState().setDiagramMode('kellogg-reed');
+  });
+  afterEach(() => {
+    useGuidedStore.getState().leave();
+    vi.unstubAllGlobals();
+  });
+
+  it('registers guide-acts-2-39 as a visible (non-hidden) discourse guide', () => {
+    const guide = getGuide('guide-acts-2-39')!;
+    expect(guide.kind).toBe('discourse');
+    expect(visibleGrammarHighlightGuides.some((g) => g.id === guide.id)).toBe(true);
+  });
+
+  it('loads the ASV range for both verses, seeds the parallel arc, and sets no notice', async () => {
+    stubAsvSuccess();
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide('guide-acts-2-39');
+    await vi.waitFor(() => {
+      expect(useDiscourseStore.getState().status).toBe('loaded');
+    });
+    const s = useDiscourseStore.getState();
+    expect(s.doc!.language).toBe('en');
+    const refs = new Set(leafUnits(s.doc!).map((u) => u.refStart));
+    expect(refs.has('2:39')).toBe(true);
+    expect(refs.has('17:12')).toBe(true);
+    expect(s.doc!.relations.filter((r) => r.type === 'parallel').length).toBe(1);
+    expect(s.guidedNotice).toBeNull();
+  });
+
+  it('falls back to bundled BSB when the ASV fetch fails, and surfaces a notice', async () => {
+    stubAsvFailureBsbFallback();
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide('guide-acts-2-39');
+    await vi.waitFor(() => {
+      expect(useDiscourseStore.getState().status).toBe('loaded');
+    });
+    const s = useDiscourseStore.getState();
+    expect(s.doc!.language).toBe('en');
+    const refs = new Set(leafUnits(s.doc!).map((u) => u.refStart));
+    expect(refs.has('2:39')).toBe(true);
+    expect(refs.has('17:12')).toBe(true);
+    expect(s.guidedNotice).toBeTruthy();
+    expect(s.guidedNotice).toMatch(/ASV/);
+    expect(s.guidedNotice).toMatch(/BSB/);
+  });
+
+  it('surfaces a readable error when both the ASV and bundled BSB fetches fail', async () => {
+    // Runs against a FRESH module registry (its own empty in-memory caches, in
+    // both parallel.ts and english-bible-remote.ts) so it is independent of
+    // whatever the two tests above already cached for the same books.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false, status: 503, json: async () => ({}) }) as Response),
+    );
+    vi.resetModules();
+    const fresh = await import('@/state');
+    fresh.useGuidedStore.getState().enter('greek');
+    fresh.useGuidedStore.getState().openGuide('guide-acts-2-39');
+    await vi.waitFor(() => {
+      expect(fresh.useDiscourseStore.getState().status).toBe('error');
+    });
+    const s = fresh.useDiscourseStore.getState();
+    expect(s.error).toBeTruthy();
+    expect(s.error!.length).toBeGreaterThan(0);
+    expect(s.guidedNotice).toBeNull();
   });
 });

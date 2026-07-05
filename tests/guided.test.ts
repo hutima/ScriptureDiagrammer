@@ -96,7 +96,7 @@ describe('guided registry and bundle', () => {
     );
   });
 
-  it('registers the Acts 2:39 guide as a two-source discourse example (Greek + Hebrew)', () => {
+  it('registers the Acts 2:39 guide as an ASV discourse example with a bundled-BSB fallback', () => {
     const guide = getGuide('guide-acts-2-39');
     expect(guide).toBeTruthy();
     // Reworked from a stacked syntax guide into a discourse-backed one; it is
@@ -104,13 +104,15 @@ describe('guided registry and bundle', () => {
     expect(guide!.kind).toBe('discourse');
     expect(guide!.hidden).toBeFalsy();
     expect(visibleGrammarHighlightGuides.some((g) => g.id === 'guide-acts-2-39')).toBe(true);
-    // Two ranges, two DIFFERENT sources (Greek Acts + Hebrew Genesis).
+    // Two ranges, both loaded from the remote ASV source (66-book canonical
+    // numbering: Acts = 44, Genesis = 1), each with a bundled BSB fallback.
     const ranges = guide!.discourse!.ranges;
-    expect(ranges.map((r) => r.sourceId)).toEqual([
-      'macula-greek-sblgnt-lowfat',
-      'macula-hebrew-wlc-lowfat',
-    ]);
+    expect(ranges.map((r) => r.sourceId)).toEqual(['english-asv', 'english-asv']);
+    expect(ranges.map((r) => r.bookNum)).toEqual([44, 1]);
     expect(ranges.map((r) => r.startRef)).toEqual(['2:39', '17:12']);
+    expect(ranges.every((r) => r.fallback?.sourceId === 'english-bsb-all')).toBe(true);
+    expect(ranges.map((r) => r.fallback?.bookNum)).toEqual([44, 1]);
+    expect(ranges.every((r) => !!r.fallback?.notice)).toBe(true);
     expect(guide!.topics).toEqual(['covenant', 'promise', 'discourse']);
   });
 

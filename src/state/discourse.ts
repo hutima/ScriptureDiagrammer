@@ -228,6 +228,15 @@ export interface DiscourseState {
    */
   guidedContext: boolean;
   /**
+   * Reader-facing notice about a guided-discourse range that had to fall back
+   * to a bundled source because its primary (usually remote) source failed to
+   * fetch (see `GuidedDiscourseRange.fallback`). Display-only — never
+   * persisted, never touched outside `enterGuidedDiscourse`/
+   * `exitGuidedDiscourse` — so the step card can show an honest note instead
+   * of silently swapping texts.
+   */
+  guidedNotice: string | null;
+  /**
    * A one-shot request (a rising nonce) for the left panel to open its "New
    * text" tab — used by the modal's "Start with my own passage" action.
    */
@@ -278,9 +287,12 @@ export interface DiscourseActions {
    * Load a discourse-backed GUIDED example: build each of the spec's ranges
    * through the normal `loadDiscourseRange` pipeline, concatenate them into one
    * combined document, seed any sample arcs, and publish it read-only with
-   * `guidedContext: true`. Does NOT save the last range, apply stored user
-   * patches, or touch the default-demo/hide prefs — a guided visit is isolated
-   * from direct Discourse-mode state.
+   * `guidedContext: true`. A range whose primary source fails to load falls
+   * back to its declared `fallback` source (same refs/granularity) rather than
+   * failing the whole guide; any fallbacks used are collected into
+   * `guidedNotice` for the step card. Does NOT save the last range, apply
+   * stored user patches, or touch the default-demo/hide prefs — a guided visit
+   * is isolated from direct Discourse-mode state.
    */
   enterGuidedDiscourse: (spec: GuidedDiscourseSpec) => Promise<void>;
   /**
@@ -601,6 +613,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
     isDefaultDemo: false,
     firstLoadModalOpen: false,
     guidedContext: false,
+    guidedNotice: null,
     newTextRequest: 0,
     past: [],
     future: [],
@@ -812,19 +825,41 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
       const seq = ++loadSeq;
       // Set the context flag SYNCHRONOUSLY so DiscourseCanvas's mount effect
       // (enterDiscourseMode) short-circuits before the async load resolves.
-      set({ status: 'loading', error: null, guidedContext: true, firstLoadModalOpen: false });
+      set({ status: 'loading', error: null, guidedContext: true, guidedNotice: null, firstLoadModalOpen: false });
       try {
         const parts: DiscourseDocument[] = [];
+        const notices: string[] = [];
         for (const r of spec.ranges) {
-          parts.push(
-            await loadDiscourseRange({
-              sourceId: r.sourceId as DiscourseSourceId,
-              bookNum: r.bookNum,
-              startRef: r.startRef,
-              endRef: r.endRef,
-              granularity: r.granularity,
-            }),
-          );
+          try {
+            parts.push(
+              await loadDiscourseRange({
+                sourceId: r.sourceId as DiscourseSourceId,
+                bookNum: r.bookNum,
+                startRef: r.startRef,
+                endRef: r.endRef,
+                granularity: r.granularity,
+              }),
+            );
+          } catch (primaryError) {
+            // A range may name a bundled FALLBACK source for when its primary
+            // (typically remote) source fails to fetch — retry the SAME
+            // startRef/endRef/granularity against it. The reader never sees a
+            // broken canvas; the honest substitution is surfaced afterward via
+            // `guidedNotice`. No fallback rethrows the original error, exactly
+            // as before this feature; a fallback that also fails surfaces its
+            // own (equally readable) loader error.
+            if (!r.fallback) throw primaryError;
+            parts.push(
+              await loadDiscourseRange({
+                sourceId: r.fallback.sourceId as DiscourseSourceId,
+                bookNum: r.fallback.bookNum,
+                startRef: r.startRef,
+                endRef: r.endRef,
+                granularity: r.granularity,
+              }),
+            );
+            notices.push(r.fallback.notice);
+          }
         }
         if (seq !== loadSeq) return;
         const now = new Date().toISOString();
@@ -878,6 +913,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
           status: 'loaded',
           error: null,
           guidedContext: true,
+          guidedNotice: notices.length ? notices.join(' ') : null,
           selection: {},
           isDefaultDemo: false,
           firstLoadModalOpen: false,
@@ -896,7 +932,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         });
       } catch (e) {
         if (seq !== loadSeq) return;
-        set({ status: 'error', error: (e as Error).message, guidedContext: true });
+        set({ status: 'error', error: (e as Error).message, guidedContext: true, guidedNotice: null });
       }
     },
 
@@ -907,6 +943,7 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
       ++loadSeq;
       set({
         guidedContext: false,
+        guidedNotice: null,
         baseDoc: null,
         doc: null,
         status: 'idle',

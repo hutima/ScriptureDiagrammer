@@ -5,8 +5,9 @@
 
 ## Status
 
-- [ ] Change 1 — ASV default + BSB fallback + notice + tests (commit pending)
-- [ ] Change 2 — seededHighlights + Acts guide seeds + tests (commit pending)
+- [x] Change 1 — ASV default + BSB fallback + `guidedNotice` + tests (committed; typecheck/test/guided:check green)
+- [ ] Change 2 — seededHighlights + seeds in ALL THREE discourse guides (user expanded scope: Acts + Ephesians 2:12–19 + Psalm 46) + tests (commit pending)
+  - Color plan: Acts 2:39+Gen 17:12 green · Eph pairs 12/19 blue, 13/18 green, 14/17 orange, 15/16 purple · Ps46 A(1,11) blue, B(2,10) green, C(3,8,9) orange, D(4,5,7) purple, pivot v6 yellow
 - [ ] Final — build + lint, delete this file, push, open PR
 
 ## Verified facts (do not re-derive)

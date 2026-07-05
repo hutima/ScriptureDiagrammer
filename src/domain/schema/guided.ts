@@ -192,6 +192,25 @@ export const GuidedDiscourseRangeSchema = z.object({
   granularity: DiscourseGranularitySchema.default('verse'),
   /** Optional short section heading for this range in the combined outline. */
   label: z.string().optional(),
+  /**
+   * Optional fallback source for this SAME range, tried when the primary
+   * `sourceId` fails to load (e.g. a remote English source like `english-asv`
+   * that could not be fetched). The fallback is loaded with the SAME
+   * `startRef`/`endRef`/`granularity` as the primary range, only its
+   * `sourceId`/`bookNum` differ — normally a bundled, always-available source
+   * (e.g. `english-bsb-all`). `notice` is an honest, reader-facing note
+   * surfaced in the guided step card whenever the fallback had to be used, so
+   * a silent substitution never happens — the reader always sees a working
+   * canvas AND knows which text produced it.
+   */
+  fallback: z
+    .object({
+      sourceId: z.string(),
+      bookNum: z.number().int().positive(),
+      /** Honest, reader-facing note shown in the step card when the fallback was used. */
+      notice: z.string(),
+    })
+    .optional(),
 });
 export type GuidedDiscourseRange = z.infer<typeof GuidedDiscourseRangeSchema>;
 
