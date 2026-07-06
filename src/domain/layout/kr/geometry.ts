@@ -224,48 +224,77 @@ export function spineBarBottom(block: Block): number | null {
   return Number.isFinite(bottom) ? bottom : null;
 }
 
-/** Clearance kept between a dashed connector stem and a modifier slant it runs
- *  alongside, so the two lines never visually merge. */
-const STEM_SLANT_CLEAR = 6;
+/** Clearance the lead stem keeps from any lead-row content it runs beside —
+ *  a modifier slant, a sub-baseline, an upright word — so the stem never
+ *  visually merges with a line or slices through glyphs. */
+const LEAD_STEM_CLEAR = 6;
 
 /**
  * A lead / connector row drops a dashed vertical stem at `stemX` (from the lead
  * baseline down to the spine). A lead block that carries a modifier cascade can
- * hang a solid slant right at that x — the Matt 6:9 vocative's articular PP
- * (τοῖς "the" under οὐρανοῖς) lands within a hair of the stem, so the two lines
- * clash. Return the minimal horizontal shift to apply to the WHOLE lead block so
- * `stemX` clears every solid slant it would otherwise touch within the stem's
- * vertical band `[yTop, yBottom]`; 0 when nothing is near (so ordinary lead
- * words stay byte-identical). Prefers whichever of a left / right nudge is
- * smaller, and the returned shift clears every crossed slant at once.
+ * put real content right at that x — in the Matt 6:9 vocative's articular PP
+ * the article slant (τοῖς "the" under οὐρανοῖς) landed within a hair of the
+ * stem, and the PP object itself (οὐρανοῖς / "heavens") spanned the stem's
+ * column outright once the row was clamped at x = 0. Return the minimal
+ * horizontal shift to apply to the WHOLE lead row so `stemX` clears every
+ * line, curve, and upright word hanging in the stem's vertical band
+ * `(yTop, yBottom)`; 0 when nothing is near (so ordinary lead words stay
+ * byte-identical). Rotated text lies along its own slant (already an obstacle)
+ * and a boxed chip paints its own opaque background, so both are skipped —
+ * mirroring gapDashedLinesBehindWords' notion of what a line must not cross.
+ * Content AT the lead baseline (the row's own baselines, the words sitting on
+ * them) is excluded by the band, since the stem legitimately meets the stub
+ * there.
+ *
+ * Every obstacle moves WITH the row, so a shift clearing one obstacle can land
+ * the stem on another; the shift is solved over all obstacles at once. Each
+ * obstacle forbids the open interval of shifts that would leave the stem
+ * within LEAD_STEM_CLEAR of it; the result is the smallest-magnitude shift
+ * outside every forbidden interval (ties broken LEFT, the historic bias away
+ * from the spine).
  */
-export function stemSlantClearShift(
+export function leadStemClearShift(
   els: readonly DiagramElement[],
   stemX: number,
   yTop: number,
   yBottom: number,
 ): number {
-  // Left solution: slide the whole row LEFT until every crossed slant's right
-  // edge sits STEM_SLANT_CLEAR left of the stem (leftShift ≤ 0). Right solution:
-  // slide RIGHT until every crossed slant's left edge sits that far to the right.
-  let leftShift = 0;
-  let rightShift = 0;
-  let crossed = false;
+  const spans: { x0: number; x1: number }[] = [];
   for (const el of els) {
-    if (el.kind !== 'line' || el.role !== 'slant') continue;
-    const lo = Math.min(el.y1, el.y2);
-    const hi = Math.max(el.y1, el.y2);
-    if (hi <= yTop + 0.5 || lo >= yBottom - 0.5) continue; // no vertical overlap
-    const minX = Math.min(el.x1, el.x2);
-    const maxX = Math.max(el.x1, el.x2);
-    // Already clear (beyond the clearance margin on either side)?
-    if (maxX + STEM_SLANT_CLEAR <= stemX || minX - STEM_SLANT_CLEAR >= stemX) continue;
-    crossed = true;
-    leftShift = Math.min(leftShift, stemX - STEM_SLANT_CLEAR - maxX); // ≤ 0
-    rightShift = Math.max(rightShift, stemX + STEM_SLANT_CLEAR - minX); // ≥ 0
+    if (el.kind === 'line') {
+      const lo = Math.min(el.y1, el.y2);
+      const hi = Math.max(el.y1, el.y2);
+      if (hi <= yTop + 0.5 || lo >= yBottom - 0.5) continue; // no vertical overlap
+      spans.push({ x0: Math.min(el.x1, el.x2), x1: Math.max(el.x1, el.x2) });
+    } else if (el.kind === 'curve') {
+      const lo = Math.min(el.y1, el.cy, el.y2);
+      const hi = Math.max(el.y1, el.cy, el.y2);
+      if (hi <= yTop + 0.5 || lo >= yBottom - 0.5) continue;
+      spans.push({ x0: Math.min(el.x1, el.cx, el.x2), x1: Math.max(el.x1, el.cx, el.x2) });
+    } else if (!el.rotate && !el.box) {
+      const asc = el.small ? 11 : 14;
+      const desc = el.small ? 3 : 4;
+      if (el.y + desc <= yTop + 0.5 || el.y - asc >= yBottom - 0.5) continue;
+      const w = measureText(el.text, el.small ? SMALL_FONT : undefined);
+      const x0 = el.anchor === 'middle' ? el.x - w / 2 : el.anchor === 'end' ? el.x - w : el.x;
+      spans.push({ x0, x1: x0 + w });
+    }
   }
-  if (!crossed) return 0;
-  return Math.abs(leftShift) <= rightShift ? leftShift : rightShift;
+  // Shifting the row by `s` moves an obstacle to [x0+s, x1+s]; the stem clashes
+  // while s lies in the open interval (stemX - x1 - CLEAR, stemX - x0 + CLEAR).
+  const forbidden = spans.map((o) => ({
+    lo: stemX - o.x1 - LEAD_STEM_CLEAR,
+    hi: stemX - o.x0 + LEAD_STEM_CLEAR,
+  }));
+  const clear = (s: number): boolean => forbidden.every((f) => s <= f.lo || s >= f.hi);
+  if (clear(0)) return 0;
+  // Candidate shifts: each forbidden interval's endpoints (the flush-clear
+  // positions). The globally smallest `lo` is ≤ every interval's own lo, so at
+  // least one candidate always survives the filter.
+  const cands = forbidden.flatMap((f) => [f.lo, f.hi]).filter(clear);
+  if (!cands.length) return 0; // unreachable; kept as a safe fallback
+  cands.sort((a, b) => Math.abs(a) - Math.abs(b) || a - b);
+  return cands[0]!;
 }
 
 /** Vertical clearance a gapped line keeps above/below the glyphs it skips. */

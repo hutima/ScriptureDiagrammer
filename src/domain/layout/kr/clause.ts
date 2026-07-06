@@ -31,7 +31,7 @@ import {
   pedestalRoom,
   rightWithinBand,
   spineBarBottom,
-  stemSlantClearShift,
+  leadStemClearShift,
 } from './geometry';
 import { drawInfinitive, layoutInfinitiveFork } from './infinitives';
 import { BandPacker } from './packing';
@@ -356,19 +356,44 @@ function layoutClauseSpine(
     // Lay the lead row into its own buffer first, so it can be nudged clear of
     // the dashed stem before being committed.
     const leadEls: DiagramElement[] = [];
-    let x = Math.max(0, verbAlignX - GAPW - totalW);
+    const rowX = Math.max(0, verbAlignX - GAPW - totalW);
+    let x = rowX;
     for (const b of blocks) {
       leadEls.push(...translate(b, x, leadY));
       x += b.width + GAPW;
     }
-    // The dashed stem (below) drops at verbAlignX from the lead baseline down to
-    // the spine. A lead block carrying a modifier cascade — the Matt 6:9
-    // vocative Πάτερ … ὁ ἐν τοῖς οὐρανοῖς — can hang a solid slant (the article
-    // τοῖς / "the" beneath οὐρανοῖς / "heavens") right at that x, so the two
-    // lines clash. Slide the whole lead row just enough that verbAlignX misses
-    // every such slant; 0 for an ordinary lead word (byte-identical).
-    const clearShift = stemSlantClearShift(leadEls, verbAlignX, leadY, top);
-    const leadStart = Math.max(0, verbAlignX - GAPW - totalW) + clearShift;
+    // The dashed stem (below) drops at verbAlignX from the lead baseline down
+    // to the spine. A lead block carrying a modifier cascade hangs real content
+    // into that band — the Matt 6:9 vocative Πάτερ … ὁ ἐν τοῖς οὐρανοῖς hangs
+    // an articular PP two rows deep — and a row wider than the verb column is
+    // clamped at x = 0, which slides that cascade right under the stem column:
+    // the stem drew straight down through οὐρανοῖς and past the very edge of
+    // "heavens" (pass-behind gapping cannot make a line through the middle of
+    // a word read cleanly). Slide the whole lead row the minimal amount that
+    // keeps the stem clear of every line and every upright word it would
+    // otherwise touch; 0 when the band under the stub is clear (byte-identical
+    // for ordinary lead words and cascades that never reach the column).
+    let clearShift = leadStemClearShift(leadEls, verbAlignX, leadY, top);
+    // A LEFTWARD shift can exceed the room the row has — a clamped row is
+    // already at x = 0 and cannot move further left. RESERVE the space
+    // instead: shift the whole spine built so far to the right by the
+    // shortfall. The relative geometry is identical, so the stem column still
+    // clears the row's hanging content; the diagram simply widens by exactly
+    // what the row needs.
+    if (rowX + clearShift < 0) {
+      const spineShift = -(rowX + clearShift);
+      const moved = translate(
+        { width: 0, height: 0, elements: [...elements], wordLeft: 0, wordRight: 0 },
+        spineShift,
+        0,
+      );
+      elements.length = 0;
+      elements.push(...moved);
+      verbAlignX += spineShift;
+      right += spineShift;
+      clearShift = -rowX; // the row itself only moves back to x = 0
+    }
+    const leadStart = rowX + clearShift;
     x += clearShift;
     elements.push(
       ...(clearShift !== 0
@@ -385,7 +410,11 @@ function layoutClauseSpine(
     // stub, the text sitting just above it.
     const lineY = leadDrop > 0 ? leadY : leadY + 4;
     const lineRight = leadDrop > 0 ? Math.max(verbAlignX, x - GAPW) : verbAlignX;
-    elements.push(line(eid(), leadStart, lineY, lineRight, lineY, 'solid', 'baseline'));
+    // The stub's left end also caps at verbAlignX: a rightward clear-shift may
+    // start the row past the column, and the stub must still reach the stem.
+    elements.push(
+      line(eid(), Math.min(leadStart, verbAlignX), lineY, lineRight, lineY, 'solid', 'baseline'),
+    );
     elements.push(line(eid(), verbAlignX, lineY, verbAlignX, top, 'dashed', 'stem'));
   }
 
