@@ -3860,6 +3860,10 @@ label.field.inline > span { margin-bottom: 0; }
   top: calc(100% + 6px);
   z-index: 60;
   width: max(220px, min(300px, 80vw));
+  /* Never wider than the viewport minus the 10px side margins the JS
+     positioning (GrammarTermHelp.tsx) keeps; the JS clamps/flips/goes
+     `position: fixed` from this default, so keep the two in step. */
+  max-width: calc(100vw - 20px);
   display: flex;
   flex-direction: column;
   gap: 6px;
