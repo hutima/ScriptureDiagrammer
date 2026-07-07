@@ -71,6 +71,10 @@ export const DiscourseUnitKindSchema = z.enum([
   'sentence',
   'clauseCluster',
   'custom',
+  // A standalone annotation row: no source tokens and no children — it carries
+  // only the user's comment (in `label`) or is left blank as a spacer. Unlike a
+  // grouping container, it is NEVER pruned as an "empty container".
+  'note',
 ]);
 export type DiscourseUnitKind = z.infer<typeof DiscourseUnitKindSchema>;
 

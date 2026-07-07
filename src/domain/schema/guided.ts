@@ -278,6 +278,42 @@ export const GuidedDiscourseSplitSchema = z.object({
 });
 export type GuidedDiscourseSplit = z.infer<typeof GuidedDiscourseSplitSchema>;
 
+/**
+ * A guide-authored per-line indent seeded for a discourse guide's display only,
+ * mirroring `GuidedDiscourseHighlightSchema`/`GuidedDiscourseArcSchema`: the unit
+ * named by `ref` (its `refStart`, optionally with a `/N` ordinal — see
+ * `GuidedDiscourseArcSchema`) gets an ABSOLUTE explicit `userIndent`, applied via
+ * the same pure `setDiscourseUnitIndent` mutation a manual drag uses (clamped to
+ * the discourse indent limits). Seeded into BOTH the base and the live doc, so it
+ * is stable teaching scaffolding, resets with the guided display, and never
+ * produces a user patch. A ref that cannot be resolved is silently skipped —
+ * exactly like `seededArcs`/`seededHighlights`. Never touches the structural
+ * `parentId`/`depth`; never mutates any syntax document.
+ */
+export const GuidedDiscourseIndentSchema = z.object({
+  /** Verse ref (unit `refStart`, e.g. "2:13", or "2:39/2"). */
+  ref: z.string(),
+  /** Absolute explicit indent level (clamped to the discourse indent limits). */
+  userIndent: z.number().int().nonnegative(),
+});
+export type GuidedDiscourseIndent = z.infer<typeof GuidedDiscourseIndentSchema>;
+
+/**
+ * A guide-authored unit label seeded for a discourse guide's display only,
+ * mirroring the other seeded-* specs: the unit named by `ref` gets a plain-text
+ * `label` (e.g. "Superscription — not part of the chiasm"), applied via the same
+ * pure `labelDiscourseUnit` mutation. Seeded into BOTH base and live doc so it is
+ * stable, resets with the display, and never produces a user patch. An
+ * unresolved ref is silently skipped. Never mutates any syntax document.
+ */
+export const GuidedDiscourseLabelSchema = z.object({
+  /** Verse ref (unit `refStart`, e.g. "46:1", or "2:39/2"). */
+  ref: z.string(),
+  /** The label to show on that unit's row. */
+  label: z.string(),
+});
+export type GuidedDiscourseLabel = z.infer<typeof GuidedDiscourseLabelSchema>;
+
 export const GuidedDiscourseSpecSchema = z.object({
   /** One or more verse ranges loaded and CONCATENATED into one discourse doc. */
   ranges: z.array(GuidedDiscourseRangeSchema).min(1),
@@ -286,6 +322,13 @@ export const GuidedDiscourseSpecSchema = z.object({
    * highlights are seeded) to the combined doc for the guide's display.
    */
   seededSplits: z.array(GuidedDiscourseSplitSchema).optional(),
+  /**
+   * Optional guide-authored per-line indents, applied AFTER `seededSplits` and
+   * BEFORE arcs/highlights so a split's phrase units can be addressed too.
+   */
+  seededIndents: z.array(GuidedDiscourseIndentSchema).optional(),
+  /** Optional guide-authored unit labels (display scaffolding). */
+  seededLabels: z.array(GuidedDiscourseLabelSchema).optional(),
   /** Optional sample arcs seeded into the combined doc for the guide's display. */
   seededArcs: z.array(GuidedDiscourseArcSchema).optional(),
   /** Optional sample unit coloring seeded into the combined doc for the guide's display. */

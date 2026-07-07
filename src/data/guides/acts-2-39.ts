@@ -3,12 +3,14 @@ import type { GrammarHighlightGuide } from '@/domain/schema';
 /**
  * Acts 2:38–39 — "be baptized… For to you is the promise, and to your
  * children" — a DISCOURSE-backed guide (`kind: 'discourse'`) that loads TWO
- * passages, both in the ASV English translation, side by side:
+ * passages, both in the ASV English translation, one above the other:
  *
- *   - Acts 2:38–39 (ASV), and
- *   - Genesis 17:12 (ASV),
+ *   - Genesis 17:12 (ASV) — shown FIRST (on top: the older covenant sign), and
+ *   - Acts 2:38–39 (ASV) — shown below (Peter carrying the promise forward),
  *
- * concatenated into one Discourse document. Both ranges load from the remote,
+ * concatenated into one Discourse document. Each range is a titled SECTION (a
+ * heading + a visual gap), so the two passages read as clearly separated blocks
+ * rather than one run-on outline. Both ranges load from the remote,
  * public-domain `english-asv` source; if that fetch fails, each range falls
  * back to the bundled BSB translation for the same verses (see each range's
  * `fallback`), and the substitution is surfaced honestly in the step card via
@@ -53,21 +55,13 @@ export const acts239: GrammarHighlightGuide = {
   devotionalFrame:
     'Peter calls the crowd to repent and be baptized, then tells them WHY: "to you is the promise, and to your children, and to all that are afar off." Those words are not new. Laid beside Genesis 17, they echo the covenant God made with Abraham — sign given, "to you and to your offspring… even the foreigner in your household." This guide loads both passages together, in the ASV English translation, and highlights four matching phrases in turn so you can watch the promise — and its sign — carried forward and thrown open wider.',
   discourse: {
+    // Genesis is listed FIRST so the covenant sign it gives appears ABOVE the
+    // Acts promise that echoes it — the reader meets the older text, then sees
+    // Peter carry it forward. Each labelled range renders as a titled section
+    // (heading + a visual gap), so the two passages read as clearly separated
+    // blocks. Arc/highlight refs resolve by verse ref, so the order is free to
+    // change without touching them.
     ranges: [
-      {
-        sourceId: 'english-asv',
-        bookNum: 44, // Acts (66-book canonical numbering)
-        startRef: '2:38',
-        endRef: '2:39',
-        granularity: 'verse',
-        label: 'Acts 2:38–39 (ASV)',
-        fallback: {
-          sourceId: 'english-bsb-all',
-          bookNum: 44,
-          notice:
-            'The ASV text for Acts 2:38–39 could not be fetched, so the bundled BSB translation is shown instead.',
-        },
-      },
       {
         sourceId: 'english-asv',
         bookNum: 1, // Genesis (66-book canonical numbering)
@@ -80,6 +74,20 @@ export const acts239: GrammarHighlightGuide = {
           bookNum: 1,
           notice:
             'The ASV text for Genesis 17:12 could not be fetched, so the bundled BSB translation is shown instead.',
+        },
+      },
+      {
+        sourceId: 'english-asv',
+        bookNum: 44, // Acts (66-book canonical numbering)
+        startRef: '2:38',
+        endRef: '2:39',
+        granularity: 'verse',
+        label: 'Acts 2:38–39 (ASV)',
+        fallback: {
+          sourceId: 'english-bsb-all',
+          bookNum: 44,
+          notice:
+            'The ASV text for Acts 2:38–39 could not be fetched, so the bundled BSB translation is shown instead.',
         },
       },
     ],
@@ -156,7 +164,7 @@ export const acts239: GrammarHighlightGuide = {
       id: 'step-the-promise',
       title: 'A promise, addressed to a household',
       body:
-        'Read Acts 2:38–39 first. Peter calls the crowd to "repent, and be baptized… unto the remission of your sins," then names the promise\'s recipients as a series — "to you is the promise, and to your children, and to all that are afar off" — not isolated individuals who decide, but a household and, beyond it, the nations. The very word "promise" is covenant language: something God has pledged and will keep.',
+        'The two passages are laid out together — Genesis 17:12 above, Acts 2:38–39 below. Start with Peter\'s words in Acts: he calls the crowd to "repent, and be baptized… unto the remission of your sins," then names the promise\'s recipients as a series — "to you is the promise, and to your children, and to all that are afar off" — not isolated individuals who decide, but a household and, beyond it, the nations. The very word "promise" is covenant language: something God has pledged and will keep. Then look up to the Genesis covenant sign it echoes.',
       focus: {},
       panZoom: { fit: 'whole-diagram' },
       implication:

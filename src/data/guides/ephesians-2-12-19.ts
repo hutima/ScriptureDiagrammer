@@ -37,6 +37,20 @@ export const ephesians212: GrammarHighlightGuide = {
         label: 'Ephesians 2:12–19 (BSB)',
       },
     ],
+    // A guide-authored indent staircase that steps inward to the peace-making
+    // centre (2:15/2:16) and back out again, so the chiasm's shape is visible
+    // at a glance. Absolute per-line indents — display scaffolding, never a
+    // syntactic claim, and reset with the guided display.
+    seededIndents: [
+      { ref: '2:12', userIndent: 0 },
+      { ref: '2:13', userIndent: 1 },
+      { ref: '2:14', userIndent: 2 },
+      { ref: '2:15', userIndent: 3 },
+      { ref: '2:16', userIndent: 3 },
+      { ref: '2:17', userIndent: 2 },
+      { ref: '2:18', userIndent: 1 },
+      { ref: '2:19', userIndent: 0 },
+    ],
     // Sample correspondence arcs (proposed, not authoritative) — the same shape
     // the Discourse demo illustrates, offered here as a teaching scaffold.
     seededArcs: [

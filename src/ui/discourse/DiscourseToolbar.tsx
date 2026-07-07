@@ -35,6 +35,7 @@ export function DiscourseToolbar() {
   const redo = useDiscourseStore((s) => s.redo);
   const resetEdits = useDiscourseStore((s) => s.resetEdits);
   const labelUnit = useDiscourseStore((s) => s.labelUnit);
+  const addCommentRow = useDiscourseStore((s) => s.addCommentRow);
   const deleteUnit = useDiscourseStore((s) => s.deleteUnit);
   const toolbarGroupsCollapsed = useDiscourseStore((s) => s.toolbarGroupsCollapsed);
   const setToolbarGroupsCollapsed = useDiscourseStore((s) => s.setToolbarGroupsCollapsed);
@@ -147,6 +148,21 @@ export function DiscourseToolbar() {
               onClick={() => setMultiSelectMode(!multiSelectMode)}
             >
               Multi-select
+            </button>
+            <button
+              className="mini"
+              title={
+                unit
+                  ? 'Insert a blank comment row after this unit (leave the prompt empty for a blank spacer)'
+                  : 'Insert a blank comment row (leave the prompt empty for a blank spacer)'
+              }
+              onClick={() => {
+                const text = window.prompt('Comment (leave empty for a blank row)', '');
+                // Cancel (null) does nothing; empty string ⇒ a blank spacer row.
+                if (text !== null) addCommentRow(unit?.id, text);
+              }}
+            >
+              + Comment row
             </button>
             {multiSelectMode && (
               <>

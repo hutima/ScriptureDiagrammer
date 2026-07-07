@@ -2904,6 +2904,37 @@ label.field.inline > span { margin-bottom: 0; }
   padding-bottom: 3px;
 }
 .discourse-unit.container .discourse-unit-head { font-weight: 600; }
+/* A titled SECTION container (a merged multi-passage guide's per-range heading)
+   reads as a passage heading with clear air above it, so two passages shown
+   together are visually separated. The first section needs no leading gap. */
+.discourse-unit.container.section {
+  border-left-style: solid;
+  border-left-width: 3px;
+  margin-top: 22px;
+  font-size: 13px;
+}
+.discourse-unit.container.section:first-child { margin-top: 4px; }
+.discourse-unit.container.section .discourse-label {
+  background: var(--bg-soft, #eef0f3);
+  color: var(--fg, #222);
+}
+/* A standalone annotation row: a light dashed rule marks it as an inserted
+   comment (not source text), its text reads as a muted italic aside, and a
+   blank row keeps a small height so it works as a spacer. Full-width (not
+   fit-content) so it reads as its own line. */
+.discourse-unit.container.note {
+  width: auto;
+  border-left-style: dotted;
+  border-left-color: var(--border, #cbd2d9);
+}
+.discourse-note-text {
+  margin: 2px 0 0;
+  min-height: 1.1em;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--muted, #667);
+  white-space: pre-wrap;
+}
 .discourse-unit-head {
   display: flex;
   align-items: center;
