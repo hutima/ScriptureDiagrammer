@@ -750,6 +750,49 @@ export function unwrapDiscourseUnit(
   return { ...touchDoc(doc, units, now), relations, suggestions };
 }
 
+// --- annotation rows (blank / comment rows) ----------------------------------------
+
+/**
+ * Insert a standalone ANNOTATION row (`kind:'note'`): a childless, token-less
+ * unit carrying only a comment in its `label` (or left blank as a spacer). It
+ * reuses the whole existing unit pipeline — it renders, indents, labels (via
+ * `labelDiscourseUnit`), deletes, diffs, and undoes exactly like any other unit,
+ * and it is deliberately NOT a grouping container (so `deleteDiscourseUnits`
+ * never prunes it as "empty"). When `afterUnitId` is a real unit the note is
+ * inserted as its next sibling (same parent); otherwise it is appended at the
+ * top level. No-op only if `afterUnitId` is given but not found.
+ */
+export function addDiscourseCommentRow(
+  doc: DiscourseDocument,
+  opts: { afterUnitId?: string; text?: string; id?: string } = {},
+  now?: string,
+): DiscourseDocument {
+  const after = opts.afterUnitId ? unitById(doc, opts.afterUnitId) : undefined;
+  if (opts.afterUnitId && !after) return doc;
+  const parentId = after?.parentId;
+  const depth = after?.depth ?? 0;
+  // Slot the new row right after `after` (0.5 order, then resequenced to ints),
+  // else at the end of the top-level group.
+  const order = after
+    ? after.order + 0.5
+    : childUnits(doc, undefined).length;
+  const note: DiscourseUnit = {
+    id: opts.id ?? makeId('note'),
+    kind: 'note',
+    label: opts.text?.trim() || undefined,
+    refStart: '',
+    refEnd: '',
+    tokenIds: [],
+    sourceDocIds: [],
+    parentId,
+    order,
+    depth,
+    provenance: { ...MANUAL, reason: 'User-inserted comment row.' },
+  };
+  const units = resequence([...doc.units, note], parentId);
+  return touchDoc(doc, units, now);
+}
+
 // --- deletion (remove verse / unit) ------------------------------------------------
 
 /** All descendant unit ids of `unitId` (depth-first; excludes `unitId`). */
@@ -827,15 +870,21 @@ export function deleteDiscourseUnits(
   }
 
   // Prune ancestor containers that are left empty (no children, no tokens),
-  // iterating upward until the tree is stable.
+  // iterating upward until the tree is stable. Only GROUPINGS — containers that
+  // actually had children in the ORIGINAL doc — are prunable: a container the
+  // deletion emptied is noise, but a childless-by-design row (a `kind:'note'`
+  // comment/blank row, which never had children) is authored content and must
+  // survive an unrelated deletion.
+  const hadChildren = new Set(
+    doc.units.filter((u) => doc.units.some((c) => c.parentId === u.id)).map((u) => u.id),
+  );
   let units = doc.units.filter((u) => !toDelete.has(u.id));
   for (;;) {
     const empties = units.filter(
-      (u) => isContainer(u) && !units.some((c) => c.parentId === u.id),
+      (u) => isContainer(u) && hadChildren.has(u.id) && !units.some((c) => c.parentId === u.id),
     );
-    // A leaf-less container that started life as a container (chapter/custom/…)
-    // is noise once emptied; a container the user deletes explicitly is already
-    // in `toDelete`. Only prune those that became empty as a side effect.
+    // A container the user deletes explicitly is already in `toDelete`; only
+    // prune those that became empty as a side effect of this deletion.
     const newlyEmpty = empties.filter((u) => !toDelete.has(u.id));
     if (!newlyEmpty.length) break;
     for (const u of newlyEmpty) toDelete.add(u.id);

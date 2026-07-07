@@ -426,6 +426,7 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         'discourse-unit',
         isContainer ? 'container' : 'leaf',
         unit.kind === 'section' ? 'section' : '',
+        unit.kind === 'note' ? 'note' : '',
         selected ? 'selected' : '',
         multiSelected && !selected ? 'multi-selected' : '',
         relateTarget ? 'relate-target' : '',
@@ -490,12 +491,12 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
           </button>
         )}
         {refLabel && <span className="discourse-ref">{refLabel}</span>}
-        {view.showLabels && unit.label && (
+        {view.showLabels && unit.label && unit.kind !== 'note' && (
           <span className="discourse-label" title="Unit label (your analysis)">
             {unit.label}
           </span>
         )}
-        {isContainer && !unit.label && (
+        {isContainer && unit.kind !== 'note' && !unit.label && (
           <span className="discourse-label muted">{unit.kind}</span>
         )}
         {relationCount > 0 && (
@@ -513,6 +514,13 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
         )}
         {relateTarget && <span className="discourse-target-hint">← relate here</span>}
       </div>
+
+      {/* A standalone annotation row shows its comment as body text (readable
+          regardless of the Labels toggle); an empty label renders as a blank
+          spacer row (CSS min-height). */}
+      {unit.kind === 'note' && (
+        <p className="discourse-note-text">{unit.label || ' '}</p>
+      )}
 
       {!isContainer &&
         (isEnglish || view.showSourceText) &&

@@ -16,6 +16,7 @@ import type {
 } from '@/domain/schema';
 import {
   acceptDiscourseSuggestion,
+  addDiscourseCommentRow,
   addDiscourseRelation,
   addDiscourseRelationHighlight,
   addDiscourseStudyHighlight,
@@ -330,6 +331,13 @@ export interface DiscourseActions {
   unwrapUnit: (unitId: string) => void;
   /** Delete a unit (and its subtree) from the analysis — Discourse-layer only. */
   deleteUnit: (unitId: string) => void;
+  /**
+   * Insert a blank/comment annotation row (`kind:'note'`) after `afterUnitId`
+   * (its next sibling), or at the top level when omitted, and select it. The row
+   * carries an optional starting comment in its label; edit it later via the
+   * normal Label… action. Undoable and patch-persisted like any unit edit.
+   */
+  addCommentRow: (afterUnitId?: string, text?: string) => void;
   labelUnit: (unitId: string, label: string) => void;
   setUnitNotes: (unitId: string, notes: string) => void;
   /** Set (or clear, with `undefined`) a unit's color tag. */
@@ -1177,6 +1185,13 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
           ? s.typeEditRelationId
           : null,
       }));
+    },
+    addCommentRow: (afterUnitId, text) => {
+      const id = makeId('note');
+      commit((d) => addDiscourseCommentRow(d, { afterUnitId, text, id }));
+      // Select the new row only if it was actually created (invalid afterUnitId
+      // is a no-op, leaving the selection alone).
+      if (get().doc?.units.some((u) => u.id === id)) set({ selection: { unitId: id } });
     },
     labelUnit: (unitId, label) => commit((d) => labelDiscourseUnit(d, unitId, label)),
     setUnitNotes: (unitId, notes) => commit((d) => setDiscourseUnitNotes(d, unitId, notes)),
