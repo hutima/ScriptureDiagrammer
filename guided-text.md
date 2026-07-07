@@ -8734,7 +8734,7 @@ Read Psalm 46 as three Selah-marked stanzas built around a repeated refrain — 
 
 **Devotional frame**
 <!-- @field guide-psalm-46 :: devotionalFrame -->
-Psalm 46 is famously calm in the middle of catastrophe. Its own text marks out its shape: three times the word "Selah" interrupts the flow — after 46:4, 46:8, and 46:12 — dividing the psalm into three stanzas. This guide follows the three-stanza reading proposed by Rolf A. Jacobson, "Psalm 46: Translation, Structure, and Theology," Word & World 40, no. 3 (Summer 2020), https://wordandworld.luthersem.edu/issues.aspx?article_id=4189, who also names Psalm 46 a "psalm of trust." The heading ("For the choirmaster…") is shown but kept out of the pattern — the stanzas are between the psalm's own lines. The structure is proposed, not certain — but reading for it rewards the eye and the ear.
+Psalm 46 is famously calm in the middle of catastrophe. Its own text marks out its shape: three times the word "Selah" interrupts the flow — after 46:4, 46:8, and 46:12 — dividing the psalm into three stanzas. This guide follows the three-stanza reading proposed in [[cite_jacobson46]], which also names Psalm 46 a "psalm of trust." The heading ("For the choirmaster…") is shown but kept out of the pattern — the stanzas are between the psalm's own lines. The structure is proposed, not certain — but reading for it rewards the eye and the ear.
 <!-- @end -->
 
 ## Steps
@@ -8809,7 +8809,7 @@ The refrain closing both outer stanzas is the psalm's real center of gravity —
 
 **Caution**
 <!-- @field guide-psalm-46 :: steps[step-stanza-3].caution -->
-This three-stanza reading follows Rolf A. Jacobson, "Psalm 46: Translation, Structure, and Theology," Word & World 40, no. 3 (Summer 2020) — https://wordandworld.luthersem.edu/issues.aspx?article_id=4189 — who reads the psalm's three Selahs as marking three stanzas and characterizes the whole as a "psalm of trust." It is a PROPOSED literary reading, offered here with its source named — not a certain or inspired structure. Treat the stanza colours, the one refrain arc, and the indentation as an invitation to read closely and test the pattern against the text.
+This three-stanza reading follows [[cite_jacobson46]], who reads the psalm's three Selahs as marking three stanzas and characterizes the whole as a "psalm of trust." It is a PROPOSED literary reading, offered here with its source named — not a certain or inspired structure. Treat the stanza colours, the one refrain arc, and the indentation as an invitation to read closely and test the pattern against the text.
 <!-- @end -->
 
 ## Discourse ranges & sample arcs

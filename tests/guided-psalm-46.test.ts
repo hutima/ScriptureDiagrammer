@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { createElement } from 'react';
+import { render, cleanup } from '@testing-library/react';
 import { useEditorStore, useGuidedStore, useDiscourseStore } from '@/state';
 import { leafUnits } from '@/domain/discourse';
 import { getGuide } from '@/data/grammarHighlights';
+import { GuidedStepCard } from '@/ui/guided/GuidedStepCard';
 
 /**
  * Psalm 46 guided discourse — the bundled BSB OT uses HEBREW versification
@@ -32,23 +35,57 @@ describe('guided store — Psalm 46 discourse guide (BSB Hebrew versification, t
     useEditorStore.getState().setDiagramMode('kellogg-reed');
   });
   afterEach(() => {
+    cleanup();
     useGuidedStore.getState().leave();
     vi.unstubAllGlobals();
   });
 
-  it('registers guide-psalm-46 as a discourse guide, citing the source article', () => {
+  it('registers guide-psalm-46 as a discourse guide, citing the source article as a short hyperlink', () => {
     const guide = getGuide('guide-psalm-46')!;
     expect(guide.kind).toBe('discourse');
     expect(guide.discourse!.ranges[0]!.endRef).toBe('46:12');
-    // The citation is present in the devotional frame and in the final step's
-    // caution, so it is visible to the reader in the app (no separate
-    // "citation" schema field exists — scholarly attribution lives in prose,
-    // matching every other guide's convention).
-    expect(guide.devotionalFrame).toContain('Jacobson');
-    expect(guide.devotionalFrame).toContain('wordandworld.luthersem.edu');
+    // The full citation lives in ONE `citations` entry (rendered as a real
+    // hyperlink via its `[[id]]` marker) — the flowing prose only carries the
+    // short marker, not the long bibliographic text.
+    expect(guide.citations).toHaveLength(1);
+    const cite = guide.citations![0]!;
+    expect(cite.label).toBe('[1]');
+    expect(cite.title).toContain('Jacobson');
+    expect(cite.title).toContain('Word & World');
+    // The direct PDF link, not the journal's issues.aspx page (which 404s
+    // since Word & World's Nov-2023 site relaunch).
+    expect(cite.url).toMatch(/^https:\/\/wordandworld\.luthersem\.edu\/wp-content\/uploads\/pdfs\/.*\.pdf$/);
+    expect(cite.url).not.toContain('issues.aspx');
+    // The devotional frame and the final step's caution both reference the
+    // citation by marker (not by repeating the full text inline).
+    expect(guide.devotionalFrame).toContain(`[[${cite.id}]]`);
+    expect(guide.devotionalFrame).not.toContain('wordandworld.luthersem.edu');
     const lastStep = guide.steps[guide.steps.length - 1]!;
-    expect(lastStep.caution).toContain('Jacobson');
-    expect(lastStep.caution).toContain('Word & World');
+    expect(lastStep.caution).toContain(`[[${cite.id}]]`);
+    expect(lastStep.caution).not.toContain('Word & World');
+  });
+
+  it('renders the citation marker as a real external hyperlink, not the in-app term-link button', () => {
+    // Stubbed even though this test doesn't await the discourse load — opening
+    // the guide fires it in the background, and an unstubbed fetch would leak
+    // a real network call into whichever test runs next.
+    stubFetch();
+    useGuidedStore.getState().enter('greek');
+    useGuidedStore.getState().openGuide('guide-psalm-46');
+    const guide = getGuide('guide-psalm-46')!;
+    const cite = guide.citations![0]!;
+    // Step 0 shows the devotional frame, which carries the marker.
+    const { container } = render(createElement(GuidedStepCard));
+    expect(container.textContent).not.toContain('[[');
+    const link = container.querySelector<HTMLAnchorElement>('a.guided-citation-link');
+    expect(link).toBeTruthy();
+    expect(link!.textContent).toBe(cite.label);
+    expect(link!.getAttribute('href')).toBe(cite.url);
+    expect(link!.getAttribute('title')).toBe(cite.title);
+    expect(link!.getAttribute('target')).toBe('_blank');
+    expect(link!.getAttribute('rel')).toBe('noopener noreferrer');
+    // It is a real link, not the tappable in-app term-link button.
+    expect(container.querySelector('.guided-term-link')).toBeNull();
   });
 
   it('loads 46:1–46:12 as three Selah-marked stanzas, keeps the superscription out, and seeds the refrain arc', async () => {

@@ -14,7 +14,9 @@
  *  - every Greek term's `tokenId` exists somewhere in the guide's passages, and
  *    the term's `surface` matches the token's surface (a mismatch means the id
  *    points at the wrong word);
- *  - every `[[termId]]` marker in step bodies resolves to a Greek term;
+ *  - every `[[id]]` marker in step bodies (and the devotional frame, for every
+ *    guide kind) resolves to a Greek term OR a citation, and citation ids are
+ *    distinct from each other and from Greek term ids;
  *  - every `greekTermIds` entry resolves;
  *  - every `step.contested.issueId` resolves to a REAL issue in the curated
  *    contested-syntax registry, and that issue applies to the step's own
@@ -41,7 +43,33 @@ const idSets = (docs: Doc[]) => ({
   relationIds: new Set(docs.flatMap((d) => d.syntax.relations.map((r) => r.id))),
 });
 
+/**
+ * Validate every `[[id]]` marker in one prose string resolves to a Greek term
+ * OR a citation (the same union `renderBody` resolves against) — applies to
+ * every guide kind, since devotionalFrame/step prose is rendered through the
+ * same marker-aware path regardless of `kind`.
+ */
+function checkMarkers(prose: string | undefined, resolvable: Set<string>, where: string): void {
+  for (const m of (prose ?? '').matchAll(/\[\[([a-zA-Z0-9_-]+)\]\]/g)) {
+    if (!resolvable.has(m[1]!)) fail(`${where}: references unknown term/citation [[${m[1]}]]`);
+  }
+}
+
 for (const guide of grammarHighlightGuides) {
+  // Citation ids must be distinct from each other and from Greek term ids (the
+  // two id spaces share one marker syntax), and every citation's url is a
+  // real absolute URL (enforced by the schema's z.string().url(), but a
+  // duplicate id would silently shadow — check explicitly here).
+  const citations = guide.citations ?? [];
+  const citationIds = new Set(citations.map((c) => c.id));
+  if (citationIds.size !== citations.length) {
+    fail(`${guide.id}: duplicate citation id`);
+  }
+  for (const id of citationIds) {
+    if (guide.greekTerms.some((t) => t.id === id)) {
+      fail(`${guide.id}: citation id "${id}" collides with a Greek term id`);
+    }
+  }
   // Discourse-backed guides host the Discourse view over verse RANGES rather
   // than a bundled syntax diagram, so the token/node/relation id checks below
   // do not apply. Validate their range spec instead and move on.
@@ -117,6 +145,16 @@ for (const guide of grammarHighlightGuides) {
       }
     }
     if (guide.steps.length === 0) fail(`${guide.id}: guide has no steps`);
+    // Discourse guides carry no Greek terms in practice, but DO use citation
+    // markers in prose (e.g. Psalm 46's Jacobson citation) — validate them.
+    const discourseResolvable = new Set([...guide.greekTerms.map((t) => t.id), ...citationIds]);
+    checkMarkers(guide.devotionalFrame, discourseResolvable, `${guide.id}: devotionalFrame`);
+    for (const step of guide.steps) {
+      const where = `${guide.id} / ${step.id}`;
+      checkMarkers(step.body, discourseResolvable, `${where}: body`);
+      checkMarkers(step.implication, discourseResolvable, `${where}: implication`);
+      checkMarkers(step.caution, discourseResolvable, `${where}: caution`);
+    }
     console.log(
       `✓ ${guide.id} (discourse: ${guide.discourse?.ranges.length ?? 0} range(s), ${guide.steps.length} steps)`,
     );
@@ -138,6 +176,8 @@ for (const guide of grammarHighlightGuides) {
   const pool = idSets(present);
   const tokenSurface = new Map(present.flatMap((d) => d.tokens.map((t) => [t.id, t.surface] as const)));
   const termIds = new Set(guide.greekTerms.map((t) => t.id));
+  // Markers resolve against Greek terms OR citations (the same union `renderBody` checks).
+  const resolvable = new Set([...termIds, ...citationIds]);
 
   for (const term of guide.greekTerms) {
     if (!pool.tokenIds.has(term.tokenId)) {
@@ -149,11 +189,9 @@ for (const guide of grammarHighlightGuides) {
     }
   }
 
-  // The devotional frame renders through the same `[[termId]]`-aware path as
-  // the step prose, so its markers must resolve too.
-  for (const m of (guide.devotionalFrame ?? '').matchAll(/\[\[([a-zA-Z0-9_-]+)\]\]/g)) {
-    if (!termIds.has(m[1]!)) fail(`${guide.id}: devotionalFrame references unknown term [[${m[1]}]]`);
-  }
+  // The devotional frame renders through the same `[[id]]`-aware path as the
+  // step prose, so its markers must resolve too.
+  checkMarkers(guide.devotionalFrame, resolvable, `${guide.id}: devotionalFrame`);
 
   const firstPassage = guide.steps[0]?.passageId ?? guide.bundledPassageIds[0];
 
@@ -228,18 +266,11 @@ for (const guide of grammarHighlightGuides) {
       if (!termIds.has(id)) fail(`${where}: greekTermIds entry "${id}" has no matching term`);
     }
     // Every prose field the step card renders through `renderBody` may carry
-    // `[[termId]]` markers — validate them all, not just the body (a marker in
+    // `[[id]]` markers — validate them all, not just the body (a marker in
     // `caution`/`implication` used to slip through and render literally).
-    const proseFields: Array<[string, string | undefined]> = [
-      ['body', step.body],
-      ['implication', step.implication],
-      ['caution', step.caution],
-    ];
-    for (const [field, prose] of proseFields) {
-      for (const m of (prose ?? '').matchAll(/\[\[([a-zA-Z0-9_-]+)\]\]/g)) {
-        if (!termIds.has(m[1]!)) fail(`${where}: ${field} references unknown term [[${m[1]}]]`);
-      }
-    }
+    checkMarkers(step.body, resolvable, `${where}: body`);
+    checkMarkers(step.implication, resolvable, `${where}: implication`);
+    checkMarkers(step.caution, resolvable, `${where}: caution`);
     if (step.contested) {
       const issue = getIssueById(step.contested.issueId);
       if (!issue) {
