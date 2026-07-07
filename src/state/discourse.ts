@@ -978,6 +978,10 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
                     .map((r) => r.label)
                     .filter(Boolean)
                     .join('  ·  ') || parts.map((p) => p.title).join('  ·  '),
+                // Each labelled range becomes a titled SECTION container so a
+                // multi-passage guide reads as visually separated blocks (the
+                // heading + the container's own gap), not one run-on outline.
+                sectionLabels: spec.ranges.map((r) => r.label),
                 now,
               });
         // Optional SAMPLE phrase-level splits (display-only) — applied BEFORE
@@ -985,9 +989,20 @@ export const useDiscourseStore = create<DiscourseStore>((set, get) => {
         // phrase units via the `/N` sub-ref ordinal.
         merged = applyGuidedDiscourseSplits(merged, spec.seededSplits, now);
         // Shared ref resolver (refStart, optionally with a `/N` ordinal) for
-        // both SAMPLE arcs and SAMPLE highlights below — teaching scaffolding,
-        // never persisted.
+        // the SAMPLE indents/labels/arcs/highlights below — teaching
+        // scaffolding, never persisted.
         const resolveGuidedRef = makeGuidedRefResolver(merged);
+        // Guide-authored per-line indents + unit labels (display scaffolding),
+        // applied after splits and before arcs/highlights. Both funnel through
+        // the same pure mutations a manual edit uses; unresolved refs skip.
+        for (const ind of spec.seededIndents ?? []) {
+          const unitId = resolveGuidedRef(ind.ref);
+          if (unitId) merged = setDiscourseUnitIndent(merged, unitId, ind.userIndent, now);
+        }
+        for (const lab of spec.seededLabels ?? []) {
+          const unitId = resolveGuidedRef(lab.ref);
+          if (unitId) merged = labelDiscourseUnit(merged, unitId, lab.label, now);
+        }
         // Seed any SAMPLE arcs (by refStart) directly into the doc — teaching
         // scaffolding, never persisted. Unresolved refs are skipped.
         if (spec.seededArcs?.length) {

@@ -425,6 +425,7 @@ export const DiscourseUnitBlock = memo(function DiscourseUnitBlock({
       className={[
         'discourse-unit',
         isContainer ? 'container' : 'leaf',
+        unit.kind === 'section' ? 'section' : '',
         selected ? 'selected' : '',
         multiSelected && !selected ? 'multi-selected' : '',
         relateTarget ? 'relate-target' : '',

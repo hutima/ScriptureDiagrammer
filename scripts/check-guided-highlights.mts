@@ -102,6 +102,20 @@ for (const guide of grammarHighlightGuides) {
         fail(`${guide.id}: seededSplits ref ${s.ref} is outside every declared range`);
       }
     }
+    for (const ind of guide.discourse?.seededIndents ?? []) {
+      if (refIsMalformed(ind.ref)) {
+        fail(`${guide.id}: seededIndents ref ${ind.ref} has a malformed /N ordinal suffix`);
+      } else if (!refInAnyRange(ind.ref)) {
+        fail(`${guide.id}: seededIndents ref ${ind.ref} is outside every declared range`);
+      }
+    }
+    for (const lab of guide.discourse?.seededLabels ?? []) {
+      if (refIsMalformed(lab.ref)) {
+        fail(`${guide.id}: seededLabels ref ${lab.ref} has a malformed /N ordinal suffix`);
+      } else if (!refInAnyRange(lab.ref)) {
+        fail(`${guide.id}: seededLabels ref ${lab.ref} is outside every declared range`);
+      }
+    }
     if (guide.steps.length === 0) fail(`${guide.id}: guide has no steps`);
     console.log(
       `✓ ${guide.id} (discourse: ${guide.discourse?.ranges.length ?? 0} range(s), ${guide.steps.length} steps)`,

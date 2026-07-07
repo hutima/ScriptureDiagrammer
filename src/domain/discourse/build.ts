@@ -345,23 +345,64 @@ export function buildDiscourseDocumentFromRange(
  * do not interleave). Unit/token ids are already unique across different
  * books/sources, so no re-id is needed. Suggestions are dropped (a combined
  * teaching document is not an editing surface).
+ *
+ * When `sectionLabels` is supplied (one entry per part, aligned by index), each
+ * part that has a non-empty label is WRAPPED in a titled `kind:'section'`
+ * container so the combined outline reads as visually separated, headed blocks
+ * (a two-passage guide, say) rather than one run-on list. This is OPT-IN: with
+ * no labels (or all empty) every part stays flat exactly as before. Section
+ * containers carry no tokens, so `leafUnits`/ref resolution/splitting/arc
+ * geometry are unaffected — they simply nest their part's units one level deeper.
  */
 export function mergeDiscourseDocuments(
   parts: DiscourseDocument[],
-  opts: { id: string; title: string; sourceId?: string; now?: string },
+  opts: {
+    id: string;
+    title: string;
+    sourceId?: string;
+    now?: string;
+    /** Per-part section heading (aligned by index); empty/undefined = no section. */
+    sectionLabels?: (string | undefined)[];
+  },
 ): DiscourseDocument {
   const first = parts[0];
   const now = opts.now ?? first?.updatedAt ?? new Date().toISOString();
+  const useSections = !!opts.sectionLabels?.some((l) => !!l && l.trim().length > 0);
   const units: DiscourseUnit[] = [];
   let rootOffset = 0;
-  for (const part of parts) {
+  parts.forEach((part, pi) => {
     const roots = part.units.filter((u) => !u.parentId).sort((a, b) => a.order - b.order);
     const rootRank = new Map(roots.map((u, i) => [u.id, i] as const));
-    for (const u of part.units) {
-      units.push(u.parentId ? { ...u } : { ...u, order: rootOffset + (rootRank.get(u.id) ?? 0) });
+    const label = opts.sectionLabels?.[pi]?.trim();
+    if (useSections && label) {
+      const sectionId = `sec_${part.id}`;
+      units.push({
+        id: sectionId,
+        kind: 'section',
+        label,
+        refStart: part.range.startRef,
+        refEnd: part.range.endRef,
+        tokenIds: [],
+        sourceDocIds: [],
+        order: rootOffset,
+        depth: 0,
+        provenance: GIVEN,
+      });
+      for (const u of part.units) {
+        units.push(
+          u.parentId
+            ? { ...u, depth: u.depth + 1 }
+            : { ...u, parentId: sectionId, order: rootRank.get(u.id) ?? 0, depth: u.depth + 1 },
+        );
+      }
+      rootOffset += 1;
+    } else {
+      for (const u of part.units) {
+        units.push(u.parentId ? { ...u } : { ...u, order: rootOffset + (rootRank.get(u.id) ?? 0) });
+      }
+      rootOffset += roots.length;
     }
-    rootOffset += roots.length;
-  }
+  });
   const doc: DiscourseDocument = {
     schemaVersion: 1,
     id: opts.id,
