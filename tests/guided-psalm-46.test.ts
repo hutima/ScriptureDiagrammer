@@ -6,12 +6,14 @@ import { getGuide } from '@/data/grammarHighlights';
 
 /**
  * Psalm 46 guided discourse — the bundled BSB OT uses HEBREW versification
- * (46:1 = superscription), so the chiasm refs are shifted +1 and the closing
- * refrain lives at 46:12. This test loads the guide through the real pipeline
- * (BSB OT fetch mocked from the bundled JSON) and pins the mapping so a future
- * data/versification change can't silently mis-align the psalm again.
+ * (46:1 = superscription), so the stanza refs are shifted +1 and the second
+ * refrain occurrence lives at 46:12. The guide follows Rolf A. Jacobson's
+ * three-stanza (Selah-marked) reading — this test loads it through the real
+ * pipeline (BSB OT fetch mocked from the bundled JSON) and pins both the
+ * versification mapping and the Selah placement so a future data change can't
+ * silently mis-align the psalm again.
  */
-describe('guided store — Psalm 46 discourse guide (BSB Hebrew versification)', () => {
+describe('guided store — Psalm 46 discourse guide (BSB Hebrew versification, three-stanza reading)', () => {
   function stubFetch() {
     const psalms = JSON.parse(readFileSync('public/parallel/bsb/ot/19-psalms.json', 'utf8'));
     const fn = vi.fn(async (url: string) => {
@@ -34,13 +36,22 @@ describe('guided store — Psalm 46 discourse guide (BSB Hebrew versification)',
     vi.unstubAllGlobals();
   });
 
-  it('registers guide-psalm-46 as a discourse guide', () => {
+  it('registers guide-psalm-46 as a discourse guide, citing the source article', () => {
     const guide = getGuide('guide-psalm-46')!;
     expect(guide.kind).toBe('discourse');
     expect(guide.discourse!.ranges[0]!.endRef).toBe('46:12');
+    // The citation is present in the devotional frame and in the final step's
+    // caution, so it is visible to the reader in the app (no separate
+    // "citation" schema field exists — scholarly attribution lives in prose,
+    // matching every other guide's convention).
+    expect(guide.devotionalFrame).toContain('Jacobson');
+    expect(guide.devotionalFrame).toContain('wordandworld.luthersem.edu');
+    const lastStep = guide.steps[guide.steps.length - 1]!;
+    expect(lastStep.caution).toContain('Jacobson');
+    expect(lastStep.caution).toContain('Word & World');
   });
 
-  it('loads 46:1–46:12, keeps the superscription out of the chiasm, and seeds arcs/indents', async () => {
+  it('loads 46:1–46:12 as three Selah-marked stanzas, keeps the superscription out, and seeds the refrain arc', async () => {
     stubFetch();
     useGuidedStore.getState().enter('greek');
     useGuidedStore.getState().openGuide('guide-psalm-46');
@@ -51,30 +62,56 @@ describe('guided store — Psalm 46 discourse guide (BSB Hebrew versification)',
     const leaves = leafUnits(s.doc!);
     const byRef = new Map(leaves.map((u) => [u.refStart, u]));
 
-    // The closing refrain (A′) at 46:12 is present — the old endRef 46:11 cut it.
+    // The refrain's SECOND occurrence at 46:12 is present — the pre-Jacobson
+    // guide's endRef 46:11 used to cut it off.
     expect(byRef.has('46:12')).toBe(true);
+    // Both refrain lines carry the actual bundled text, confirming the Selah
+    // placement this guide's structure depends on.
+    const tokenSurface = new Map(s.doc!.tokens.map((t) => [t.id, t.surface] as const));
+    const textOf = (ref: string) =>
+      byRef.get(ref)!.tokenIds.map((id) => tokenSurface.get(id)).join(' ');
+    expect(textOf('46:4')).toMatch(/Selah/);
+    expect(textOf('46:8')).toMatch(/Selah/);
+    expect(textOf('46:12')).toMatch(/Selah/);
 
-    // Superscription (46:1): shown, labelled, and NOT part of the chiasm.
+    // Superscription (46:1): shown, labelled, and NOT part of the stanza structure.
     const sup = byRef.get('46:1')!;
-    expect(sup.label).toBe('Superscription — not part of the chiasm');
+    expect(sup.label).toBe('Superscription — not part of the stanza structure');
     expect(sup.color).toBeUndefined();
-    // No arc touches the superscription unit.
     expect(
       s.doc!.relations.some((r) => r.sourceUnitId === sup.id || r.targetUnitId === sup.id),
     ).toBe(false);
 
-    // Chiasm colours land on the shifted refs.
-    expect(byRef.get('46:2')!.color).toBe('blue'); // A
-    expect(byRef.get('46:12')!.color).toBe('blue'); // A′
-    expect(byRef.get('46:11')!.color).toBe('green'); // B′
-    expect(byRef.get('46:8')!.color).toBe('yellow'); // centre
+    // Stanza labels land on each stanza's opening line.
+    expect(byRef.get('46:2')!.label).toBe('Stanza 1');
+    expect(byRef.get('46:5')!.label).toBe('Stanza 2');
+    expect(byRef.get('46:9')!.label).toBe('Stanza 3');
+    expect(byRef.get('46:8')!.label).toBe('Refrain');
+    expect(byRef.get('46:12')!.label).toBe('Refrain (repeated)');
 
-    // Three chiasm arcs; the centre (46:8) has none.
-    expect(s.doc!.relations.filter((r) => r.type === 'chiasm').length).toBe(3);
+    // Each stanza is coloured as one block.
+    expect(byRef.get('46:2')!.color).toBe('blue');
+    expect(byRef.get('46:4')!.color).toBe('blue');
+    expect(byRef.get('46:5')!.color).toBe('green');
+    expect(byRef.get('46:8')!.color).toBe('green');
+    expect(byRef.get('46:9')!.color).toBe('orange');
+    expect(byRef.get('46:12')!.color).toBe('orange');
 
-    // The seeded indent staircase applied (centre flush, deepest at 46:5).
+    // Exactly ONE arc — the verbatim refrain repetition, not an invented mirror.
+    expect(s.doc!.relations.length).toBe(1);
+    const arc = s.doc!.relations[0]!;
+    expect(arc.type).toBe('parallel');
+    expect(arc.sourceUnitId).toBe(byRef.get('46:8')!.id);
+    expect(arc.targetUnitId).toBe(byRef.get('46:12')!.id);
+
+    // Each stanza's opening line and closing Selah/refrain sit flush (0); the
+    // interior lines step in one level.
     expect(byRef.get('46:1')!.userIndent ?? 0).toBe(0);
-    expect(byRef.get('46:5')!.userIndent).toBe(3);
+    expect(byRef.get('46:2')!.userIndent ?? 0).toBe(0);
+    expect(byRef.get('46:3')!.userIndent).toBe(1);
+    expect(byRef.get('46:5')!.userIndent ?? 0).toBe(0);
     expect(byRef.get('46:8')!.userIndent ?? 0).toBe(0);
+    expect(byRef.get('46:9')!.userIndent ?? 0).toBe(0);
+    expect(byRef.get('46:12')!.userIndent ?? 0).toBe(0);
   });
 });
