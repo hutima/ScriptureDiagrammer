@@ -105,13 +105,15 @@ describe('guided registry and bundle', () => {
     expect(guide!.hidden).toBeFalsy();
     expect(visibleGrammarHighlightGuides.some((g) => g.id === 'guide-acts-2-39')).toBe(true);
     // Two ranges, both loaded from the remote ASV source (66-book canonical
-    // numbering: Acts = 44, Genesis = 1), each with a bundled BSB fallback.
+    // numbering: Genesis = 1, Acts = 44), each with a bundled BSB fallback.
+    // Genesis is listed FIRST so the covenant sign appears above the Acts
+    // promise that echoes it (each range renders as a titled section).
     const ranges = guide!.discourse!.ranges;
     expect(ranges.map((r) => r.sourceId)).toEqual(['english-asv', 'english-asv']);
-    expect(ranges.map((r) => r.bookNum)).toEqual([44, 1]);
-    expect(ranges.map((r) => r.startRef)).toEqual(['2:38', '17:12']);
+    expect(ranges.map((r) => r.bookNum)).toEqual([1, 44]);
+    expect(ranges.map((r) => r.startRef)).toEqual(['17:12', '2:38']);
     expect(ranges.every((r) => r.fallback?.sourceId === 'english-bsb-all')).toBe(true);
-    expect(ranges.map((r) => r.fallback?.bookNum)).toEqual([44, 1]);
+    expect(ranges.map((r) => r.fallback?.bookNum)).toEqual([1, 44]);
     expect(ranges.every((r) => !!r.fallback?.notice)).toBe(true);
     expect(guide!.topics).toEqual(['covenant', 'promise', 'discourse', 'baptism']);
   });
