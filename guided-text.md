@@ -8711,7 +8711,7 @@ one new man ↔ reconciled in one body
 
 ---
 
-# Psalm 46 — a fortress, read as a chiasm
+# Psalm 46 — three stanzas, marked by Selah
 
 <!-- guide guide-psalm-46 · Psalm 46 · intermediate · discourse guide -->
 
@@ -8719,7 +8719,7 @@ one new man ↔ reconciled in one body
 
 **Guide title**
 <!-- @field guide-psalm-46 :: title -->
-Psalm 46 — a fortress, read as a chiasm
+Psalm 46 — three stanzas, marked by Selah
 <!-- @end -->
 
 **Reference**
@@ -8729,87 +8729,87 @@ Psalm 46
 
 **Picker summary**
 <!-- @field guide-psalm-46 :: summary -->
-Read Psalm 46 as a proposed chiasm — refuge and "be still" framing a still centre where God speaks and the earth melts.
+Read Psalm 46 as three Selah-marked stanzas built around a repeated refrain — "The LORD of Hosts is with us" — following Rolf A. Jacobson's proposed structure.
 <!-- @end -->
 
 **Devotional frame**
 <!-- @field guide-psalm-46 :: devotionalFrame -->
-Psalm 46 is famously calm in the middle of catastrophe. Many readers have noticed it also seems SHAPED like a fortress: its opening and closing mirror each other, and the turmoil of the nations sits protected near the centre, where God simply speaks. This guide lays the psalm out in the Discourse view so you can test that mirror for yourself. The heading ("For the choirmaster…") is shown but kept out of the pattern — the chiasm is between the psalm's lines themselves. The structure is proposed, not certain — but reading for it rewards the eye.
+Psalm 46 is famously calm in the middle of catastrophe. Its own text marks out its shape: three times the word "Selah" interrupts the flow — after 46:4, 46:8, and 46:12 — dividing the psalm into three stanzas. This guide follows the three-stanza reading proposed by Rolf A. Jacobson, "Psalm 46: Translation, Structure, and Theology," Word & World 40, no. 3 (Summer 2020), https://wordandworld.luthersem.edu/issues.aspx?article_id=4189, who also names Psalm 46 a "psalm of trust." The heading ("For the choirmaster…") is shown but kept out of the pattern — the stanzas are between the psalm's own lines. The structure is proposed, not certain — but reading for it rewards the eye and the ear.
 <!-- @end -->
 
 ## Steps
 
-### Step 1 — A fortress-shaped psalm
+### Step 1 — Three stanzas, marked by Selah
 
 **Step title**
 <!-- @field guide-psalm-46 :: steps[step-overview].title -->
-A fortress-shaped psalm
+Three stanzas, marked by Selah
 <!-- @end -->
 
 **Body**
 <!-- @field guide-psalm-46 :: steps[step-overview].body -->
-Read the whole psalm once in the Discourse view. The first line — "For the choirmaster. Of the sons of Korah…" — is the superscription (the ancient heading), shown here but set apart: it is not part of the literary pattern we are tracing. Watch instead for repetition in the psalm proper: the refrain "The LORD of Hosts is with us; the God of Jacob is our fortress" appears twice (46:8 and 46:12), and the opening image of refuge (46:2) returns at the close (46:12). Those echoes are the outer walls of a proposed chiasm.
+Read the whole psalm once in the Discourse view. The first line — "For the choirmaster. Of the sons of Korah…" — is the superscription (the ancient heading), shown here but set apart: it is not one of the psalm's three stanzas. The word "Selah" then interrupts the text three times (46:4, 46:8, 46:12), dividing the psalm into three stanzas of roughly equal weight — a structure proposed by Rolf A. Jacobson (see this guide's citation below). Watch, too, for the refrain "The LORD of Hosts is with us; the God of Jacob is our fortress," which closes both Stanza 2 and Stanza 3 verbatim.
 <!-- @end -->
 
 **Why it matters**
 <!-- @field guide-psalm-46 :: steps[step-overview].implication -->
-Before analysing, simply notice the psalm circles back on itself. Hebrew poetry often makes its point by SHAPE, not just by sequence.
+Before analysing, simply notice the psalm's own text marks its divisions — Selah is not decoration; ancient Hebrew poetry often signals its shape this plainly.
 <!-- @end -->
 
-### Step 2 — A ↔ A′ and B ↔ B′ — refuge, and "be still"
+### Step 2 — Stanza 1 — refuge amid cosmic upheaval (46:2–46:4)
 
 **Step title**
-<!-- @field guide-psalm-46 :: steps[step-outer-frame].title -->
-A ↔ A′ and B ↔ B′ — refuge, and "be still"
+<!-- @field guide-psalm-46 :: steps[step-stanza-1].title -->
+Stanza 1 — refuge amid cosmic upheaval (46:2–46:4)
 <!-- @end -->
 
 **Body**
-<!-- @field guide-psalm-46 :: steps[step-outer-frame].body -->
-The outermost pair frames everything: "God is our refuge and strength" (A, 46:2) answers the closing refrain, "The LORD of Hosts is with us… our fortress" (A′, 46:12). Just inside, the confidence of "we will not fear, though the earth gives way" (B, 46:3–46:6) answers the command "Be still, and know that I am God" (B′, 46:11). Fearless courage at the start becomes surrendered stillness at the end.
+<!-- @field guide-psalm-46 :: steps[step-stanza-1].body -->
+The psalm opens with its ground note: "God is our refuge and strength, an ever-present help in times of trouble" (46:2). From there it names the worst the created order could do — the earth transformed, mountains toppled into the sea, waters roaring (46:3–46:4) — and answers it before it is even fully described: "Therefore we will not fear." Selah closes the stanza, inviting the reader to pause on that confidence.
 <!-- @end -->
 
 **Why it matters**
-<!-- @field guide-psalm-46 :: steps[step-outer-frame].implication -->
-The psalm moves the reader from resolved courage ("we will not fear") to quiet trust ("be still") — two faces of the same confidence in God.
+<!-- @field guide-psalm-46 :: steps[step-stanza-1].implication -->
+The stanza states its thesis first — refuge — then tests it against the largest imaginable threat: the unmaking of creation itself.
 <!-- @end -->
 
-### Step 3 — C ↔ C′ — chaos answered, on two fronts
+### Step 3 — Stanza 2 — the city of God; the nations rage (46:5–46:8)
 
 **Step title**
-<!-- @field guide-psalm-46 :: steps[step-inner-pairs].title -->
-C ↔ C′ — chaos answered, on two fronts
+<!-- @field guide-psalm-46 :: steps[step-stanza-2].title -->
+Stanza 2 — the city of God; the nations rage (46:5–46:8)
 <!-- @end -->
 
 **Body**
-<!-- @field guide-psalm-46 :: steps[step-inner-pairs].body -->
-Deeper in, the raging of the peoples — "Nations rage, kingdoms crumble; the earth melts when He lifts His voice" (C, 46:7) — is mirrored by the LORD's decisive acts in history: "Come, see the works of the LORD… He makes wars cease… He burns the shields in the fire" (C′, 46:9–46:10). The same God who silences creation's upheaval also ends the wars of the nations.
+<!-- @field guide-psalm-46 :: steps[step-stanza-2].body -->
+The second stanza turns to a gentler image — a river gladdening "the city of God, the holy place where the Most High dwells" (46:5) — before naming a second kind of upheaval, this time political: "Nations rage, kingdoms crumble; the earth melts when He lifts His voice" (46:7). Where the first stanza answered chaos with a claim ("we will not fear"), this one answers it with God's own bare speech. The stanza closes, Selah, on the refrain: "The LORD of Hosts is with us; the God of Jacob is our fortress" (46:8) — its first appearance.
 <!-- @end -->
 
 **Why it matters**
-<!-- @field guide-psalm-46 :: steps[step-inner-pairs].implication -->
-God's presence, not the calm of circumstances, is the constant that answers every kind of chaos.
+<!-- @field guide-psalm-46 :: steps[step-stanza-2].implication -->
+Two kinds of chaos — nature's and history's — are each answered by the same thing: God's presence, not a change in circumstances.
 <!-- @end -->
 
-### Step 4 — The still centre — "The LORD of Hosts is with us"
+### Step 4 — Stanza 3 — "be still, and know" (46:9–46:12)
 
 **Step title**
-<!-- @field guide-psalm-46 :: steps[step-centre].title -->
-The still centre — "The LORD of Hosts is with us"
+<!-- @field guide-psalm-46 :: steps[step-stanza-3].title -->
+Stanza 3 — "be still, and know" (46:9–46:12)
 <!-- @end -->
 
 **Body**
-<!-- @field guide-psalm-46 :: steps[step-centre].body -->
-At the turning point stands the refrain in its first appearance: "The LORD of Hosts is with us; the God of Jacob is our fortress" (46:8). Around it the nations rage (46:7) and the LORD acts (46:9–46:10); at the centre is neither turmoil nor even a mighty act, but simply his PRESENCE — "with us." This verse has no partner arc; it is the still point the whole mirror turns on, marked here with its own highlight.
+<!-- @field guide-psalm-46 :: steps[step-stanza-3].body -->
+The final stanza looks back at what the LORD has already done — "come, see the works of the LORD… He makes wars cease… He burns the shields in the fire" (46:9–46:10) — then turns that history into a command: "Be still, and know that I am God" (46:11). The stanza closes, Selah, on the SAME refrain repeated verbatim: "The LORD of Hosts is with us; the God of Jacob is our fortress" (46:12) — the line this guide's one seeded arc connects back to its first occurrence (46:8).
 <!-- @end -->
 
 **Why it matters**
-<!-- @field guide-psalm-46 :: steps[step-centre].implication -->
-A chiasm puts its weight at the centre. Here the centre is not a victory but a companionship: God himself, with his people — the heart of the whole psalm.
+<!-- @field guide-psalm-46 :: steps[step-stanza-3].implication -->
+The refrain closing both outer stanzas is the psalm's real center of gravity — not a single verse, but a claim repeated until it settles.
 <!-- @end -->
 
 **Caution**
-<!-- @field guide-psalm-46 :: steps[step-centre].caution -->
-The A–✱–A′ structure shown here is a PROPOSED literary reading, not a certain one, and scholars divide the verses slightly differently (some place the centre at 46:7). Treat the arcs and the indentation as an invitation to read closely and test the pattern against the text — not as the psalm's settled outline.
+<!-- @field guide-psalm-46 :: steps[step-stanza-3].caution -->
+This three-stanza reading follows Rolf A. Jacobson, "Psalm 46: Translation, Structure, and Theology," Word & World 40, no. 3 (Summer 2020) — https://wordandworld.luthersem.edu/issues.aspx?article_id=4189 — who reads the psalm's three Selahs as marking three stanzas and characterizes the whole as a "psalm of trust." It is a PROPOSED literary reading, offered here with its source named — not a certain or inspired structure. Treat the stanza colours, the one refrain arc, and the indentation as an invitation to read closely and test the pattern against the text.
 <!-- @end -->
 
 ## Discourse ranges & sample arcs
@@ -8819,33 +8819,13 @@ The A–✱–A′ structure shown here is a PROPOSED literary reading, not a ce
 Psalm 46 (BSB)
 <!-- @end -->
 
-**Arc 46:2 ↔ 46:12 — label**
-<!-- @field guide-psalm-46 :: discourse.seededArcs[ga_ps46_a].label -->
-A ↔ A′
+**Arc 46:8 ↔ 46:12 — label**
+<!-- @field guide-psalm-46 :: discourse.seededArcs[ga_ps46_refrain].label -->
+Refrain repeated
 <!-- @end -->
 
-**Arc 46:2 ↔ 46:12 — notes**
-<!-- @field guide-psalm-46 :: discourse.seededArcs[ga_ps46_a].notes -->
-God our refuge and present help ↔ the refuge refrain repeated
-<!-- @end -->
-
-**Arc 46:3 ↔ 46:11 — label**
-<!-- @field guide-psalm-46 :: discourse.seededArcs[ga_ps46_b].label -->
-B ↔ B′
-<!-- @end -->
-
-**Arc 46:3 ↔ 46:11 — notes**
-<!-- @field guide-psalm-46 :: discourse.seededArcs[ga_ps46_b].notes -->
-we will not fear; the city is not moved ↔ "be still, and know that I am God"
-<!-- @end -->
-
-**Arc 46:7 ↔ 46:9 — label**
-<!-- @field guide-psalm-46 :: discourse.seededArcs[ga_ps46_c].label -->
-C ↔ C′
-<!-- @end -->
-
-**Arc 46:7 ↔ 46:9 — notes**
-<!-- @field guide-psalm-46 :: discourse.seededArcs[ga_ps46_c].notes -->
-the nations rage; God speaks, the earth melts ↔ behold the LORD's works; He makes wars cease
+**Arc 46:8 ↔ 46:12 — notes**
+<!-- @field guide-psalm-46 :: discourse.seededArcs[ga_ps46_refrain].notes -->
+"The LORD of Hosts is with us; the God of Jacob is our fortress" closes Stanza 2 (Selah, 46:8) and Stanza 3 (Selah, 46:12) verbatim.
 <!-- @end -->
 
