@@ -36,12 +36,16 @@ function inlineGlossFor(term: GuidedGreekTerm, blockText: string): string {
 
 /**
  * Render a step's prose (body, implication, caution, devotional frame),
- * turning `[[termId]]` markers into tappable Greek-term links (the term's
- * surface form). Unknown ids render as plain text so a typo degrades readably
- * (and `guided:check` catches it at build time anyway). In ENGLISH display
- * mode every term link carries an inline transliteration + gloss (see
- * `inlineGlossFor`), so the explanatory copy stays readable to someone who
- * cannot read Greek script.
+ * turning `[[id]]` markers into either a tappable Greek-term link (the term's
+ * surface form) or, when `id` instead names one of the guide's `citations`, a
+ * real external hyperlink (the citation's short `label`, e.g. "[1]", with the
+ * full bibliographic citation as its accessible/tooltip title). Greek terms
+ * are checked first, so the two id spaces may never collide in practice (each
+ * guide's own ids are validated distinct by `guided:check`). Unknown ids
+ * render as plain text so a typo degrades readably (and `guided:check`
+ * catches it at build time anyway). In ENGLISH display mode every term link
+ * carries an inline transliteration + gloss (see `inlineGlossFor`), so the
+ * explanatory copy stays readable to someone who cannot read Greek script.
  */
 function renderBody(
   body: string,
@@ -62,22 +66,39 @@ function renderBody(
     if (i % 2 === 0)
       return <Fragment key={i}>{highlightGrammarTerms(part, usedGlossaryTerms, `p${i}`)}</Fragment>;
     const term = guide.greekTerms.find((t) => t.id === part);
-    if (!term) return <Fragment key={i}>{part}</Fragment>;
-    return (
-      <button key={i} className="guided-term-link" onClick={() => onTerm(term.id)}>
-        {term.surface}
-        {english && (
-          // The space sits OUTSIDE the inline-block span on purpose: leading
-          // whitespace inside an inline-block is collapsed by CSS, which ate the
-          // gap and rendered "θεὸς(theos)". As a text node in the button's inline
-          // flow it survives, giving "θεὸς (theos)".
-          <>
-            {' '}
-            <span className="guided-term-inline-gloss">{inlineGlossFor(term, plainText)}</span>
-          </>
-        )}
-      </button>
-    );
+    if (term) {
+      return (
+        <button key={i} className="guided-term-link" onClick={() => onTerm(term.id)}>
+          {term.surface}
+          {english && (
+            // The space sits OUTSIDE the inline-block span on purpose: leading
+            // whitespace inside an inline-block is collapsed by CSS, which ate the
+            // gap and rendered "θεὸς(theos)". As a text node in the button's inline
+            // flow it survives, giving "θεὸς (theos)".
+            <>
+              {' '}
+              <span className="guided-term-inline-gloss">{inlineGlossFor(term, plainText)}</span>
+            </>
+          )}
+        </button>
+      );
+    }
+    const citation = guide.citations?.find((c) => c.id === part);
+    if (citation) {
+      return (
+        <a
+          key={i}
+          className="guided-citation-link"
+          href={citation.url}
+          title={citation.title}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {citation.label}
+        </a>
+      );
+    }
+    return <Fragment key={i}>{part}</Fragment>;
   });
 }
 

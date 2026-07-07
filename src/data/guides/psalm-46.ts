@@ -6,9 +6,14 @@ import type { GrammarHighlightGuide } from '@/domain/schema';
  * stanza marked off by a "Selah" and the outer two closing on the same refrain.
  *
  * STRUCTURE — following Rolf A. Jacobson, "Psalm 46: Translation, Structure,
- * and Theology," Word & World 40, no. 3 (Summer 2020) — in the issue "Sola
- * Structura: Essays Honoring Mark Throntveit," Word & World / Luther Seminary:
- * https://wordandworld.luthersem.edu/issues.aspx?article_id=4189
+ * and Theology," Word & World 40, no. 3 (Summer 2020): 308–20 — in the issue
+ * "Sola Structura: Essays Honoring Mark Throntveit," Word & World / Luther
+ * Seminary. The in-app citation (`citations` below, rendered via `[[cite_
+ * jacobson46]]`) links DIRECTLY to the PDF, not the journal's `issues.aspx`
+ * article page — that query-string URL scheme did not survive Word & World's
+ * site relaunch (Nov 2023) and now 404s, while the PDF's own `wp-content/
+ * uploads` path did:
+ * https://wordandworld.luthersem.edu/wp-content/uploads/pdfs/40-3_Sola_Structura%3A_Essays_Honoring_Mark_Thronveit/Psalm%2046%3B%20Translation%2C%20Structure%2C%20and%20Theology.pdf
  *
  * Jacobson reads the psalm's three "Selah" markers as stanza dividers, each
  * stanza a coherent movement in its own right:
@@ -52,7 +57,7 @@ export const psalm46: GrammarHighlightGuide = {
   summary:
     'Read Psalm 46 as three Selah-marked stanzas built around a repeated refrain — "The LORD of Hosts is with us" — following Rolf A. Jacobson\'s proposed structure.',
   devotionalFrame:
-    'Psalm 46 is famously calm in the middle of catastrophe. Its own text marks out its shape: three times the word "Selah" interrupts the flow — after 46:4, 46:8, and 46:12 — dividing the psalm into three stanzas. This guide follows the three-stanza reading proposed by Rolf A. Jacobson, "Psalm 46: Translation, Structure, and Theology," Word & World 40, no. 3 (Summer 2020), https://wordandworld.luthersem.edu/issues.aspx?article_id=4189, who also names Psalm 46 a "psalm of trust." The heading ("For the choirmaster…") is shown but kept out of the pattern — the stanzas are between the psalm\'s own lines. The structure is proposed, not certain — but reading for it rewards the eye and the ear.',
+    'Psalm 46 is famously calm in the middle of catastrophe. Its own text marks out its shape: three times the word "Selah" interrupts the flow — after 46:4, 46:8, and 46:12 — dividing the psalm into three stanzas. This guide follows the three-stanza reading proposed in [[cite_jacobson46]], which also names Psalm 46 a "psalm of trust." The heading ("For the choirmaster…") is shown but kept out of the pattern — the stanzas are between the psalm\'s own lines. The structure is proposed, not certain — but reading for it rewards the eye and the ear.',
   discourse: {
     ranges: [
       {
@@ -161,8 +166,18 @@ export const psalm46: GrammarHighlightGuide = {
       implication:
         'The refrain closing both outer stanzas is the psalm\'s real center of gravity — not a single verse, but a claim repeated until it settles.',
       caution:
-        'This three-stanza reading follows Rolf A. Jacobson, "Psalm 46: Translation, Structure, and Theology," Word & World 40, no. 3 (Summer 2020) — https://wordandworld.luthersem.edu/issues.aspx?article_id=4189 — who reads the psalm\'s three Selahs as marking three stanzas and characterizes the whole as a "psalm of trust." It is a PROPOSED literary reading, offered here with its source named — not a certain or inspired structure. Treat the stanza colours, the one refrain arc, and the indentation as an invitation to read closely and test the pattern against the text.',
+        'This three-stanza reading follows [[cite_jacobson46]], who reads the psalm\'s three Selahs as marking three stanzas and characterizes the whole as a "psalm of trust." It is a PROPOSED literary reading, offered here with its source named — not a certain or inspired structure. Treat the stanza colours, the one refrain arc, and the indentation as an invitation to read closely and test the pattern against the text.',
     },
   ],
   greekTerms: [],
+  citations: [
+    {
+      id: 'cite_jacobson46',
+      label: '[1]',
+      title:
+        'Rolf A. Jacobson, "Psalm 46: Translation, Structure, and Theology," Word & World 40, no. 3 (Summer 2020): 308–20.',
+      url:
+        'https://wordandworld.luthersem.edu/wp-content/uploads/pdfs/40-3_Sola_Structura%3A_Essays_Honoring_Mark_Thronveit/Psalm%2046%3B%20Translation%2C%20Structure%2C%20and%20Theology.pdf',
+    },
+  ],
 };

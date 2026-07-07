@@ -82,6 +82,27 @@ export const GuidedGreekTermSchema = z.object({
 export type GuidedGreekTerm = z.infer<typeof GuidedGreekTermSchema>;
 
 /**
+ * An external scholarly citation used in guide prose. Rendered as a real
+ * hyperlink wherever the step body/devotionalFrame/implication/caution
+ * references it (by the SAME `[[id]]` marker syntax as a Greek term —
+ * `renderBody` checks `greekTerms` first, then `citations`), so a long
+ * bibliographic citation can be shortened in the flowing prose to just its
+ * `label` (e.g. "[1]"), with the full citation kept as the link's accessible
+ * `title` (shown as a native tooltip) and `url` as the href. Additive; a guide
+ * with no citations is unaffected.
+ */
+export const GuidedCitationSchema = z.object({
+  id: z.string(),
+  /** Short visible marker text rendered as the link itself, e.g. "[1]". */
+  label: z.string(),
+  /** Full bibliographic citation — the link's accessible name/tooltip. */
+  title: z.string(),
+  /** External URL the citation links to. */
+  url: z.string().url(),
+});
+export type GuidedCitation = z.infer<typeof GuidedCitationSchema>;
+
+/**
  * Optional, ADDITIVE link from a step to a contested-syntax issue (§14 of
  * CLAUDE.md): the step card offers "See the alternate reading", which opens the
  * normal alternate-readings panel for that issue. Always a REAL issue id from
@@ -384,6 +405,12 @@ export const GrammarHighlightGuideSchema = z.object({
   debateSummary: GuidedDebateSummarySchema.optional(),
   steps: z.array(GuidedStepSchema).min(1),
   greekTerms: z.array(GuidedGreekTermSchema).default([]),
+  /**
+   * External scholarly citations referenced from prose via `[[id]]` markers.
+   * Optional (unlike `greekTerms`, which every guide literal already sets) so
+   * existing guides need no change — absent means the guide cites nothing.
+   */
+  citations: z.array(GuidedCitationSchema).optional(),
   /**
    * Hidden guides stay registered (openGuide by id still works, and internal
    * references stay valid) but never appear in the guided library picker.

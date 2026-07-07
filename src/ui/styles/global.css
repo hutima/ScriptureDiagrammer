@@ -3860,6 +3860,16 @@ label.field.inline > span { margin-bottom: 0; }
   color: var(--ink-soft, #64748b);
   text-decoration: none;
 }
+/* A citation link ("[1]") — a REAL external hyperlink, so it is styled and
+   behaves like an ordinary link (solid underline, `cursor: pointer` is the
+   browser default for `<a>`), visually distinct from `.guided-term-link`
+   above (which is a button that opens the in-app term panel, not a navigation
+   link) — no bold weight, no dotted underline. */
+.guided-citation-link {
+  color: var(--accent, #b90e31);
+  text-decoration: underline;
+  font-weight: 400;
+}
 /* Grammar-term help — dashed-underline, `cursor: help` buttons wrapping known
    glossary terms ("genitive", "aorist"…) in guided teaching prose. Kept
    visually distinct from `.guided-term-link` above (the Greek word/gloss
