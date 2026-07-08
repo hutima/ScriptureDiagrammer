@@ -70,6 +70,12 @@ export function AboutModal({ onClose }: { onClose: () => void }) {
                 PCA_Ordination_Study
               </a>
             </li>
+            <li>
+              Greek New Testament reader:{' '}
+              <a href="https://hutima.github.io/GNTReader/" target="_blank" rel="noopener noreferrer">
+                GNTReader
+              </a>
+            </li>
           </ul>
 
           <p>
