@@ -21,11 +21,26 @@ so the work is resumable if the session dies.
       If scratchpad is gone on resume, re-fetch per "How to reproduce".
 - [x] **Engine map**: done (see Findings for the anchors that matter).
 - [x] Diagnosis per passage — recorded under Findings below.
-- [ ] Fix Heb 2:8 clash (+ regression test).
-- [ ] Fix Heb 2:10 baseline erasure (+ regression test).
-- [ ] Heb 4:12: move multi coordinator marks to far side of dashed bar
-      (+ regression test); stack/fan shape itself is fine — leave alone.
-- [ ] Full suite + typecheck green; push; final summary.
+- [x] **Fix Heb 2:8 landed** (`227a273`): packSlice drift-tracking — a packed
+      complement no longer inherits a sibling's unsafe slide; ἀνυπότακτον now
+      clears the ὑποτάξαι sub-baseline. Suite 2348 green, byte-identical for
+      healthy docs. Regression test: subagent writing
+      tests/heb-2-8-packing-regression.test.ts + SBLGNT fixture (must fail on
+      pre-fix code); it commits (no push) when done.
+- [x] **Fix Heb 4:12 landed** (pushed after `227a273`): per-join coordinator
+      marks moved to the OPEN side of the fork bar (word fork + open predicate
+      fork + compound predicate); single-on-bar and correlative throat
+      treatments unchanged. All three main καὶ now clear of the fan arms.
+      Overall stack/fan shape kept (deliberate; "leave alone" verdict for the
+      shape itself). No regression test yet — consider adding one for doc 55.
+- [ ] **Heb 2:10 open**: layout emits the ἀρχηγὸν baseline in BOTH editions
+      (verified twice); halo-erasure theory weakened (user's own screenshot
+      shows baselines surviving descenders). A subagent is driving the REAL
+      app (vite dev + playwright, desktop + iPhone viewport) to capture doc
+      22/241 and inspect the live DOM for the baseline element. Next session:
+      check scratchpad/appshots/ or re-run that investigation.
+- [ ] Final: full suite + typecheck green; push; summary; consider PR note
+      that redeploy/PWA-cache-refresh is needed for users to see fixes.
 
 ## How to reproduce (for a fresh session)
 - Passages come from the default **Nestle1904 Lowfat** GNT source; see
