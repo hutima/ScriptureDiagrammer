@@ -65,7 +65,9 @@ function coordinatorSpan(text: string): number {
  * top-to-bottom, glyph bottoms resting on the line), the usual −90 for a
  * left-opening one — mirroring how the clause-spine marks rest on their bar.
  * Correlative and multi-mark placements ignore `open` entirely and keep the
- * legacy treatment (rotate −90 at the x passed, the throat side).
+ * legacy rotation (−90) at the x the caller passed — correlative stacks in the
+ * throat at the member corners, per-join marks on the open side of the bar,
+ * clear of the fan arms sweeping the throat (see the fork call sites).
  */
 export function coordinatorMarks(
   coords: { text: string; nodeId: string }[],

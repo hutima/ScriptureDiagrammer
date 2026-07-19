@@ -227,14 +227,21 @@ export function layoutCoordination(
   // (the way a hand-drawn Kellogg-Reed fork bridges the branches). A SINGLE
   // coordinator rests its text BASELINE on the bar itself, glyphs extending into
   // the OPEN side of the fork (away from the prongs/junction) — the same way the
-  // clause-spine marks rest on their bar (coordinatorMarks handles the rotation);
-  // MULTIPLE marks (a correlative pair, or several per-join conjunctions on one
-  // bar) read better in the throat, so those keep the junction-side offset.
+  // clause-spine marks rest on their bar (coordinatorMarks handles the rotation).
+  // A CORRELATIVE stack rides its members' baselines and keeps the throat-side
+  // offset (its marks sit at the arm CORNERS, where the throat is clear). But
+  // PER-JOIN marks sit at the join gaps' middles — with three or more members
+  // the arms to the outer conjuncts are GUARANTEED to sweep through those gaps
+  // on the throat side (Heb 4:12: five members, every fan arm through every
+  // καὶ), so per-join marks ride the OPEN side of the bar instead, as the
+  // infinitive and preposition forks already do.
   const dashX = openLeft ? junctionX - prong : prong;
   elements.push(line(eid(), dashX, topY, dashX, botY, 'dashed', 'coordination', node.id));
   const coordTx = coords.length === 1
     ? dashX // baseline ON the bar (coordinatorMarks rotates into the open side)
-    : dashX + (openLeft ? 8 : -8); // throat side (toward the junction)
+    : correlative
+      ? dashX + (openLeft ? 8 : -8) // throat side (toward the junction)
+      : dashX + (openLeft ? -9 : 9); // open side (away from the fan arms)
   // Correlative pairs ride the members' baselines; every other conjunction rides
   // the visual middle of the gap between the two members it joins.
   elements.push(
@@ -480,12 +487,14 @@ function layoutOpenPredicateFork(
   elements.push(line(eid(), prong, topY, prong, botY, 'dashed', 'coordination', verbNode.id));
   // A single conjunction rests its baseline ON the bar, glyphs extending into the
   // OPEN side (the arms fan RIGHT — coordinatorMarks rotates it +90 to read
-  // top-to-bottom); multiple marks stay in the throat, just left of the bar.
+  // top-to-bottom); a correlative stack stays in the throat at the arm corners,
+  // but per-join marks ride the OPEN side — the throat is where the converging
+  // prongs run, and with 3+ arms they are guaranteed to cross a mark there.
   elements.push(
     ...coordinatorMarks(
       coords,
       baselines.map((b) => b - centerY),
-      coords.length === 1 ? prong : prong - 7,
+      coords.length === 1 ? prong : correlative ? prong - 7 : prong + 9,
       'right',
     ),
   );
@@ -559,15 +568,20 @@ export function layoutCompoundPredicate(ctx: Ctx, verbNode: SyntaxNode, seen: Se
   // Coordinator on the dashed bar joining the left corners. A single conjunction
   // rests its baseline ON the corner column, glyphs extending into the OPEN side
   // (the arms fan RIGHT — coordinatorMarks rotates it +90 to read top-to-bottom);
-  // multiple marks (correlatives / several per-join) stay in the throat, just
-  // left of the column, where they read better.
+  // a correlative stack stays in the throat at the members' corners, but per-join
+  // marks ride the OPEN side, clear of the converging left prongs.
   const topY = ys[0]! - centerY;
   const botY = ys[ys.length - 1]! - centerY;
   elements.push(line(eid(), prong, topY, prong, botY, 'dashed', 'coordination', verbNode.id));
   // Correlative pairs sit at their members' corners; every other conjunction rides
   // the visual middle of the gap between the two members it joins.
   elements.push(
-    ...coordinatorMarks(coords, ys.map((yv) => yv - centerY), coords.length === 1 ? prong : prong - 7, 'right'),
+    ...coordinatorMarks(
+      coords,
+      ys.map((yv) => yv - centerY),
+      coords.length === 1 ? prong : correlative ? prong - 7 : prong + 9,
+      'right',
+    ),
   );
 
   const lastBottom = botY + members[members.length - 1]!.height;
