@@ -1,8 +1,21 @@
-# RESTART — KR rendering clashes: Hebrews 2:8 / 2:10 / 4:12  (COMPLETE)
+# RESTART — KR rendering clashes: Hebrews 2:8 / 2:10 / 4:12  (REOPENED: 2:10)
 
 Branch: `claude/kr-rendering-clashes-7ic377`
 
-All three reported issues are fixed and pinned by tests. Full suite green
+PR #252 merged (squash f9a06a5); branch RESTARTED from main for a follow-up.
+USER CONFIRMED 2:10 IS STILL BROKEN after the halo fix — new screenshot shows
+the REAL defect: the MAIN-LINE segment between the subject block's drawn y=0
+end (right after ἀρχηγὸν, at the σωτηρίας stem, x≈374) and the
+subject|predicate divider before Ἔπρεπεν (x≈560) is NEVER EMITTED — a hollow
+y=0 strip over the τῆς σωτηρίας αὐτῶν cascade (the Col 1:13 class; see
+drawnZeroEnd machinery clause.ts ~930-1024). Reproduced headlessly in
+scratchpad/repro/heb-2-10.png. The halo layering fix from #252 was real but
+orthogonal. A subagent is fixing: bridge subject zero-end → divider, plus
+fixture tests/fixtures-sblgnt-lowfat-heb-2-10.xml + regression test
+(must fail pre-fix), full suite, commit on this branch. Then: push, PR, merge
+(user standing instruction).
+
+Everything below is the SHIPPED #252 record. Full suite green
 (2355 tests / 133 files), typecheck clean, lint clean (one pre-existing
 warning in an untouched test), production build succeeds.
 
