@@ -32,7 +32,11 @@ const step: GuidedStep = {
 };
 
 function textXs(svg: Element): number[] {
-  return Array.from(svg.querySelectorAll('text')).map((t) => Number(t.getAttribute('x')));
+  // Skip the stroke-only halo underlays — they duplicate each upright word's
+  // coordinates (the glyph ink is the element that carries the word).
+  return Array.from(svg.querySelectorAll('text:not(.kr-text-halo)')).map((t) =>
+    Number(t.getAttribute('x')),
+  );
 }
 
 describe('GuidedStackedDiagram — RTL/LTR flip for glossed English display', () => {

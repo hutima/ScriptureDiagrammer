@@ -213,11 +213,12 @@ export const StaticDiagramFrame = forwardRef<
               partition the live canvas and `layoutToSvg` use, so this static
               frame (the guided stacked diagram, the contested comparison)
               matches them instead of letting a later-emitted spine draw OVER
-              the words. */}
-          {[
-            ...layout.elements.filter((e) => e.kind !== 'text'),
-            ...layout.elements.filter((e) => e.kind === 'text'),
-          ].map((el) => {
+              the words. As there, the halo is a stroke-only underlay and the
+              solid BASELINE strokes are repainted between halo and glyph ink,
+              so deep Greek descenders can't bite through the line their word
+              sits on (Heb 2:10 ἀρχηγὸν). */}
+          {(() => {
+            const renderElement = (el: (typeof layout.elements)[number]) => {
             const hi = highlightForElement(el, diff);
             const hiClass = hi ? ` vc-hi vc-hi-${hi}` : '';
             const relHl = el.relationId ? relationFills?.get(el.relationId) : undefined;
@@ -314,10 +315,9 @@ export const StaticDiagramFrame = forwardRef<
                     rx={3}
                   />
                 )}
-                {/* Upright words carry the white halo (paint-order stroke) the
-                    canvas and SVG export use, masking a line passing behind the
-                    glyphs; a rotated word lies ALONG its own slant, where a halo
-                    would erase the line under its tails. */}
+                {/* The white halo is painted as a separate underlay pass (see
+                    below); a rotated word lies ALONG its own slant, where a halo
+                    would erase the line under its tails, so it never gets one. */}
                 <text
                   className={`kr-text${greek ? '' : ''}`}
                   x={el.x}
@@ -326,15 +326,58 @@ export const StaticDiagramFrame = forwardRef<
                   fontSize={size}
                   fontStyle={el.italic ? 'italic' : undefined}
                   fill={fill}
-                  {...(el.rotate
-                    ? { transform: `rotate(${el.rotate} ${el.x} ${el.y})` }
-                    : { stroke: '#fff', strokeWidth: 3, paintOrder: 'stroke', strokeLinejoin: 'round' })}
+                  {...(el.rotate ? { transform: `rotate(${el.rotate} ${el.x} ${el.y})` } : {})}
                 >
                   {el.text}
                 </text>
               </g>
             );
-          })}
+            };
+            const texts = layout.elements.filter((e) => e.kind === 'text');
+            return (
+              <>
+                {layout.elements.filter((e) => e.kind !== 'text').map(renderElement)}
+                {texts.map((el) =>
+                  el.kind === 'text' && !el.rotate && !el.box ? (
+                    <text
+                      key={`halo-${el.id}`}
+                      className="kr-text-halo"
+                      x={el.x}
+                      y={el.y}
+                      textAnchor={el.anchor}
+                      fontSize={el.small ? 13 : 18}
+                      fontStyle={el.italic ? 'italic' : undefined}
+                      fill="none"
+                      stroke="#fff"
+                      strokeWidth={3}
+                      strokeLinejoin="round"
+                      pointerEvents="none"
+                      aria-hidden
+                    >
+                      {el.text}
+                    </text>
+                  ) : null,
+                )}
+                {layout.elements.map((el) =>
+                  el.kind === 'line' && el.role === 'baseline' && el.style === 'solid' ? (
+                    <line
+                      key={`bl-${el.id}`}
+                      className={`kr-line${highlightForElement(el, diff) ? ` vc-hi vc-hi-${highlightForElement(el, diff)}` : ''}`}
+                      x1={el.x1}
+                      y1={el.y1}
+                      x2={el.x2}
+                      y2={el.y2}
+                      stroke={el.color ?? INK}
+                      strokeWidth={1.6}
+                      strokeLinecap="round"
+                      pointerEvents="none"
+                    />
+                  ) : null,
+                )}
+                {texts.map(renderElement)}
+              </>
+            );
+          })()}
         </svg>
       </div>
     </div>

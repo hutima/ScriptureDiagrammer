@@ -28,17 +28,36 @@ describe('SVG renderer', () => {
     expect(svg).toContain('λόγος');
   });
 
-  it('draws every word AFTER all lines so its halo masks any crossing line', () => {
-    // Words carry a paper-coloured halo (paint-order: stroke) that only masks
-    // lines drawn BEFORE them. The serializer reorders so all <text> follow all
-    // <line>/<path>, keeping a word legible even where a line crosses it.
+  it('layers words over lines: halos, then repainted baselines, then glyph ink', () => {
+    // A word's paper-coloured halo must mask lines drawn BEFORE it (the dashed
+    // verb spine) but must never erase the baseline the word SITS ON — deep
+    // Greek descenders reach past the 6px textRise, and a paint-order halo bit
+    // through the baseline stroke (Heb 2:10 ἀρχηγὸν). The serializer emits:
+    // all structural lines/paths, then stroke-only halo underlays, then the
+    // solid baseline strokes REPAINTED, then every word's ink on top.
     const doc = cloneSample('doc_sample_phil_1_1_2_grc')!;
     const svg = layoutToSvg(layoutDocument(doc, doc.layoutHints));
-    const firstText = svg.indexOf('<text');
-    const lastLine = svg.lastIndexOf('<line');
-    const lastPath = svg.lastIndexOf('<path');
-    expect(firstText).toBeGreaterThan(-1);
-    expect(firstText).toBeGreaterThan(Math.max(lastLine, lastPath));
+    const tags = [...svg.matchAll(/<(text|line|path)[^>]*>/g)].map((m) => m[0]);
+    const isHalo = (t: string) => t.startsWith('<text') && t.includes('fill="none"');
+    const isInk = (t: string) => t.startsWith('<text') && !t.includes('fill="none"');
+    const isStroke = (t: string) => !t.startsWith('<text');
+    const firstHalo = tags.findIndex(isHalo);
+    const firstInk = tags.findIndex(isInk);
+    const lastStroke = tags.length - 1 - [...tags].reverse().findIndex(isStroke);
+    expect(firstHalo).toBeGreaterThan(-1);
+    expect(firstInk).toBeGreaterThan(-1);
+    // Every word's ink is painted after every line — including the repainted
+    // baselines, which themselves come after the halo underlays.
+    expect(firstInk).toBeGreaterThan(lastStroke);
+    expect(lastStroke).toBeGreaterThan(firstHalo);
+    // The strokes after the first halo are exactly the repainted solid
+    // baselines: solid (no dasharray) horizontal lines.
+    const repainted = tags.slice(firstHalo).filter(isStroke);
+    expect(repainted.length).toBeGreaterThan(0);
+    for (const t of repainted) {
+      expect(t.startsWith('<line')).toBe(true);
+      expect(t).not.toContain('stroke-dasharray');
+    }
   });
 
   it('paints a word-highlight swash behind the text, under all lines', () => {
