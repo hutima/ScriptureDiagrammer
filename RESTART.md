@@ -1,4 +1,4 @@
-# RESTART — KR rendering clashes: Hebrews 2:8 / 2:10 / 4:12  (REOPENED: 2:10)
+# RESTART — KR rendering clashes: Hebrews 2:8 / 2:10 / 4:12  (COMPLETE — incl. 2:10 follow-up)
 
 Branch: `claude/kr-rendering-clashes-7ic377`
 
@@ -10,10 +10,12 @@ subject|predicate divider before Ἔπρεπεν (x≈560) is NEVER EMITTED — 
 y=0 strip over the τῆς σωτηρίας αὐτῶν cascade (the Col 1:13 class; see
 drawnZeroEnd machinery clause.ts ~930-1024). Reproduced headlessly in
 scratchpad/repro/heb-2-10.png. The halo layering fix from #252 was real but
-orthogonal. A subagent is fixing: bridge subject zero-end → divider, plus
-fixture tests/fixtures-sblgnt-lowfat-heb-2-10.xml + regression test
-(must fail pre-fix), full suite, commit on this branch. Then: push, PR, merge
-(user standing instruction).
+orthogonal. FIXED in `3a06f2f`: the subject→divider bridge (clause.ts ~691) was gated on
+`wordRight < divX`, but a clause-valued subject's wordRight counts the hollow
+strip over its below-hanging cascade, so it never fired. The bridge now starts
+from the subject's DRAWN y=0 end (drawnZeroEnd idiom; fork subjects exempt,
+tuck honoured). Regression test fails pre-fix with the exact 195.6px hole.
+Suite 2357/134 green, zero snapshot churn, typecheck + build clean.
 
 Everything below is the SHIPPED #252 record. Full suite green
 (2355 tests / 133 files), typecheck clean, lint clean (one pre-existing
