@@ -691,8 +691,26 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
     // A subject with diagonal modifiers whose word overhangs its slant (e.g. "οἱ
     // λίθοι οὗτοι") makes the block wider than its baseline reaches, leaving the
     // subject floating short of the divider — bridge the gap so the line connects.
-    if (subjectBlock.wordRight < divX - 0.5) {
-      elements.push(line(eid(), subjectBlock.wordRight, 0, divX, 0, 'solid', 'baseline'));
+    // A CLAUSE-valued subject laid out inline (an infinitival subject — Heb 2:10
+    // "τελειῶσαι … τὸν ἀρχηγὸν τῆς σωτηρίας αὐτῶν") reports a wordRight that
+    // counts the hollow y = 0 strip over its deep below-hanging cascade (τῆς
+    // σωτηρίας αὐτῶν), so start the bridge from where its main line is ACTUALLY
+    // drawn (only the subject's elements are in `elements` here) — the same
+    // measure the complement bridges use. A compound (fork) subject is exempt,
+    // like the complement bridges' open-fork gate: its open mouth replaces the
+    // line and the divider meets it at the junction.
+    const subjectIsFork = !!subjectNode && isWordCoordination(ctx, subjectNode);
+    let subjDrawnZeroEnd = 0;
+    for (const el of elements) {
+      if (el.kind === 'line' && Math.abs(el.y1) <= 0.01 && Math.abs(el.y2) <= 0.01) {
+        subjDrawnZeroEnd = Math.max(subjDrawnZeroEnd, el.x1, el.x2);
+      }
+    }
+    const bridgeFrom = subjectIsFork
+      ? subjectBlock.wordRight
+      : Math.min(subjectBlock.wordRight, subjDrawnZeroEnd);
+    if (bridgeFrom < divX - 0.5) {
+      elements.push(line(eid(), bridgeFrom, 0, divX, 0, 'solid', 'baseline'));
     }
     elements.push(
       line(eid(), divX, -LAYOUT.dividerUp, divX, LAYOUT.dividerDown, 'solid', 'divider',
