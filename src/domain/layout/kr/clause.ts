@@ -963,20 +963,36 @@ export function layoutClause(ctx: Ctx, clause: SyntaxNode, seen: Set<string>): B
   // a complement never starts before `xAfterVerb`, its no-cascade home.
   const isMainLine = (el: DiagramElement): boolean =>
     el.kind === 'line' && Math.abs(el.y1) <= 0.01 && Math.abs(el.y2) <= 0.01;
+  // Accumulated deficit of the baseline cursor vs its never-packed (classic)
+  // position. Each packed slice pulls the cursor left (`x -= shift`), so the
+  // NEXT slice is DRAWN already slid by that amount — a position proven safe
+  // only for the previous slice's footprint, not this one's. A follower whose
+  // own hanging content reaches deeper (Heb 2:8 "οὐδὲν ἀφῆκεν αὐτῷ
+  // ἀνυπότακτον": αὐτῷ's rotated ἀνυπότακτον diagonal over the ἐν τῷ ὑποτάξαι
+  // sub-baseline) starts out already colliding, and `reclaim` treats a clash
+  // that exists at the start position as grandfathered adjacency — it can only
+  // tighten, never repair. So each slice's slide is computed from its TRUE
+  // classic position instead: healthy slices land exactly where they always
+  // did (reclaim is translation-covariant), while an over-inherited slide is
+  // pushed back right just far enough to clear — never past classic.
+  let packedDrift = 0;
   const packSlice = (lenBefore: number, classicSepX: number): number => {
     if (!ctx.pack) return 0;
     const slice = elements.slice(lenBefore);
     const packer = new BandPacker();
     packer.occupy(elements.slice(0, lenBefore).filter((el) => !isMainLine(el)));
-    const shift = packer.reclaim(slice, classicSepX - xAfterVerb);
-    if (shift > 0) {
-      ctx.packStats.shifted++;
-      elements.splice(
-        lenBefore,
-        slice.length,
-        ...translate({ width: 0, height: 0, elements: slice, wordLeft: 0, wordRight: 0 }, -shift, 0),
-      );
-    }
+    const asBlock = { width: 0, height: 0, elements: slice, wordLeft: 0, wordRight: 0 };
+    const classicSlice = packedDrift > 0 ? translate(asBlock, packedDrift, 0) : slice;
+    const classicShift = packer.reclaim(classicSlice, classicSepX + packedDrift - xAfterVerb);
+    const shift = classicShift - packedDrift;
+    packedDrift = classicShift;
+    if (Math.abs(shift) < 0.01) return 0;
+    ctx.packStats.shifted++;
+    elements.splice(
+      lenBefore,
+      slice.length,
+      ...translate({ width: 0, height: 0, elements: slice, wordLeft: 0, wordRight: 0 }, -shift, 0),
+    );
     return shift;
   };
 

@@ -69,15 +69,22 @@ function elementToSvg(el: DiagramElement): string {
     const rect = `<rect x="${r(bx)}" y="${r(by)}" width="${r(bw)}" height="${r(bh)}" rx="4" fill="${THEME.paper}" stroke="${fill}" stroke-width="1" />`;
     return `${rect}<text x="${r(el.x)}" y="${r(el.y)}" text-anchor="${el.anchor}" font-size="${size}" fill="${fill}"${style}${transform}>${escapeXml(el.text)}</text>`;
   }
-  // A paper-coloured halo painted UNDER the glyphs masks a line crossing behind a
-  // word (e.g. the dashed verb spine through the verbs), so words stay legible
-  // without gapping every line. ONLY for upright words: a diagonal word lies
-  // ALONG its own slant, so a halo there would erase the slant under its tails
-  // (ς, γ). Invisible over the paper-coloured page.
-  const halo = el.rotate
-    ? ''
-    : ` stroke="${THEME.paper}" stroke-width="3" paint-order="stroke" stroke-linejoin="round"`;
-  return `<text x="${r(el.x)}" y="${r(el.y)}" text-anchor="${el.anchor}" font-size="${size}" fill="${fill}"${halo}${style}${transform}>${escapeXml(el.text)}</text>`;
+  return `<text x="${r(el.x)}" y="${r(el.y)}" text-anchor="${el.anchor}" font-size="${size}" fill="${fill}"${style}${transform}>${escapeXml(el.text)}</text>`;
+}
+
+/**
+ * A paper-coloured halo painted UNDER the glyphs masks a line crossing behind a
+ * word (e.g. the dashed verb spine through the verbs), so words stay legible
+ * without gapping every line. ONLY for upright words: a diagonal word lies
+ * ALONG its own slant, so a halo there would erase the slant under its tails
+ * (ς, γ). Invisible over the paper-coloured page. Emitted as a separate
+ * stroke-only underlay (not paint-order on the glyph element) so the word's
+ * own BASELINE can be repainted between halo and ink — see layoutToSvg.
+ */
+function haloUnderlaySvg(el: TextElement): string {
+  const size = el.small ? THEME.smallFontSize : THEME.fontSize;
+  const style = el.italic ? ' font-style="italic"' : '';
+  return `<text x="${r(el.x)}" y="${r(el.y)}" text-anchor="${el.anchor}" font-size="${size}" fill="none" stroke="${THEME.paper}" stroke-width="3" stroke-linejoin="round"${style}>${escapeXml(el.text)}</text>`;
 }
 
 function r(n: number): number {
@@ -154,8 +161,23 @@ export function layoutToSvg(layout: DiagramLayout, opts: SvgOptions = {}): strin
       const swash = e.relationId ? hl?.relationFills?.get(e.relationId) : undefined;
       return (swash ? relationSwashSvg(e, swash) : '') + elementToSvg(e);
     });
+  // Layered word painting: halo underlays, then the solid BASELINE strokes
+  // repainted above the halos, then the glyph ink. The halo must mask lines
+  // crossing BEHIND a word (the dashed verb spine) but must never erase the
+  // line the word SITS ON — with deep-descender Greek faces (Gentium's
+  // ρ/χ/γ/η tails and iota subscripts reach ~6.4px below the glyph baseline
+  // at font-size 18, past the 6px textRise) a descender row's halo bit clean
+  // through the 1.6px baseline stroke (Heb 2:10 ἀρχηγὸν — four consecutive
+  // descenders — read as a missing baseline on iOS). Repainting the baseline
+  // between halo and ink lets descenders cross it like ink on ruled paper.
+  const halos = layout.elements
+    .filter((e): e is TextElement => e.kind === 'text' && !e.rotate && !e.box)
+    .map(haloUnderlaySvg);
+  const baselines = layout.elements
+    .filter((e) => e.kind === 'line' && e.role === 'baseline' && e.style === 'solid')
+    .map(elementToSvg);
   const words = layout.elements.filter((e) => e.kind === 'text').map(elementToSvg);
-  const body = [...marks, ...strokes, ...words].join('\n  ');
+  const body = [...marks, ...strokes, ...halos, ...baselines, ...words].join('\n  ');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${r(width)}" height="${r(height)}" viewBox="0 0 ${r(width)} ${r(height)}"${fontAttr}>
   ${bg}
   <g transform="translate(${pad},${pad})">

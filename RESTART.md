@@ -1,30 +1,50 @@
-# RESTART — guided discourse: Psalm 46 / Ephesians / Acts  (COMPLETE)
+# RESTART — KR rendering clashes: Hebrews 2:8 / 2:10 / 4:12  (COMPLETE)
 
-Branch: `claude/guided-discourse-psalm-acts-a7yvgf`
+Branch: `claude/kr-rendering-clashes-7ic377`
 
-All planned work is done and committed. Full suite green (2347 tests), typecheck
-clean, `guided:check` passes (22 guides), production build succeeds.
+All three reported issues are fixed and pinned by tests. Full suite green
+(2355 tests / 133 files), typecheck clean, lint clean (one pre-existing
+warning in an untouched test), production build succeeds.
+
+Important context discovered on the way: the app's default GNT is the
+**SBLGNT lowfat** edition (`src/io/gnt-sblgnt.ts`, `sblgntDialect`) —
+`src/io/gnt.ts` (Nestle1904) is legacy. Diagnose against SBLGNT.
 
 ## What shipped (commits on this branch)
-1. `2ce21ca` infra — `seededIndents`/`seededLabels` on GuidedDiscourseSpec +
-   opt-in `sectionLabels` in `mergeDiscourseDocuments` + check-script validation + CSS.
-2. `5374e70` Psalm 46 guide — corrected for BSB **Hebrew versification**
-   (46:1 = superscription; psalm proper 46:2–46:12; closing refrain A′ at 46:12).
-   Superscription shown, labelled "Superscription — not part of the chiasm", no
-   arc/colour. Arcs A 46:2↔46:12, B 46:3↔46:11, C 46:7↔46:9; centre 46:8 highlighted.
-3. `4c962e2` Ephesians 2:12–19 — seeded indent staircase (0-1-2-3-3-2-1-0).
-4. `464b97a` Acts 2:39 — Genesis-first ordering; each range renders as a titled
-   section (heading + gap); step-1 prose updated.
-5. `fae78d1` **Blank/comment rows** (user request) — `kind:'note'` unit:
-   `addDiscourseCommentRow` mutation, store `addCommentRow`, toolbar "+ Comment row",
-   muted-italic/blank rendering; delete-prune fixed so note rows survive unrelated
-   deletions. Reuses the whole existing unit pipeline (label/indent/delete/diff/undo).
-6. `c7d5c71` tests (comment-rows + Psalm-46 e2e + Acts order fix) + regenerated `guided-text.md`.
+1. `227a273` **Heb 2:8** (doc 19/241) — packSlice drift-tracking: a packed
+   baseline complement no longer inherits a sibling's slide that is unsafe for
+   its own deeper footprint (reclaim treats a pre-existing clash as
+   grandfathered and can only tighten, never repair). The rotated ἀνυπότακτον
+   diagonal under αὐτῷ was drawn through the ἐν τῷ ὑποτάξαι sub-baseline and
+   the word πάντα; it now lands clear. Healthy documents are byte-identical
+   (reclaim is translation-covariant).
+2. `75a177b` **Heb 4:12** (doc 55/241) — per-join coordinator marks ride the
+   OPEN side of a fork's dashed bar (word fork, open predicate fork, compound
+   predicate): with 3+ members the fan arms sweep the whole throat, so throat
+   marks are guaranteed strikes (all three καὶ were crossed). Single-on-bar
+   and correlative treatments unchanged. The 5-member stack/fan shape itself
+   is the convention and was deliberately left alone.
+3. `bc75cef` + `5fc27d6` regression tests for both, each verified to FAIL on
+   the pre-fix code (fixtures: tests/fixtures-sblgnt-lowfat-heb-{2-8,4-12}.xml).
+4. (final commit) **Heb 2:10** — the baseline under ἀρχηγὸν was always
+   EMITTED (verified in layout output, SVG markup, and the live app DOM on
+   desktop + iPhone viewports); what erased it visually is the word's white
+   halo: with real Greek serifs (Gentium Plus ≈ 6.4px descender ink at
+   font-size 18, past the 6px textRise) a descender row's halo bit through
+   the 1.6px baseline stroke — worst case exactly ἀρχηγὸν (ρχηγ in a row),
+   fatal on iOS WebKit. All three renderers (svg.ts serializer,
+   DiagramCanvas, StaticDiagramFrame) now paint in layers: strokes → stroke-
+   only halo underlays → solid baseline-role lines REPAINTED → glyph ink.
+   Verified with injected Gentium: stroke band 100% continuous after (white
+   notches up to 3.3px before). render.test.ts pins the layer order.
 
 ## Notes for follow-up
-- No PR opened (user did not request one). If a PR is made + merged, this file can be removed.
-- Live-browser screenshots not captured; rendering verified via e2e tests that
-  assert the exact rendered data model + CSS classes.
-
-## Checks
-`npm run typecheck` · `npm run guided:check` · `npm test` · `npm run build` · `npm run guided:text:export`
+- A naive `textRise` 6→8 lift was tried and REVERTED: it churned 208
+  characterization snapshots and broke layout.spine-through-words (glyph tops
+  reached stem ends at −22). The layered repaint fixes the symptom without
+  moving any geometry.
+- Latent nicety not addressed: `measure.ts` models descent as 4px; real
+  faces reach ~6.4px. Only matters if some future feature needs true ink
+  extents.
+- Users on the installed PWA may need a service-worker refresh before they
+  see the fixes after the Pages deploy.

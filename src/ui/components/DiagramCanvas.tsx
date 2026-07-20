@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useEditorStore, useGuidedStore } from '@/state';
 import { getGuide } from '@/data/grammarHighlights';
 import { focusBounds, guidedHighlightMaps, resolveFocusIds } from '@/ui/guided/focus';
-import { layoutForMode, DIAGRAM_MODES, isEditableMode, DEFAULT_EDIT_MODE } from '@/domain/layout';
+import { layoutForMode, DIAGRAM_MODES, isEditableMode, DEFAULT_EDIT_MODE, type DiagramElement } from '@/domain/layout';
 import { measureText, SMALL_FONT, BASE_FONT } from '@/domain/layout/measure';
 import { dashFor, toneColor } from '@/domain/render';
 import { describeFunction, getNode, childRelations, lookupGloss, glossDoc, impliedSubjectVerbPairs, docDirection } from '@/domain/model';
@@ -1331,12 +1331,16 @@ export function DiagramCanvas() {
             {/* Draw structural lines/curves first, then every word on top, so a
                 word's white halo masks ANY line crossing it (not only lines emitted
                 before it — e.g. an apposition stem the layout pushes after its
-                word). Stable partition preserves order within each layer, and
-                exports do the same in `layoutToSvg`, so paper still matches canvas. */}
-            {[
-              ...layout.elements.filter((e) => e.kind !== 'text'),
-              ...layout.elements.filter((e) => e.kind === 'text'),
-            ].map((el) => {
+                word). The halo is a separate stroke-only underlay, and the solid
+                BASELINE strokes are repainted between halo and glyph ink: deep
+                Greek descenders (Gentium's ρ/χ/γ/η tails, iota subscripts) reach
+                past the 6px textRise, and a paint-order halo bit clean through
+                the baseline the word sits on (Heb 2:10 ἀρχηγὸν read as a missing
+                line on iOS). Layered, the descenders cross the line like ink on
+                ruled paper. Exports do the same in `layoutToSvg`, so paper still
+                matches canvas. */}
+            {(() => {
+              const renderElement = (el: DiagramElement) => {
               if (el.kind === 'line') {
                 const sel = isSelected(el.nodeId, el.relationId);
                 const dash = dashFor(el.style);
@@ -1487,11 +1491,9 @@ export function DiagramCanvas() {
                     fontSize={el.small ? 13 : 18}
                     fontStyle={el.italic ? 'italic' : undefined}
                     fill={fill}
-                    {...(el.box
-                      ? {}
-                      : el.rotate
-                        ? { transform: `rotate(${el.rotate} ${el.x} ${el.y})` }
-                        : { stroke: '#fff', strokeWidth: 3, paintOrder: 'stroke', strokeLinejoin: 'round' })}
+                    {...(!el.box && el.rotate
+                      ? { transform: `rotate(${el.rotate} ${el.x} ${el.y})` }
+                      : {})}
                     onMouseEnter={() => el.nodeId && onNodeHover(el.nodeId)}
                     onMouseLeave={() => el.nodeId && onNodeHover(undefined)}
                     onClick={onLabelClick}
@@ -1510,7 +1512,47 @@ export function DiagramCanvas() {
                   </text>
                 </g>
               );
-            })}
+              };
+              const texts = layout.elements.filter((e) => e.kind === 'text');
+              return (
+                <>
+                  {layout.elements.filter((e) => e.kind !== 'text').map(renderElement)}
+                  {texts
+                    .filter((e) => e.kind === 'text' && !e.rotate && !e.box)
+                    .map((el) =>
+                      el.kind === 'text' ? (
+                        <text
+                          key={`halo-${el.id}`}
+                          className="kr-text-halo"
+                          x={el.x} y={el.y}
+                          textAnchor={el.anchor}
+                          fontSize={el.small ? 13 : 18}
+                          fontStyle={el.italic ? 'italic' : undefined}
+                          fill="none" stroke="#fff" strokeWidth={3} strokeLinejoin="round"
+                          pointerEvents="none" aria-hidden
+                        >
+                          {el.text}
+                        </text>
+                      ) : null,
+                    )}
+                  {layout.elements
+                    .filter((e) => e.kind === 'line' && e.role === 'baseline' && e.style === 'solid')
+                    .map((el) =>
+                      el.kind === 'line' ? (
+                        <line
+                          key={`bl-${el.id}`}
+                          className={`kr-line${isSelected(el.nodeId, el.relationId) ? ' selected' : ''}`}
+                          x1={el.x1} y1={el.y1} x2={el.x2} y2={el.y2}
+                          stroke={el.tentative ? TENTATIVE : el.color ?? INK}
+                          strokeWidth={1.6} strokeLinecap="round"
+                          pointerEvents="none"
+                        />
+                      ) : null,
+                    )}
+                  {texts.map(renderElement)}
+                </>
+              );
+            })()}
             {selectedRelEndpoints.map((e, i) => (
               <g key={`ep${i}`} className="kr-endpoints" pointerEvents="none">
                 <circle className="kr-endpoint" cx={e.x1} cy={e.y1} r={4.5} />
